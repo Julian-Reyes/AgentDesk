@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { as, call, inTx, MAYA } from "../helpers.ts";
 
 describe("search_products", () => {
-  it("finds 2-person tents under $200, cheapest constraints enforced in code", () =>
+  it("finds 2-person tents under $200 by the price paid today (sale included)", () =>
     inTx(async (tx) => {
       const r = (await call(tx, "search_products", {
         query: "tent",
@@ -10,8 +10,45 @@ describe("search_products", () => {
       })) as any;
       expect(r.ok).toBe(true);
       const ids = r.data.products.map((p: any) => p.id).sort();
-      expect(ids).toEqual(["tent-canopy-2", "tent-creek-2"]);
-      expect(r.data.products[0].activeDeals).toContain("Tent Sale: 20% off all tents");
+      // Ridge 2 is $249.00 list but $199.20 during the 20% tent sale, so it qualifies.
+      expect(ids).toEqual(["tent-canopy-2", "tent-creek-2", "tent-ridge-2"]);
+      const ridge = r.data.products.find((p: any) => p.id === "tent-ridge-2");
+      expect(ridge).toMatchObject({ listPrice: "$249.00", currentPrice: "$199.20" });
+      expect(ridge).not.toHaveProperty("price");
+      expect(ridge.activeDeals).toContain("Tent Sale: 20% off all tents");
+    }));
+
+  it("maxPrice is inclusive at the current price, to the cent", () =>
+    inTx(async (tx) => {
+      const ids = async (maxPrice: number) =>
+        ((await call(tx, "search_products", { filters: { category: "tents", maxPrice } })) as any).data.products.map((p: any) => p.id);
+      expect(await ids(199.2)).toContain("tent-ridge-2");
+      expect(await ids(199.19)).not.toContain("tent-ridge-2");
+    }));
+
+  it("minPrice also uses the current price", () =>
+    inTx(async (tx) => {
+      // Ridge 2 is $249 list, but only $199.20 today, so it's excluded from "$200 and up".
+      const r = (await call(tx, "search_products", { filters: { category: "tents", minPrice: 200 } })) as any;
+      expect(r.data.products.map((p: any) => p.id)).not.toContain("tent-ridge-2");
+      expect(r.data.products.map((p: any) => p.id)).toContain("tent-basecamp-4"); // $279 → $223.20
+    }));
+
+  it("products not on sale have currentPrice equal to listPrice (a single headlamp gets no buy-2-get-1 discount)", () =>
+    inTx(async (tx) => {
+      const r = (await call(tx, "search_products", { query: "glowworm 300" })) as any;
+      expect(r.data.products[0]).toMatchObject({ id: "lamp-glowworm-300", listPrice: "$29.00", currentPrice: "$29.00" });
+      const stove = (await call(tx, "search_products", { query: "quickboil" })) as any;
+      expect(stove.data.products[0]).toMatchObject({ listPrice: "$129.00", currentPrice: "$129.00" }); // stove sale has ended
+    }));
+
+  it("currentPrice matches quote_price for one unit", () =>
+    inTx(async (tx) => {
+      const search = (await call(tx, "search_products", { filters: { category: "tents" }, limit: 20 })) as any;
+      for (const p of search.data.products) {
+        const q = (await call(tx, "quote_price", { cart: [{ productId: p.id, qty: 1 }] })) as any;
+        expect(q.data.lines[0].lineTotal, p.id).toBe(p.currentPrice);
+      }
     }));
 
   it("matches keywords across name, category and description", () =>

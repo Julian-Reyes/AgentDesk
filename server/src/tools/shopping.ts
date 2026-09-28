@@ -22,7 +22,7 @@ const STOPWORDS = new Set(["a", "an", "the", "for", "and", "or", "with", "of", "
 export const searchProducts = defineTool({
   name: "search_products",
   description:
-    "Search the catalog by keywords and/or filters. Returns matching products with list prices (before sales) and availability. Prices in filters are in dollars.",
+    "Search the catalog by keywords and/or filters. Each product has listPrice (regular price) and currentPrice (what one unit costs today, after any active sale). minPrice/maxPrice filter on currentPrice, in dollars. When they differ, you can say e.g. 'was $249.00, now $199.20'. For a cart total (multi-buy deals, coupons, shipping), use quote_price.",
   agents: ["shopping"],
   args: z.object({
     query: z.string().max(200).default(""),
@@ -51,6 +51,13 @@ export const searchProducts = defineTool({
       .leftJoin(s.productVariants, eq(s.productVariants.productId, s.products.id))
       .groupBy(s.products.id);
 
+    // "Under $200" means what the customer pays today, so price filters use the
+    // current price: one unit run through the same pricing engine as quote_price.
+    // (Buy-2-get-1 doesn't lower a single unit's price, so it isn't reflected here.)
+    const { active } = await loadActivePromotions(ctx.db, ctx.now);
+    const currentPriceCents = (product: typeof s.products.$inferSelect) =>
+      applyAutomaticPromotions([{ product, qty: 1 }], active)[0]!.lineTotalCents;
+
     const tokens = query
       .toLowerCase()
       .split(/[^a-z0-9-]+/)
@@ -61,9 +68,10 @@ export const searchProducts = defineTool({
     const matches = rows
       .filter(({ product: p, stock }) => {
         const sp = p.specs;
+        const price = currentPriceCents(p);
         if (f.category && p.category !== f.category) return false;
-        if (f.minPrice !== undefined && p.priceCents < toCents(f.minPrice)) return false;
-        if (f.maxPrice !== undefined && p.priceCents > toCents(f.maxPrice)) return false;
+        if (f.minPrice !== undefined && price < toCents(f.minPrice)) return false;
+        if (f.maxPrice !== undefined && price > toCents(f.maxPrice)) return false;
         if (f.minCapacityPersons !== undefined && (sp.capacityPersons ?? 0) < f.minCapacityPersons) return false;
         if (f.maxWeightGrams !== undefined && (sp.weightGrams ?? Infinity) > f.maxWeightGrams) return false;
         if (f.maxTempRatingC !== undefined && (sp.tempRatingC ?? Infinity) > f.maxTempRatingC) return false;
@@ -81,14 +89,18 @@ export const searchProducts = defineTool({
       .filter((r) => tokens.length === 0 || r.score > 0)
       .sort((a, b) => b.score - a.score || b.product.rating - a.product.rating || a.product.id.localeCompare(b.product.id));
 
-    const { active } = await loadActivePromotions(ctx.db, ctx.now);
     return ok({
       totalMatches: matches.length,
-      products: matches.slice(0, limit).map(({ product, stock }) => ({
-        ...presentProduct(product, stock),
-        activeDeals: dealsFor(product.category, active),
-      })),
-      note: "Prices are list prices. Use quote_price for the final price including sales and coupons.",
+      products: matches.slice(0, limit).map(({ product, stock }) => {
+        const { price: _list, ...rest } = presentProduct(product, stock);
+        return {
+          ...rest,
+          listPrice: formatCents(product.priceCents),
+          currentPrice: formatCents(currentPriceCents(product)),
+          activeDeals: dealsFor(product.category, active),
+        };
+      }),
+      note: "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping.",
     });
   },
 });

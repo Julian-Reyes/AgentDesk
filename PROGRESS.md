@@ -14,7 +14,7 @@
   - support: `find_customer`, `get_order`, `get_tracking`, `check_return_eligibility`, `issue_refund`, `issue_goodwill_coupon`, `escalate_to_human`
   - shared: `get_policy`, `reply`
 - **Try-tool CLI:** `npm run tool -- list`, or e.g. `npm run tool -- get_order '{"orderId":1042}' --as maya.chen@example.com`.
-- **Tests:** 108 passing (`npm test`): 42 pure policy tests, 55 tool tests against the real Postgres test DB (each wrapped in a rolled-back transaction), and 11 seed tests (determinism, totals, dates, historical pricing). A sanity check confirmed the tests catch breakage: raising the refund limit and removing the ownership check made 5 tests fail.
+- **Tests:** 112 passing (`npm test`): 42 pure policy tests, 59 tool tests against the real Postgres test DB (each wrapped in a rolled-back transaction), and 11 seed tests (determinism, totals, dates, historical pricing). A sanity check confirmed the tests catch breakage: raising the refund limit and removing the ownership check made 5 tests fail.
 
 ### Key decisions (and why)
 1. **Money is in integer cents, formatted strings go to the model.** Floats drift, and models mis-convert cents. Tools accept dollars (`amount: 29.99`) and return `"$29.99"`, so the model never does any arithmetic.
@@ -34,7 +34,8 @@
 - A `late` refund is capped at shipping minus *all* earlier refunds on the order, which is conservative.
 - Tools mutate the DB (refunds, approvals, coupons, escalations). **M3 eval runs must reset state per conversation** (reseed, or run each conversation in a rolled-back transaction).
 - **Decision: price limits mean the price the customer actually pays.** For questions like "best 2-person tent under $200", compare against the sale price (after automatic promotions), not the list price. Eval cases and graders follow this rule.
-  - ⚠️ **Open, fix before M3:** `search_products`' `minPrice`/`maxPrice` filters still use **list** price, and the test "finds 2-person tents under $200" encodes that. Under the rule above, the Ridge 2 ($249.00 list, $199.20 during the tent sale) should also match. The filter should compare against the sale price, and the test should change with it.
+  - ✅ `search_products` follows this rule (see "search_products uses the current price" below). So "2-person tent under $200" includes the Ridge 2 at $199.20 during the tent sale.
+  - ⚠️ **Open:** `get_product` still returns a single `price` (the list price). For consistency it should probably also return `listPrice`/`currentPrice`. Not changed yet.
 - `npm audit` reports 4 moderate issues in an old esbuild bundled inside drizzle-kit (dev only; the risk affects esbuild's dev server, which we never run). `audit fix --force` would downgrade drizzle-kit to 0.18, so it's left as is.
 - Approving or rejecting items in the approvals queue (and creating the refund or coupon on approval) belongs to M4.
 
@@ -49,6 +50,9 @@ npm test && npm run typecheck
 
 ### Fix after M1 (2026-09-28): seeded orders ignored promotions
 Seeded orders were priced at list price even when placed during a sale. For example, #1042 (Canopy 2 tent, placed Sep 12 during the Sep 5 – Oct 5 tent sale) was charged $189.00 instead of $151.20, and 16 orders in total were overcharged (13 during the tent sale, 3 during the stove sale). Seed orders are now priced by the same `quote()` engine as live quotes, using the promotions active at each order's `placedAt` (the shared `activePromotionsAt()` in `server/src/policy/promotions.ts`, also used by the tools). Refunds for returned orders now equal what was paid for the goods (after discounts) rather than the list-price subtotal. New seed tests check every stored total against `quote()` using the DB rows, check #1042's exact amounts, and check discount presence inside and outside the sale windows. Four of them fail against the old list-price seeding. The 21 orders in the headlamp buy-2-get-1 window correctly have no discount, since none has more than 2 headlamps.
+
+### Change after M1 (2026-09-28): search_products uses the current price
+Spec change: `minPrice`/`maxPrice` now filter on the **current price**, i.e. what one unit costs today after any active category sale, computed by running one unit through the same pricing engine as `quote_price`. Each result returns `listPrice` and `currentPrice` (the old single `price` field is gone), so the agent can say "was $249.00, now $199.20". The tool description says this. Buy-2-get-1 isn't reflected in `currentPrice`, because it doesn't lower a single unit's price; `quote_price` handles it for carts. The "under $200" test was updated deliberately to include the Ridge 2 at $199.20; this is a spec change, not a weakened test. New tests cover: the filter boundary to the cent ($199.20 in, $199.19 out), `minPrice` using the current price, products not on sale (currentPrice = listPrice), and `currentPrice` matching `quote_price` for one unit of every tent. Switching the filter back to list price makes 3 of them fail.
 
 ## Next: Milestone 2 — Agent loop
 The provider client (cloud + Ollama), the hand-written loop, the router + 2 agents with handoffs, tracing, the fake provider, and the record/replay cache. First steps: check free-tier limits and record them in `docs/FREE_TIERS.md`, and propose 2–3 Ollama models for approval before downloading.
