@@ -14,6 +14,7 @@ import {
   loadCoupon,
   presentProduct,
   stockStatus,
+  currentPriceCents,
   toCents,
 } from "./common.ts";
 
@@ -55,8 +56,6 @@ export const searchProducts = defineTool({
     // current price: one unit run through the same pricing engine as quote_price.
     // (Buy-2-get-1 doesn't lower a single unit's price, so it isn't reflected here.)
     const { active } = await loadActivePromotions(ctx.db, ctx.now);
-    const currentPriceCents = (product: typeof s.products.$inferSelect) =>
-      applyAutomaticPromotions([{ product, qty: 1 }], active)[0]!.lineTotalCents;
 
     const tokens = query
       .toLowerCase()
@@ -68,7 +67,7 @@ export const searchProducts = defineTool({
     const matches = rows
       .filter(({ product: p, stock }) => {
         const sp = p.specs;
-        const price = currentPriceCents(p);
+        const price = currentPriceCents(p, active);
         if (f.category && p.category !== f.category) return false;
         if (f.minPrice !== undefined && price < toCents(f.minPrice)) return false;
         if (f.maxPrice !== undefined && price > toCents(f.maxPrice)) return false;
@@ -91,15 +90,10 @@ export const searchProducts = defineTool({
 
     return ok({
       totalMatches: matches.length,
-      products: matches.slice(0, limit).map(({ product, stock }) => {
-        const { price: _list, ...rest } = presentProduct(product, stock);
-        return {
-          ...rest,
-          listPrice: formatCents(product.priceCents),
-          currentPrice: formatCents(currentPriceCents(product)),
-          activeDeals: dealsFor(product.category, active),
-        };
-      }),
+      products: matches.slice(0, limit).map(({ product, stock }) => ({
+        ...presentProduct(product, stock, active),
+        activeDeals: dealsFor(product.category, active),
+      })),
       note: "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping.",
     });
   },
@@ -114,7 +108,8 @@ function dealsFor(category: s.Category, active: Awaited<ReturnType<typeof loadAc
 
 export const getProduct = defineTool({
   name: "get_product",
-  description: "Full details for one product by id: specs, list price, rating, and which sizes/colors exist.",
+  description:
+    "Full details for one product by id: specs, rating, which sizes/colors exist, and two prices: listPrice (regular price) and currentPrice (what one unit costs today, after any active sale). When they differ, you can say e.g. 'was $249.00, now $199.20'. For a cart total (multi-buy deals, coupons, shipping), use quote_price.",
   agents: ["shopping"],
   args: z.object({ id: z.string().min(1) }),
   async run(ctx, { id }) {
@@ -124,7 +119,7 @@ export const getProduct = defineTool({
     const total = variants.reduce((n, v) => n + v.stock, 0);
     const { active } = await loadActivePromotions(ctx.db, ctx.now);
     return ok({
-      ...presentProduct(product, total),
+      ...presentProduct(product, total, active),
       activeDeals: dealsFor(product.category, active),
       variants: variants.map((v) => ({ size: v.size, color: v.color, availability: stockStatus(v.stock) })),
     });
@@ -249,7 +244,7 @@ export const quotePrice = defineTool({
         productId: l.productId,
         name: l.name,
         qty: l.qty,
-        unitPrice: formatCents(l.unitPriceCents),
+        listPrice: formatCents(l.unitPriceCents), // per unit; discounts below
         discounts: l.discounts.map((d) => ({ deal: d.label, amount: `-${formatCents(d.amountCents)}` })),
         lineTotal: formatCents(l.lineTotalCents),
       })),

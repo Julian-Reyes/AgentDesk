@@ -46,7 +46,8 @@ export const findCustomer = defineTool({
 
 export const getOrder = defineTool({
   name: "get_order",
-  description: "Details of one of the signed-in customer's orders: status, items, amounts paid, refunds.",
+  description:
+    "Details of one of the signed-in customer's orders: status, items, amounts paid, refunds. Per item: listPrice (per unit, when purchased), discount and paid (for the whole line, after sales). Use `paid` for what the customer actually spent on an item.",
   agents: ["support"],
   args: z.object({ orderId: orderNumberArg }),
   async run(ctx, { orderId }) {
@@ -73,7 +74,9 @@ export const getOrder = defineTool({
         size,
         color,
         qty: item.qty,
-        unitPrice: formatCents(item.unitPriceCents),
+        listPrice: formatCents(item.unitPriceCents), // per unit, at the time of purchase
+        discount: formatCents(item.discountCents), // for the whole line
+        paid: formatCents(item.unitPriceCents * item.qty - item.discountCents), // for the whole line
         returnedQty: item.returnedQty,
       })),
       subtotal: formatCents(order.subtotalCents),

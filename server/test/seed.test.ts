@@ -81,6 +81,17 @@ describe("seed", () => {
       }
     }));
 
+  it("each order's line discounts add up to the order's discount", () => {
+    const d = buildSeedData("2026-09-15");
+    let discountedLines = 0;
+    for (const o of d.orders) {
+      const lines = d.orderItems.filter((i) => i.orderNumber === o.number);
+      expect(lines.reduce((sum, i) => sum + i.discountCents, 0), `#${o.number}`).toBe(o.discountCents);
+      discountedLines += lines.filter((i) => i.discountCents > 0).length;
+    }
+    expect(discountedLines).toBeGreaterThan(0);
+  });
+
   it("#1042 (a tent bought during the tent sale) got 20% off", () => {
     const o = buildSeedData("2026-09-15").orders.find((x) => x.number === 1042)!;
     // Canopy 2 Trail Tent $189.00 − 20% ($37.80) = $151.20; over $75, so free shipping.

@@ -77,13 +77,41 @@ describe("search_products", () => {
 });
 
 describe("get_product", () => {
-  it("returns the Ridge 2 specs from the catalog", () =>
+  it("returns the Ridge 2 specs, list price and today's sale price", () =>
     inTx(async (tx) => {
       const r = await call(tx, "get_product", { id: "tent-ridge-2" });
       expect(r).toMatchObject({
         ok: true,
-        data: { name: "Ridge 2 Backpacking Tent", price: "$249.00", specs: { waterproof: true, weightGrams: 1900, waterproofRatingMm: 3000 } },
+        data: {
+          name: "Ridge 2 Backpacking Tent",
+          listPrice: "$249.00",
+          currentPrice: "$199.20",
+          activeDeals: ["Tent Sale: 20% off all tents"],
+          specs: { waterproof: true, weightGrams: 1900, waterproofRatingMm: 3000 },
+        },
       });
+      expect((r as any).data).not.toHaveProperty("price");
+    }));
+
+  it("a product not on sale has currentPrice equal to listPrice", () =>
+    inTx(async (tx) => {
+      const r = await call(tx, "get_product", { id: "stove-quickboil" });
+      expect(r).toMatchObject({ ok: true, data: { listPrice: "$129.00", currentPrice: "$129.00", activeDeals: [] } });
+    }));
+
+  it("get_product and search_products agree on both prices for every product", () =>
+    inTx(async (tx) => {
+      const search = (await call(tx, "search_products", { limit: 20 })) as any;
+      const all = [];
+      for (const category of ["tents", "sleeping_bags", "backpacks", "stoves", "headlamps", "jackets", "boots"]) {
+        all.push(...((await call(tx, "search_products", { filters: { category }, limit: 20 })) as any).data.products);
+      }
+      expect(all).toHaveLength(60);
+      expect(search.data.totalMatches).toBe(60);
+      for (const p of all) {
+        const g = (await call(tx, "get_product", { id: p.id })) as any;
+        expect({ list: g.data.listPrice, current: g.data.currentPrice }, p.id).toEqual({ list: p.listPrice, current: p.currentPrice });
+      }
     }));
 
   it("unknown id is an error, not an invented product", () =>
@@ -167,7 +195,7 @@ describe("quote_price", () => {
         ok: true,
         data: {
           subtotal: "$498.00",
-          lines: [{ discounts: [{ deal: "Tent Sale: 20% off all tents", amount: "-$99.60" }], lineTotal: "$398.40" }],
+          lines: [{ listPrice: "$249.00", discounts: [{ deal: "Tent Sale: 20% off all tents", amount: "-$99.60" }], lineTotal: "$398.40" }],
           coupon: { code: "SUMMER10", applied: true, discount: "-$39.84" },
           shipping: "FREE",
           total: "$358.56",
@@ -243,5 +271,31 @@ describe("shared tools", () => {
     inTx(async (tx) => {
       expect(await call(tx, "reply", { message: "   " })).toMatchObject({ error: { code: "INVALID_ARGS" } });
       expect(await call(tx, "reply", { message: "Hi!" })).toMatchObject({ ok: true });
+    }));
+});
+
+describe("price fields are consistent across tools", () => {
+  /** Collects every key anywhere in a tool result. */
+  const keysOf = (x: unknown, out = new Set<string>()): Set<string> => {
+    if (Array.isArray(x)) x.forEach((v) => keysOf(v, out));
+    else if (x && typeof x === "object") for (const [k, v] of Object.entries(x)) (out.add(k), keysOf(v, out));
+    return out;
+  };
+
+  it("no tool shows a product price under an ambiguous name like price or unitPrice", () =>
+    inTx(async (tx) => {
+      const results = [
+        await call(tx, "search_products", { query: "tent" }),
+        await call(tx, "get_product", { id: "tent-ridge-2" }),
+        await call(tx, "quote_price", { cart: [{ productId: "tent-ridge-2", qty: 1 }] }),
+        await call(tx, "get_order", { orderId: 1042 }, as(MAYA)),
+      ];
+      for (const r of results) {
+        expect(r.ok).toBe(true);
+        const keys = keysOf(r);
+        expect(keys.has("price"), JSON.stringify(r).slice(0, 80)).toBe(false);
+        expect(keys.has("unitPrice"), JSON.stringify(r).slice(0, 80)).toBe(false);
+        expect(keys.has("listPrice"), JSON.stringify(r).slice(0, 80)).toBe(true);
+      }
     }));
 });

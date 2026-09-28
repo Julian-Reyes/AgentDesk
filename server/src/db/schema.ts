@@ -183,7 +183,10 @@ export const orderItems = pgTable(
       .notNull()
       .references(() => productVariants.id),
     qty: integer("qty").notNull(),
+    /** List price per unit at the time of purchase. */
     unitPriceCents: integer("unit_price_cents").notNull(),
+    /** Automatic-promotion discount on this line (sale, buy-2-get-1); sums to orders.discount_cents. */
+    discountCents: integer("discount_cents").notNull().default(0),
     returnedQty: integer("returned_qty").notNull().default(0),
   },
   (t) => [index("order_items_order_idx").on(t.orderNumber)],

@@ -4,7 +4,7 @@ import type { DbOrTx } from "../db/client.ts";
 import * as s from "../db/schema.ts";
 import { formatCents, type Cents } from "../domain/money.ts";
 import type { CouponRecord } from "../policy/coupons.ts";
-import type { CartLine } from "../policy/pricing.ts";
+import { applyAutomaticPromotions, type ActivePromotions, type CartLine } from "../policy/pricing.ts";
 import { activePromotionsAt } from "../policy/promotions.ts";
 import { RULES } from "../policy/rules.ts";
 import { fail, type ToolContext, type ToolResult } from "./define.ts";
@@ -93,12 +93,23 @@ export async function loadOwnedOrder(ctx: ToolContext, orderNumber: number) {
 
 export const stockStatus = (stock: number) => (stock === 0 ? "out_of_stock" : stock <= 5 ? "low_stock" : "in_stock");
 
-export function presentProduct(p: typeof s.products.$inferSelect, totalStock: number) {
+/**
+ * What one unit costs today: the product run through the same pricing engine
+ * as quote_price with today's automatic promotions. Buy-2-get-1 never lowers a
+ * single unit's price, so only category sales show up here.
+ */
+export function currentPriceCents(product: typeof s.products.$inferSelect, active: ActivePromotions): Cents {
+  return applyAutomaticPromotions([{ product, qty: 1 }], active)[0]!.lineTotalCents;
+}
+
+/** Every tool that shows a product uses this, so prices always appear as listPrice + currentPrice. */
+export function presentProduct(p: typeof s.products.$inferSelect, totalStock: number, active: ActivePromotions) {
   return {
     id: p.id,
     name: p.name,
     category: p.category,
-    price: formatCents(p.priceCents),
+    listPrice: formatCents(p.priceCents),
+    currentPrice: formatCents(currentPriceCents(p, active)),
     rating: p.rating,
     description: p.description,
     specs: p.specs,

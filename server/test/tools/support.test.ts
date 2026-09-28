@@ -59,8 +59,27 @@ describe("get_order / get_tracking", () => {
       const r = await call(tx, "get_order", { orderId: 1050 }, as(MAYA));
       expect(r).toMatchObject({
         ok: true,
-        data: { items: [{ name: "Glowworm 300 Headlamp", qty: 1, unitPrice: "$29.00" }], shipping: "$7.99", totalPaid: "$36.99" },
+        data: {
+          items: [{ name: "Glowworm 300 Headlamp", qty: 1, listPrice: "$29.00", discount: "$0.00", paid: "$29.00" }],
+          shipping: "$7.99",
+          totalPaid: "$36.99",
+        },
       });
+    }));
+
+  it("shows what was actually paid for an item bought on sale (#1042, tent sale)", () =>
+    inTx(async (tx) => {
+      const r = await call(tx, "get_order", { orderId: 1042 }, as(MAYA));
+      expect(r).toMatchObject({
+        ok: true,
+        data: {
+          items: [{ name: "Canopy 2 Trail Tent", qty: 1, listPrice: "$189.00", discount: "$37.80", paid: "$151.20" }],
+          subtotal: "$189.00",
+          discount: "$37.80",
+          totalPaid: "$151.20",
+        },
+      });
+      expect((r as any).data.items[0]).not.toHaveProperty("unitPrice");
     }));
 
   it("returns tracking events in time order", () =>

@@ -123,10 +123,10 @@ export function buildSeedData(storeDate = DEFAULT_STORE_DATE) {
         variantId: variant.id,
         qty: it.qty,
         unitPriceCents: product.priceCents,
+        discountCents: 0, // set from the quote below
         returnedQty: spec.status === "returned" ? it.qty : 0,
       };
     });
-    orderItems.push(...items);
 
     // Priced by the same engine as live quotes, with the promotions that were
     // in effect when the order was placed (no coupons on seeded orders).
@@ -136,6 +136,12 @@ export function buildSeedData(storeDate = DEFAULT_STORE_DATE) {
       now: placedAt,
       customerId: spec.customerId,
     });
+    // quote() returns one line per input line, in order (seed lines are never duplicates).
+    items.forEach((item, i) => {
+      const line = q.lines[i]!;
+      item.discountCents = line.lineSubtotalCents - line.lineTotalCents;
+    });
+    orderItems.push(...items);
     orders.push({
       number,
       customerId: spec.customerId,
@@ -219,6 +225,7 @@ type OrderItemRow = {
   variantId: string;
   qty: number;
   unitPriceCents: number;
+  discountCents: number;
   returnedQty: number;
 };
 type TrackingRow = { orderNumber: number; at: Date; status: string; location: string; note: string | null };
