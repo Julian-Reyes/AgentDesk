@@ -4,7 +4,8 @@ import type { DbOrTx } from "../db/client.ts";
 import * as s from "../db/schema.ts";
 import { formatCents, type Cents } from "../domain/money.ts";
 import type { CouponRecord } from "../policy/coupons.ts";
-import type { ActivePromotions, CartLine } from "../policy/pricing.ts";
+import type { CartLine } from "../policy/pricing.ts";
+import { activePromotionsAt } from "../policy/promotions.ts";
 import { RULES } from "../policy/rules.ts";
 import { fail, type ToolContext, type ToolResult } from "./define.ts";
 
@@ -40,19 +41,7 @@ export async function loadActivePromotions(db: DbOrTx, now: Date) {
     .select()
     .from(s.promotions)
     .where(and(lte(s.promotions.startsAt, now), or(isNull(s.promotions.endsAt), gte(s.promotions.endsAt, now))));
-
-  const active: ActivePromotions = {
-    categorySales: [],
-    buy2get1: [],
-    shipping: { thresholdCents: Number.MAX_SAFE_INTEGER, flatRateCents: 0 },
-  };
-  for (const row of rows) {
-    const p = row.params;
-    if (p.type === "category_sale") active.categorySales.push({ name: row.name, category: p.category, percentOff: p.percentOff });
-    if (p.type === "buy2get1") active.buy2get1.push({ name: row.name, category: p.category });
-    if (p.type === "free_shipping") active.shipping = { thresholdCents: p.thresholdCents, flatRateCents: p.flatRateCents };
-  }
-  return { rows, active };
+  return { rows, active: activePromotionsAt(rows, now) };
 }
 
 export async function loadCoupon(db: DbOrTx, code: string): Promise<CouponRecord | null> {

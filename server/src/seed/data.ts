@@ -2,7 +2,9 @@ import type { OrderStatus } from "../db/schema.ts";
 import { addDays, DEFAULT_STORE_DATE, fixedClock } from "../domain/clock.ts";
 import { CATALOG, STOCK_OVERRIDES, variantId, type CatalogEntry } from "./catalog.ts";
 import { POLICY_DOCS } from "./policies.ts";
-import { buildPromoCoupons, buildPromotions, SHIPPING } from "./promotions.ts";
+import { quote } from "../policy/pricing.ts";
+import { activePromotionsAt } from "../policy/promotions.ts";
+import { buildPromoCoupons, buildPromotions } from "./promotions.ts";
 import { createRng, type Rng } from "./rng.ts";
 
 export const SEED = 20260915;
@@ -68,6 +70,7 @@ const HUBS = ["Salt Lake City, UT", "Denver, CO", "Sacramento, CA", "Portland, O
 export function buildSeedData(storeDate = DEFAULT_STORE_DATE) {
   const today = fixedClock(storeDate)();
   const rng = createRng(SEED);
+  const promotions = buildPromotions(today);
 
   // ---- Catalog ----
   const products = CATALOG.map(({ variants: _v, ...p }) => p);
@@ -125,19 +128,24 @@ export function buildSeedData(storeDate = DEFAULT_STORE_DATE) {
     });
     orderItems.push(...items);
 
-    // Historical orders are priced at list price (past promotions aren't modeled).
-    const subtotalCents = items.reduce((s, i) => s + i.unitPriceCents * i.qty, 0);
-    const shippingCents = subtotalCents >= SHIPPING.thresholdCents ? 0 : SHIPPING.flatRateCents;
+    // Priced by the same engine as live quotes, with the promotions that were
+    // in effect when the order was placed (no coupons on seeded orders).
+    const q = quote({
+      lines: items.map((i) => ({ product: productById.get(i.productId)!, qty: i.qty })),
+      promos: activePromotionsAt(promotions, placedAt),
+      now: placedAt,
+      customerId: spec.customerId,
+    });
     orders.push({
       number,
       customerId: spec.customerId,
       status: spec.status,
       placedAt,
       deliveredAt,
-      subtotalCents,
-      discountCents: 0,
-      shippingCents,
-      totalPaidCents: subtotalCents + shippingCents,
+      subtotalCents: q.subtotalCents,
+      discountCents: q.promoDiscountCents,
+      shippingCents: q.shippingCents,
+      totalPaidCents: q.totalCents,
       couponCode: null,
     });
 
@@ -149,7 +157,8 @@ export function buildSeedData(storeDate = DEFAULT_STORE_DATE) {
     if (spec.status === "returned" && deliveredAt) {
       refunds.push({
         orderNumber: number,
-        amountCents: subtotalCents,
+        // The goods as paid for (after discounts); shipping isn't refunded on returns.
+        amountCents: q.merchandiseTotalCents,
         reason: "return",
         note: "Return received at warehouse",
         status: "issued",
@@ -178,7 +187,7 @@ export function buildSeedData(storeDate = DEFAULT_STORE_DATE) {
   return {
     products,
     variants,
-    promotions: buildPromotions(today),
+    promotions,
     coupons,
     policies: POLICY_DOCS,
     customers,

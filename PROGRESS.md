@@ -14,7 +14,7 @@
   - support: `find_customer`, `get_order`, `get_tracking`, `check_return_eligibility`, `issue_refund`, `issue_goodwill_coupon`, `escalate_to_human`
   - shared: `get_policy`, `reply`
 - **Try-tool CLI:** `npm run tool -- list`, or e.g. `npm run tool -- get_order '{"orderId":1042}' --as maya.chen@example.com`.
-- **Tests:** 103 passing (`npm test`): 42 pure policy tests, 55 tool tests against the real Postgres test DB (each wrapped in a rolled-back transaction), and 6 seed tests (determinism, totals, dates). A sanity check confirmed the tests catch breakage: raising the refund limit and removing the ownership check made 5 tests fail.
+- **Tests:** 108 passing (`npm test`): 42 pure policy tests, 55 tool tests against the real Postgres test DB (each wrapped in a rolled-back transaction), and 11 seed tests (determinism, totals, dates, historical pricing). A sanity check confirmed the tests catch breakage: raising the refund limit and removing the ownership check made 5 tests fail.
 
 ### Key decisions (and why)
 1. **Money is in integer cents, formatted strings go to the model.** Floats drift, and models mis-convert cents. Tools accept dollars (`amount: 29.99`) and return `"$29.99"`, so the model never does any arithmetic.
@@ -29,11 +29,12 @@
 10. **Postgres.app instead of Homebrew Postgres:** Homebrew had no prebuilt package for macOS 13 on Intel and was compiling everything from source (1–2+ hours).
 
 ### Known gaps / notes for later
-- Historical orders are priced at list price (past promotions and coupons aren't modeled on old orders).
+- Seeded orders don't use coupons (only automatic promotions are applied; see the fix below).
 - A damaged-item refund can't be tied to a specific item (the spec's `issue_refund` has no item argument); the cap is what's left refundable on the order. The M3 graders should check the amount against the item price.
 - A `late` refund is capped at shipping minus *all* earlier refunds on the order, which is conservative.
 - Tools mutate the DB (refunds, approvals, coupons, escalations). **M3 eval runs must reset state per conversation** (reseed, or run each conversation in a rolled-back transaction).
-- "Best 2-person tent under $200" is ambiguous (list price vs sale price). The eval case must say which.
+- **Decision: price limits mean the price the customer actually pays.** For questions like "best 2-person tent under $200", compare against the sale price (after automatic promotions), not the list price. Eval cases and graders follow this rule.
+  - ⚠️ **Open, fix before M3:** `search_products`' `minPrice`/`maxPrice` filters still use **list** price, and the test "finds 2-person tents under $200" encodes that. Under the rule above, the Ridge 2 ($249.00 list, $199.20 during the tent sale) should also match. The filter should compare against the sale price, and the test should change with it.
 - `npm audit` reports 4 moderate issues in an old esbuild bundled inside drizzle-kit (dev only; the risk affects esbuild's dev server, which we never run). `audit fix --force` would downgrade drizzle-kit to 0.18, so it's left as is.
 - Approving or rejecting items in the approvals queue (and creating the refund or coupon on approval) belongs to M4.
 
@@ -45,6 +46,9 @@ npm install
 npm run db:migrate && npm run db:seed
 npm test && npm run typecheck
 ```
+
+### Fix after M1 (2026-09-28): seeded orders ignored promotions
+Seeded orders were priced at list price even when placed during a sale. For example, #1042 (Canopy 2 tent, placed Sep 12 during the Sep 5 – Oct 5 tent sale) was charged $189.00 instead of $151.20, and 16 orders in total were overcharged (13 during the tent sale, 3 during the stove sale). Seed orders are now priced by the same `quote()` engine as live quotes, using the promotions active at each order's `placedAt` (the shared `activePromotionsAt()` in `server/src/policy/promotions.ts`, also used by the tools). Refunds for returned orders now equal what was paid for the goods (after discounts) rather than the list-price subtotal. New seed tests check every stored total against `quote()` using the DB rows, check #1042's exact amounts, and check discount presence inside and outside the sale windows. Four of them fail against the old list-price seeding. The 21 orders in the headlamp buy-2-get-1 window correctly have no discount, since none has more than 2 headlamps.
 
 ## Next: Milestone 2 — Agent loop
 The provider client (cloud + Ollama), the hand-written loop, the router + 2 agents with handoffs, tracing, the fake provider, and the record/replay cache. First steps: check free-tier limits and record them in `docs/FREE_TIERS.md`, and propose 2–3 Ollama models for approval before downloading.
