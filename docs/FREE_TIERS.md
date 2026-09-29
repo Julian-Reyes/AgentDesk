@@ -7,7 +7,7 @@ Every number below comes from the provider's **official docs**. Third-party blog
 
 | Provider | Status | OpenAI-compatible? | Tool calling | Free limits (per model) | Data use on free tier |
 | --- | --- | --- | --- | --- | --- |
-| **Gemini API** (Google AI Studio) | ✅ available | ✅ beta, `https://generativelanguage.googleapis.com/v1beta/openai/` | ✅ `tools`, `tool_choice` | **Not published in the official docs.** They're only shown per account in AI Studio → Rate limits. **Unknown until a key exists.** | Used to improve Google products; **human reviewers may read inputs/outputs** (outside EEA/CH/UK). Fine for us: all data is fictional. |
+| **Gemini API** (Google AI Studio) | ✅ available | ✅ beta, `https://generativelanguage.googleapis.com/v1beta/openai/` | ✅ `tools`, `tool_choice` | `gemini-3.8-flash`: **5 RPM, 250K TPM** (2026-09-29, source: AI Studio rate-limit page); **20 requests/day** (2026-09-29, source: the API's own 429 quota error) | Used to improve Google products; **human reviewers may read inputs/outputs** (outside EEA/CH/UK). Fine for us: all data is fictional. |
 | **Groq** | ✅ available | ✅ `https://api.groq.com/openai/v1` | ✅ all hosted models | `openai/gpt-oss-120b`, `openai/gpt-oss-20b`, `qwen/qwen3.8-27b`: **30 RPM, 1,000 RPD, 8K TPM, 200K TPD** | Not retained by default (up to 30 days for abuse monitoring). |
 | **GitHub Models** | ❌ **retired 2026-07-30** | n/a | n/a | n/a | n/a |
 | **Cerebras** | ❌ **no permanent free tier**: a **$5 trial** that needs a **verified payment method** and **expires 30 days** after it's granted. | not checked | not checked | Trial: `gpt-oss-120b`, `qwen-3.8-27b` at 5 RPM, 30K TPM, 1M tokens/day | Not checked. Possible **paid** provider later (needs approval + cost estimate first). |
@@ -24,7 +24,10 @@ Every number below comes from the provider's **official docs**. Third-party blog
 - The official rate-limits page says limits "depend on a variety of factors" and points to AI Studio instead of listing numbers.
 - OpenAI compatibility is "still in beta"; parameters it doesn't support are **silently ignored**, and reasoning can't be turned off for some models.
 - Pro models have no free tier. The free models are Flash / Flash-Lite (e.g. `gemini-3.8-flash`, `gemini-3.5-flash-lite`) plus older 2.5 models.
-- **TODO (Julian):** open AI Studio → Rate limits once a key exists and paste the real numbers for the chosen model here. Until then, Gemini run-time estimates are unknown.
+- **Account limits for `gemini-3.8-flash`, 2026-09-29 (source: AI Studio rate-limit page):** **5 RPM, 250K TPM.** RPD is not displayed there (the page only shows current usage, 0).
+- **Daily limit, 2026-09-29 (source: the API's own 429 response):** `quotaId: GenerateRequestsPerDayPerProjectPerModel-FreeTier`, `quotaValue: 20`. So **20 requests per day** for this model. **Failed attempts count too:** on 2026-09-29 many of the 20 went to 503 "high demand" errors and their retries, leaving only 4 successful responses.
+- **Availability:** `gemini-3.8-flash` returned frequent **503 "This model is currently experiencing high demand"** errors on 2026-09-29.
+- Client handling: the rate limiter keeps every attempt (retries included) under 5/min; per-minute 429s are retried using Gemini's retry hint from the error body (it sends no `Retry-After` header); a 429 that names a daily quota fails fast.
 - Sources: [rate limits](https://ai.google.dev/gemini-api/docs/rate-limits), [pricing](https://ai.google.dev/gemini-api/docs/pricing), [OpenAI compatibility](https://ai.google.dev/gemini-api/docs/openai), [terms](https://ai.google.dev/gemini-api/terms).
 
 ### Groq
@@ -65,12 +68,23 @@ Every number below comes from the provider's **official docs**. Third-party blog
 
 ## What the limits mean for eval runs (rough, to be replaced by measured numbers)
 
-The binding limit is usually **tokens per day**, not requests. Each model call re-sends the system prompt, the tool schemas and the conversation so far. Measured so far: each agent's tool schemas are ~3.8K characters (≈1K tokens). A rough guess for a whole call is ~2,000–4,000 input tokens, with ~4–6 calls per conversation (router + agent steps).
+The binding limit is usually **tokens per day**, not requests. Each model call re-sends the system prompt, the tool schemas and the conversation so far.
+
+**Measured on 2026-09-29** (smoke tests + 8 chat conversations, input tokens as reported by the provider):
+
+| Call | Groq gpt-oss-120b | Groq qwen3.8-27b | Gemini 3.8 Flash |
+| --- | --- | --- | --- |
+| Router | ~420 | not measured | not measured |
+| Agent, first step | ~1,260–1,500 | ~2,100–2,200 | ~1,830–1,850 |
+| Agent, later steps in a turn | ~1,400–1,800 | ~2,260 | not measured |
+| Agent, after a handoff / 2nd turn | ~2,550 | not measured | not measured |
+
+A typical one-turn conversation used **4–6 calls and ~4.5–9K input tokens** on gpt-oss-120b (e.g. order status: router + 3 agent calls = 4,675 input tokens). Qwen's tokenizer counts the same prompt as ~50% more tokens than gpt-oss.
 
 | | Calls per 150-conversation run | Tokens per run | Days per full run at the free limit |
 | --- | --- | --- | --- |
-| Groq (200K TPD, per model) | ~600–900 | ~1.2–3.5M | **~6–18 days** per model |
-| Gemini Flash | ~600–900 | ~1.2–3.5M | unknown until AI Studio shows the account's limits |
+| Groq gpt-oss-120b (200K TPD, 8K TPM) | ~600–900 | ~1–1.5M (measured ~4.5–9K per conversation) | **~5–7 days** per model; at 8K TPM, ~3 agent calls/minute, so a multi-step turn can take 1–2 minutes |
+| Gemini 3.8 Flash (5 RPM, **20 RPD**) | ~600–900 | ~1.2–3.5M | **~30–45 days** per model at 20 requests/day. Not viable without a change (see PROGRESS.md) |
 | Ollama (Mac mini) | ~600–900 | n/a | limited by speed; measured in the smoke test |
 
 What follows from this:

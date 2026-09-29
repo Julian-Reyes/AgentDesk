@@ -37,6 +37,8 @@ export const ModelConfigSchema = z.object({
     .default({ inputPerMTok: 0, outputPerMTok: 0 }),
   /** Throttle for the eval runner: at most this many requests per minute. */
   rpm: z.number().int().positive().optional(),
+  /** Throttle: at most this many tokens (input + output) per minute. */
+  tpm: z.number().int().positive().optional(),
 });
 export type ModelConfig = z.infer<typeof ModelConfigSchema>;
 

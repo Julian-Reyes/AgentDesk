@@ -42,6 +42,13 @@ export type ChatResponse = {
   latencyMs: number;
   /** True when the response came from the record/replay cache instead of the network. */
   cached?: boolean;
+  /**
+   * Attempts that failed before this response succeeded (rate limits, provider
+   * errors, or the model producing unparseable tool calls). Traced, so a model
+   * that often emits broken tool calls shows up in the metrics instead of
+   * being hidden by retries.
+   */
+  failedAttempts?: Array<{ status?: number; code?: string; message: string }>;
 };
 
 export interface ChatProvider {

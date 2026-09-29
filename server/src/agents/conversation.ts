@@ -71,7 +71,7 @@ export const FAILURE_REPLY =
 const OTHER: Record<AgentName, AgentName> = { shopping: "support", support: "shopping" };
 
 /** The loop-level handoff tool. It isn't in the M1 registry because it moves the conversation, not store data. */
-function handoffTool(from: AgentName): { schema: ToolSchema; args: z.ZodType<{ to: AgentName; reason: string }> } {
+export function handoffTool(from: AgentName): { schema: ToolSchema; args: z.ZodType<{ to: AgentName; reason: string }> } {
   const to = OTHER[from];
   const args = z.object({ to: z.literal(to), reason: z.string().trim().min(3).max(300) });
   const what = to === "support" ? "existing orders, shipping, returns, refunds or damaged items" : "products, recommendations, stock, prices or coupons for a new purchase";
@@ -158,6 +158,7 @@ export class Conversation {
           data: {
             attempt: i + 1,
             raw: call.raw,
+            ...(call.response.failedAttempts ? { failedAttempts: call.response.failedAttempts } : {}),
             ...(call.error ? { error: call.error } : { decision: routed.decision }),
             ...(i === routed.calls.length - 1 ? { fallback: routed.fallback } : {}),
           },
@@ -213,6 +214,7 @@ export class Conversation {
           context,
           message: response.message,
           ...(response.reasoning ? { reasoning: response.reasoning } : {}),
+          ...(response.failedAttempts ? { failedAttempts: response.failedAttempts } : {}),
           finishReason: response.finishReason,
         },
         inputTokens: response.usage.inputTokens,

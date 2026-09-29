@@ -1,4 +1,5 @@
 import type { ModelConfig } from "./config.ts";
+import { estimateTokens, type RateLimiter } from "./throttle.ts";
 import type { ChatMessage, ChatProvider, ChatRequest, ChatResponse, ToolCall } from "./types.ts";
 
 /**
@@ -27,6 +28,8 @@ export type ClientDeps = {
   maxAttempts?: number;
   /** Per-attempt timeout. Local CPU models are slow, so the default is generous. */
   timeoutMs?: number;
+  /** Shared rate limiter for this provider+model. Every attempt, including retries, takes a slot. */
+  limiter?: RateLimiter;
 };
 
 const defaultSleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
@@ -54,24 +57,43 @@ export function createOpenAICompatibleProvider(config: ModelConfig, deps: Client
       const headers: Record<string, string> = { "content-type": "application/json" };
       if (apiKey) headers.authorization = `Bearer ${apiKey}`;
 
+      const estimate = estimateTokens(req);
+      const failedAttempts: NonNullable<ChatResponse["failedAttempts"]> = [];
       for (let attempt = 1; ; attempt++) {
+        const slot = deps.limiter ? await deps.limiter.acquire(estimate) : null;
         const started = now();
         try {
           const res = await doFetch(url, { method: "POST", headers, body, signal: AbortSignal.timeout(timeoutMs) });
           if (!res.ok) {
             const text = await res.text().catch(() => "");
-            // 429 = rate limited, 5xx = provider trouble: worth retrying. 4xx = our bug: fail fast.
-            const retryable = res.status === 429 || res.status >= 500;
-            const err = new ProviderError(`${config.id}: HTTP ${res.status} ${text.slice(0, 500)}`, res.status, retryable);
+            // 429 = rate limited, 5xx = provider trouble: worth retrying. Other 4xx = our bug: fail fast.
+            // Exceptions: a 429 for a *daily* quota won't clear in seconds, so retrying only wastes time;
+            // and a 400 that says the *model* produced unparseable output is a sampling glitch, so try again.
+            const daily = res.status === 429 && isDailyQuota(text);
+            const modelOutput = res.status === 400 && modelOutputErrorCode(text) !== null;
+            const retryable = !daily && (res.status === 429 || res.status >= 500 || modelOutput);
+            failedAttempts.push({ status: res.status, ...(errorCode(text) ? { code: errorCode(text)! } : {}), message: text.slice(0, 300) });
+            const err = new ProviderError(
+              daily
+                ? `${config.id}: daily free-tier quota used up (HTTP 429). Try again tomorrow, or use the replay cache. ${text.slice(0, 300)}`
+                : `${config.id}: HTTP ${res.status} ${text.slice(0, 500)}`,
+              res.status,
+              retryable,
+            );
             if (!retryable || attempt >= maxAttempts) throw err;
-            await sleep(retryDelayMs(res.headers.get("retry-after"), attempt));
+            // A model-output glitch needs a new sample, not a cool-down.
+            await sleep(modelOutput ? 500 : retryDelayMs(res.headers.get("retry-after"), attempt, text));
             continue;
           }
           const json = await res.json();
-          return fromWireResponse(json, Math.round(now() - started));
+          const parsed = fromWireResponse(json, Math.round(now() - started));
+          // Replace the estimate with what the provider actually counted.
+          if (slot) slot.tokens = parsed.usage.inputTokens + parsed.usage.outputTokens || slot.tokens;
+          return failedAttempts.length ? { ...parsed, failedAttempts } : parsed;
         } catch (e) {
           if (e instanceof ProviderError) throw e;
           // Network error or timeout: retry, then give up with a clear message.
+          failedAttempts.push({ message: (e as Error).message });
           if (attempt >= maxAttempts) {
             throw new ProviderError(`${config.id}: ${(e as Error).message}`, undefined, true);
           }
@@ -82,12 +104,50 @@ export function createOpenAICompatibleProvider(config: ModelConfig, deps: Client
   };
 }
 
-/** Honor the provider's Retry-After if given; otherwise exponential backoff (2s, 4s, 8s, ... capped at 60s). */
-export function retryDelayMs(retryAfter: string | null, attempt: number): number {
+/** The provider's error code from an error body, e.g. "tool_use_failed". Gemini wraps the error in an array. */
+function errorCode(body: string): string | null {
+  try {
+    const json = JSON.parse(body);
+    const err = (Array.isArray(json) ? json[0] : json)?.error;
+    return typeof err?.code === "string" ? err.code : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Codes meaning "the model generated output the provider couldn't parse" (Groq:
+ * broken tool-call JSON, unparseable output, invalid JSON-mode output). The
+ * request was fine; another sample usually works.
+ */
+const MODEL_OUTPUT_ERROR_CODES = new Set(["tool_use_failed", "output_parse_failed", "json_validate_failed"]);
+export function modelOutputErrorCode(body: string): string | null {
+  const code = errorCode(body);
+  return code && MODEL_OUTPUT_ERROR_CODES.has(code) ? code : null;
+}
+
+/**
+ * Does a 429 body say a per-day limit was hit? Gemini names quotas like
+ * "...RequestsPerDayPerProjectPerModel-FreeTier"; Groq says "tokens per day (TPD)"
+ * or "requests per day (RPD)". Anything else is treated as a per-minute limit and retried.
+ */
+export function isDailyQuota(body: string): boolean {
+  return /per ?day|\bTPD\b|\bRPD\b|daily/i.test(body);
+}
+
+/**
+ * How long to wait before retrying. Prefer the provider's own hint: the
+ * Retry-After header (Groq), or a retry delay in the error body, which is how
+ * Gemini says it ("retryDelay": "2s", "Please retry in 2.29s"). A 1s margin is
+ * added to body hints. Otherwise exponential backoff: 2s, 4s, 8s, ... capped at 60s.
+ */
+export function retryDelayMs(retryAfter: string | null, attempt: number, body = ""): number {
   if (retryAfter) {
     const seconds = Number(retryAfter);
     if (Number.isFinite(seconds) && seconds >= 0) return Math.min(seconds * 1000, 120_000);
   }
+  const hint = /"retryDelay"\s*:\s*"([\d.]+)s"|retry in ([\d.]+)\s*s/i.exec(body);
+  if (hint) return Math.min(Math.ceil((Number(hint[1] ?? hint[2]) + 1) * 1000), 120_000);
   return Math.min(2000 * 2 ** (attempt - 1), 60_000);
 }
 

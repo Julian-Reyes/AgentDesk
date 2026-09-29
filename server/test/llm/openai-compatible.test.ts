@@ -3,6 +3,7 @@ import type { ModelConfig } from "../../src/llm/config.ts";
 import {
   ProviderError,
   createOpenAICompatibleProvider,
+  isDailyQuota,
   retryDelayMs,
   toWireRequest,
 } from "../../src/llm/openai-compatible.ts";
@@ -119,6 +120,22 @@ describe("OpenAI-compatible client", () => {
     expect(sleeps).toEqual([2000, 4000, 8000]);
   });
 
+  it("a daily-quota 429 fails fast with a clear message instead of retrying", async () => {
+    const body = { error: { message: "Quota exceeded for metric: generate_content_free_tier_requests", details: [{ quotaId: "GenerateRequestsPerDayPerProjectPerModel-FreeTier" }] } };
+    const { p, calls } = provider([json(body, 429)]);
+    const err = await p.chat({ messages: [{ role: "user", content: "hi" }] }).catch((e) => e);
+    expect(err).toMatchObject({ status: 429, retryable: false, message: expect.stringMatching(/daily free-tier quota/) });
+    expect(calls).toHaveLength(1);
+  });
+
+  it("recognizes daily limits from Gemini and Groq, but not per-minute ones", () => {
+    expect(isDailyQuota("GenerateRequestsPerDayPerProjectPerModel-FreeTier")).toBe(true);
+    expect(isDailyQuota("Rate limit reached for model openai/gpt-oss-120b on tokens per day (TPD): Limit 200000")).toBe(true);
+    expect(isDailyQuota("Rate limit reached on requests per day (RPD)")).toBe(true);
+    expect(isDailyQuota("Rate limit reached for model openai/gpt-oss-120b on tokens per minute (TPM): Limit 8000")).toBe(false);
+    expect(isDailyQuota("GenerateRequestsPerMinutePerProjectPerModel-FreeTier")).toBe(false);
+  });
+
   it("does not retry 4xx errors (those are our bugs)", async () => {
     const { p, calls } = provider([json({ error: "bad tool schema" }, 400)]);
     const err = await p.chat({ messages: [{ role: "user", content: "hi" }] }).catch((e) => e);
@@ -135,5 +152,38 @@ describe("OpenAI-compatible client", () => {
     expect(retryDelayMs(null, 10)).toBe(60_000);
     expect(retryDelayMs("999", 1)).toBe(120_000);
     expect(retryDelayMs("soon", 2)).toBe(4000);
+  });
+});
+
+describe("model-output failures (Groq returns 400 when the model's own output can't be parsed)", () => {
+  const groq400 = (code: string) =>
+    json({ error: { message: "Failed to parse tool call arguments as JSON", type: "invalid_request_error", code, failed_generation: '{"name": "reply", "arguments": Our top pick…' } }, 400);
+
+  it("retries tool_use_failed / output_parse_failed / json_validate_failed, and reports the failed attempts", async () => {
+    for (const code of ["tool_use_failed", "output_parse_failed", "json_validate_failed"]) {
+      const sleeps: number[] = [];
+      const { p, calls } = provider([groq400(code), json(okBody)], sleeps);
+      const r = await p.chat({ messages: [{ role: "user", content: "hi" }] });
+      expect(calls).toHaveLength(2);
+      expect(sleeps).toEqual([500]);
+      expect(r.failedAttempts).toEqual([{ status: 400, code, message: expect.stringContaining(code) }]);
+    }
+  });
+
+  it("gives up after max attempts with the provider's message", async () => {
+    const { p, calls } = provider([groq400("tool_use_failed"), groq400("tool_use_failed"), groq400("tool_use_failed"), groq400("tool_use_failed")]);
+    await expect(p.chat({ messages: [{ role: "user", content: "hi" }] })).rejects.toMatchObject({ status: 400 });
+    expect(calls).toHaveLength(4);
+  });
+
+  it("other 400s are still our bug and fail fast", async () => {
+    const { p, calls } = provider([json({ error: { message: "tools[0].function.parameters is invalid", code: "invalid_request" } }, 400)]);
+    await expect(p.chat({ messages: [{ role: "user", content: "hi" }] })).rejects.toMatchObject({ status: 400, retryable: false });
+    expect(calls).toHaveLength(1);
+  });
+
+  it("a clean first attempt has no failedAttempts field", async () => {
+    const { p } = provider([json(okBody)]);
+    expect((await p.chat({ messages: [{ role: "user", content: "hi" }] })).failedAttempts).toBeUndefined();
   });
 });

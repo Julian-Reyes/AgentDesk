@@ -47,19 +47,23 @@ try {
   console.log(`Models: ${Object.entries(team.meta).map(([role, m]) => `${role}=${m.model}`).join(", ")}`);
   console.log(`Run ${convo.runId}. Empty line or Ctrl-D to quit.\n`);
 
-  const rl = createInterface({ input: process.stdin, output: process.stdout });
-  try {
-    for (;;) {
-      const text = (await rl.question("you> ").catch(() => "")).trim();
-      if (!text) break;
-      const started = performance.now();
-      const r = await convo.send(text);
-      console.log(`${r.answeredBy}> ${r.reply}`);
-      console.log(`   [${r.outcome}, ${((performance.now() - started) / 1000).toFixed(1)}s]\n`);
-    }
-  } finally {
-    rl.close();
+  // Read lines with the async iterator rather than rl.question(): it buffers
+  // input, so piped scripts (printf "q1\nq2\n" | npm run chat) don't lose lines
+  // that arrive while the agent is still answering.
+  const rl = createInterface({ input: process.stdin });
+  const interactive = process.stdin.isTTY;
+  process.stdout.write("you> ");
+  for await (const line of rl) {
+    const text = line.trim();
+    if (!text) break;
+    if (!interactive) console.log(text); // echo piped input so the transcript reads naturally
+    const started = performance.now();
+    const r = await convo.send(text);
+    console.log(`${r.answeredBy}> ${r.reply}`);
+    console.log(`   [${r.outcome}, ${((performance.now() - started) / 1000).toFixed(1)}s]\n`);
+    process.stdout.write("you> ");
   }
+  rl.close();
   console.log(`\nTrace: npm run trace -- ${convo.runId}`);
 } finally {
   await close();

@@ -269,6 +269,18 @@ describe("agent loop: guardrails", () => {
       expect(t.run().summary?.outcome).toBe("failed");
     }));
 
+  it("failed attempts behind a successful model call are recorded in the trace", () =>
+    inTx(async (tx) => {
+      const t = await setup(tx, {
+        customerId: MAYA,
+        router: [route("support")],
+        agent: [{ ...fake.reply("Hi!"), failedAttempts: [{ status: 400, code: "tool_use_failed", message: "bad tool JSON" }] }],
+      });
+      await t.convo.send("hi");
+      const call = t.run().steps.find((s) => s.kind === "model_call")!;
+      expect(call.data.failedAttempts).toEqual([{ status: 400, code: "tool_use_failed", message: "bad tool JSON" }]);
+    }));
+
   it("an empty response gets one nudge per step", () =>
     inTx(async (tx) => {
       const t = await setup(tx, { customerId: MAYA, router: [route("shopping")], agent: [{ message: { role: "assistant", content: null } }, fake.reply("Hi!")] });

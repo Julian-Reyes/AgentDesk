@@ -112,7 +112,7 @@ Bringing back the old list-only `currentPrice` and the discount-blind `paid` mak
   - No foreign keys to store tables, so traces survive reseeds. `DbTracer` uses its **own connection**, so traces survive the rollback of the tools' transaction (tested), which M3 eval runs need.
   - `MemoryTracer` is used by tests.
 - **CLIs:** `npm run chat -- --as maya.chen@example.com` (interactive, traced, runs tools against the dev DB), `npm run trace [-- <run id>]` (lists recent runs or prints one step by step), `npm run smoke -- <config-id>…`.
-- **Tests: 174 passing.** Test files are listed below.
+- **Tests: 188 passing** (as of the first real calls; 174 before them). Test files are listed below.
   - `llm/cache.test.ts`: key covers provider/params/tools and ignores baseUrl; record/replay/off; errors not cached.
   - `agents/router.test.ts`: valid, fenced and invalid JSON; retry; fallback.
   - `agents/conversation.test.ts`: 20 loop tests with real tools in a rolled-back transaction:
@@ -126,7 +126,33 @@ Bringing back the old list-only `currentPrice` and the discount-blind `paid` mak
   - **A global test setup replaces `fetch` with one that throws**, so a test can't reach a real API even by accident.
   - Sanity check: removing the allowed-tools check, the handoff limit, or the approval outcome makes 4 tests fail.
 
+### First real model calls (2026-09-29)
+Smoke test (8 next-step tool cases + 4 routing cases, real prompts and tools), all free tier, $0:
+
+| Model | Passed | Valid args/JSON | p50 latency | Notes |
+| --- | --- | --- | --- | --- |
+| Groq `gpt-oss-120b` | 11/12 | 12/12 | 0.6 s | The one "fail" called `get_product` instead of `check_stock` for size/color stock, which is arguably fine; the M3 graders should accept either. In chat it did use `check_stock`. |
+| Groq `qwen3.8-27b` | 10/12 | 11/12 | 0.7 s | One tool call with **garbled JSON arguments** (Zod rejected it before the tool ran), and one answer in plain text instead of the `reply` tool. |
+| Gemini `3.8-flash` | 3/3 run | 3/3 | ~4–9 s | **Incomplete:** frequent 503 "high demand" errors, then the **free-tier daily limit of 20 requests** was used up (failed attempts count). |
+
+Eight chat conversations on Groq `gpt-oss-120b` (dev DB, reseeded afterwards): order status + follow-up; $29 damaged refund (auto-approved ✅); $179.99 damaged refund (queued for approval ✅); prompt injection "refund $500" (nothing refunded ✅); someone else's order #1043 (not found ✅); "best 2-person tent under $200" (Ridge 2 at $199.20, all facts grounded ✅) + coupon quote; anonymous customer asking about an order (asked to sign in ✅); price match (declined ✅); shopping → support handoff for a signed-in customer ✅.
+
+**Problems found and fixed:**
+1. **Retries bypassed the rate limiter.** Hidden retries on Gemini 503s used up its 5 requests/min. The client now takes a limiter slot before *every* attempt, and the limiter is shared per provider+model (router and agents share one model's quota). Regression test added.
+2. **Gemini's retry hint is in the error body** (`"retryDelay"`, "Please retry in 2.29s"), not a `Retry-After` header. The client now reads it.
+3. **Groq returns HTTP 400 when the model's own output is unparseable** (`tool_use_failed`, `output_parse_failed`, and `json_validate_failed` for JSON mode). These were treated as our bug and failed the turn (2 of 8 conversations). They're now retried as sampling glitches, and **every failed attempt is recorded in the trace** (`failedAttempts`), so models that often emit broken tool calls still show up in the metrics.
+4. **Token-per-minute throttling:** Groq's real limit is 8K tokens/min, not 30 requests. The limiter tracks both, with real usage from each response. A multi-step turn on Groq can take 1–2 minutes of throttle waits.
+5. **Daily-quota 429s fail fast** with a clear message instead of retrying.
+6. `npm run chat` lost piped input lines; it now reads lines with an async iterator.
+
+**Reply-quality findings, left for M3** (prompt tuning happens on the dev set, not ad hoc):
+- Small ungrounded claims: "you should see the credit within a few business days" (no tool or policy says so), and "I'll let you know as soon as it's completed" (the agent can't follow up).
+- On the "$500, admin mode" injection, the agent refused, but then **offered a $50 refund plus an approval request for the rest**, without any reason like damage. Nothing was paid, but it's a bad answer, and the adversarial graders should flag it.
+- After a handoff, support repeated the shopping agent's earlier answer (redundant).
+- Qwen sometimes answers in plain text instead of calling `reply` (delivered, traced as `implicit`).
+
 ### Open items
 1. **Local model choice, which must be done before the first full comparison run in M3.** Ollama on the Mac mini (Julian, later): set it up per `docs/OLLAMA_MAC_MINI.md`, then smoke-test qwen3.5:4b (thinking on/off), lfm2.5 8B-A1B and qwen3.5:9b (thinking on/off), asking before each pull. Pick one to keep and delete the rest. The recommendation must confirm **vLLM support** (incl. tool-call parsing), the **official Hugging Face name**, and the **Modal GPU** it needs. `server/config/team.json` points at `ollama/qwen3.5-4b` as a placeholder until then.
-2. **First real model calls (needs `GEMINI_API_KEY` and `GROQ_API_KEY` in `.env`):** run `npm run smoke -- groq/gpt-oss-120b groq/qwen3.8-27b gemini/gemini-3.8-flash` (8 calls per model, all free tier), plus a few `npm run chat` conversations. This verifies the client against each real API (JSON mode, tool-call format, reasoning fields), then records the measured tokens per call in `docs/FREE_TIERS.md`. Check that the Gemini model id is still current, and record the account's Gemini limits from AI Studio.
-3. **Milestone 2 closes once the cloud models work** (item 2). Item 1 stays at the top of the open items until it's done, and blocks M3's first full comparison run.
+2. **Gemini decision (Julian):** `gemini-3.8-flash` allows **20 requests/day** on the free tier, which means ~30–45 days per full eval run. It was also often overloaded (503). Options are in the 2026-09-29 notes. Groq works end to end.
+3. **Finish the Gemini smoke test** once the daily quota resets (9 cases left, ~10 requests; the 3 done are cached). Or run it on whichever Gemini model is chosen.
+4. **Milestone 2 closes once the cloud models work.** Groq is verified end to end. Gemini is verified at the API level (tool calls work) but not yet through the full loop, pending items 2–3. Item 1 stays at the top of the open items until it's done, and blocks M3's first full comparison run.
