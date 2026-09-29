@@ -37,6 +37,7 @@ export const POLICY_DOCS: { topic: PolicyTopic; title: string; body: string }[] 
       "Refunds go back to the original payment method.",
       "A refund can never be more than what was paid for the order.",
       `Our support team can issue refunds for damaged items, lost orders and late deliveries (shipping cost only). Refunds up to ${formatCents(RULES.autoRefundLimitCents)} per order are processed right away; larger amounts are reviewed by a team member, usually within one business day.`,
+      `Damaged items are refunded per item, up to what was paid for that item. Items that cost more than ${formatCents(RULES.autoRefundLimitCents)} are always reviewed by a team member, whatever amount is requested.`,
       "Refunds for returned items are issued when the warehouse receives the return.",
     ].join("\n"),
   },
@@ -63,7 +64,7 @@ export const POLICY_DOCS: { topic: PolicyTopic; title: string; body: string }[] 
     body: [
       `If an item arrives damaged, report it within ${RULES.damageReportWindowDays} days of delivery.`,
       "We'll refund the item or send a replacement; you don't need to send the damaged item back unless we ask.",
-      `Damaged-item refunds up to ${formatCents(RULES.autoRefundLimitCents)} per order are processed right away; larger ones are reviewed by a team member.`,
+      `A damaged item that cost ${formatCents(RULES.autoRefundLimitCents)} or less is refunded right away; pricier items are reviewed by a team member, usually within one business day.`,
       `Reports after ${RULES.damageReportWindowDays} days are reviewed case by case by a team member.`,
     ].join("\n"),
   },

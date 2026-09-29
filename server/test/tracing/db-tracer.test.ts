@@ -38,7 +38,7 @@ describe("DbTracer", () => {
     let runId = "";
     await inTx(async (tx) => {
       const router = new FakeProvider([fake.json({ route: "support", category: "refunds", urgency: "high", confidence: 0.9 })]);
-      const agent = new FakeProvider([fake.tools(["issue_refund", { orderId: 1051, amount: 179.99, reason: "damaged" }]), fake.reply("Sent for approval.")]);
+      const agent = new FakeProvider([fake.tools(["issue_refund", { orderId: 1051, amount: 179.99, reason: "damaged", item: "sleeping bag" }]), fake.reply("Sent for approval.")]);
       const team = buildTeam(loadTeamSpec({ MODEL: "fake" }), { fakes: { router, shopping: agent, support: agent }, env: {} });
       const convo = await Conversation.start({
         db: tx,

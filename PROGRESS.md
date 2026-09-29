@@ -162,7 +162,15 @@ Chat on Flash-Lite (all three roles): order status over 2 turns ✅, shopping �
 
 ### Open items
 1. **Local model choice, which must be done before the first full comparison run in M3.** Ollama on the Mac mini (Julian, later): set it up per `docs/OLLAMA_MAC_MINI.md`, then smoke-test qwen3.5:4b (thinking on/off), lfm2.5 8B-A1B and qwen3.5:9b (thinking on/off), asking before each pull. Pick one to keep and delete the rest. The recommendation must confirm **vLLM support** (incl. tool-call parsing), the **official Hugging Face name**, and the **Modal GPU** it needs. `server/config/team.json` points at `ollama/qwen3.5-4b` as a placeholder until then.
-2. **Refund-splitting policy gap (Julian decides the rule; the fix goes in code):** a damaged-item claim over $50 can be split into an automatic $50 plus an escalation, bypassing the approvals queue. Fix before M3's eval runs, since the refund-over-limit cases depend on it.
-3. **Unknown Gemini Flash-Lite daily limit:** the first eval run will find it (the 429 names the quota). The runner must checkpoint and resume the next day.
+2. **Unknown Gemini Flash-Lite daily limit:** the first eval run will find it (the 429 names the quota). The runner must checkpoint and resume the next day.
+
+### Fix after M2 (2026-09-29): damaged-item refunds are per item
+Julian chose "refund per item" to close the splitting gap:
+- `issue_refund` takes an `item` argument (product id, variant id or name, matched by the same `findOrderItem()` helper as `check_return_eligibility`). It's **required for `damaged`** (`ITEM_REQUIRED` otherwise); `lost`/`late` stay order-level.
+- A damaged refund is capped at what's still refundable **for that item**: paid for the units not returned (the warehouse refunded those), minus refunds already issued or pending for the item. New nullable column `refunds.order_item_id` (migration `0003_refund_item.sql`) links refunds to items.
+- **Automatic only if the item cost ≤ $50** (and, as before, the order's refunds total ≤ $50). A $179.99 item goes to approval in full, whatever amount is requested.
+- The policy docs (generated from `RULES`) now say this; the approval payload names the item.
+- Tests: new policy and tool cases, including the exact $50-of-$179.99 split, a missing/wrong item, per-item totals, and returned units. Three existing tests changed **deliberately** because the rule changed, each with a comment: the $45 + $45 split test (the first $45 is now queued too, which is stricter), the $500 cap on #1050 (now $29.00 for the item instead of $36.99 for the order), and damaged calls naming an item. Disabling the per-item check makes 3 tests fail. 196 tests passing.
+- Re-running the exact chat on Gemini 3.5 Flash Lite: the full $179.99 now goes to approvals (`approval_needed`), and the reply matches the tool's message.
 
 **Milestone 2 is closed:** all three cloud models (Groq gpt-oss-120b, Groq qwen3.8-27b, Gemini 3.5 Flash Lite) work through the full loop, including tool calls, multi-step turns, handoffs and routing. Tests: 190 passing.

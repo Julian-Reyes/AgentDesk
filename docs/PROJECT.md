@@ -37,7 +37,7 @@ Keep it **simple, polished, and honest.** A small system that works, with real n
      - `get_order(id)`
      - `get_tracking(order_id)`
      - `check_return_eligibility(order_id, item)`
-     - `issue_refund(order_id, amount, reason)`
+     - `issue_refund(order_id, amount, reason, item?)`: `item` required for damaged items
      - `issue_goodwill_coupon(customer, percent)`
      - `escalate_to_human(reason)`
 - **Both agents** can use `get_policy(topic)` and `reply(message)`.
@@ -185,3 +185,4 @@ Once both projects are done, the Router can be swapped for the best model from S
 - **2026-09-29: Budget line reworded** from "The whole project must run on free tiers" to "$0 by default; Modal allowed within its free monthly credit, with a spending limit at that amount; anything beyond free tiers/credits needs approval with a cost estimate." Modal/vLLM is needed for official evals and the demo, and its free credit keeps the project at $0 with a hard cap.
 - **2026-09-29: Modal cap made precise:** "spending limit at that amount" became "usage budget capped at $30 and spend limit at $0". Modal's spend limit counts only out-of-pocket charges after credits, so a $30 spend limit would have allowed $30 of real charges on top of the free credit.
 - **2026-09-29: Gemini slot is `gemini-3.5-flash-lite`, not a Flash model.** Gemini 3.8 Flash's free tier allows only 20 requests/day (~30–45 days per eval run) and was often overloaded; 3.5 Flash Lite allows 15 RPM (Flash: 5) and passed the smoke test 12/12. Its daily limit is unknown until hit.
+- **2026-09-29: `issue_refund(order_id, amount, reason, item?)`: damaged-item refunds name the item** and are automatic only if that item cost ≤ $50. Without it, an agent split a $179.99 damaged claim into an automatic $50 plus an escalation, bypassing the approvals queue.

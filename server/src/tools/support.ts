@@ -4,10 +4,10 @@ import * as s from "../db/schema.ts";
 import { addDays } from "../domain/clock.ts";
 import { formatCents } from "../domain/money.ts";
 import { decideGoodwill } from "../policy/goodwill.ts";
-import { AGENT_REFUND_REASONS, decideRefund } from "../policy/refunds.ts";
+import { AGENT_REFUND_REASONS, decideRefund, type RefundItem } from "../policy/refunds.ts";
 import { checkReturnEligibility } from "../policy/returns.ts";
 import { RULES } from "../policy/rules.ts";
-import { day, dollarsArg, loadOwnedOrder, orderNumberArg, toCents } from "./common.ts";
+import { day, dollarsArg, findOrderItem, linePaidCents, loadOwnedOrder, orderNumberArg, toCents } from "./common.ts";
 import { defineTool, fail, ok, type ToolContext } from "./define.ts";
 
 const CARRIER = "Parcelway";
@@ -135,23 +135,9 @@ export const checkReturnEligibilityTool = defineTool({
     const owned = await loadOwnedOrder(ctx, orderId);
     if (!owned.ok) return owned;
     const order = owned.data;
-    const items = await ctx.db
-      .select({ item: s.orderItems, name: s.products.name })
-      .from(s.orderItems)
-      .innerJoin(s.products, eq(s.products.id, s.orderItems.productId))
-      .where(eq(s.orderItems.orderNumber, order.number));
-
-    const q = item.trim().toLowerCase();
-    const exact = items.filter((i) => i.item.productId === q || i.item.variantId === q || i.name.toLowerCase() === q);
-    const fuzzy = exact.length ? exact : items.filter((i) => i.name.toLowerCase().includes(q) || q.includes(i.name.toLowerCase()));
-    if (fuzzy.length !== 1) {
-      return fail(
-        fuzzy.length ? "ITEM_AMBIGUOUS" : "ITEM_NOT_IN_ORDER",
-        fuzzy.length ? "More than one item matches; ask which one." : `No item matching "${item}" in order #${order.number}.`,
-        { itemsInOrder: items.map((i) => ({ productId: i.item.productId, name: i.name })) },
-      );
-    }
-    const match = fuzzy[0]!;
+    const found = await findOrderItem(ctx.db, order.number, item);
+    if (!found.ok) return found;
+    const match = found.data;
     const result = checkReturnEligibility({
       orderStatus: order.status,
       deliveredAt: order.deliveredAt,
@@ -165,15 +151,17 @@ export const checkReturnEligibilityTool = defineTool({
 
 export const issueRefund = defineTool({
   name: "issue_refund",
-  description: `Refund part or all of one of the signed-in customer's orders. Reasons: damaged (reported within ${RULES.damageReportWindowDays} days of delivery), lost (order lost in transit), late (delayed order; shipping cost only). Amount in dollars. Up to ${formatCents(RULES.autoRefundLimitCents)} per order is refunded immediately; more goes to a human for approval. Returns are refunded by the warehouse, not with this tool.`,
+  description: `Refund part or all of one of the signed-in customer's orders. Reasons: damaged (reported within ${RULES.damageReportWindowDays} days of delivery; pass the damaged item, refunded up to what was paid for it), lost (order lost in transit), late (delayed order; shipping cost only). Amount in dollars. The tool decides whether the refund is immediate or goes to a human for approval, and says which. Returns are refunded by the warehouse, not with this tool.`,
   agents: ["support"],
   args: z.object({
     orderId: orderNumberArg,
     amount: dollarsArg,
     reason: z.enum(AGENT_REFUND_REASONS),
+    /** Required for "damaged": the item's product id or name. */
+    item: z.string().trim().min(1).optional(),
     note: z.string().max(500).optional(),
   }),
-  async run(ctx, { orderId, amount, reason, note }) {
+  async run(ctx, { orderId, amount, reason, item, note }) {
     const amountCents = toCents(amount);
     return ctx.db.transaction(async (tx) => {
       const tctx = { ...ctx, db: tx };
@@ -191,11 +179,30 @@ export const issueRefund = defineTool({
         .from(s.refunds)
         .where(eq(s.refunds.orderNumber, order.number));
 
+      // Damaged refunds are per item: find it, and work out what's still refundable for it.
+      let refundItem: RefundItem | undefined;
+      let orderItemId: number | null = null;
+      if (reason === "damaged" && item) {
+        const found = await findOrderItem(tx, order.number, item);
+        if (!found.ok) return { ...found, policyDecision: "denied" as const };
+        const { item: line, name } = found.data;
+        const [itemSums] = await tx
+          .select({ refunded: sql<number>`coalesce(sum(${s.refunds.amountCents}) filter (where ${s.refunds.status} in ('issued', 'pending_approval')), 0)::int` })
+          .from(s.refunds)
+          .where(eq(s.refunds.orderItemId, line.id));
+        const paid = linePaidCents(line);
+        // Units already returned were refunded by the warehouse; only the rest can be refunded as damaged.
+        const keptPaid = Math.floor((paid * (line.qty - line.returnedQty)) / line.qty);
+        refundItem = { name, paidCents: paid, refundableCents: keptPaid - itemSums!.refunded };
+        orderItemId = line.id;
+      }
+
       const decision = decideRefund(
         { ...order, issuedCents: sums!.issued, pendingCents: sums!.pending },
         reason,
         amountCents,
         ctx.now,
+        refundItem,
       );
 
       if (decision.decision === "denied") {
@@ -204,7 +211,7 @@ export const issueRefund = defineTool({
       if (decision.decision === "auto_approved") {
         const [refund] = await tx
           .insert(s.refunds)
-          .values({ orderNumber: order.number, amountCents, reason, note: note ?? null, status: "issued", createdAt: ctx.now })
+          .values({ orderNumber: order.number, amountCents, reason, note: note ?? null, status: "issued", orderItemId, createdAt: ctx.now })
           .returning();
         return ok(
           {
@@ -222,7 +229,7 @@ export const issueRefund = defineTool({
           kind: "refund",
           customerId: order.customerId,
           orderNumber: order.number,
-          payload: { amountCents, reason, note: note ?? null },
+          payload: { amountCents, reason, note: note ?? null, ...(refundItem ? { item: refundItem.name, orderItemId } : {}) },
           reason: decision.why,
           createdAt: ctx.now,
         })
@@ -234,6 +241,7 @@ export const issueRefund = defineTool({
         note: note ?? null,
         status: "pending_approval",
         approvalId: approval!.id,
+        orderItemId,
         createdAt: ctx.now,
       });
       return ok(

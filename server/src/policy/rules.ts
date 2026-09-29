@@ -4,7 +4,7 @@
  * the enforcement can't drift apart.
  */
 export const RULES = {
-  autoRefundLimitCents: 5000, // $50, cumulative per order
+  autoRefundLimitCents: 5000, // $50, cumulative per order; a damaged item must also cost ≤ this
   returnWindowDays: 30,
   damageReportWindowDays: 14,
   goodwillMaxPercent: 10,

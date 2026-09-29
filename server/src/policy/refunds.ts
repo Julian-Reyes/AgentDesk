@@ -18,6 +18,15 @@ export type RefundOrderState = {
   pendingCents: Cents;
 };
 
+/** The damaged item a refund is for. Damaged-item refunds are decided per item. */
+export type RefundItem = {
+  name: string;
+  /** What the customer paid for the whole line, after sales. */
+  paidCents: Cents;
+  /** What's still refundable for this item: paid for units not returned, minus refunds already issued or pending for it. */
+  refundableCents: Cents;
+};
+
 export type RefundDecision =
   | { decision: "auto_approved"; amountCents: Cents }
   | { decision: "queued_for_approval"; amountCents: Cents; why: string }
@@ -28,9 +37,14 @@ export type RefundDecision =
  *  1. the reason must match the order's actual state
  *  2. the amount can never exceed what's still refundable (paid − issued − pending),
  *     and a "late" refund covers shipping only
- *  3. automatic only while the order's refunds in total (issued + pending + this one)
- *     stay at or under $50. Counting the total stops a $180 refund from being
- *     split into four $45 ones.
+ *     and a "damaged" refund covers the named item only
+ *  3. automatic only if
+ *     - the order's refunds in total (issued + pending + this one) stay at or
+ *       under $50, which stops a big refund being split into small ones, and
+ *     - for "damaged", the item itself cost $50 or less. So a $179.99 item always
+ *       goes to approval, even when the agent asks for "just $50 now" (found on
+ *       2026-09-29: an agent split a $179.99 claim into an automatic $50 plus an
+ *       escalation, bypassing the approvals queue).
  *  4. otherwise it goes to the approvals queue
  */
 export function decideRefund(
@@ -38,6 +52,7 @@ export function decideRefund(
   reason: AgentRefundReason,
   amountCents: Cents,
   now: Date,
+  item?: RefundItem,
 ): RefundDecision {
   if (!Number.isSafeInteger(amountCents) || amountCents <= 0) {
     return deny("INVALID_AMOUNT", "Refund amount must be a positive number of cents.");
@@ -58,6 +73,10 @@ export function decideRefund(
           { daysSinceDelivery: days },
         );
       }
+      if (!item) {
+        return deny("ITEM_REQUIRED", "A damaged-item refund must name the damaged item from the order.");
+      }
+      cap = Math.min(cap, item.refundableCents);
       break;
     }
     case "lost":
@@ -89,6 +108,13 @@ export function decideRefund(
     );
   }
 
+  if (reason === "damaged" && item && item.paidCents > RULES.autoRefundLimitCents) {
+    return {
+      decision: "queued_for_approval",
+      amountCents,
+      why: `The damaged item (${item.name}) cost ${formatCents(item.paidCents)}, above the ${formatCents(RULES.autoRefundLimitCents)} automatic limit.`,
+    };
+  }
   const orderTotalAfter = order.issuedCents + order.pendingCents + amountCents;
   if (orderTotalAfter <= RULES.autoRefundLimitCents) {
     return { decision: "auto_approved", amountCents };

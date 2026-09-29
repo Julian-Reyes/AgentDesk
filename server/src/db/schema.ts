@@ -250,6 +250,8 @@ export const refunds = pgTable(
     note: text("note"),
     status: refundStatusEnum("status").notNull(),
     approvalId: integer("approval_id").references(() => approvals.id),
+    /** The damaged item this refund is for (null for lost/late refunds and warehouse return refunds). */
+    orderItemId: integer("order_item_id").references(() => orderItems.id),
     createdAt: ts("created_at").notNull(),
   },
   (t) => [index("refunds_order_idx").on(t.orderNumber)],

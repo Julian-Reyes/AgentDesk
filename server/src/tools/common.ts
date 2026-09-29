@@ -118,3 +118,31 @@ export function presentProduct(p: typeof s.products.$inferSelect, totalStock: nu
 }
 
 export const day = (d: Date | null) => (d ? d.toISOString().slice(0, 10) : null);
+
+/**
+ * Finds one item in an order from what the model passed: a product id, a
+ * variant id, or (part of) the product name. Shared by check_return_eligibility
+ * and issue_refund so both tools identify items the same way.
+ */
+export async function findOrderItem(db: DbOrTx, orderNumber: number, query: string) {
+  const items = await db
+    .select({ item: s.orderItems, name: s.products.name })
+    .from(s.orderItems)
+    .innerJoin(s.products, eq(s.products.id, s.orderItems.productId))
+    .where(eq(s.orderItems.orderNumber, orderNumber));
+
+  const q = query.trim().toLowerCase();
+  const exact = items.filter((i) => i.item.productId === q || i.item.variantId === q || i.name.toLowerCase() === q);
+  const matches = exact.length ? exact : items.filter((i) => i.name.toLowerCase().includes(q) || q.includes(i.name.toLowerCase()));
+  if (matches.length !== 1) {
+    return fail(
+      matches.length ? "ITEM_AMBIGUOUS" : "ITEM_NOT_IN_ORDER",
+      matches.length ? "More than one item matches; ask which one." : `No item matching "${query}" in order #${orderNumber}.`,
+      { itemsInOrder: items.map((i) => ({ productId: i.item.productId, name: i.name })) },
+    );
+  }
+  return { ok: true as const, data: matches[0]! };
+}
+
+/** What the customer paid for a whole order line, after sales. */
+export const linePaidCents = (item: typeof s.orderItems.$inferSelect): Cents => item.unitPriceCents * item.qty - item.discountCents;
