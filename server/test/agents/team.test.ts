@@ -14,7 +14,7 @@ describe("team config", () => {
 
   it("records model, provider and prompt version per role", () => {
     const team = buildTeam(loadTeamSpec({ MODEL: "ollama/qwen3.5-4b" }), { env: {}, cacheMode: "off" });
-    expect(team.meta.support).toEqual({ model: "ollama/qwen3.5-4b", provider: "ollama", prompt: expect.stringMatching(/^support@1#[0-9a-f]{8}$/) });
+    expect(team.meta.support).toEqual({ model: "ollama/qwen3.5-4b", provider: "ollama", prompt: expect.stringMatching(/^support@2#[0-9a-f]{8}$/) });
     expect(Object.keys(team.agents).sort()).toEqual(["shopping", "support"]);
   });
 

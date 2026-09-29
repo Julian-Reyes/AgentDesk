@@ -9,6 +9,7 @@ import { callTool, type AgentName, type Session, type ToolResult } from "../tool
 import { getTool } from "../tools/registry.ts";
 import type { RunOutcome, RunTrace, StepRecord, Tracer } from "../tracing/tracer.ts";
 import { sessionContext, type Prompt } from "./prompts.ts";
+import { unwrapReplyText } from "./reply-text.ts";
 import type { Router } from "./router.ts";
 
 /**
@@ -238,8 +239,9 @@ export class Conversation {
         if (text) {
           // The model answered in plain text instead of calling reply. Deliver it,
           // but mark it: the evals count how often a model skips the reply tool.
-          await this.step({ kind: "reply", agent, data: { message: text, implicit: true } });
-          return { reply: text, answeredBy: agent, outcome: turnOutcome };
+          const clean = unwrapReplyText(text);
+          await this.step({ kind: "reply", agent, data: { message: clean.text, implicit: true, ...(clean.unwrapped ? { unwrapped: true, raw: text } : {}) } });
+          return { reply: clean.text, answeredBy: agent, outcome: turnOutcome };
         }
         // Empty response: nudge once per step and let the step limit bound it.
         this.working.push({ role: "user", content: "(No reply was sent. Use your tools, then answer the customer with the reply tool.)" });
@@ -278,8 +280,9 @@ export class Conversation {
       }
 
       if (finalReply !== null) {
-        await this.step({ kind: "reply", agent, data: { message: finalReply } });
-        return { reply: finalReply, answeredBy: agent, outcome: turnOutcome };
+        const clean = unwrapReplyText(finalReply);
+        await this.step({ kind: "reply", agent, data: { message: clean.text, ...(clean.unwrapped ? { unwrapped: true, raw: finalReply } : {}) } });
+        return { reply: clean.text, answeredBy: agent, outcome: turnOutcome };
       }
       if (handoffTo) {
         this.activate(handoffTo.to, `You are taking over from the ${agent} agent. Their note: ${handoffTo.reason}`);
