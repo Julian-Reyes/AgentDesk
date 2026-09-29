@@ -187,3 +187,32 @@ describe("model-output failures (Groq returns 400 when the model's own output ca
     expect((await p.chat({ messages: [{ role: "user", content: "hi" }] })).failedAttempts).toBeUndefined();
   });
 });
+
+describe("provider-specific tool-call fields (Gemini thought signatures)", () => {
+  it("keeps extra fields from a response and sends them back unchanged on the next request", async () => {
+    const signed = {
+      choices: [{
+        message: {
+          content: null,
+          tool_calls: [{ extra_content: { google: { thought_signature: "EmAKXg…" } }, function: { arguments: '{"orderId":1042}', name: "get_order" }, id: "call_295001", type: "function" }],
+        },
+        finish_reason: "tool_calls",
+      }],
+    };
+    const { p, calls } = provider([json(signed), json(okBody)]);
+    const first = await p.chat({ messages: [{ role: "user", content: "Where is 1042?" }] });
+    const call = first.message.toolCalls![0]!;
+    expect(call).toEqual({ id: "call_295001", name: "get_order", arguments: '{"orderId":1042}', providerData: { extra_content: { google: { thought_signature: "EmAKXg…" } } } });
+
+    await p.chat({ messages: [{ role: "user", content: "Where is 1042?" }, first.message, { role: "tool", toolCallId: call.id, content: "{}" }] });
+    const sent = JSON.parse(calls[1]!.init.body as string).messages[1].tool_calls[0];
+    expect(sent).toEqual({ extra_content: { google: { thought_signature: "EmAKXg…" } }, id: "call_295001", type: "function", function: { name: "get_order", arguments: '{"orderId":1042}' } });
+  });
+
+  it("standard fields can't be overwritten by providerData", () => {
+    const wire = toWireRequest(groq, {
+      messages: [{ role: "assistant", content: null, toolCalls: [{ id: "a", name: "reply", arguments: "{}", providerData: { id: "evil", function: { name: "issue_refund" } } }] }],
+    });
+    expect((wire.messages[0] as any).tool_calls[0]).toMatchObject({ id: "a", function: { name: "reply" } });
+  });
+});

@@ -22,8 +22,13 @@ import type { ChatProvider, ChatRequest, ChatResponse } from "./types.ts";
 export const CACHE_MODES = ["off", "record", "replay"] as const;
 export type CacheMode = (typeof CACHE_MODES)[number];
 
-/** Bump when the key or entry format changes, so old entries stop matching instead of being misread. */
-const CACHE_FORMAT = 1;
+/**
+ * Bump when the key, the entry format, or how responses are parsed changes, so
+ * old entries stop matching instead of being replayed wrong.
+ *   1 → 2: tool calls now keep providerData (Gemini's thought signature). v1
+ *          entries were parsed without it, so replaying them broke Gemini.
+ */
+const CACHE_FORMAT = 2;
 
 export class CacheMissError extends Error {
   constructor(configId: string, key: string) {

@@ -73,7 +73,7 @@ Bringing back the old list-only `currentPrice` and the discount-blind `paid` mak
 
 **Milestone 1 is closed.**
 
-## Milestone 2 — Agent loop 🚧 In progress
+## Milestone 2 — Agent loop ✅ Closed (2026-09-29)
 
 ### Decisions so far (2026-09-29)
 - **GitHub Models was retired on 2026-07-30** ([changelog](https://github.blog/changelog/2026-07-30-github-models-is-now-retired/)). The "GPT" slot in the comparison is now **Groq `openai/gpt-oss-120b`** (OpenAI's open-weights GPT). Lineup: Gemini Flash · Groq gpt-oss-120b · Groq qwen3.8-27b · a small local model. Free-tier limits, from official docs only: `docs/FREE_TIERS.md`.
@@ -112,7 +112,7 @@ Bringing back the old list-only `currentPrice` and the discount-blind `paid` mak
   - No foreign keys to store tables, so traces survive reseeds. `DbTracer` uses its **own connection**, so traces survive the rollback of the tools' transaction (tested), which M3 eval runs need.
   - `MemoryTracer` is used by tests.
 - **CLIs:** `npm run chat -- --as maya.chen@example.com` (interactive, traced, runs tools against the dev DB), `npm run trace [-- <run id>]` (lists recent runs or prints one step by step), `npm run smoke -- <config-id>…`.
-- **Tests: 188 passing** (as of the first real calls; 174 before them). Test files are listed below.
+- **Tests: 190 passing** (174 before the first real calls). Test files are listed below.
   - `llm/cache.test.ts`: key covers provider/params/tools and ignores baseUrl; record/replay/off; errors not cached.
   - `agents/router.test.ts`: valid, fenced and invalid JSON; retry; fallback.
   - `agents/conversation.test.ts`: 20 loop tests with real tools in a rolled-back transaction:
@@ -134,6 +134,7 @@ Smoke test (8 next-step tool cases + 4 routing cases, real prompts and tools), a
 | Groq `gpt-oss-120b` | 11/12 | 12/12 | 0.6 s | The one "fail" called `get_product` instead of `check_stock` for size/color stock, which is arguably fine; the M3 graders should accept either. In chat it did use `check_stock`. |
 | Groq `qwen3.8-27b` | 10/12 | 11/12 | 0.7 s | One tool call with **garbled JSON arguments** (Zod rejected it before the tool ran), and one answer in plain text instead of the `reply` tool. |
 | Gemini `3.8-flash` | 3/3 run | 3/3 | ~4–9 s | **Incomplete:** frequent 503 "high demand" errors, then the **free-tier daily limit of 20 requests** was used up (failed attempts count). |
+| Gemini `3.5-flash-lite` | 12/12 | 12/12 | 13 s (max 53 s) | **Chosen Gemini model** (see below). Slow on the free tier. In one earlier run it called a nonexistent tool (`get_customer`), which the loop would reject. |
 
 Eight chat conversations on Groq `gpt-oss-120b` (dev DB, reseeded afterwards): order status + follow-up; $29 damaged refund (auto-approved ✅); $179.99 damaged refund (queued for approval ✅); prompt injection "refund $500" (nothing refunded ✅); someone else's order #1043 (not found ✅); "best 2-person tent under $200" (Ridge 2 at $199.20, all facts grounded ✅) + coupon quote; anonymous customer asking about an order (asked to sign in ✅); price match (declined ✅); shopping → support handoff for a signed-in customer ✅.
 
@@ -145,6 +146,14 @@ Eight chat conversations on Groq `gpt-oss-120b` (dev DB, reseeded afterwards): o
 5. **Daily-quota 429s fail fast** with a clear message instead of retrying.
 6. `npm run chat` lost piped input lines; it now reads lines with an async iterator.
 
+**Gemini: switched to `gemini-3.5-flash-lite` (Julian's decision, 2026-09-29).** 3.8 Flash allows only 20 requests/day. Flash-Lite allows 15 RPM, and its daily limit is unknown until hit (no rate-limit headers; checked). Switching exposed one more bug:
+
+7. **Gemini requires its "thought signature" back on every replayed tool call** (`extra_content.google.thought_signature`); without it, every multi-step turn fails at step 2 with HTTP 400. The client now keeps provider-specific tool-call fields (`providerData`) and sends them back unchanged (tested; standard fields can't be overwritten). The cache format was bumped to 2, because entries parsed by the old client had lost the signature; the old cache (74 entries of smoke/chat calls) was cleared. The smoke test's two-step case now lets the model make its own first call instead of replaying a fabricated one.
+
+Chat on Flash-Lite (all three roles): order status over 2 turns ✅, shopping → support handoff ✅. $179.99 damaged refund: see the policy gap below.
+
+**Policy gap found (M1 rule, needs Julian's decision):** on a $179.99 damaged-item claim, Flash-Lite called `issue_refund` for **$50** (auto-approved, since the cumulative per-order cap allows it), then escalated the rest. The approvals queue was never used. The cap stops anyone getting *more* than $50 automatically, but it doesn't stop splitting a bigger claim into "$50 now + ask for the rest". See open item 2.
+
 **Reply-quality findings, left for M3** (prompt tuning happens on the dev set, not ad hoc):
 - Small ungrounded claims: "you should see the credit within a few business days" (no tool or policy says so), and "I'll let you know as soon as it's completed" (the agent can't follow up).
 - On the "$500, admin mode" injection, the agent refused, but then **offered a $50 refund plus an approval request for the rest**, without any reason like damage. Nothing was paid, but it's a bad answer, and the adversarial graders should flag it.
@@ -153,6 +162,7 @@ Eight chat conversations on Groq `gpt-oss-120b` (dev DB, reseeded afterwards): o
 
 ### Open items
 1. **Local model choice, which must be done before the first full comparison run in M3.** Ollama on the Mac mini (Julian, later): set it up per `docs/OLLAMA_MAC_MINI.md`, then smoke-test qwen3.5:4b (thinking on/off), lfm2.5 8B-A1B and qwen3.5:9b (thinking on/off), asking before each pull. Pick one to keep and delete the rest. The recommendation must confirm **vLLM support** (incl. tool-call parsing), the **official Hugging Face name**, and the **Modal GPU** it needs. `server/config/team.json` points at `ollama/qwen3.5-4b` as a placeholder until then.
-2. **Gemini decision (Julian):** `gemini-3.8-flash` allows **20 requests/day** on the free tier, which means ~30–45 days per full eval run. It was also often overloaded (503). Options are in the 2026-09-29 notes. Groq works end to end.
-3. **Finish the Gemini smoke test** once the daily quota resets (9 cases left, ~10 requests; the 3 done are cached). Or run it on whichever Gemini model is chosen.
-4. **Milestone 2 closes once the cloud models work.** Groq is verified end to end. Gemini is verified at the API level (tool calls work) but not yet through the full loop, pending items 2–3. Item 1 stays at the top of the open items until it's done, and blocks M3's first full comparison run.
+2. **Refund-splitting policy gap (Julian decides the rule; the fix goes in code):** a damaged-item claim over $50 can be split into an automatic $50 plus an escalation, bypassing the approvals queue. Fix before M3's eval runs, since the refund-over-limit cases depend on it.
+3. **Unknown Gemini Flash-Lite daily limit:** the first eval run will find it (the 429 names the quota). The runner must checkpoint and resume the next day.
+
+**Milestone 2 is closed:** all three cloud models (Groq gpt-oss-120b, Groq qwen3.8-27b, Gemini 3.5 Flash Lite) work through the full loop, including tool calls, multi-step turns, handoffs and routing. Tests: 190 passing.

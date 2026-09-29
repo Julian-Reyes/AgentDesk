@@ -26,6 +26,12 @@ type Case = {
   name: string;
   agent: AgentName;
   messages: ChatMessage[];
+  /**
+   * Two-step case: the model makes its own first call (which must be this tool),
+   * gets `result` back, and its *second* step is graded. The first call has to
+   * be the model's own: Gemini rejects replayed tool calls without its signature.
+   */
+  thenFeed?: { tool: string; result: string };
   grade: (call: { name: string; args: any } | null, r: ChatResponse) => Verdict;
 };
 
@@ -114,11 +120,8 @@ const CASES: Case[] = [
   {
     name: "uses tool result (2nd step)",
     agent: "shopping",
-    messages: [
-      ...conv("shopping", "Do you have the Squall jacket in size M, green?"),
-      { role: "assistant", content: null, toolCalls: [{ id: "call_1", name: "search_products", arguments: '{"query":"squall jacket"}' }] },
-      { role: "tool", toolCallId: "call_1", content: CANNED_SEARCH },
-    ],
+    messages: conv("shopping", "Do you have the Squall jacket in size M, green?"),
+    thenFeed: { tool: "search_products", result: CANNED_SEARCH },
     grade: (c) =>
       v(is(c, "check_stock") && c!.args.productId === "jacket-squall" && /^m(edium)?$/i.test(String(c!.args.size ?? "")) && /green/i.test(String(c!.args.color ?? "")),
         "check_stock(jacket-squall, M, green)"),
@@ -166,7 +169,21 @@ async function main() {
 
     for (let run = 1; run <= runs; run++) {
       for (const c of CASES) {
-        const r = await provider.chat({ messages: c.messages, tools: toolsFor(c.agent) });
+        let r = await provider.chat({ messages: c.messages, tools: toolsFor(c.agent) });
+        if (c.thenFeed) {
+          const calls = r.message.toolCalls ?? [];
+          if (calls[0]?.name !== c.thenFeed.tool) {
+            rows.push({ model: id, case: c.name, pass: false, argsValid: false, call: `step 1 was ${calls[0]?.name ?? "no tool call"}, expected ${c.thenFeed.tool}`, latencyMs: r.latencyMs, inTok: r.usage.inputTokens, outTok: r.usage.outputTokens, note: "" });
+            console.log(`  FAIL  ${c.name.padEnd(28)} step 1 was ${calls[0]?.name ?? "no tool call"}, expected ${c.thenFeed.tool}`);
+            continue;
+          }
+          const results: ChatMessage[] = calls.map((call, i) => ({
+            role: "tool",
+            toolCallId: call.id,
+            content: i === 0 ? c.thenFeed!.result : JSON.stringify({ ok: false, error: { code: "SKIPPED", message: "Not run in this test." } }),
+          }));
+          r = await provider.chat({ messages: [...c.messages, r.message, ...results], tools: toolsFor(c.agent) });
+        }
         const first = r.message.toolCalls?.[0];
         let args: unknown = null;
         let argsValid = false;

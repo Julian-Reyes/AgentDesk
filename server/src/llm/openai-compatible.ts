@@ -183,6 +183,7 @@ function toWireMessage(m: ChatMessage) {
         ...(m.toolCalls?.length
           ? {
               tool_calls: m.toolCalls.map((c) => ({
+                ...c.providerData,
                 id: c.id,
                 type: "function",
                 function: { name: c.name, arguments: c.arguments },
@@ -195,21 +196,25 @@ function toWireMessage(m: ChatMessage) {
   }
 }
 
-type WireToolCall = { id?: string; function?: { name?: string; arguments?: unknown } };
+type WireToolCall = { id?: string; type?: string; function?: { name?: string; arguments?: unknown }; [extra: string]: unknown };
 
 export function fromWireResponse(json: any, latencyMs: number): ChatResponse {
   const choice = json?.choices?.[0];
   if (!choice?.message) throw new ProviderError(`Malformed response: ${JSON.stringify(json).slice(0, 300)}`);
   const msg = choice.message;
 
-  const toolCalls: ToolCall[] = ((msg.tool_calls ?? []) as WireToolCall[]).map((c, i) => ({
-    // Some providers omit ids; the loop needs one to pair each result with its call.
-    id: c.id || `call_${i}`,
-    name: c.function?.name ?? "",
-    // Arguments should be a JSON string, but some servers send an object. Normalize to text.
-    arguments:
-      typeof c.function?.arguments === "string" ? c.function.arguments : JSON.stringify(c.function?.arguments ?? {}),
-  }));
+  const toolCalls: ToolCall[] = ((msg.tool_calls ?? []) as WireToolCall[]).map((c, i) => {
+    // Anything beyond the standard fields (e.g. Gemini's thought signature) is kept and sent back as-is.
+    const { id, type: _type, function: fn, ...providerData } = c;
+    return {
+      // Some providers omit ids; the loop needs one to pair each result with its call.
+      id: id || `call_${i}`,
+      name: fn?.name ?? "",
+      // Arguments should be a JSON string, but some servers send an object. Normalize to text.
+      arguments: typeof fn?.arguments === "string" ? fn.arguments : JSON.stringify(fn?.arguments ?? {}),
+      ...(Object.keys(providerData).length ? { providerData } : {}),
+    };
+  });
 
   // Providers disagree on the name of the reasoning field.
   const reasoning: unknown = msg.reasoning ?? msg.reasoning_content;

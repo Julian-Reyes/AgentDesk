@@ -16,7 +16,7 @@ Every number below comes from the provider's **official docs**. Third-party blog
 | **Modal** (vLLM) | planned for official evals + demo; **not signed up** | ✅ via vLLM's OpenAI-compatible server | ✅ depends on vLLM's tool-call parser for the model | Starter plan: **$30/month free compute credit**. **Payment method required.** Billed per second (e.g. L4 GPU $0.000222/s ≈ $0.80/h) | not checked |
 | **Ollama Cloud** | optional, not checked | ✅ `https://ollama.com/v1/` | ✅ | not checked | not checked |
 
-**Comparison lineup (decided 2026-09-29):** Gemini Flash · Groq `openai/gpt-oss-120b` (the "GPT" slot, replacing GitHub Models) · Groq `qwen/qwen3.8-27b` (large open model) · a small open model (developed on Ollama on the Mac mini; **official eval runs and the public demo serve it with vLLM on Modal**; Modal's pricing/free terms are not checked yet). Groq's limits are per model, so the two Groq models don't share a quota.
+**Comparison lineup (decided 2026-09-29):** Gemini **3.5 Flash Lite** (`gemini-3.5-flash-lite`: 15 RPM, 250K TPM, daily limit unknown; chosen over 3.8 Flash's 20 requests/day) · Groq `openai/gpt-oss-120b` (the "GPT" slot, replacing GitHub Models) · Groq `qwen/qwen3.8-27b` (large open model) · a small open model (developed on Ollama on the Mac mini; **official eval runs and the public demo serve it with vLLM on Modal**; Modal's pricing/free terms are not checked yet). Groq's limits are per model, so the two Groq models don't share a quota.
 
 ## Details and sources
 
@@ -26,6 +26,17 @@ Every number below comes from the provider's **official docs**. Third-party blog
 - Pro models have no free tier. The free models are Flash / Flash-Lite (e.g. `gemini-3.8-flash`, `gemini-3.5-flash-lite`) plus older 2.5 models.
 - **Account limits for `gemini-3.8-flash`, 2026-09-29 (source: AI Studio rate-limit page):** **5 RPM, 250K TPM.** RPD is not displayed there (the page only shows current usage, 0).
 - **Daily limit, 2026-09-29 (source: the API's own 429 response):** `quotaId: GenerateRequestsPerDayPerProjectPerModel-FreeTier`, `quotaValue: 20`. So **20 requests per day** for this model. **Failed attempts count too:** on 2026-09-29 many of the 20 went to 503 "high demand" errors and their retries, leaving only 4 successful responses.
+- **All models on this account, 2026-09-29 (source: AI Studio rate-limit page, screenshots from Julian).** RPD shows only current usage, never the limit.
+
+  | Model | RPM | TPM |
+  | --- | --- | --- |
+  | Gemini 3.5 Flash Lite, Gemini 3.1 Flash Lite | 15 | 250K |
+  | Gemini 2.5 Flash Lite | 10 | 250K |
+  | Gemini 2.5 / 3 / 3.5 / 3.6 / 3.7 / 3.8 Flash | 5 | 250K |
+  | Gemma 4 26B, Gemma 4 31B (open models, served via the Gemini API) | 30 | 16K |
+  | Gemini 2 Flash, 2 Flash Lite, 2.5 Pro, 3.1 Pro | 0 (no free access) | 0 |
+
+- **Daily limits can't be looked up.** Successful responses carry no rate-limit headers (checked 2026-09-29 with one call each to `gemini-3.5-flash-lite` and `gemini-3.1-flash-lite`, both HTTP 200). The only source is the 429 error once a daily quota runs out, which is how the 20/day for 3.8 Flash was found.
 - **Availability:** `gemini-3.8-flash` returned frequent **503 "This model is currently experiencing high demand"** errors on 2026-09-29.
 - Client handling: the rate limiter keeps every attempt (retries included) under 5/min; per-minute 429s are retried using Gemini's retry hint from the error body (it sends no `Retry-After` header); a 429 that names a daily quota fails fast.
 - Sources: [rate limits](https://ai.google.dev/gemini-api/docs/rate-limits), [pricing](https://ai.google.dev/gemini-api/docs/pricing), [OpenAI compatibility](https://ai.google.dev/gemini-api/docs/openai), [terms](https://ai.google.dev/gemini-api/terms).

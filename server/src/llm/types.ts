@@ -9,6 +9,12 @@ export type ToolCall = {
   name: string;
   /** Raw JSON text exactly as the model produced it. Parsed (and validated) by the loop, not here. */
   arguments: string;
+  /**
+   * Provider-specific fields on the tool call, kept opaque and sent back
+   * unchanged. Gemini puts a `extra_content.google.thought_signature` here and
+   * rejects later requests that replay the call without it.
+   */
+  providerData?: Record<string, unknown>;
 };
 
 export type ChatMessage =
