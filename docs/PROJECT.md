@@ -123,7 +123,7 @@ Save each conversation as a **run** containing each **step**: messages, the rout
   - current model and prompt version
   - recent metrics
   - a **Retire / Switch model** action that requires a written reason and keeps a history
-- **Model comparison page:** each agent × Gemini vs. GPT (Groq `gpt-oss-120b`) vs. a large open model (Groq) vs. the chosen small open model (Modal/vLLM), with quality, grounding violations, latency, and escalation rate. The winner is highlighted.
+- **Model comparison page:** each agent × Gemini 3.5 Flash Lite (`gemini-3.5-flash-lite`) vs. GPT (Groq `gpt-oss-120b`) vs. a large open model (Groq) vs. the chosen small open model (Modal/vLLM), with quality, grounding violations, latency, and escalation rate. The winner is highlighted.
 - **Runs page:** a list of conversations. Click one to see the full step-by-step trace.
 - **Approvals queue:** approve or reject refunds and coupons that are over the limits. Rejections become new test cases.
 - **Include one real, data-backed decision:** switch or retire at least one agent/model combination based on the eval results, with the reason written up. Use whatever the real numbers show. Never invent them.
@@ -184,5 +184,5 @@ Once both projects are done, the Router can be swapped for the best model from S
 - **2026-09-29: Model size range 3–8B → 3–9B.** It includes qwen3.5:9b, which fits the Mac mini's 16 GB and is one of the approved candidates.
 - **2026-09-29: Budget line reworded** from "The whole project must run on free tiers" to "$0 by default; Modal allowed within its free monthly credit, with a spending limit at that amount; anything beyond free tiers/credits needs approval with a cost estimate." Modal/vLLM is needed for official evals and the demo, and its free credit keeps the project at $0 with a hard cap.
 - **2026-09-29: Modal cap made precise:** "spending limit at that amount" became "usage budget capped at $30 and spend limit at $0". Modal's spend limit counts only out-of-pocket charges after credits, so a $30 spend limit would have allowed $30 of real charges on top of the free credit.
-- **2026-09-29: Gemini slot is `gemini-3.5-flash-lite`, not a Flash model.** Gemini 3.8 Flash's free tier allows only 20 requests/day (~30–45 days per eval run) and was often overloaded; 3.5 Flash Lite allows 15 RPM (Flash: 5) and passed the smoke test 12/12. Its daily limit is unknown until hit.
+- **2026-09-29: Gemini slot is `gemini-3.5-flash-lite`, replacing the initially configured `gemini-3.8-flash`.** Gemini 3.8 Flash's free tier allows only 20 requests/day (~30–45 days per full eval run) and was often overloaded; 3.5 Flash Lite allows 15 RPM (Flash: 5) and passed the smoke test 12/12. Its daily limit is unknown until hit.
 - **2026-09-29: `issue_refund(order_id, amount, reason, item?)`: damaged-item refunds name the item** and are automatic only if that item cost ≤ $50. Without it, an agent split a $179.99 damaged claim into an automatic $50 plus an escalation, bypassing the approvals queue.
