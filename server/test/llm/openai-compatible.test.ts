@@ -259,11 +259,18 @@ describe("network errors (Node's fetch only says 'fetch failed'; the reason is i
   });
 
   it("describes a timeout and an unexpected error clearly", () => {
+    // Both happen after a connection was made, so the provider may have received (and counted)
+    // the request: they keep their rate-limit slot (reachedProvider: true) and are retried.
     const timeout = Object.assign(new Error("aborted"), { name: "TimeoutError" });
-    expect(describeNetworkError(timeout, ollama, "http://mini.local:11434/v1/chat/completions", 600_000).message).toBe("no response from ollama at mini.local:11434 within 600s.");
+    expect(describeNetworkError(timeout, ollama, "http://mini.local:11434/v1/chat/completions", 600_000)).toEqual({
+      message: "no response from ollama at mini.local:11434 within 600s.",
+      retryable: true,
+      reachedProvider: true,
+    });
     expect(describeNetworkError(netError("ECONNRESET"), ollama, "http://mini.local:11434/v1/chat/completions", 1000)).toEqual({
       message: "network error talking to ollama at mini.local:11434: fetch failed (ECONNRESET)",
       retryable: true,
+      reachedProvider: true,
     });
   });
 });

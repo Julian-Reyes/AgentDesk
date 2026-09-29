@@ -38,7 +38,13 @@ const modelId = flag("--model");
 let team: ReturnType<typeof buildTeam>;
 try {
   // Unknown ids and missing API keys fail here, before anything else starts.
-  team = buildTeam(loadTeamSpec(modelId ? { ...process.env, MODEL: modelId } : process.env));
+  team = buildTeam(loadTeamSpec(modelId ? { ...process.env, MODEL: modelId } : process.env), {
+    // Free tiers throttle hard (Groq: 8K tokens/min). Say so, instead of looking frozen.
+    throttle: {
+      onWait: (ms, reason, { label, limit }) =>
+        console.log(`   (waiting ${Math.ceil(ms / 1000)}s: ${label} allows ${limit.toLocaleString("en-US")} ${reason === "tpm" ? "tokens" : "requests"}/min)`),
+    },
+  });
 } catch (e) {
   console.error((e as Error).message);
   process.exit(1);

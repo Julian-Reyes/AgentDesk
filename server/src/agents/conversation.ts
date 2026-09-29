@@ -142,7 +142,16 @@ export class Conversation {
       // Provider down, rate limit exhausted, a bug in a tool... The customer
       // gets an honest failure message; the trace and the caller get the details.
       const message = (e as Error).message;
-      await this.step({ kind: "error", agent: this.currentAgent ?? "router", data: { message, name: (e as Error).name } });
+      const failedAttempts = (e as { failedAttempts?: unknown[] }).failedAttempts;
+      const role = this.currentAgent ?? "router";
+      // Which model failed, so per-model metrics can count it (from the team metadata recorded on the run).
+      const model = (this.deps.team[role] as { model?: string } | undefined)?.model;
+      await this.step({
+        kind: "error",
+        agent: role,
+        ...(model ? { modelConfigId: model } : {}),
+        data: { message, name: (e as Error).name, ...(failedAttempts?.length ? { failedAttempts } : {}) },
+      });
       result = { reply: FAILURE_REPLY, answeredBy: this.currentAgent ?? "router", outcome: "failed", error: message };
     }
 
@@ -259,16 +268,19 @@ export class Conversation {
         }
         if (call.name === "handoff") {
           const parsed = parseArgs(call, handoff.args);
+          let rejected: string | undefined;
           if (!parsed.ok) {
+            rejected = parsed.error.code;
             this.pushResult(call, parsed);
           } else if (handoffs >= this.limits.maxHandoffs) {
+            rejected = "HANDOFF_LIMIT";
             this.pushResult(call, { ok: false, error: { code: "HANDOFF_LIMIT", message: "Too many transfers. Answer the customer yourself or escalate." } });
           } else {
             handoffs += 1;
             handoffTo = parsed.data;
             this.pushResult(call, { ok: true, data: { transferred: true } });
           }
-          await this.step({ kind: "handoff", agent, data: { callId: call.id, arguments: call.arguments, accepted: handoffTo !== null } });
+          await this.step({ kind: "handoff", agent, data: { callId: call.id, arguments: call.arguments, accepted: !rejected, ...(rejected ? { error: rejected } : {}) } });
           continue;
         }
 

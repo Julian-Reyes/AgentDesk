@@ -59,7 +59,7 @@ Keep it **simple, polished, and honest.** A small system that works, with real n
   - **Official eval runs and the public demo:** the chosen model is served with **vLLM on Modal**. The recommendation must confirm vLLM supports the model (including tool-call parsing), give its official Hugging Face name, and say which Modal GPU it needs.
   - Before any Modal setup: check Modal's official pricing and free-plan terms, give me a cost estimate, and walk me through setting a spending limit.
   - Ollama (Mac mini) and Modal (vLLM) are separate configurations, since quantization and tool-call parsing differ. Reported numbers come from the Modal runs.
-  - Use Ollama as the default provider during development, to save cloud free-tier quota for real eval runs.
+  - The default dev model is Gemini 3.5 Flash Lite (`gemini/gemini-3.5-flash-lite`) until the local model is set up; then Ollama, to save cloud free-tier quota for real eval runs.
   - Ollama Cloud (hosted open models) has a small free allowance. Treat it as optional, and check its current terms first.
 - These providers offer **OpenAI-compatible endpoints** (Ollama and vLLM do too). Verify this in their docs, and if so, use **one OpenAI-compatible client** with a small `Provider` config per model. If one isn't compatible, add a thin adapter.
 - Model IDs live in config, never hardcoded.
@@ -186,3 +186,4 @@ Once both projects are done, the Router can be swapped for the best model from S
 - **2026-09-29: Modal cap made precise:** "spending limit at that amount" became "usage budget capped at $30 and spend limit at $0". Modal's spend limit counts only out-of-pocket charges after credits, so a $30 spend limit would have allowed $30 of real charges on top of the free credit.
 - **2026-09-29: Gemini slot is `gemini-3.5-flash-lite`, replacing the initially configured `gemini-3.8-flash`.** Gemini 3.8 Flash's free tier allows only 20 requests/day (~30–45 days per full eval run) and was often overloaded; 3.5 Flash Lite allows 15 RPM (Flash: 5) and passed the smoke test 12/12. Its daily limit is unknown until hit.
 - **2026-09-29: `issue_refund(order_id, amount, reason, item?)`: damaged-item refunds name the item** and are automatic only if that item cost ≤ $50. Without it, an agent split a $179.99 damaged claim into an automatic $50 plus an escalation, bypassing the approvals queue.
+- **2026-09-29: Default dev model is Gemini 3.5 Flash Lite until the local model is set up, then Ollama.** Ollama on the Mac mini isn't set up yet, so hands-on testing uses Flash-Lite (15 RPM, 250K tokens/min). Trade-off: dev chats use Gemini's unknown daily quota until Ollama takes over.

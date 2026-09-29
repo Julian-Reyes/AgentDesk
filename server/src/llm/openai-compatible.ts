@@ -11,6 +11,8 @@ import type { ChatMessage, ChatProvider, ChatRequest, ChatResponse, ToolCall } f
 export class ProviderError extends Error {
   readonly status: number | undefined;
   readonly retryable: boolean;
+  /** Every attempt that failed, including the last one, so the trace keeps them even when the call as a whole fails. */
+  failedAttempts: NonNullable<ChatResponse["failedAttempts"]> = [];
   constructor(message: string, status?: number, retryable = false) {
     super(message);
     this.name = "ProviderError";
@@ -80,7 +82,7 @@ export function createOpenAICompatibleProvider(config: ModelConfig, deps: Client
               res.status,
               retryable,
             );
-            if (!retryable || attempt >= maxAttempts) throw err;
+            if (!retryable || attempt >= maxAttempts) throw Object.assign(err, { failedAttempts });
             // A model-output glitch needs a new sample, not a cool-down.
             await sleep(modelOutput ? 500 : retryDelayMs(res.headers.get("retry-after"), attempt, text));
             continue;
@@ -94,11 +96,14 @@ export function createOpenAICompatibleProvider(config: ModelConfig, deps: Client
           if (e instanceof ProviderError) throw e;
           const net = describeNetworkError(e, config, url, timeoutMs);
           failedAttempts.push({ message: net.message });
+          // The connection itself failed, so the provider never saw this attempt
+          // and it used none of the quota: give the rate-limiter slot back.
+          if (slot && !net.reachedProvider) deps.limiter!.release(slot);
           // Nothing is listening, or the host doesn't exist: a config problem that
           // retrying won't fix, so fail now instead of after ~14s of backoff.
-          if (!net.retryable) throw new ProviderError(`${config.id}: ${net.message}`, undefined, false);
+          if (!net.retryable) throw Object.assign(new ProviderError(`${config.id}: ${net.message}`, undefined, false), { failedAttempts });
           // Timeout or dropped connection: retry, then give up with a clear message.
-          if (attempt >= maxAttempts) throw new ProviderError(`${config.id}: ${net.message}`, undefined, true);
+          if (attempt >= maxAttempts) throw Object.assign(new ProviderError(`${config.id}: ${net.message}`, undefined, true), { failedAttempts });
           await sleep(retryDelayMs(null, attempt));
         }
       }
@@ -110,21 +115,31 @@ export function createOpenAICompatibleProvider(config: ModelConfig, deps: Client
  * Turns Node's unhelpful "fetch failed" into what actually went wrong. The real
  * reason (ECONNREFUSED, ENOTFOUND, ...) is hidden in `error.cause`.
  */
-export function describeNetworkError(e: unknown, config: ModelConfig, url: string, timeoutMs: number): { message: string; retryable: boolean } {
+export function describeNetworkError(
+  e: unknown,
+  config: ModelConfig,
+  url: string,
+  timeoutMs: number,
+): { message: string; retryable: boolean; reachedProvider: boolean } {
   const err = e as Error & { cause?: { code?: string } };
   const host = URL.canParse(url) ? new URL(url).host : url;
   const code = err.cause?.code;
   const hint = config.provider === "ollama" ? " Is Ollama running? Check OLLAMA_BASE_URL in .env." : "";
+  // The request may already have been received and counted, so it keeps its rate-limit slot.
   if (err.name === "TimeoutError") {
-    return { message: `no response from ${config.provider} at ${host} within ${Math.round(timeoutMs / 1000)}s.`, retryable: true };
+    return { message: `no response from ${config.provider} at ${host} within ${Math.round(timeoutMs / 1000)}s.`, retryable: true, reachedProvider: true };
   }
+  // The rest failed before a connection existed, so the provider never saw the request.
   if (code === "ECONNREFUSED") {
-    return { message: `can't connect to ${config.provider} at ${host} (connection refused).${hint}`, retryable: false };
+    return { message: `can't connect to ${config.provider} at ${host} (connection refused).${hint}`, retryable: false, reachedProvider: false };
   }
   if (code === "ENOTFOUND" || code === "EAI_AGAIN") {
-    return { message: `can't find host ${host} (DNS lookup failed).${hint}`, retryable: code === "EAI_AGAIN" };
+    return { message: `can't find host ${host} (DNS lookup failed).${hint}`, retryable: code === "EAI_AGAIN", reachedProvider: false };
   }
-  return { message: `network error talking to ${config.provider} at ${host}: ${err.message}${code ? ` (${code})` : ""}`, retryable: true };
+  if (code === "UND_ERR_CONNECT_TIMEOUT") {
+    return { message: `couldn't connect to ${config.provider} at ${host} (connect timeout).`, retryable: true, reachedProvider: false };
+  }
+  return { message: `network error talking to ${config.provider} at ${host}: ${err.message}${code ? ` (${code})` : ""}`, retryable: true, reachedProvider: true };
 }
 
 /** The provider's error code from an error body, e.g. "tool_use_failed". Gemini wraps the error in an array. */
@@ -143,7 +158,7 @@ function errorCode(body: string): string | null {
  * broken tool-call JSON, unparseable output, invalid JSON-mode output). The
  * request was fine; another sample usually works.
  */
-const MODEL_OUTPUT_ERROR_CODES = new Set(["tool_use_failed", "output_parse_failed", "json_validate_failed"]);
+export const MODEL_OUTPUT_ERROR_CODES: ReadonlySet<string> = new Set(["tool_use_failed", "output_parse_failed", "json_validate_failed"]);
 export function modelOutputErrorCode(body: string): string | null {
   const code = errorCode(body);
   return code && MODEL_OUTPUT_ERROR_CODES.has(code) ? code : null;

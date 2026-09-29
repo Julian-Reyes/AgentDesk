@@ -24,13 +24,18 @@ import type { ChatRequest } from "./types.ts";
  * throttled outside the client, and its hidden retries used up Gemini's
  * 5 requests/minute.)
  */
-export type ThrottleLimits = { rpm?: number | undefined; tpm?: number | undefined };
+export type ThrottleLimits = {
+  rpm?: number | undefined;
+  tpm?: number | undefined;
+  /** What this limiter guards, for messages, e.g. "groq/openai/gpt-oss-120b". */
+  label?: string;
+};
 
 export type ThrottleDeps = {
   now?: () => number;
   sleep?: (ms: number) => Promise<void>;
-  /** Called when a call has to wait, e.g. to show "waiting 12s for rate limit". */
-  onWait?: (ms: number, reason: "rpm" | "tpm") => void;
+  /** Called when a call has to wait, e.g. to show "waiting 40s: groq/openai/gpt-oss-120b allows 8,000 tokens/min". */
+  onWait?: (ms: number, reason: "rpm" | "tpm", info: { label: string; limit: number }) => void;
 };
 
 const WINDOW_MS = 60_000;
@@ -70,6 +75,15 @@ export class RateLimiter {
     return turn;
   }
 
+  /**
+   * Gives a slot back, for an attempt that never reached the provider (the
+   * connection itself failed), so it didn't use any of the provider's quota.
+   */
+  release(reservation: Reservation) {
+    const i = this.window.indexOf(reservation);
+    if (i >= 0) this.window.splice(i, 1);
+  }
+
   private async waitForSlot(estimate: number) {
     const { rpm, tpm } = this.limits;
     for (;;) {
@@ -99,7 +113,7 @@ export class RateLimiter {
         }
       }
       if (waitUntil <= t) return;
-      this.onWait?.(waitUntil - t, reason);
+      this.onWait?.(waitUntil - t, reason, { label: this.limits.label ?? "", limit: (reason === "rpm" ? rpm : tpm) ?? 0 });
       await this.sleep(waitUntil - t);
     }
   }

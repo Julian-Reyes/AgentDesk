@@ -35,7 +35,7 @@ export function limiterFor(config: ModelConfig, deps?: ThrottleDeps): RateLimite
   const key = `${config.provider}/${config.model}`;
   let limiter = limiters.get(key);
   if (!limiter) {
-    limiter = new RateLimiter({ rpm: config.rpm, tpm: config.tpm }, deps);
+    limiter = new RateLimiter({ rpm: config.rpm, tpm: config.tpm, label: key }, deps);
     limiters.set(key, limiter);
   }
   return limiter;
