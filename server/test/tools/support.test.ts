@@ -1,7 +1,8 @@
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { describe, expect, it } from "vitest";
 import * as s from "../../src/db/schema.ts";
-import { as, call, DANIEL, inTx, MAYA, PRIYA, SOFIA, TOM } from "../helpers.ts";
+import { addDays } from "../../src/domain/clock.ts";
+import { as, call, DANIEL, inTx, MAYA, PRIYA, SOFIA, TEST_NOW, TOM } from "../helpers.ts";
 
 describe("order ownership", () => {
   it("a customer can read their own order", () =>
@@ -156,6 +157,45 @@ describe("issue_refund", () => {
       expect(first).toMatchObject({ policyDecision: "queued_for_approval" });
       expect(second).toMatchObject({ policyDecision: "queued_for_approval" });
       expect((await refundsFor(tx, 1051)).some((x: any) => x.status === "issued")).toBe(false);
+    }));
+
+  it("multi-item order: each item is under $50, but once the order's refunds pass $50 the rest goes to approval", () =>
+    inTx(async (tx) => {
+      // Found by query rather than hard-coded, so a seed change fails loudly here instead of testing nothing.
+      // (Today it's #1096: a $29.00 headlamp + a $44.00 lantern headlamp.)
+      const { rows } = await tx.execute<{ number: number; customer_id: number }>(sql`
+        select o.number, o.customer_id
+        from ${s.orders} o join ${s.orderItems} i on i.order_number = o.number
+        where o.status = 'delivered'
+        group by o.number
+        having count(*) >= 2
+           and max(i.unit_price_cents * i.qty - i.discount_cents) <= 5000
+           and sum(i.unit_price_cents * i.qty - i.discount_cents) > 5000
+        order by o.number limit 1`);
+      expect(rows, "the seed needs a delivered order with 2+ items each ≤ $50 totalling > $50").toHaveLength(1);
+      const { number, customer_id: customerId } = rows[0]!;
+      const lines = await tx.select().from(s.orderItems).where(eq(s.orderItems.orderNumber, number)).orderBy(s.orderItems.id);
+      const paid = (l: (typeof lines)[number]) => (l.unitPriceCents * l.qty - l.discountCents) / 100;
+      const [a, b] = lines as [(typeof lines)[number], (typeof lines)[number]];
+      expect(paid(a) + paid(b)).toBeGreaterThan(50);
+
+      // Move the delivery inside the 14-day damage window (rolled back with the transaction).
+      await tx.update(s.orders).set({ deliveredAt: addDays(TEST_NOW, -5) }).where(eq(s.orders.number, number));
+
+      const first = await call(tx, "issue_refund", { orderId: number, amount: paid(a), reason: "damaged", item: a.productId }, as(customerId));
+      expect(first).toMatchObject({ ok: true, policyDecision: "auto_approved", data: { status: "refunded" } });
+
+      // Item B is under $50 on its own, but the order's refunds would total more than $50.
+      const second = await call(tx, "issue_refund", { orderId: number, amount: paid(b), reason: "damaged", item: b.productId }, as(customerId));
+      expect(second).toMatchObject({ ok: true, policyDecision: "queued_for_approval", data: { status: "pending_approval" } });
+
+      const [approval] = await approvalsFor(tx, number);
+      expect(approval).toMatchObject({ kind: "refund", status: "pending", payload: { orderItemId: b.id } });
+      expect(approval.reason).toMatch(/Refunds on this order would total \$\d+\.\d\d, above the \$50\.00 automatic limit/);
+      const refunds = await refundsFor(tx, number);
+      expect(refunds.map((r: any) => [r.orderItemId, r.status]).sort()).toEqual(
+        [[a.id, "issued"], [b.id, "pending_approval"]].sort(),
+      );
     }));
 
   it("units already returned (refunded by the warehouse) can't also be refunded as damaged", () =>
