@@ -92,16 +92,39 @@ export function createOpenAICompatibleProvider(config: ModelConfig, deps: Client
           return failedAttempts.length ? { ...parsed, failedAttempts } : parsed;
         } catch (e) {
           if (e instanceof ProviderError) throw e;
-          // Network error or timeout: retry, then give up with a clear message.
-          failedAttempts.push({ message: (e as Error).message });
-          if (attempt >= maxAttempts) {
-            throw new ProviderError(`${config.id}: ${(e as Error).message}`, undefined, true);
-          }
+          const net = describeNetworkError(e, config, url, timeoutMs);
+          failedAttempts.push({ message: net.message });
+          // Nothing is listening, or the host doesn't exist: a config problem that
+          // retrying won't fix, so fail now instead of after ~14s of backoff.
+          if (!net.retryable) throw new ProviderError(`${config.id}: ${net.message}`, undefined, false);
+          // Timeout or dropped connection: retry, then give up with a clear message.
+          if (attempt >= maxAttempts) throw new ProviderError(`${config.id}: ${net.message}`, undefined, true);
           await sleep(retryDelayMs(null, attempt));
         }
       }
     },
   };
+}
+
+/**
+ * Turns Node's unhelpful "fetch failed" into what actually went wrong. The real
+ * reason (ECONNREFUSED, ENOTFOUND, ...) is hidden in `error.cause`.
+ */
+export function describeNetworkError(e: unknown, config: ModelConfig, url: string, timeoutMs: number): { message: string; retryable: boolean } {
+  const err = e as Error & { cause?: { code?: string } };
+  const host = URL.canParse(url) ? new URL(url).host : url;
+  const code = err.cause?.code;
+  const hint = config.provider === "ollama" ? " Is Ollama running? Check OLLAMA_BASE_URL in .env." : "";
+  if (err.name === "TimeoutError") {
+    return { message: `no response from ${config.provider} at ${host} within ${Math.round(timeoutMs / 1000)}s.`, retryable: true };
+  }
+  if (code === "ECONNREFUSED") {
+    return { message: `can't connect to ${config.provider} at ${host} (connection refused).${hint}`, retryable: false };
+  }
+  if (code === "ENOTFOUND" || code === "EAI_AGAIN") {
+    return { message: `can't find host ${host} (DNS lookup failed).${hint}`, retryable: code === "EAI_AGAIN" };
+  }
+  return { message: `network error talking to ${config.provider} at ${host}: ${err.message}${code ? ` (${code})` : ""}`, retryable: true };
 }
 
 /** The provider's error code from an error body, e.g. "tool_use_failed". Gemini wraps the error in an array. */

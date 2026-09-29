@@ -53,13 +53,19 @@ type Limits = {
 };
 const DEFAULT_LIMITS: Limits = { maxSteps: 8, maxHandoffs: 2 };
 
-export type TurnResult = {
+type TurnOutput = {
   reply: string;
   /** Who answered: an agent, or the router (clarify / out of scope). */
   answeredBy: AgentName | "router";
   outcome: RunOutcome;
-  runId: string;
+  /**
+   * Why a failed turn failed (provider unreachable, step limit, ...). For
+   * operators and the CLI only: the customer sees the generic FAILURE_REPLY.
+   */
+  error?: string;
 };
+
+export type TurnResult = TurnOutput & { runId: string };
 
 export const CLARIFY_FALLBACK =
   "Happy to help! Is your question about something you'd like to buy, or about an order you've already placed?";
@@ -128,14 +134,15 @@ export class Conversation {
     await this.step({ kind: "user_message", data: { text } });
     this.transcript.push({ role: "customer", text });
 
-    let result: { reply: string; answeredBy: AgentName | "router"; outcome: RunOutcome };
+    let result: TurnOutput;
     try {
       result = await this.handleTurn(text);
     } catch (e) {
       // Provider down, rate limit exhausted, a bug in a tool... The customer
-      // gets an honest failure message and the trace gets the details.
-      await this.step({ kind: "error", agent: this.currentAgent ?? "router", data: { message: (e as Error).message, name: (e as Error).name } });
-      result = { reply: FAILURE_REPLY, answeredBy: this.currentAgent ?? "router", outcome: "failed" };
+      // gets an honest failure message; the trace and the caller get the details.
+      const message = (e as Error).message;
+      await this.step({ kind: "error", agent: this.currentAgent ?? "router", data: { message, name: (e as Error).name } });
+      result = { reply: FAILURE_REPLY, answeredBy: this.currentAgent ?? "router", outcome: "failed", error: message };
     }
 
     this.transcript.push({ role: "agent", text: result.reply, agent: result.answeredBy });
@@ -145,7 +152,7 @@ export class Conversation {
     return { ...result, runId: this.trace.id };
   }
 
-  private async handleTurn(text: string): Promise<{ reply: string; answeredBy: AgentName | "router"; outcome: RunOutcome }> {
+  private async handleTurn(text: string): Promise<TurnOutput> {
     if (this.currentAgent === null) {
       const routed = await this.deps.router.route(this.transcript);
       for (const [i, call] of routed.calls.entries()) {
@@ -189,7 +196,7 @@ export class Conversation {
     this.working = this.transcript.map((t): ChatMessage => (t.role === "customer" ? { role: "user", content: t.text } : { role: "assistant", content: t.text }));
   }
 
-  private async runAgent(): Promise<{ reply: string; answeredBy: AgentName; outcome: RunOutcome }> {
+  private async runAgent(): Promise<TurnOutput & { answeredBy: AgentName }> {
     let turnOutcome: RunOutcome = "resolved";
     let handoffs = 0;
 
@@ -279,8 +286,9 @@ export class Conversation {
       }
     }
 
-    await this.step({ kind: "error", agent: this.currentAgent!, data: { message: `No reply after ${this.limits.maxSteps} model calls (step limit).` } });
-    return { reply: FAILURE_REPLY, answeredBy: this.currentAgent!, outcome: "failed" };
+    const error = `No reply after ${this.limits.maxSteps} model calls (step limit).`;
+    await this.step({ kind: "error", agent: this.currentAgent!, data: { message: error } });
+    return { reply: FAILURE_REPLY, answeredBy: this.currentAgent!, outcome: "failed", error };
   }
 
   private async runTool(agent: AgentName, call: ToolCall): Promise<ToolResult> {

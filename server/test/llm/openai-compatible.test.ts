@@ -3,6 +3,7 @@ import type { ModelConfig } from "../../src/llm/config.ts";
 import {
   ProviderError,
   createOpenAICompatibleProvider,
+  describeNetworkError,
   isDailyQuota,
   retryDelayMs,
   toWireRequest,
@@ -214,5 +215,55 @@ describe("provider-specific tool-call fields (Gemini thought signatures)", () =>
       messages: [{ role: "assistant", content: null, toolCalls: [{ id: "a", name: "reply", arguments: "{}", providerData: { id: "evil", function: { name: "issue_refund" } } }] }],
     });
     expect((wire.messages[0] as any).tool_calls[0]).toMatchObject({ id: "a", function: { name: "reply" } });
+  });
+});
+
+describe("network errors (Node's fetch only says 'fetch failed'; the reason is in error.cause)", () => {
+  const ollama: ModelConfig = { id: "ollama/qwen3.5-4b", provider: "ollama", model: "qwen3.5:4b", baseUrl: "http://localhost:11434/v1", params: {}, pricing: { inputPerMTok: 0, outputPerMTok: 0 } };
+  const netError = (code: string) => Object.assign(new TypeError("fetch failed"), { cause: { code } });
+
+  function ollamaProvider(errors: Error[], sleeps: number[] = []) {
+    let calls = 0;
+    const fetch = (async () => {
+      calls++;
+      const e = errors.shift();
+      if (e) throw e;
+      return json(okBody);
+    }) as unknown as typeof globalThis.fetch;
+    const p = createOpenAICompatibleProvider(ollama, { fetch, sleep: async (ms) => void sleeps.push(ms), env: {} });
+    return { p, calls: () => calls };
+  }
+
+  it("connection refused fails fast with where it tried to connect and what to check", async () => {
+    const sleeps: number[] = [];
+    const { p, calls } = ollamaProvider([netError("ECONNREFUSED")], sleeps);
+    const err = await p.chat({ messages: [{ role: "user", content: "hi" }] }).catch((e) => e);
+    expect(err).toBeInstanceOf(ProviderError);
+    expect(err.message).toBe("ollama/qwen3.5-4b: can't connect to ollama at localhost:11434 (connection refused). Is Ollama running? Check OLLAMA_BASE_URL in .env.");
+    expect(err.retryable).toBe(false);
+    expect(calls()).toBe(1); // no ~14s of pointless backoff
+    expect(sleeps).toEqual([]);
+  });
+
+  it("an unknown host fails fast too", async () => {
+    const { p, calls } = ollamaProvider([netError("ENOTFOUND")]);
+    await expect(p.chat({ messages: [{ role: "user", content: "hi" }] })).rejects.toThrow(/can't find host localhost:11434/);
+    expect(calls()).toBe(1);
+  });
+
+  it("timeouts and dropped connections are still retried", async () => {
+    const timeout = Object.assign(new Error("The operation was aborted due to timeout"), { name: "TimeoutError" });
+    const { p, calls } = ollamaProvider([timeout, netError("ECONNRESET")]);
+    await p.chat({ messages: [{ role: "user", content: "hi" }] });
+    expect(calls()).toBe(3);
+  });
+
+  it("describes a timeout and an unexpected error clearly", () => {
+    const timeout = Object.assign(new Error("aborted"), { name: "TimeoutError" });
+    expect(describeNetworkError(timeout, ollama, "http://mini.local:11434/v1/chat/completions", 600_000).message).toBe("no response from ollama at mini.local:11434 within 600s.");
+    expect(describeNetworkError(netError("ECONNRESET"), ollama, "http://mini.local:11434/v1/chat/completions", 1000)).toEqual({
+      message: "network error talking to ollama at mini.local:11434: fetch failed (ECONNRESET)",
+      retryable: true,
+    });
   });
 });

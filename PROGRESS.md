@@ -116,7 +116,7 @@ Bringing back the old list-only `currentPrice` and the discount-blind `paid` mak
   - `runs` (source, customer, team = model + provider + prompt version per role, labels, outcome, turns, token and cost totals) and `run_steps` (user_message, router, model_call, tool_call, handoff, reply, error; with agent, model config, provider, prompt version, tokens, latency, cached, policy decision, and a JSON payload).
   - No foreign keys to store tables, so traces survive reseeds. `DbTracer` uses its **own connection**, so traces survive the rollback of the tools' transaction (tested), which M3 eval runs need.
   - `MemoryTracer` is used by tests.
-- **CLIs:** `npm run chat -- --as maya.chen@example.com` (interactive, traced, runs tools against the dev DB), `npm run trace [-- <run id>]` (lists recent runs or prints one step by step), `npm run smoke -- <config-id>…`.
+- **CLIs:** `npm run chat -- --as maya.chen@example.com --model groq/gpt-oss-120b` (interactive, traced, runs tools against the dev DB; `--model <config-id>` picks the model for all three roles and overrides `MODEL` and `config/team.json`; when a turn fails, the underlying error is printed below the customer-facing reply), `npm run trace [-- <run id>]` (lists recent runs or prints one step by step), `npm run smoke -- <config-id>…`.
 - **Tests: 190 passing** (174 before the first real calls). Test files are listed below.
   - `llm/cache.test.ts`: key covers provider/params/tools and ignores baseUrl; record/replay/off; errors not cached.
   - `agents/router.test.ts`: valid, fenced and invalid JSON; retry; fallback.
@@ -177,5 +177,11 @@ Julian chose "refund per item" to close the splitting gap:
 - The policy docs (generated from `RULES`) now say this; the approval payload names the item.
 - Tests: new policy and tool cases, including the exact $50-of-$179.99 split, a missing/wrong item, per-item totals, returned units, and a **multi-item order** where each item is under $50 but the second refund pushes the order past $50 and goes to approval (disabling the order-level cap makes it fail). Three existing tests changed **deliberately** because the rule changed, each with a comment: the $45 + $45 split test (the first $45 is now queued too, which is stricter), the $500 cap on #1050 (now $29.00 for the item instead of $36.99 for the order), and damaged calls naming an item. Disabling the per-item check makes 3 tests fail. 197 tests passing.
 - Re-running the exact chat on Gemini 3.5 Flash Lite: the full $179.99 now goes to approvals (`approval_needed`), and the reply matches the tool's message.
+
+### Change after M2 (2026-09-29): chat `--model` flag and visible errors
+- `npm run chat` defaulted to the Ollama placeholder, which isn't running yet, so every turn failed with only the generic apology. The new `--model <config-id>` flag runs it on any configured model, e.g. `--model groq/gpt-oss-120b` or `--model gemini/gemini-3.5-flash-lite`. Unknown ids and missing API keys fail at startup, with the list of valid ids.
+- Failed turns now return the underlying cause in `TurnResult.error` (provider error, or the step limit). The CLI prints it as `error: …` under the reply. The customer-facing reply stays the generic apology.
+- Node's `fetch` only says "fetch failed"; the client now reads `error.cause` and says e.g. "can't connect to ollama at localhost:11434 (connection refused). Is Ollama running? Check OLLAMA_BASE_URL in .env." **Connection refused and unknown hosts now fail fast** instead of retrying for ~14 s (a server that isn't running won't start in 14 s); timeouts and dropped connections are still retried.
+- Tests: 201 passing (5 new: refused / unknown host / timeout / dropped connection handling, and `error` on failed turns).
 
 **Milestone 2 is closed:** all three cloud models (Groq gpt-oss-120b, Groq qwen3.8-27b, Gemini 3.5 Flash Lite) work through the full loop, including tool calls, multi-step turns, handoffs and routing. Tests: 190 passing at close; 197 after the per-item refund fix.

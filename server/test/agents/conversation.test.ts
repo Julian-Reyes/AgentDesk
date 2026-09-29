@@ -255,7 +255,7 @@ describe("agent loop: guardrails", () => {
         limits: { maxSteps: 3 },
       });
       const r = await t.convo.send("status?");
-      expect(r).toMatchObject({ reply: FAILURE_REPLY, outcome: "failed" });
+      expect(r).toMatchObject({ reply: FAILURE_REPLY, outcome: "failed", error: "No reply after 3 model calls (step limit)." });
       expect(t.agent.requests).toHaveLength(3);
       expect(t.run().steps.at(-1)).toMatchObject({ kind: "error" });
     }));
@@ -264,7 +264,9 @@ describe("agent loop: guardrails", () => {
     inTx(async (tx) => {
       const t = await setup(tx, { customerId: MAYA, router: [route("support")], agent: [new Error("groq: HTTP 503")] });
       const r = await t.convo.send("status?");
-      expect(r).toMatchObject({ reply: FAILURE_REPLY, outcome: "failed" });
+      // The customer gets the generic apology; the underlying cause is returned separately for the operator.
+      expect(r).toMatchObject({ reply: FAILURE_REPLY, outcome: "failed", error: "groq: HTTP 503" });
+      expect(r.reply).not.toContain("503");
       expect(t.run().steps.at(-1)).toMatchObject({ kind: "error", data: { message: "groq: HTTP 503" } });
       expect(t.run().summary?.outcome).toBe("failed");
     }));
