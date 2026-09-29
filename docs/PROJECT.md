@@ -52,15 +52,16 @@ Keep it **simple, polished, and honest.** A small system that works, with real n
 - No price matching. The agent says so politely.
 
 ## Models ($0 budget mode)
-**The whole project must run on free tiers.** Before relying on any free tier, check its current limits and terms and record them in `docs/FREE_TIERS.md`.
-- **Cloud (free tiers):** **Gemini API free tier**, **Groq free tier** (open-weights models with good tool calling), and **GitHub Models** (OpenAI models, free and rate-limited).
-- **Local: Ollama** running a small open model with tool calling on my machine. It's free and unlimited, and it's the fourth model in the comparison ("small local model vs. cloud models").
-  - My Mac has no usable GPU for Ollama, so it runs on CPU. Pick a model that fits in 16 GB RAM (roughly 3–8B, quantized) and has decent tool calling. Propose 2–3 candidates with reasons, and ask me before downloading.
-  - Expect slow replies. Local eval runs may take hours, so the runner's checkpoints and the record/replay cache matter.
+**$0 by default. Modal is allowed within its free monthly credit: usage budget capped at $30 and spend limit at $0, so there are no out-of-pocket charges. If Modal won't accept a $0 spend limit, stop and ask me. Any spending beyond free tiers or free credits requires my approval with a cost estimate first.** Before relying on any free tier, check its current limits and terms and record them in `docs/FREE_TIERS.md`.
+- **Cloud (free tiers):** **Gemini API free tier** and **Groq free tier** (open-weights models with good tool calling). Groq serves two models in the comparison: a large open model and **OpenAI's `gpt-oss-120b`** (the "GPT" slot).
+- **Small open model: developed on Ollama, evaluated and demoed on Modal/vLLM.** A small open model with tool calling is the fourth model in the comparison ("small open model vs. large cloud models").
+  - **Development:** Ollama runs on my **M2 Mac mini (16 GB)** on the home network, and the laptop reaches it via `OLLAMA_BASE_URL`. Pick a model that fits in 16 GB RAM (roughly 3–9B, quantized) and has decent tool calling. Propose 2–3 candidates with reasons, and ask me before downloading.
+  - **Official eval runs and the public demo:** the chosen model is served with **vLLM on Modal**. The recommendation must confirm vLLM supports the model (including tool-call parsing), give its official Hugging Face name, and say which Modal GPU it needs.
+  - Before any Modal setup: check Modal's official pricing and free-plan terms, give me a cost estimate, and walk me through setting a spending limit.
+  - Ollama (Mac mini) and Modal (vLLM) are separate configurations, since quantization and tool-call parsing differ. Reported numbers come from the Modal runs.
   - Use Ollama as the default provider during development, to save cloud free-tier quota for real eval runs.
-  - Ollama can't run on the free hosting tier, so the **public demo uses a cloud provider only.** Local results appear in the eval results and dashboard.
   - Ollama Cloud (hosted open models) has a small free allowance. Treat it as optional, and check its current terms first.
-- These providers offer **OpenAI-compatible endpoints** (Ollama does too). Verify this in their docs, and if so, use **one OpenAI-compatible client** with a small `Provider` config per model. If one isn't compatible, add a thin adapter.
+- These providers offer **OpenAI-compatible endpoints** (Ollama and vLLM do too). Verify this in their docs, and if so, use **one OpenAI-compatible client** with a small `Provider` config per model. If one isn't compatible, add a thin adapter.
 - Model IDs live in config, never hardcoded.
 - Send only fictional data. Never send secrets.
 - **Any paid step requires my approval, with a cost estimate first.**
@@ -122,7 +123,7 @@ Save each conversation as a **run** containing each **step**: messages, the rout
   - current model and prompt version
   - recent metrics
   - a **Retire / Switch model** action that requires a written reason and keeps a history
-- **Model comparison page:** each agent × Gemini vs. GPT (GitHub Models) vs. a large open model (Groq) vs. a small local model (Ollama), with quality, grounding violations, latency, and escalation rate. The winner is highlighted.
+- **Model comparison page:** each agent × Gemini vs. GPT (Groq `gpt-oss-120b`) vs. a large open model (Groq) vs. the chosen small open model (Modal/vLLM), with quality, grounding violations, latency, and escalation rate. The winner is highlighted.
 - **Runs page:** a list of conversations. Click one to see the full step-by-step trace.
 - **Approvals queue:** approve or reject refunds and coupons that are over the limits. Rejections become new test cases.
 - **Include one real, data-backed decision:** switch or retire at least one agent/model combination based on the eval results, with the reason written up. Use whatever the real numbers show. Never invent them.
@@ -154,7 +155,7 @@ Save each conversation as a **run** containing each **step**: messages, the rout
 
 ## Milestones (in order, no dates)
 1. **Store data + tools.** Schema, seed script (catalog, promotions, policies, customers, orders), all tools with policy enforcement, and their unit tests.
-2. **Agent loop.** The provider client (cloud + Ollama), the hand-written loop, the router + 2 agents with handoffs, tracing, the fake provider, and the record/replay cache.
+2. **Agent loop.** The provider client (cloud + Ollama/vLLM), the hand-written loop, the router + 2 agents with handoffs, tracing, the fake provider, and the record/replay cache.
 3. **Evals.** The 150 conversations (I review them), the graders, the grounding checker, the rate-limit-aware runner with preflight estimates, and the first comparison run.
 4. **UI.** Storefront chat widget + ops dashboard (agents, comparison, runs, approvals).
 5. **Deploy.** Free hosting, the public demo limits, and admin login.
@@ -171,3 +172,15 @@ Once both projects are done, the Router can be swapped for the best model from S
 - After each milestone: update `PROGRESS.md` and commit.
 - Keep secrets out of the repo, and provide a `.env.example`.
 - Ask before adding dependencies beyond those listed, and before any spending.
+
+## Changes from the original spec
+- **2026-09-29: GitHub Models → Groq `openai/gpt-oss-120b`.** GitHub Models was retired on 2026-07-30; gpt-oss-120b is OpenAI's open-weights GPT and is on Groq's free tier.
+- **2026-09-29: Cerebras is not a free-tier option.** It's a $5 trial that needs a card and expires after 30 days, so it doesn't fit the $0 budget (possible paid option later, with approval).
+- **2026-09-29: Local models run on the M2 Mac mini, not the MacBook.** The MacBook is on macOS 13 (unsupported by current Ollama), short on disk and slow on CPU.
+- **2026-09-29: Mac mini/Ollama is for development only; the small open model is served on Modal/vLLM for official evals and the public demo.** Reproducible eval hardware, and the public demo can use the same model instead of dropping it.
+- **2026-09-29: Each model configuration's identity includes its provider** (e.g. `groq/gpt-oss-120b` ≠ `cerebras/gpt-oss-120b`, `ollama/…` ≠ `modal/…`). Same weights on different serving stacks behave differently, so traces, the cache and the comparison keep them apart.
+- **2026-09-29: Removed "Expect slow replies / local eval runs may take hours".** It described CPU-only inference on the MacBook; official runs now use a GPU on Modal (checkpoints and the replay cache still matter for rate limits).
+- **2026-09-29: Removed "public demo uses a cloud provider only".** Superseded: the demo can now serve the small open model from Modal.
+- **2026-09-29: Model size range 3–8B → 3–9B.** It includes qwen3.5:9b, which fits the Mac mini's 16 GB and is one of the approved candidates.
+- **2026-09-29: Budget line reworded** from "The whole project must run on free tiers" to "$0 by default; Modal allowed within its free monthly credit, with a spending limit at that amount; anything beyond free tiers/credits needs approval with a cost estimate." Modal/vLLM is needed for official evals and the demo, and its free credit keeps the project at $0 with a hard cap.
+- **2026-09-29: Modal cap made precise:** "spending limit at that amount" became "usage budget capped at $30 and spend limit at $0". Modal's spend limit counts only out-of-pocket charges after credits, so a $30 spend limit would have allowed $30 of real charges on top of the free credit.

@@ -262,3 +262,58 @@ export const escalations = pgTable("escalations", {
   reason: text("reason").notNull(),
   createdAt: ts("created_at").notNull(),
 });
+
+// ---------------------------------------------------------------------------
+// Tracing (M2). Every conversation is a run; everything that happens in it is
+// a step. There are deliberately no foreign keys to store tables: the seed
+// truncates those, and eval runs reset store state per conversation, but the
+// traces must survive both.
+
+export const RUN_OUTCOMES = ["resolved", "escalated", "approval_needed", "failed"] as const;
+
+export const runs = pgTable("runs", {
+  id: text("id").primaryKey(),
+  /** Where the conversation came from: cli, eval, demo, test. */
+  source: text("source").notNull(),
+  /** The signed-in customer, if any (no FK, see above). */
+  customerId: integer("customer_id"),
+  /** Which model config and prompt version each role used, e.g. {router: {model, prompt}, ...}. */
+  team: jsonb("team").$type<Record<string, unknown>>().notNull(),
+  /** Free-form labels, e.g. the eval case id. */
+  labels: jsonb("labels").$type<Record<string, unknown>>().notNull().default({}),
+  startedAt: ts("started_at").notNull(),
+  endedAt: ts("ended_at"),
+  outcome: text("outcome").$type<(typeof RUN_OUTCOMES)[number]>(),
+  turns: integer("turns").notNull().default(0),
+  inputTokens: integer("input_tokens").notNull().default(0),
+  outputTokens: integer("output_tokens").notNull().default(0),
+  /** Model cost in micro-dollars (1e-6 USD), an integer like all money here. */
+  costMicros: integer("cost_micros").notNull().default(0),
+});
+
+export const runSteps = pgTable(
+  "run_steps",
+  {
+    id: serial("id").primaryKey(),
+    runId: text("run_id")
+      .notNull()
+      .references(() => runs.id, { onDelete: "cascade" }),
+    seq: integer("seq").notNull(),
+    turn: integer("turn").notNull(),
+    /** user_message | router | model_call | tool_call | handoff | reply | error */
+    kind: text("kind").notNull(),
+    agent: text("agent"),
+    modelConfigId: text("model_config_id"),
+    provider: text("provider"),
+    promptVersion: text("prompt_version"),
+    /** The step's payload: messages, tool args/results, router decision, error details. */
+    data: jsonb("data").$type<Record<string, unknown>>().notNull(),
+    inputTokens: integer("input_tokens"),
+    outputTokens: integer("output_tokens"),
+    latencyMs: integer("latency_ms"),
+    cached: boolean("cached"),
+    policyDecision: text("policy_decision"),
+    createdAt: ts("created_at").notNull(),
+  },
+  (t) => [index("run_steps_run_idx").on(t.runId, t.seq)],
+);

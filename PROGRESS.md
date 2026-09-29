@@ -73,5 +73,60 @@ Bringing back the old list-only `currentPrice` and the discount-blind `paid` mak
 
 **Milestone 1 is closed.**
 
-## Next: Milestone 2 — Agent loop
-The provider client (cloud + Ollama), the hand-written loop, the router + 2 agents with handoffs, tracing, the fake provider, and the record/replay cache. First steps: check free-tier limits and record them in `docs/FREE_TIERS.md`, and propose 2–3 Ollama models for approval before downloading.
+## Milestone 2 — Agent loop 🚧 In progress
+
+### Decisions so far (2026-09-29)
+- **GitHub Models was retired on 2026-07-30** ([changelog](https://github.blog/changelog/2026-07-30-github-models-is-now-retired/)). The "GPT" slot in the comparison is now **Groq `openai/gpt-oss-120b`** (OpenAI's open-weights GPT). Lineup: Gemini Flash · Groq gpt-oss-120b · Groq qwen3.8-27b · a small local model. Free-tier limits, from official docs only: `docs/FREE_TIERS.md`.
+- **Cerebras has no permanent free tier** (a $5 / 30-day trial that needs a card). Julian may switch to paid Cerebras later.
+- **The provider is part of every model configuration's identity.** Config ids are `<provider>/<model>` (e.g. `groq/gpt-oss-120b`). The id is recorded in each run's metadata and included in the cache key, so the same model on a different provider (e.g. `cerebras/gpt-oss-120b`) is a separate configuration everywhere, including the comparison.
+- **Local models run on the M2 Mac mini (16 GB) on the home network, not on this MacBook.** The MacBook is on macOS 13.7, which the current Ollama build doesn't officially support; it's also short on disk and slow on CPU. The client reaches the Mac mini via `OLLAMA_BASE_URL` in `.env` (default `http://localhost:11434`). Setup steps: `docs/OLLAMA_MAC_MINI.md`. A first test on the MacBook (qwen3.5:4b, ~5.8 tokens/s) was removed afterwards to free ~4.2 GiB.
+- **Modal + vLLM will serve the chosen open model for the official eval runs and the public demo. The Mac mini (Ollama) stays for development only.**
+  - vLLM exposes an OpenAI-compatible `/v1/chat/completions`, so Modal is just another config entry (e.g. `modal/<model>` with its own `provider`, `baseUrl` and `apiKeyEnv`), with no client changes.
+  - Because the provider is part of the config id, `modal/<model>` and `ollama/<model>` are separate configurations. They are genuinely different: Ollama serves a 4-bit GGUF quantization, while vLLM typically serves the original weights (bf16/FP8), with a different tool-call parser. **Reported numbers come from the Modal runs**; Mac mini smoke-test numbers only guide the model choice.
+  - **Before any Modal setup:** (1) check Modal's official pricing and free-plan terms and record them in `docs/FREE_TIERS.md`, (2) give Julian a cost estimate for the eval runs and the demo, (3) walk Julian through setting Modal's **usage budget to $30 and spend limit to $0** (no out-of-pocket charges; if Modal won't accept $0, stop and ask). Pricing and free-plan terms were checked on 2026-09-29 (see `docs/FREE_TIERS.md`): $30/month free credit, card required. Not signed up.
+- **No OpenAI SDK.** The client is plain `fetch` against `/chat/completions`, so there's no new dependency and the wire format stays visible.
+
+### Done (all tested with the fake provider; no real model has been called yet)
+- **Provider layer** (`server/src/llm/`):
+  - `config.ts` + `server/config/models.json`: Zod-validated model configs. `baseUrl` can reference env vars (`${OLLAMA_BASE_URL:-http://localhost:11434}/v1`), and `pricing` (USD per million tokens, 0 for free tiers) is used to record cost.
+  - `openai-compatible.ts`: one `fetch`-based client for Ollama/Groq/Gemini/vLLM. It retries 429/5xx/network errors (honoring `Retry-After`, else exponential backoff) and fails fast on other 4xx. It normalizes tool calls and the `reasoning` field, and supports JSON response format.
+  - `fake.ts`: `FakeProvider` plays back a script of responses and records every request. `fake.tools/reply/text/json` helpers keep scripts short.
+  - `cache.ts`: record/replay cache. `LLM_CACHE=off|record|replay` (default `record`); `replay` makes a miss an error, guaranteeing a $0 re-run. The key hashes the config id, **provider**, model, params and the full request (messages, tools, response format). It deliberately leaves out `baseUrl` (moving Ollama to the Mac mini keeps the cache) and never stores keys. Entries go in `server/.llm-cache/<provider>/…` (gitignored for now; committing it later would let anyone re-run evals for free). A replayed response keeps the original latency, so metrics report what the model actually took.
+  - `factory.ts`: `createProvider(config)` = the client wrapped in the cache. `costMicros()` records cost as integer micro-dollars.
+- **Agents** (`server/src/agents/`):
+  - `prompts.ts`: versioned system prompts (router, shopping, support). Traces record `name@version#hash`, so an edit made without a version bump still shows. **The prompts contain no rule numbers**; the tools enforce and explain the rules.
+  - `router.ts`: the `Router` interface returns `{route, category, urgency, confidence}` (swappable for ShopRoute later). `LlmRouter` asks for JSON, validates it with Zod (tolerating code fences; unknown categories become `other`), retries once with the error, then **falls back to `clarify`**, never a guess. Routes: `shopping`, `support`, `clarify`, `out_of_scope`.
+  - `conversation.ts`: the hand-written loop.
+    - The Router runs only when no agent owns the conversation (the first message, or after a clarify/out-of-scope answer). After that, the agent keeps it and can hand it off.
+    - Each step: model call → tool calls → results fed back, until the agent calls `reply`.
+    - Guardrails in code:
+      - Agents only get their own tools (anything else returns `UNKNOWN_TOOL`); arguments are validated with Zod (`INVALID_ARGS`).
+      - Every tool call gets a result message (after `reply`, later calls come back `SKIPPED`).
+      - Step limit (8) and handoff limit (2 per turn); provider errors become an honest failure reply.
+      - A plain-text answer without `reply` is delivered but traced as `implicit`.
+    - Handoffs use a loop-level `handoff` tool. The new agent starts from the customer-visible transcript plus a handoff note, not the other agent's tool calls.
+    - Outcome per turn and run: `resolved` < `approval_needed` < `escalated` < `failed`. It's derived from tool results (`queued_for_approval`, a successful `escalate_to_human`), not from what the model says.
+  - `team.ts` + `server/config/team.json`: which model config each role uses (`MODEL` in `.env` overrides all three). M4 will move this into the DB with a switch/retire history.
+- **Tracing** (`server/src/tracing/tracer.ts`, migration `0002_tracing.sql`):
+  - `runs` (source, customer, team = model + provider + prompt version per role, labels, outcome, turns, token and cost totals) and `run_steps` (user_message, router, model_call, tool_call, handoff, reply, error; with agent, model config, provider, prompt version, tokens, latency, cached, policy decision, and a JSON payload).
+  - No foreign keys to store tables, so traces survive reseeds. `DbTracer` uses its **own connection**, so traces survive the rollback of the tools' transaction (tested), which M3 eval runs need.
+  - `MemoryTracer` is used by tests.
+- **CLIs:** `npm run chat -- --as maya.chen@example.com` (interactive, traced, runs tools against the dev DB), `npm run trace [-- <run id>]` (lists recent runs or prints one step by step), `npm run smoke -- <config-id>…`.
+- **Tests: 174 passing.** Test files are listed below.
+  - `llm/cache.test.ts`: key covers provider/params/tools and ignores baseUrl; record/replay/off; errors not cached.
+  - `agents/router.test.ts`: valid, fenced and invalid JSON; retry; fallback.
+  - `agents/conversation.test.ts`: 20 loop tests with real tools in a rolled-back transaction:
+    - $29 refund auto-approved; $179.99 queued; "$500" refused by the tool.
+    - Someone else's order returns not-found; escalation; anonymous visitor.
+    - Wrong-agent/unknown tools and bad JSON; reply ends the turn; implicit reply.
+    - Step limit; provider error; empty response.
+    - Handoff context; handoff target; ping-pong limit; multi-turn context.
+  - `agents/team.test.ts`
+  - `tracing/db-tracer.test.ts`: totals, ordering, and surviving a rollback.
+  - **A global test setup replaces `fetch` with one that throws**, so a test can't reach a real API even by accident.
+  - Sanity check: removing the allowed-tools check, the handoff limit, or the approval outcome makes 4 tests fail.
+
+### Open items
+1. **Local model choice, which must be done before the first full comparison run in M3.** Ollama on the Mac mini (Julian, later): set it up per `docs/OLLAMA_MAC_MINI.md`, then smoke-test qwen3.5:4b (thinking on/off), lfm2.5 8B-A1B and qwen3.5:9b (thinking on/off), asking before each pull. Pick one to keep and delete the rest. The recommendation must confirm **vLLM support** (incl. tool-call parsing), the **official Hugging Face name**, and the **Modal GPU** it needs. `server/config/team.json` points at `ollama/qwen3.5-4b` as a placeholder until then.
+2. **First real model calls (needs `GEMINI_API_KEY` and `GROQ_API_KEY` in `.env`):** run `npm run smoke -- groq/gpt-oss-120b groq/qwen3.8-27b gemini/gemini-3.8-flash` (8 calls per model, all free tier), plus a few `npm run chat` conversations. This verifies the client against each real API (JSON mode, tool-call format, reasoning fields), then records the measured tokens per call in `docs/FREE_TIERS.md`. Check that the Gemini model id is still current, and record the account's Gemini limits from AI Studio.
+3. **Milestone 2 closes once the cloud models work** (item 2). Item 1 stays at the top of the open items until it's done, and blocks M3's first full comparison run.

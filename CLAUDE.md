@@ -11,7 +11,7 @@ Full spec: docs/PROJECT.md. Progress: PROGRESS.md.
 
 ## Non-negotiables
 - Business rules live in code, never only in prompts: price math only via quote_price; refunds auto ≤ $50, else approvals queue, never above amount paid; goodwill ≤ 10% and ≤ 1 per customer per month, else approval; customers see only their own orders; invalid/expired coupons never honored; no price matching.
-- $0 budget: free tiers only. Tests use the fake provider and never call real APIs. Ollama is the default dev provider.
+- $0 by default. Modal is allowed within its free monthly credit: usage budget capped at $30 and spend limit at $0, so there are no out-of-pocket charges. If Modal won't accept a $0 spend limit, stop and ask me. Any spending beyond free tiers or free credits requires my approval with a cost estimate first. Tests use the fake provider and never call real APIs. Ollama is the default dev provider.
 - No agent frameworks (no LangChain, no agents SDK). The agent loop is hand-written.
 - Model IDs live in config, never hardcoded. Send only fictional data; never send secrets.
 - Honesty: every number in README/case study/dashboard comes from a real eval run. Show weaknesses.
