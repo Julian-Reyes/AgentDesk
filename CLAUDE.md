@@ -5,6 +5,7 @@ Full spec: docs/PROJECT.md. Progress: PROGRESS.md.
 - Explain non-obvious decisions in plain language as you go. I want to understand the code, not just have it.
 - Run the tests before saying something works. Never weaken tests to make them pass.
 - After each milestone: update PROGRESS.md and commit.
+- Within a milestone, commit at sensible checkpoints (a coherent chunk with tests and typecheck passing), with a message saying the milestone is in progress.
 - Keep secrets out of the repo; maintain .env.example.
 - Ask before adding dependencies beyond those listed in docs/PROJECT.md, and before any spending (give a cost estimate first).
 - Finish one milestone fully (tests passing, PROGRESS.md updated) before starting the next.
