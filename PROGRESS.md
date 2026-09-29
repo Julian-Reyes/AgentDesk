@@ -212,3 +212,6 @@ Julian chose "refund per item" to close the splitting gap:
 - Tests: 215 passing (new: `test/llm/unreached-attempts.test.ts`, `test/tracing/tool-call-health.test.ts`). One existing test was updated for the new `reachedProvider` field. ECONNRESET and response timeouts are `true`, because a connection was made, so the provider may have counted the request. That extends the test's assertions; nothing was weakened.
 
 **Milestone 2 is closed:** all three cloud models (Groq gpt-oss-120b, Groq qwen3.8-27b, Gemini 3.5 Flash Lite) work through the full loop, including tool calls, multi-step turns, handoffs and routing. Tests: 190 passing at close; 197 after the per-item refund fix.
+
+## Next: Milestone 3 — Evals
+The plan (order of work, review gates, the LLM judge with Julian's 30-reply agreement check) is in **`docs/M3_PLAN.md`**. First step: the eval case format, then the ~40 dev conversations for Julian's review before any test-set case.
