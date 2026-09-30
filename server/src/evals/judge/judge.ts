@@ -49,7 +49,29 @@ export function buildJudgeInput(c: EvalCase, obs: Observation, questions: JudgeQ
   };
 }
 
-/** The user message: the conversation and the questions, as plain text. */
+/**
+ * Typographic characters as plain ASCII: "3 degrees C", straight quotes, plain
+ * dashes, "->". The meaning is unchanged. Added after Gemma 4 31B returned HTTP
+ * 500 on 8/8 attempts for a conversation containing "Harbor 3°C" and judged it
+ * without the "°" at the first try (2026-09-30). But on the next run, two
+ * already-ASCII inputs that had been judged fine also got 500s, so the "°" is
+ * NOT shown to be the cause: Gemma's free endpoint returns 500s intermittently.
+ * Kept because it's harmless and removes one variable.
+ */
+export function judgeSafeText(text: string): string {
+  return text
+    .normalize("NFKC")
+    .replace(/\s*°\s*([CF])\b/g, " degrees $1")
+    .replace(/°/g, " degrees")
+    .replace(/[\u2018\u2019\u02bc]/g, "'")
+    .replace(/[\u201c\u201d]/g, '"')
+    .replace(/[\u2010-\u2015\u2212]/g, "-")
+    .replace(/\u2192/g, "->")
+    .replace(/\u2026/g, "...")
+    .replace(/[\u00d7]/g, "x");
+}
+
+/** The user message: the conversation and the questions, as plain text (ASCII-safe; see judgeSafeText). */
 export function renderJudgeInput(input: JudgeInput): string {
   const out: string[] = ["## Conversation"];
   for (const t of input.turns) out.push(`Customer message ${t.turn}: ${t.customer}`, `Agent reply ${t.turn}: ${t.reply}`, "");
@@ -62,7 +84,7 @@ export function renderJudgeInput(input: JudgeInput): string {
       ? input.scriptFit.map((s) => `${s.id}: customer message ${s.turn} assumes that ${s.assumes}. Does it fit agent reply ${s.turn - 1}?`)
       : ["(none)"]),
   );
-  return out.join("\n");
+  return judgeSafeText(out.join("\n"));
 }
 
 const Score = z.coerce.number().int().min(1).max(5);

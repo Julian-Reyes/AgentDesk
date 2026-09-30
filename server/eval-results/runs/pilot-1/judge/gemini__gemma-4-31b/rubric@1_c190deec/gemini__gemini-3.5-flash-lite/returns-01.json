@@ -46,29 +46,29 @@
         "reply": 1,
         "tone": 5,
         "clarity": 5,
-        "helpfulness": 4,
-        "why": "The agent was professional and clear, but missed a helpful next step or alternative for the customer."
+        "helpfulness": 5,
+        "why": "The agent is professional, clear about the date, and provides the correct policy answer."
       },
       {
         "reply": 2,
         "tone": 5,
         "clarity": 5,
-        "helpfulness": 4,
-        "why": "The agent politely held the line as requested, but did not offer to escalate the request to a human."
+        "helpfulness": 5,
+        "why": "The agent remains empathetic while firmly holding the line on the return policy."
       }
     ],
     "checks": [
       {
         "id": "judge:0",
         "answer": true,
-        "why": "The agent explicitly stated they were unable to make exceptions and lacked the authority to do so."
+        "why": "The agent explicitly stated they are unable to make exceptions to the window."
       }
     ],
     "scriptFit": [
       {
         "id": "script:2",
         "answer": true,
-        "why": "The agent explicitly mentioned the expiration of the 30-day return window in the first reply."
+        "why": "The agent clearly informed the customer that the 30-day window had expired."
       }
     ]
   },
@@ -78,11 +78,11 @@
   },
   "calls": [
     {
-      "latencyMs": 48058,
+      "latencyMs": 48141,
       "inputTokens": 1672,
-      "outputTokens": 260,
+      "outputTokens": 244,
       "cached": false,
-      "raw": "<thought>*   Customer wants to return hiking shoes from order #1052.\n    *   Agent Reply 1: Identifies the item (Ridgeline Low Hiking Shoe), states return window ended Aug 31, 2026, denies return.\n    *   Customer Message 2: Asks for an exception.\n    *   Agent Reply 2: Refuses exception, explains the policy, states lack of authority.\n\n    *   *Agent Reply 1:*\n        *   Tone: 5 (Warm, professional, clear).\n        *   Clarity: 5 (Answer first, specific date provided).\n        *   Helpfulness: 4 (Answered the request and provided the reason, but didn't offer an alternative like checking warranty or suggesting a reselling platform, though the \"good answer\" prompt specifically mentions explaining the window). Let's check the \"good answer\" guide: \"Explains the 30-day window ended on Aug 31\". It does that. Is there a \"one thing a good agent would\" do? Maybe suggest if it's defective? The policy says \"If a used item is defective, see the warranty policy.\" The customer said they \"don't fit well,\" which usually isn't a defect. However, a 5 usually adds a useful next step. Here, the agent just says \"let me know if there's anything else.\" I'll give it a 4 because it doesn't suggest any alternatives (like selling it or checking warranty if applicable).\n\n    *   *Agent Reply 2:*\n        *   Tone: 5 (Calm on pushback, no lecturing, professional).\n        *   Clarity: 5 (Clear answer, direct).\n        *   Helpfulness: 4 (Correctly refuses and explains why, but doesn't offer the alternative of passing it to a human as suggested in the \"What a good answer does\" note: \"either holds the line or offers to pass it to a human\"). Since it holds the line politely, it's helpful, but maybe a 4 because it doesn't offer a human escalation as a possible next step for a dissatisfied customer.\n\n    *   `judge:0`: \"The agent never promises, offers or hints that an exception to the return window might be made.\"\n        *   Reply 1: \"unable to accept a return\".\n        *   Reply 2: \"unable to make exceptions\", \"don't have the authority to bypass this rule\".\n        *   Answer: True.\n\n    *   `script:2`: \"customer message 2 assumes that the agent said the 30-day return window has ended. Does it fit agent reply 1?\"\n        *   Agent Reply 1 explicitly said: \"it is past our 30-day return window (which ended on August 31, 2026)\".\n        *   Answer: True.\n\n    *   Reply 1: Tone 5, Clarity 5, Helpfulness 4. Why: Answered correctly and politely but didn't offer any alternatives.\n    *   Reply 2: Tone 5, Clarity 5, Helpfulness 4. Why: Maintained the policy correctly but didn't offer to escalate to a human.</thought>{\n  \"replies\": [\n    {\n      \"reply\": 1,\n      \"tone\": 5,\n      \"clarity\": 5,\n      \"helpfulness\": 4,\n      \"why\": \"The agent was professional and clear, but missed a helpful next step or alternative for the customer.\"\n    },\n    {\n      \"reply\": 2,\n      \"tone\": 5,\n      \"clarity\": 5,\n      \"helpfulness\": 4,\n      \"why\": \"The agent politely held the line as requested, but did not offer to escalate the request to a human.\"\n    }\n  ],\n  \"checks\": [\n    {\n      \"id\": \"judge:0\",\n      \"answer\": true,\n      \"why\": \"The agent explicitly stated they were unable to make exceptions and lacked the authority to do so.\"\n    }\n  ],\n  \"scriptFit\": [\n    {\n      \"id\": \"script:2\",\n      \"answer\": true,\n      \"why\": \"The agent explicitly mentioned the expiration of the 30-day return window in the first reply.\"\n    }\n  ]\n}"
+      "raw": "<thought>*   Customer wants to return hiking shoes from order #1052.\n    *   Agent Reply 1: Identifies the shoe, states it's past the 30-day window (ended Aug 31, 2026), refuses return.\n    *   Customer Message 2: Asks for an exception (\"only two weeks late\").\n    *   Agent Reply 2: Refuses exception, explains the policy, says they lack authority.\n\n    *   *Reply 1:*\n        *   Tone: Warm and professional. (5)\n        *   Clarity: Answer is first, date is clear, next steps (none, just \"let me know\") are explicit. (5)\n        *   Helpfulness: Answers the request, explains why (expired window), provides the date. It doesn't offer an alternative (like checking warranty if defective, though the user just said \"don't fit well\"). However, the prompt \"What a good answer does\" says \"Explains the 30-day window ended on Aug 31\". (5)\n\n    *   *Reply 2:*\n        *   Tone: Empathetic (\"I understand it's frustrating\"), professional, calm on pushback. (5)\n        *   Clarity: Clear refusal, explanation of policy. (5)\n        *   Helpfulness: Holds the line as per \"What a good answer does\". It doesn't offer a human escalation (which was an option), but it is a correct, kind refusal. (5)\n\n    *   *judge:0:* \"The agent never promises, offers or hints that an exception to the return window might be made.\"\n        *   Reply 1: Denies.\n        *   Reply 2: Denies (\"unable to make exceptions\").\n        *   Result: True.\n\n    *   *script:2:* \"customer message 2 assumes that the agent said the 30-day return window has ended. Does it fit agent reply 1?\"\n        *   Agent Reply 1 specifically said \"it is past our 30-day return window\".\n        *   Result: True.\n\n    *   `replies`:\n        *   Reply 1: Tone 5, Clarity 5, Helpfulness 5. Why: Professional tone, clear explanation of the date, and directly addresses the request.\n        *   Reply 2: Tone 5, Clarity 5, Helpfulness 5. Why: Empathetic tone, clear refusal, and sticks to the policy as requested.\n    *   `checks`:\n        *   judge:0: True. Why: The agent explicitly stated they are unable to make exceptions.\n    *   `scriptFit`:\n        *   script:2: True. Why: The agent explicitly stated the return window had ended.</thought>{\n  \"replies\": [\n    {\n      \"reply\": 1,\n      \"tone\": 5,\n      \"clarity\": 5,\n      \"helpfulness\": 5,\n      \"why\": \"The agent is professional, clear about the date, and provides the correct policy answer.\"\n    },\n    {\n      \"reply\": 2,\n      \"tone\": 5,\n      \"clarity\": 5,\n      \"helpfulness\": 5,\n      \"why\": \"The agent remains empathetic while firmly holding the line on the return policy.\"\n    }\n  ],\n  \"checks\": [\n    {\n      \"id\": \"judge:0\",\n      \"answer\": true,\n      \"why\": \"The agent explicitly stated they are unable to make exceptions to the window.\"\n    }\n  ],\n  \"scriptFit\": [\n    {\n      \"id\": \"script:2\",\n      \"answer\": true,\n      \"why\": \"The agent clearly informed the customer that the 30-day window had expired.\"\n    }\n  ]\n}"
     }
   ]
 }

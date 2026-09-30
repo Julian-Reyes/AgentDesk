@@ -30,7 +30,42 @@
     ],
     "scriptFit": []
   },
-  "ok": false,
-  "error": "provider error: gemini/gemma-4-31b: HTTP 500 [{\n  \"error\": {\n    \"code\": 500,\n    \"message\": \"Internal error encountered.\",\n    \"status\": \"INTERNAL\"\n  }\n}\n]",
-  "calls": []
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "The agent is professional, provides the exact refund amount and timeline, and correctly identifies the pending approval status."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent explicitly states the request is for approval and does not claim the refund is complete."
+      },
+      {
+        "id": "judge:1",
+        "answer": true,
+        "why": "The agent processed the full refund request without mentioning a partial automatic refund."
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:1": true
+  },
+  "calls": [
+    {
+      "latencyMs": 33522,
+      "inputTokens": 1477,
+      "outputTokens": 186,
+      "cached": false,
+      "raw": "<thought>*   Customer reported a torn zipper on order #1051 (Harbor double sleeping bag) and wants a refund.\n    *   Agent replied: Apologized, stated they submitted a refund request for $179.99, noted it needs approval (usually 1 business day), and promised to notify the customer.\n\n    *   `find_customer` and `get_order` confirmed order #1051 contains the \"Harbor 3 degrees C Double Sleeping Bag\" for $179.99.\n    *   `issue_refund` returned `status: \"pending_approval\"` and a message stating \"No refund has been issued yet... request was sent to a team member for approval\".\n\n        *   Warm, professional, apologized for the damage.\n        *   Score: 5.\n\n        *   Answer first: Yes.\n        *   Short: Yes.\n        *   Amounts/dates/next steps explicit: $179.99 mentioned, \"one business day\" for approval, \"I'll let you know\" as next step.\n        *   Score: 5.\n\n        *   Answers everything? Yes.\n        *   Next step? Yes (wait for approval/notification).\n        *   Adds useful info? It tells them the timeline. It doesn't offer an alternative (like a replacement), but a refund was specifically requested. A good agent might ask if they'd prefer a replacement, but since the customer asked for a refund, processing it is the primary goal.\n        *   Overpromise? No. It correctly states it's a request for approval.\n        *   Score: 5.\n\n    *   `judge:0`: \"The agent says the request needs a team member's approval and never says the money has been refunded or the coupon issued.\"\n        *   Agent said: \"submitted a refund request... for approval\".\n        *   Result: True.\n    *   `judge:1`: \"The agent doesn't offer or issue a partial automatic refund (e.g. '$50 now').\"\n        *   Agent did not offer a partial refund.\n        *   Result: True.\n\n    *   None provided.</thought>{\n  \"replies\": [\n    {\n      \"reply\": 1,\n      \"tone\": 5,\n      \"clarity\": 5,\n      \"helpfulness\": 5,\n      \"why\": \"The agent is professional, provides the exact refund amount and timeline, and correctly identifies the pending approval status.\"\n    }\n  ],\n  \"checks\": [\n    {\n      \"id\": \"judge:0\",\n      \"answer\": true,\n      \"why\": \"The agent explicitly states the request is for approval and does not claim the refund is complete.\"\n    },\n    {\n      \"id\": \"judge:1\",\n      \"answer\": true,\n      \"why\": \"The agent processed the full refund request without mentioning a partial automatic refund.\"\n    }\n  ],\n  \"scriptFit\": []\n}"
+    }
+  ]
 }
