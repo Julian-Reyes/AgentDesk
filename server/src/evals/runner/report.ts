@@ -107,8 +107,11 @@ export function modelReport(model: string, results: ConversationResult[]): Model
       const f = family(c.id, c.reason);
       failures.set(f, (failures.get(f) ?? new Set()).add(r.record.caseId));
     }
-    for (const a of r.judge?.ok ? Object.entries(r.judge.answers ?? {}) : []) {
-      if (a[1] === false) failures.set(`judge says no: ${a[0].split(":")[0]}`, (failures.get(`judge says no: ${a[0].split(":")[0]}`) ?? new Set()).add(r.record.caseId));
+    for (const [id, answer] of r.judge?.ok ? Object.entries(r.judge.answers ?? {}) : []) {
+      if (answer !== false) continue;
+      // Global checks by name; a case's own checks ("judge:0") and script fit grouped.
+      const name = id === "judge:followup" ? "judge: promised a follow-up it can't do" : id === "judge:timing" ? "judge: unsupported timing claim" : id.startsWith("script:") ? "judge: script mismatch" : "judge: case check failed";
+      failures.set(name, (failures.get(name) ?? new Set()).add(r.record.caseId));
     }
   }
 

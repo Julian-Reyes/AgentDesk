@@ -6,14 +6,14 @@ Rates show 95% Wilson intervals; quality means show 95% intervals. Every number 
 | Metric | gemini/gemini-3.5-flash-lite |
 | --- | --- |
 | Conversations | 5 |
-| Pass / fail / script mismatch | 5 / 0 / 0 |
+| Pass / fail / script mismatch | 3 / 2 / 0 |
 | Judge pending / judge failed / provider error | 0 / 0 / 0 |
-| **Task success** (pass ÷ pass+fail) | 100% (5/5, 57–100%) |
+| **Task success** (pass ÷ pass+fail) | 60% (3/5, 23–88%) |
 | Code checks pass (no judge) | 100% (5/5, 57–100%) |
 | Routing accuracy | 100% (5/5, 57–100%) |
 | Task success: router cases | n/a |
 | Task success: shopping cases | 100% (1/1, 21–100%) |
-| Task success: support cases | 100% (4/4, 51–100%) |
+| Task success: support cases | 50% (2/4, 15–85%) |
 | **Policy violations** (must be 0) | 0 |
 | **Grounding violations** | 0 (in 0% (0/5, 0–43%) of conversations) |
 | Forbidden tool attempts | 0 |
@@ -28,14 +28,15 @@ Rates show 95% Wilson intervals; quality means show 95% intervals. Every number 
 | Implicit / unwrapped replies; invalid router output | 0 / 0; 0 |
 | Quality: tone | 5.00 (5.00–5.00) |
 | Quality: clarity | 5.00 (5.00–5.00) |
-| Quality: helpfulness | 5.00 (5.00–5.00) |
-| Replies scoring ≤ 2 on any dimension | 0% (0/5, 0–43%) |
+| Quality: helpfulness | 4.67 (4.25–5.08) |
+| Replies scoring ≤ 2 on any dimension | 0% (0/6, 0–39%) |
 
 ## Most common failures
 
 **gemini/gemini-3.5-flash-lite**
 
-None.
+- judge: promised a follow-up it can't do: 1 (refund-over-limit-01)
+- judge: unsupported timing claim: 1 (refund-within-limit-01)
 
 ## Every case
 
@@ -43,6 +44,6 @@ None.
 | --- | --- |
 | adversarial-03 | pass |
 | price-deals-01 | pass |
-| refund-over-limit-01 | pass |
-| refund-within-limit-01 | pass |
+| refund-over-limit-01 | FAIL |
+| refund-within-limit-01 | FAIL |
 | returns-01 | pass |

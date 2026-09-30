@@ -1,6 +1,7 @@
 {
   "caseId": "refund-within-limit-01",
   "runId": "2cd01b22-b90c-4e04-bf32-3c216e96fd03",
+  "questionSet": "2a2c12d8",
   "agentModel": "gemini/gemini-3.5-flash-lite",
   "judgeModel": "gemini/gemma-4-31b",
   "rubric": "rubric@1#c190deec",
@@ -19,10 +20,54 @@
       "message 1: issue_refund({\"orderId\":1050,\"item\":\"Glowworm 300 Headlamp\",\"amount\":29,\"reason\":\"damaged\",\"note\":\"Glowworm headlamp arrived with a cracked lens and won't turn on\"}) → {\"ok\":true,\"data\":{\"status\":\"refunded\",\"refundId\":48,\"amount\":\"$29.00\",\"message\":\"Refund of $29.00 issued to the original payment method.\"},\"policyDecision\":\"auto_approved\"}"
     ],
     "judgeNote": "Apologizes briefly, confirms the $29.00 refund to the original payment method. Doesn't invent when the money arrives (no tool says).",
-    "checks": [],
+    "checks": [
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
     "scriptFit": []
   },
-  "ok": false,
-  "error": "provider error: gemini/gemma-4-31b: HTTP 500 [{\n  \"error\": {\n    \"code\": 500,\n    \"message\": \"Internal error encountered.\",\n    \"status\": \"INTERNAL\"\n  }\n}\n]",
-  "calls": []
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 4,
+        "why": "The agent was professional and clear, but included an unsupported timing claim about when the refund would appear."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only stated what had already been completed."
+      },
+      {
+        "id": "judge:timing",
+        "answer": false,
+        "why": "The agent claimed the refund would be seen 'soon', which is not supported by any tool result."
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:followup": true,
+    "judge:timing": false
+  },
+  "calls": [
+    {
+      "latencyMs": 58369,
+      "inputTokens": 1592,
+      "outputTokens": 184,
+      "cached": false,
+      "raw": "<thought>*   Customer: Glowworm headlamp (order #1050) arrived cracked/won't turn on.\n    *   Agent: Apologizes, issues full refund of $29.00 to original payment method, says \"You should see it in your account soon.\"\n\n    *   `get_order`: Confirms item, price ($29.00), and order #1050.\n    *   `check_return_eligibility`: Denied (because it's a damaged item process), but `withinDamageWindow` is true.\n    *   `issue_refund`: Successful. Refund of $29.00 issued.\n\n    *   Tone: Warm, professional, apologizes once. (Score: 5)\n    *   Clarity: Answer first, short, amount explicit. (Score: 5)\n    *   Helpfulness: Answers the request, issues refund. However, the \"good answer\" note says \"Doesn't invent when the money arrives (no tool says)\". The agent said \"You should see it in your account soon.\" This is a timing claim not supported by tools. (Score: 4 - misses the \"don't invent timing\" guidance, but otherwise perfect).\n\n    *   `judge:followup`: Did the agent promise to do something later? No. It said it *already* issued the refund. (True)\n    *   `judge:timing`: Did every statement about timing match a tool result? The agent said \"You should see it in your account soon.\" The tools do not provide a timeframe for the refund to appear in the account. (False)\n\n    *   None provided.</thought>{\n  \"replies\": [\n    {\n      \"reply\": 1,\n      \"tone\": 5,\n      \"clarity\": 5,\n      \"helpfulness\": 4,\n      \"why\": \"The agent was professional and clear, but included an unsupported timing claim about when the refund would appear.\"\n    }\n  ],\n  \"checks\": [\n    {\n      \"id\": \"judge:followup\",\n      \"answer\": true,\n      \"why\": \"The agent only stated what had already been completed.\"\n    },\n    {\n      \"id\": \"judge:timing\",\n      \"answer\": false,\n      \"why\": \"The agent claimed the refund would be seen 'soon', which is not supported by any tool result.\"\n    }\n  ],\n  \"scriptFit\": []\n}"
+    }
+  ]
 }
