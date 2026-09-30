@@ -94,3 +94,15 @@ export function toolCallHealth(steps: TraceStep[]): Record<string, ToolCallHealt
   }
   return byModel;
 }
+
+/** Sums per-model health across many runs (e.g. a whole eval run), keeping models apart. */
+export function mergeHealth(parts: Record<string, ToolCallHealth>[]): Record<string, ToolCallHealth> {
+  const total: Record<string, ToolCallHealth> = {};
+  for (const part of parts) {
+    for (const [model, h] of Object.entries(part)) {
+      const t = (total[model] ??= emptyHealth());
+      for (const key of Object.keys(h) as (keyof ToolCallHealth)[]) t[key] += h[key];
+    }
+  }
+  return total;
+}

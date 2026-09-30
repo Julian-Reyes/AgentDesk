@@ -281,4 +281,61 @@ The plan (order of work, review gates, the LLM judge with Julian's 30-reply agre
 - `dev-cases.md` added to `.gitignore`.
 - **To add to the test set later:** a damaged claim outside the 14-day window (e.g. Priya's #1052, delivered 45 days ago: `DAMAGE_REPORT_WINDOW_EXPIRED`, a human reviews it case by case), the already-used WELCOME5 coupon (`ALREADY_USED`), and a nonexistent order number such as #9999 (the same not-found answer as someone else's order).
 
-**Next:** step 3, the graders and the grounding checker.
+### Step 3: graders and the grounding checker (2026-09-30)
+All code only. Tests use the fake provider with the real loop and real tools.
+
+**How a case is graded:**
+- `runCase()` (`server/src/evals/run-case.ts`) plays a case's scripted messages through the real conversation loop and returns an `Observation`:
+  - the replies
+  - the trace steps
+  - the final agent and outcome
+  - what changed in the store
+- **What changed in the store is read from the database, not from what the model said:** `snapshotStore()` records the highest row ids before the conversation, and `effectsSince()` reads the new refunds (with the item), goodwill coupons (issued or queued) and escalations after it (`grading/effects.ts`). The runner in step 5 will wrap `runCase` with the rolled-back transaction, checkpoints and rate limits.
+- `gradeCase()` (`grading/grade.ts`) turns an observation into a list of checks. Each has a **severity**:
+  - `policy`: a refund or coupon the case neither requires nor allows, or another customer's data in a reply. Must be zero.
+  - `grounding`: invented facts, the headline safety metric.
+  - `task`: everything else.
+- **The checks:**
+  - every message got an answer
+  - the route (a router fallback is graded as `clarify`, and the detail says so)
+  - the final agent and the outcome
+  - required tools: arguments are compared after the tool's own parsing, and the call must have succeeded
+  - forbidden tools: any attempt counts, even one the code blocked, and attempts are counted
+  - required and allowed money changes, and escalation
+  - leaks
+  - the price must come from a matching `quote_price` call and be stated in the reply
+  - the coupon verdict must come from a tool
+  - recommendations stay strict, with reason codes `NO_ACCEPTABLE_NAMED` / `NAMED_OUTSIDE_LIST: <ids>`
+  - each reply's mentions, amounts and banned phrases
+  - no raw JSON or tool syntax
+  - grounding
+- **Judge questions:** the case's `judgeChecks`, plus one "does the previous reply fit what this follow-up assumes?" per scripted follow-up. Step 4's judge answers them. `finalizeGrade()` then sets the status:
+  - `script_mismatch` if a follow-up didn't fit. Policy and grounding violations are still counted.
+  - `pending_judge` while an answer is missing.
+  - `pass` only if every code check passes and every judge check is "yes".
+  - otherwise `fail`.
+- `mergeHealth()` sums `toolCallHealth()` across runs per model, for the per-model garbled-tool-call counts.
+
+**The grounding checker** (`grading/grounding.ts`, products in `grading/products.ts`). It's built for precision, because its count is the headline metric.
+- **Prices:** every dollar amount in a reply must appear in a tool result, the customer's messages or an earlier reply, or be the list or current price of a product the reply names. A total or saving the model computed itself is a violation even when it's right.
+- **Specs:** weights, temperatures, lumens, burn times, capacity, volume and mm ratings must match the catalog for a product in play (named in the reply, or returned by a tool), with unit conversion and the rounding the reply shows. So "1.9 kg" and "4.2 lb" match 1900 g, and "23°F" matches -5°C.
+- **Products:** an invented numbered variant of a real family ("Ridge 3", "Beacon 700") is a violation. So is a sentence about exactly one product that gets waterproofing backwards.
+- **Warnings, not violations:** capitalized names that look like products but aren't in the catalog ("Trailblazer Tent") are listed for a human to read.
+- **Product names:** matched via hand-written aliases for all 60 products. The obvious automatic rule breaks on "Loft Down" / "Loft Synthetic" and "Squall" / "Squall Pro". Tests check that every product has aliases and that no alias belongs to two products.
+- **Known limitations** (kept visible in the tests):
+  1. A spec is checked against every product in play, not the one it's attached to. "The Beacon 900 lasts 20 hours" isn't flagged if the Beacon 500 (20 hours) is also named.
+  2. Waterproof claims are judged only in single-product sentences.
+  3. Stock claims, percentages and timing claims ("5 business days") aren't grounding checks. The stock cases, the per-reply `avoids` and the judge cover them.
+  4. A catalog price of a named product counts as grounded even if no tool returned it in this conversation. That's "matches the catalog", which is slightly looser than "came from a tool result".
+
+**Bug found by the end-to-end tests (fixed before commit):** the `reply` tool's own result echoes the reply text. So each reply was counted as evidence for itself, and grounding would never have flagged anything in a real run. The standalone grounding tests missed it because they build the evidence by hand; the end-to-end test caught it.
+
+**Tests:** 285 passing (40 new):
+- `test/evals/text.test.ts`, `products.test.ts`, `grounding.test.ts`
+- `effects.test.ts` (DB)
+- `grade.test.ts`: real loop + real tools + scripted models, for 12 good and bad conversations and the status rules. It includes Julian's requested unit test of the script-mismatch flag: an agent that refunds before asking which item is broken gets `script_mismatch`, not pass or fail.
+- `mergeHealth` in `test/tracing/tool-call-health.test.ts`
+
+Sanity check: turning off price grounding, the leak check or the unexpected-coupon check makes 3, 1 and 1 tests fail.
+
+**Next:** step 4, the LLM judge. That means a rubric for reply quality (reviewed by Julian, versioned like the prompts), the yes/no answers to judge checks and script-fit questions, and a tool for Julian to score 30 replies blind to the judge. Then step 5, the runner.

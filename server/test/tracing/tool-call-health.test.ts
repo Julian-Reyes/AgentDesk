@@ -5,7 +5,7 @@ import { fixedClock } from "../../src/domain/clock.ts";
 import { FakeProvider, fake } from "../../src/llm/fake.ts";
 import { ProviderError } from "../../src/llm/openai-compatible.ts";
 import { MemoryTracer } from "../../src/tracing/tracer.ts";
-import { emptyHealth, toolCallHealth } from "../../src/tracing/tool-call-health.ts";
+import { emptyHealth, mergeHealth, toolCallHealth } from "../../src/tracing/tool-call-health.ts";
 import { MAYA, inTx } from "../helpers.ts";
 
 const garbled = { status: 400, code: "tool_use_failed", message: "attempted to call tool 'hand-off'" };
@@ -73,5 +73,16 @@ describe("toolCallHealth: garbled and rejected tool calls, per model", () => {
     expect(health["gemini/gemini-3.5-flash-lite"]).toEqual({ ...emptyHealth(), modelCalls: 1 });
     // Only model-output rejections count, not network errors.
     expect(health["groq/gpt-oss-120b"]).toEqual({ ...emptyHealth(), modelCalls: 1, rejectedByProvider: 1, unknownTool: 1, implicitReplies: 1 });
+  });
+
+  it("sums across runs per model (mergeHealth), keeping models apart", () => {
+    const a = { m1: { ...emptyHealth(), modelCalls: 3, invalidArgs: 1 } };
+    const b = { m1: { ...emptyHealth(), modelCalls: 2, rejectedByProvider: 2 }, m2: { ...emptyHealth(), modelCalls: 1 } };
+    expect(mergeHealth([a, b])).toEqual({
+      m1: { ...emptyHealth(), modelCalls: 5, invalidArgs: 1, rejectedByProvider: 2 },
+      m2: { ...emptyHealth(), modelCalls: 1 },
+    });
+    // The inputs are left alone.
+    expect(a.m1.modelCalls).toBe(3);
   });
 });
