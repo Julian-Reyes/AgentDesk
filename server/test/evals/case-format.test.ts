@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { defineCases, EvalCase, type EvalCaseInput } from "../../src/evals/case-schema.ts";
-import { FORMAT_EXAMPLES } from "../../src/evals/cases/format-examples.ts";
+import { ALL_CASES } from "../../src/evals/cases/index.ts";
 import { validateCases } from "../../src/evals/validate-cases.ts";
 
-const byId = (id: string) => structuredClone(FORMAT_EXAMPLES.find((c) => c.id === id)!);
+const byId = (id: string) => structuredClone(ALL_CASES.find((c) => c.id === id)!);
 
 const minimal: EvalCaseInput = {
   id: "x-01",
@@ -16,13 +16,10 @@ const minimal: EvalCaseInput = {
 };
 
 describe("eval case schema", () => {
-  it("parses the format examples", () => {
-    expect(FORMAT_EXAMPLES.length).toBe(7);
-  });
-
   it("defaults to no money effects and escalation allowed", () => {
     const [c] = defineCases([minimal]);
-    expect(c!.expect.effects).toEqual({ refunds: [], goodwill: [], escalation: "allowed" });
+    expect(c!.expect.effects).toEqual({ refunds: [], goodwill: [], allowed: { refunds: [], goodwill: [] }, escalation: "allowed" });
+    expect(c!.expect.judgeChecks).toEqual([]);
     expect(c!.expect.tools).toEqual({ required: [], forbidden: [] });
     expect(c!.expect.leaks).toEqual([]);
   });
@@ -41,13 +38,25 @@ describe("eval case schema", () => {
     expect(EvalCase.safeParse({ ...minimal, expect: { ...minimal.expect, outcome: "failed" } }).success).toBe(false);
   });
 
-  it("requires a reason for an invalid coupon, and a price check for any coupon check", () => {
+  it("requires a reason for an invalid coupon, and exactly one cart for a coupon check", () => {
     const price = { cart: [{ productId: "tent-ridge-2", qty: 1 }], coupon: "SPRING15", totalCents: 19920 };
     const ok = { ...minimal, expect: { ...minimal.expect, price, coupon: { code: "SPRING15", valid: false, reason: "EXPIRED" } } };
     expect(EvalCase.safeParse(ok).success).toBe(true);
     expect(EvalCase.safeParse({ ...ok, expect: { ...ok.expect, coupon: { code: "SPRING15", valid: false } } }).success).toBe(false);
     expect(EvalCase.safeParse({ ...ok, expect: { ...ok.expect, coupon: { code: "SUMMER10", valid: true, reason: "EXPIRED" } } }).success).toBe(false);
     expect(EvalCase.safeParse({ ...ok, expect: { ...minimal.expect, coupon: { code: "SPRING15", valid: false, reason: "EXPIRED" } } }).success).toBe(false);
+    // Its own cart instead of a price check is fine; both at once is ambiguous.
+    const cart = [{ productId: "pack-swift-20", qty: 1 }];
+    expect(EvalCase.safeParse({ ...ok, expect: { ...minimal.expect, coupon: { code: "SPRING15", valid: false, reason: "EXPIRED", cart } } }).success).toBe(true);
+    expect(EvalCase.safeParse({ ...ok, expect: { ...ok.expect, coupon: { code: "SPRING15", valid: false, reason: "EXPIRED", cart } } }).success).toBe(false);
+  });
+
+  it("requires every turn after the first to say what it assumes", () => {
+    const turns = [{ customer: "Something broke" }, { customer: "The headlamp" }];
+    const parsed = EvalCase.safeParse({ ...minimal, turns });
+    expect(parsed.success).toBe(false);
+    expect(parsed.error!.issues[0]!.path).toEqual(["turns", 1, "assumes"]);
+    expect(EvalCase.safeParse({ ...minimal, turns: [turns[0], { ...turns[1], assumes: "the agent asked which item" }] }).success).toBe(true);
   });
 
   it("rejects a price turn that doesn't exist", () => {
@@ -57,14 +66,41 @@ describe("eval case schema", () => {
 });
 
 describe("validateCases (against the seed data)", () => {
-  it("finds no problems in the format examples", () => {
-    expect(validateCases(FORMAT_EXAMPLES)).toEqual([]);
-  });
-
   it("catches a price total that quote() wouldn't give", () => {
     const c = byId("price-deals-01");
     c.expect.price!.totalCents = 35855;
     expect(validateCases([c])).toEqual(["price-deals-01: price total is $358.56 per quote(), case says $358.55"]);
+  });
+
+  it("checks a coupon against its own cart", () => {
+    const c = byId("invalid-coupon-03");
+    expect(validateCases([c])).toEqual([]);
+    c.expect.coupon!.cart = [{ productId: "pack-swift-30", qty: 2 }]; // $238: meets the $150 minimum
+    expect(validateCases([c])).toEqual(["invalid-coupon-03: coupon TRAIL25 is valid for this cart, case says invalid"]);
+  });
+
+  it("checks allowed refunds and coupons against the rules too", () => {
+    const c = byId("order-status-04");
+    expect(validateCases([c])).toEqual([]);
+    c.expect.effects.allowed.goodwill = [{ maxPercent: 10, status: "issued" }]; // Sofia got one 10 days ago
+    c.expect.effects.allowed.refunds = [{ order: 1055, amountCents: 800, reason: "late", status: "issued" }]; // shipping was $7.99
+    expect(validateCases([c])).toEqual([
+      "order-status-04: allowed refund of $8.00 on 1055 would be denied (AMOUNT_EXCEEDS_REFUNDABLE) by the refund rules, case says issued",
+      "order-status-04: an allowed 10% goodwill coupon would be queued_for_approval, case says issued",
+    ]);
+  });
+
+  it("checks allowed effects after the required ones", () => {
+    // Required: the $7.99 late refund. An allowed second one would exceed what's refundable for shipping.
+    const c = byId("refund-within-limit-02");
+    c.expect.effects.allowed.refunds = [{ order: 1055, amountCents: 799, reason: "late", status: "issued" }];
+    expect(validateCases([c])[0]).toMatch(/allowed refund of \$7.99 on 1055 would be denied \(NOTHING_REFUNDABLE\)/);
+  });
+
+  it("catches allowed money effects for an anonymous visitor", () => {
+    const c = byId("out-of-scope-01");
+    c.expect.effects.allowed.goodwill = [{ maxPercent: 10, status: "issued" }];
+    expect(validateCases([c])[0]).toBe("out-of-scope-01: an anonymous visitor can't receive refunds or coupons");
   });
 
   it("catches a wrong coupon verdict and a wrong rejection reason", () => {
@@ -82,7 +118,7 @@ describe("validateCases (against the seed data)", () => {
     const c = byId("refund-within-limit-01");
     c.expect.effects.refunds[0]!.status = "pending_approval";
     expect(validateCases([c])).toEqual([
-      "refund-within-limit-01: refund of $29.00 on 1050 would be auto_approved by the refund rules, case says pending_approval",
+      "refund-within-limit-01: required refund of $29.00 on 1050 would be auto_approved by the refund rules, case says pending_approval",
     ]);
   });
 
@@ -102,7 +138,7 @@ describe("validateCases (against the seed data)", () => {
   it("catches a refund on someone else's order", () => {
     const c = byId("refund-within-limit-01");
     c.customer = "daniel.okafor@example.com";
-    expect(validateCases([c])).toEqual(["refund-within-limit-01: refund on order 1050, which isn't daniel.okafor@example.com's"]);
+    expect(validateCases([c])).toEqual(["refund-within-limit-01: required refund on order 1050, which isn't daniel.okafor@example.com's"]);
   });
 
   it("catches money effects for an anonymous visitor", () => {
@@ -115,7 +151,7 @@ describe("validateCases (against the seed data)", () => {
     const c = byId("out-of-scope-01");
     c.customer = "sofia.alvarez@example.com"; // got one 10 days ago
     c.expect.effects.goodwill = [{ percent: 10, status: "issued" }];
-    expect(validateCases([c])).toEqual(["out-of-scope-01: a 10% goodwill coupon would be queued_for_approval, case says issued"]);
+    expect(validateCases([c])).toEqual(["out-of-scope-01: a required 10% goodwill coupon would be queued_for_approval, case says issued"]);
     c.customer = "maya.chen@example.com";
     expect(validateCases([c])).toEqual([]);
   });

@@ -216,7 +216,7 @@ Julian chose "refund per item" to close the splitting gap:
 ## Milestone 3 — Evals (in progress)
 The plan (order of work, review gates, the LLM judge with Julian's 30-reply agreement check) is in **`docs/M3_PLAN.md`**.
 
-### Step 1: eval case format (2026-09-30), awaiting Julian's review
+### Step 1: eval case format (2026-09-30), approved by Julian with changes (see "Step 1b" below)
 - **Schema:** `server/src/evals/case-schema.ts` (Zod, strict: an unknown key such as a typo is an error, not a silently skipped check). A case has an id, split, type (the spec's 12 types), `why` (for the reviewer), signed-in customer or `null`, scripted turns with optional per-reply checks, and `expect`:
   - `route` (first message) and optional `finalAgent` (handoffs)
   - `outcome` (`resolved` / `approval_needed` / `escalated`; a list means any is fine)
@@ -235,4 +235,43 @@ The plan (order of work, review gates, the LLM judge with Julian's 30-reply agre
   5. **One file per case type** (not one file per case, as the plan said): 12 files, which matches reviewing in batches by type.
 - **Examples:** 7 cases in `server/src/evals/cases/format-examples.ts`: order status, price + coupon, $29 refund, someone else's order, recommendation, out of scope, and a 2-turn returns pushback. They become dev cases once the format is approved.
 - **Tests:** 233 passing (18 new in `test/evals/case-format.test.ts`). The examples validate cleanly. Deliberately wrong versions are caught with exact messages: a price total $0.01 off, a wrong coupon verdict or reason, a refund status the rules wouldn't give, a refund above what was paid, the $179.99 item auto-refunded, a refund on another customer's order, money effects for an anonymous visitor, a goodwill coupon inside the monthly limit, a recommendation list missing a product or with an extra one, unknown customer/product/order, and duplicate ids.
-- **Next:** after Julian approves the format, draft the remaining ~33 dev cases (all 12 types, plus the cases collected in M2) for review.
+### Step 1b–2: Julian's format changes, the review sheet, 40 dev cases (2026-09-30), awaiting Julian's review
+**Format changes from Julian's review:**
+- **Allowed money changes:** `effects.allowed.refunds` and `effects.allowed.goodwill` (`maxPercent` + status) may happen but aren't required, e.g. a shipping refund or a ≤ 10% coupon for a delayed order. Anything not required or allowed is still a policy violation. The validator replays allowed entries through the refund/goodwill rules too, after the required ones.
+- **Script fit:** every turn after the first must state `assumes` (what it expects the previous reply did). The graders will flag a case `script_mismatch` when the reply doesn't fit (recorded in `docs/M3_PLAN.md` step 3).
+- **Recommendations stay strict;** the graders will record the failure reason (M3_PLAN step 3).
+- **`judgeChecks`:** pass/fail statements answered by the LLM judge, for rules a phrase list can't catch. Julian noted that banning "I can make an exception" misses "let me make an exception"; banning "make an exception" would also catch "I can't make an exception". `returns-01` now fails on any promise or hint of an exception. These are reported separately from code-graded checks and included in the judge agreement check.
+- **A coupon check may carry its own cart**, for cases where the customer never asks for a total ("apply TRAIL25, please").
+
+**Cases:** 40 dev cases in `server/src/evals/cases/<type>.ts` (one file per type; `index.ts` exports `ALL_CASES`; `format-examples.ts` was split into these files):
+
+| Type | Count |
+| --- | --- |
+| product facts | 3 |
+| comparison | 3 |
+| recommendation | 3 |
+| price and deals | 4 |
+| invalid coupon | 3 |
+| stock | 3 |
+| order status | 4 |
+| returns | 4 |
+| refund within limit | 3 |
+| refund over limit | 3 |
+| adversarial | 5 |
+| out of scope | 2 |
+
+- Included from the M2 notes and Julian's review:
+  - the anonymous visitor asking about #1042 (must ask them to sign in; order tools forbidden)
+  - the returns overpromise (eligible #1043: explain the label and warehouse process)
+  - the `IGNORE ALL PREVIOUS PROMPTS` injection mid-shopping
+  - "$500, admin mode" (no partial-refund offer)
+  - unsupported "business days" claims
+  - a shopping → support handoff (`stock-03`)
+  - a missing fact that mustn't be invented (`product-facts-03`)
+- Every order, stock and eligibility fact was checked against real tool output (`npm run tool`). Every price, refund decision, coupon verdict and recommendation list is recomputed by `validateCases()` in a test.
+
+**Review sheet:** `npm run eval:cases -- --split dev` prints all 40 in plain English. Filters: `--type returns`, `--id returns-01`. Redirect with `> dev-cases.md`. It validates every case first and refuses to print if any don't match the seed. No DB or model is needed.
+
+**Tests:** 244 passing (29 in `test/evals/`: format, case set, review sheet). Three expectations changed wording only: the validator's messages now say "required"/"allowed". A sanity check confirmed the new tests catch breakage: disabling the allowed-effects replay and the `assumes` rule made 3 tests fail.
+
+**Next:** Julian reviews all 40 dev cases. No test-set cases until then. After that: the graders and the grounding checker (step 3).

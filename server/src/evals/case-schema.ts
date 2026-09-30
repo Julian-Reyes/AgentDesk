@@ -15,8 +15,8 @@ import { ALL_TOOLS } from "../tools/registry.ts";
  *    model took. Tool-call requirements are only for cases where the path is the
  *    rule itself (a price must come from quote_price).
  *  - Money effects default to NONE. A refund or coupon that a case doesn't list
- *    is a policy violation, so "zero policy violations" is checked in every case,
- *    not just the adversarial ones.
+ *    as required or allowed is a policy violation, so "zero policy violations" is
+ *    checked in every case, not just the adversarial ones.
  *  - Every expected number is written out in the case (so a reviewer can read
  *    it), and validate-cases.ts recomputes it from the seed data (so it can't go
  *    stale when the catalog or the rules change).
@@ -77,6 +77,13 @@ const Turn = z
   .object({
     /** What the customer says. The script is fixed: the next message is sent whatever the agent replied. */
     customer: z.string().min(1),
+    /**
+     * Required on every turn after the first: what this message assumes the
+     * previous reply did (e.g. "the agent asked which item is broken"). When the
+     * previous reply doesn't fit, the result is flagged script_mismatch instead of
+     * pass/fail, so a bad case can be told apart from a bad agent.
+     */
+    assumes: z.string().min(5).optional(),
     /** Checks on the agent's reply to this message. */
     reply: ReplyCheck.optional(),
   })
@@ -105,6 +112,11 @@ const GoodwillEffect = z
   .object({ percent: z.number().int().positive(), status: z.enum(["issued", "pending_approval"]) })
   .strict();
 
+/** A goodwill coupon the agent may give (not must): any percent up to maxPercent, with this status. */
+const AllowedGoodwill = z
+  .object({ maxPercent: z.number().int().positive(), status: z.enum(["issued", "pending_approval"]) })
+  .strict();
+
 const PriceCheck = z
   .object({
     cart: z.array(z.object({ productId: ProductId, qty: z.number().int().positive() }).strict()).min(1),
@@ -122,6 +134,8 @@ const CouponCheck = z
     valid: z.boolean(),
     /** Why it's rejected, as the coupon rules report it. Required when valid is false. */
     reason: z.enum(COUPON_REJECTIONS).optional(),
+    /** The cart it's checked against, when the case has no price check (the customer didn't ask for a total). */
+    cart: z.array(z.object({ productId: ProductId, qty: z.number().int().positive() }).strict()).min(1).optional(),
   })
   .strict()
   .refine((c) => c.valid === (c.reason === undefined), "reason is required for an invalid coupon, and only then");
@@ -165,16 +179,23 @@ const Expectation = z
       .strict()
       .default({ required: [], forbidden: [] }),
 
-    /** Store changes the conversation must leave behind. Anything not listed must not happen. */
+    /**
+     * Store changes. `refunds` and `goodwill` must happen; `allowed` may happen
+     * (at most once each). Any other refund or coupon is a policy violation.
+     */
     effects: z
       .object({
         refunds: z.array(RefundEffect).default([]),
         goodwill: z.array(GoodwillEffect).default([]),
+        allowed: z
+          .object({ refunds: z.array(RefundEffect).default([]), goodwill: z.array(AllowedGoodwill).default([]) })
+          .strict()
+          .default({ refunds: [], goodwill: [] }),
         /** required: a ticket must be opened; forbidden: must not be; allowed: either (then it only counts toward the escalation rate). */
         escalation: z.enum(["required", "allowed", "forbidden"]).default("allowed"),
       })
       .strict()
-      .default({ refunds: [], goodwill: [], escalation: "allowed" }),
+      .default({ refunds: [], goodwill: [], allowed: { refunds: [], goodwill: [] }, escalation: "allowed" }),
 
     price: PriceCheck.optional(),
     coupon: CouponCheck.optional(),
@@ -186,11 +207,21 @@ const Expectation = z
      */
     leaks: z.array(z.string().min(1)).default([]),
 
-    /** Guidance for the LLM judge: what a good answer does here. Not used by the automatic graders. */
+    /** Guidance for the LLM judge's quality score: what a good answer does here. Not a pass/fail check. */
     judge: z.string().min(1).optional(),
+    /**
+     * Pass/fail statements about the whole conversation that only a reader can
+     * check (e.g. "never hints that an exception might be made"), answered yes/no
+     * by the LLM judge. A "no" fails the case. Reported separately from the
+     * code-graded checks, because the judge is less reliable than code.
+     */
+    judgeChecks: z.array(z.string().min(10)).default([]),
   })
   .strict()
-  .refine((e) => !e.coupon || e.price, { message: "a coupon check needs a price check (coupons are validated against a cart)", path: ["coupon"] });
+  .refine((e) => !e.coupon || !!e.price !== !!e.coupon.cart, {
+    message: "a coupon check needs a cart: its own, or the price check's (not both)",
+    path: ["coupon"],
+  });
 
 export const EvalCase = z
   .object({
@@ -209,6 +240,11 @@ export const EvalCase = z
   })
   .strict()
   .superRefine((c, ctx) => {
+    c.turns.forEach((t, i) => {
+      if (i > 0 && !t.assumes) {
+        ctx.addIssue({ code: "custom", path: ["turns", i, "assumes"], message: "every turn after the first must say what it assumes the previous reply did" });
+      }
+    });
     if (c.expect.price?.turn && c.expect.price.turn > c.turns.length) {
       ctx.addIssue({ code: "custom", path: ["expect", "price", "turn"], message: `turn ${c.expect.price.turn} doesn't exist (${c.turns.length} turns)` });
     }
