@@ -1,6 +1,6 @@
 import { emptyHealth, mergeHealth, toolCallHealth, type ToolCallHealth } from "../../tracing/tool-call-health.ts";
 import { finalizeGrade } from "../grading/grade.ts";
-import { wilson } from "../judge/agreement.ts";
+import { pairsFromOutputs, renderReport as renderAgreement, report as agreementReport, wilson } from "../judge/agreement.ts";
 import type { JudgedConversation } from "../judge/sample.ts";
 import type { ConversationRecord, JudgeRecord } from "./store.ts";
 
@@ -230,5 +230,43 @@ export function renderReport(title: string, reports: ModelReport[], results: Con
     });
     out.push(`| ${id} | ${cells.join(" | ")} |`);
   }
+  return out.join("\n");
+}
+
+/**
+ * Two judges on the same conversations of one run (both verdicts valid): does
+ * swapping the judge change what the report says? Shows how many final
+ * statuses flip (and which), who says "no" more often on the yes/no questions,
+ * and score agreement per agent model. "Main" is the judge the report uses.
+ */
+export function renderJudgeComparison(main: string, other: string, both: { record: ConversationRecord; main: JudgeRecord; other: JudgeRecord }[]): string {
+  const out = [`## Judge comparison: ${main} (main) vs ${other}`, ""];
+  if (both.length === 0) return [...out, "No conversation has a valid verdict from both judges."].join("\n");
+  const flips = both
+    .map((b) => ({ b, s1: statusOf(b.record, b.main), s2: statusOf(b.record, b.other) }))
+    .filter((f) => f.s1 !== f.s2);
+  let mainNo = 0;
+  let otherNo = 0;
+  const disagreements: string[] = [];
+  for (const b of both) {
+    for (const [id, a1] of Object.entries(b.main.answers ?? {})) {
+      const a2 = b.other.answers?.[id];
+      if (a2 === undefined || a2 === a1) continue;
+      if (a1) otherNo += 1;
+      else mainNo += 1;
+      disagreements.push(`${b.record.caseId} (${b.record.agentModel}) ${id}: ${main} ${a1 ? "yes" : "no"}, ${other} ${a2 ? "yes" : "no"}`);
+    }
+  }
+  const same = rate(both.length - flips.length, both.length);
+  out.push(
+    `${both.length} conversations have a valid verdict from both judges (same rubric, same questions).`,
+    "",
+    `- **Same final status:** ${pct(same)}.`,
+    ...flips.map((f) => `  - ${f.b.record.caseId} (${f.b.record.agentModel}): ${STATUS_LABEL[f.s1]} with ${main}, ${STATUS_LABEL[f.s2]} with ${other}`),
+    `- **Yes/no disagreements:** ${disagreements.length}. ${main} said no where ${other} said yes: ${mainNo}; the reverse: ${otherNo}.`,
+    ...disagreements.map((d) => `  - ${d}`),
+    "",
+    renderAgreement(`Scores and yes/no answers (first = ${main}, second = ${other})`, agreementReport(pairsFromOutputs(both.map((b) => ({ agentModel: b.record.agentModel, a: b.main.output!, b: b.other.output! }))))),
+  );
   return out.join("\n");
 }

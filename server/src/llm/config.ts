@@ -49,6 +49,11 @@ export type ModelConfig = z.infer<typeof ModelConfigSchema>;
 const ConfigFileSchema = z.object({
   /** The model used when nothing else is specified (dev default: local Ollama). */
   default: z.string(),
+  /**
+   * The eval judges: `main` judges every conversation, `second` re-judges only
+   * Julian's 30 check replies (judge:agreement). Optional so test configs can omit it.
+   */
+  judges: z.object({ main: z.string(), second: z.string() }).optional(),
   models: z.array(ModelConfigSchema).min(1),
 });
 
@@ -82,6 +87,7 @@ export function loadModelConfigs(path: URL | string = CONFIG_PATH, env: Env = pr
     }
   }
   if (!ids.has(file.default)) throw new Error(`Default model "${file.default}" is not in the config`);
+  for (const j of Object.values(file.judges ?? {})) if (!ids.has(j)) throw new Error(`Judge model "${j}" is not in the config`);
   return file;
 }
 
@@ -93,3 +99,16 @@ export function getModelConfig(id = process.env.MODEL, path?: URL | string, env:
   if (!found) throw new Error(`Unknown model config "${wanted}". Known: ${file.models.map((m) => m.id).join(", ")}`);
   return found;
 }
+
+/** The configured eval judges (config/models.json → judges). */
+export function getJudgeIds(path?: URL | string, env: Env = process.env): { main: string; second: string } {
+  const { judges } = loadModelConfigs(path, env);
+  if (!judges) throw new Error("config/models.json has no judges entry");
+  return judges;
+}
+
+/** The configured judge that isn't `judgeModel`, for the judge-vs-judge comparison in a run's report. */
+export const otherJudge = (judgeModel: string): string => {
+  const { main, second } = getJudgeIds();
+  return judgeModel === main ? second : main;
+};

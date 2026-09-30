@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { agreementOf, pairsBetweenJudges, pairsWithHuman, report, wilson, type Pair } from "../../src/evals/judge/agreement.ts";
+import { agreementOf, pairsBetweenJudges, pairsFromOutputs, pairsWithHuman, report, wilson, type Pair } from "../../src/evals/judge/agreement.ts";
 import type { JudgeInput } from "../../src/evals/judge/judge.ts";
 import { gradingQuestions, parseScore, parseYesNo, renderGradingItem, sampleForGrading, type JudgedConversation, type KeyEntry } from "../../src/evals/judge/sample.ts";
 
@@ -123,6 +123,21 @@ describe("agreement", () => {
     expect(pairsWithHuman(key, grades, "judge")).toHaveLength(1);
     expect(pairsWithHuman(key, grades, "second")).toHaveLength(1);
     expect(pairsBetweenJudges(key)).toEqual([{ agentModel: "m1", a: expect.objectContaining({ tone: 4 }), b: expect.objectContaining({ tone: 5 }) }]);
+  });
+});
+
+describe("two judges on a whole run", () => {
+  it("pairs every reply's scores, but counts each conversation's yes/no answers once", () => {
+    const out = (tone: number, answer: boolean) => ({
+      replies: [1, 2].map((reply) => ({ reply, tone, clarity: 4, helpfulness: 4, why: "x" })),
+      checks: [{ id: "judge:timing", answer, why: "x" }],
+      scriptFit: [{ id: "script:2", answer: true, why: "x" }],
+    });
+    const pairs = pairsFromOutputs([{ agentModel: "m1", a: out(4, true), b: out(5, false) }]);
+    expect(pairs).toHaveLength(2);
+    const a = agreementOf(pairs);
+    expect(a.dimensions.tone).toMatchObject({ exact: { agree: 0, n: 2 }, meanDiff: -1 });
+    expect(a.answers).toMatchObject({ agree: 1, n: 2 }); // judge:timing disagrees, script:2 agrees; not doubled by the two replies
   });
 });
 

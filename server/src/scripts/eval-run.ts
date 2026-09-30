@@ -26,12 +26,12 @@ import { writeRunReport } from "../evals/runner/finish.ts";
 import { judgeCoverage, runAgentsStage, runJudgeStage, unjudged } from "../evals/runner/stages.ts";
 import { RunStore } from "../evals/runner/store.ts";
 import { validateCases } from "../evals/validate-cases.ts";
-import { getModelConfig } from "../llm/config.ts";
+import { getJudgeIds, getModelConfig, otherJudge } from "../llm/config.ts";
 import { createProvider } from "../llm/factory.ts";
 import { DbTracer } from "../tracing/tracer.ts";
 
 const CLOUD_MODELS = ["gemini/gemini-3.5-flash-lite", "groq/gpt-oss-120b", "groq/qwen3.8-27b"];
-const DEFAULT_JUDGE = "gemini/gemma-4-31b";
+const DEFAULT_JUDGE = getJudgeIds().main;
 
 const { values } = parseArgs({
   options: {
@@ -150,6 +150,6 @@ try {
   await traces.close();
 }
 
-const md = writeRunReport(store, judgeConfig ? { model: judgeConfig.id, rubric } : null);
+const md = writeRunReport(store, judgeConfig ? { model: judgeConfig.id, rubric } : null, judgeConfig ? otherJudge(judgeConfig.id) : undefined);
 console.log(`\n${md.split("\n## Most common failures")[0]}`);
 console.log(`\nFull report: ${store.dir}/report.md`);

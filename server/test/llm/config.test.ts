@@ -2,7 +2,7 @@ import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { expandEnv, getModelConfig, loadModelConfigs } from "../../src/llm/config.ts";
+import { expandEnv, getJudgeIds, getModelConfig, loadModelConfigs, otherJudge } from "../../src/llm/config.ts";
 
 function configFile(content: unknown) {
   const dir = mkdtempSync(join(tmpdir(), "models-"));
@@ -53,6 +53,14 @@ describe("model config file", () => {
     expect(() => loadModelConfigs(configFile({ default: "a", models: [base, base] }), {})).toThrow(/Duplicate/);
     expect(() => loadModelConfigs(configFile({ default: "b", models: [base] }), {})).toThrow(/Default/);
     expect(() => loadModelConfigs(configFile({ default: "a", models: [{ ...base, baseUrl: "not a url" }] }), {})).toThrow(/invalid baseUrl/);
+  });
+
+  it("the judges live in config: gpt-oss-20b judges every conversation, Gemma is the second judge", () => {
+    expect(getJudgeIds(undefined, {})).toEqual({ main: "groq/gpt-oss-20b", second: "gemini/gemma-4-31b" });
+    expect(otherJudge("groq/gpt-oss-20b")).toBe("gemini/gemma-4-31b");
+    expect(otherJudge("gemini/gemma-4-31b")).toBe("groq/gpt-oss-20b");
+    const base = { id: "a", provider: "ollama", model: "x", baseUrl: "http://h/v1" };
+    expect(() => loadModelConfigs(configFile({ default: "a", judges: { main: "a", second: "nope" }, models: [base] }), {})).toThrow(/Judge model "nope"/);
   });
 
   it("unknown model ids fail with the list of known ones", () => {

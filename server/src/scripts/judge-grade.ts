@@ -11,6 +11,7 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { createInterface } from "node:readline/promises";
 import { gradingQuestions, parseScore, parseYesNo, renderGradingItem, type GradingItem, type HumanGrade } from "../evals/judge/sample.ts";
+import { getJudgeIds } from "../llm/config.ts";
 
 const dir = process.argv[2];
 if (!dir || !existsSync(join(dir, "sample.json"))) {
@@ -52,7 +53,7 @@ try {
     writeFileSync(gradesPath, `${JSON.stringify(grades, null, 2)}\n`);
     console.log(`Saved ${item.itemId}.\n`);
   }
-  console.log(`All ${items.length} graded. Next: npm run judge:agreement -- ${dir} --second-judge groq/gpt-oss-20b`);
+  console.log(`All ${items.length} graded. Next: npm run judge:agreement -- ${dir} --second-judge ${getJudgeIds().second}`);
 } catch (e) {
   if (!(e instanceof Quit)) throw e;
   console.log(`\nStopped. ${Object.keys(grades).length} of ${items.length} graded; run the same command to continue.`);

@@ -151,6 +151,39 @@ describe("the judge stage", () => {
   });
 });
 
+describe("comparing two judges on the same run", () => {
+  /** Like autoJudge, but stricter on order #1056: tone 2 and "no" on the timing check. */
+  function strictJudge(req: ChatRequest) {
+    const user = String(req.messages[1]!.content);
+    if (!user.includes("#1056")) return autoJudge(req);
+    const out = JSON.parse(String(autoJudge(req).message.content)) as { replies: { tone: number }[]; checks: { id: string; answer: boolean }[] };
+    out.replies.forEach((r) => (r.tone = 2));
+    out.checks.forEach((c) => (c.answer = c.id !== "judge:timing"));
+    return fake.text(JSON.stringify(out));
+  }
+
+  it("the report shows status flips, who says no more often, and score agreement, on conversations both judged", async () => {
+    const store = newStore();
+    await stage(store, { "fake/a": teamWith(goodScript(cases.map((c) => c.id))) });
+    await runJudgeStage({ store, judgeModel: "judge/x", rubric: RUBRIC, provider: new FakeProvider(Array.from({ length: 3 }, () => autoJudge)) });
+    // The other judge only got to two of the three conversations.
+    const two = new FakeProvider([autoJudge, strictJudge]);
+    await runJudgeStage({ store, judgeModel: "judge/y", rubric: RUBRIC, provider: two, retryDelaysMs: [], sleep: async () => {} });
+    store.saveJudge({ ...store.judgeRecord("judge/y", RUBRIC, "fake/a", "out-of-scope-01")!, ok: false, error: "provider error: HTTP 500" });
+
+    const md = writeRunReport(store, { model: "judge/x", rubric: RUBRIC }, "judge/y");
+    expect(md).toContain("## Judge comparison: judge/x (main) vs judge/y");
+    expect(md).toContain("2 conversations have a valid verdict from both judges");
+    expect(md).toContain("**Same final status:** 50% (1/2");
+    expect(md).toContain("order-status-03 (fake/a): pass with judge/x, FAIL with judge/y");
+    expect(md).toContain("judge/x said no where judge/y said yes: 0; the reverse: 1.");
+    expect(md).toContain("order-status-03 (fake/a) judge:timing: judge/x yes, judge/y no");
+    expect(md).toMatch(/\| tone \| 50% \(1\/2.*\| \+1\.00 \|/);
+    // Without a second judge's verdicts there's no comparison section.
+    expect(writeRunReport(store, { model: "judge/x", rubric: RUBRIC }, "judge/z")).not.toContain("Judge comparison");
+  });
+});
+
 describe("judge reliability: slower retry passes, and question sets", () => {
   const http500 = () => Object.assign(new Error("gemini/gemma-4-31b: HTTP 500 Internal error encountered."), { name: "ProviderError" });
 

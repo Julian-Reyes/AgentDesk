@@ -1,3 +1,4 @@
+import type { JudgeOutput } from "./judge.ts";
 import type { HumanGrade, JudgeVerdict, KeyEntry, Scores } from "./sample.ts";
 
 /**
@@ -72,6 +73,24 @@ export function pairsWithHuman(key: KeyEntry[], grades: Record<string, HumanGrad
 /** Pairs the two judges with each other. */
 export function pairsBetweenJudges(key: KeyEntry[]): Pair[] {
   return key.flatMap((k) => (k.second ? [{ agentModel: k.agentModel, a: asSide(k.judge), b: asSide(k.second) }] : []));
+}
+
+/**
+ * Pairs two judges' verdicts on the same conversations (a whole eval run, not
+ * the 30-reply sample): one pair per reply for the scores. Yes/no answers are
+ * per conversation, so they ride on the first reply's pair only and are
+ * counted once.
+ */
+export function pairsFromOutputs(both: { agentModel: string; a: JudgeOutput; b: JudgeOutput }[]): Pair[] {
+  const answers = (o: JudgeOutput) => Object.fromEntries([...o.checks, ...o.scriptFit].map((x) => [x.id, x.answer]));
+  return both.flatMap(({ agentModel, a, b }) =>
+    a.replies.flatMap((ra, i) => {
+      const rb = b.replies.find((x) => x.reply === ra.reply);
+      if (!rb) return [];
+      const side = (r: typeof ra, o: JudgeOutput) => ({ tone: r.tone, clarity: r.clarity, helpfulness: r.helpfulness, answers: i === 0 ? answers(o) : {} });
+      return [{ agentModel, a: side(ra, a), b: side(rb, b) }];
+    }),
+  );
 }
 
 const pct = (x: number) => `${Math.round(x * 100)}%`;

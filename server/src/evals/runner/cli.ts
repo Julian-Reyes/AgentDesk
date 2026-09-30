@@ -37,5 +37,5 @@ export function coverageNote(c: { unjudged: number; total: number }, judgeModel:
   if (c.unjudged === 0) return `[judge] every conversation has a verdict from ${judgeModel}.`;
   const share = c.unjudged / c.total;
   const line = `[judge] ${c.unjudged} of ${c.total} conversations (${Math.round(share * 100)}%) still have no verdict from ${judgeModel} (provider errors).`;
-  return share > 0.1 ? `${line}\n[judge] WARNING: that's over 10%. Julian's rule: report it and consider switching the judge to groq/gpt-oss-20b.` : `${line} Rerun eval:judge later to retry them.`;
+  return share > 0.1 ? `${line}\n[judge] WARNING: that's over 10%. Julian's rule: report it and consider switching the judge (judges.main in config/models.json).` : `${line} Rerun eval:judge later to retry them.`;
 }
