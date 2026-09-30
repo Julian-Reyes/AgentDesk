@@ -27,12 +27,23 @@ describe("per-conversation cost from the case's shape", () => {
 });
 
 describe("time and the bottleneck, per model", () => {
-  it("Groq: the daily token limit decides, and the dev set needs more than one day", () => {
-    const e = estimateAgents(cfg("groq/qwen3.8-27b"), dev, []);
+  // Groq's free-tier limits (docs/FREE_TIERS.md), fixed here so the test doesn't depend on the live config.
+  const groqFree = (id: string) => ({ ...cfg(id), rpm: 30, tpm: 8000, rpd: 1000, tpd: 200000 });
+
+  it("Groq free tier: the daily token limit decides, and the dev set needs more than one day", () => {
+    const e = estimateAgents(groqFree("groq/qwen3.8-27b"), dev, []);
     expect(e.conversations).toBe(40);
     expect(e.days.tokens!).toBeGreaterThan(1);
     expect(e.daysNeeded).toBe(Math.ceil(e.days.tokens!));
     expect(e.bottleneck).toBe("tokens/day (200,000)");
+  });
+
+  it("Groq paid tier (the live config): no daily cap to wait for, and the run records a real cost", () => {
+    const e = estimateAgents(cfg("groq/qwen3.8-27b"), dev, []);
+    expect(e.days.tokens).toBeNull();
+    expect(e.activeMinutes).toBeLessThan(10);
+    expect(e.costUsd).toBeCloseTo((e.inputTokens * 0.8 + e.outputTokens * 4) / 1e6);
+    expect(e.costUsd).toBeGreaterThan(0.3);
   });
 
   it("Gemini Flash-Lite: daily limit unknown; model speed is the per-minute bottleneck", () => {
@@ -62,12 +73,12 @@ describe("time and the bottleneck, per model", () => {
   });
 
   it("renders one row per model, the parallel total, and the unknown daily limits", () => {
-    const text = renderEstimate([...["gemini/gemini-3.5-flash-lite", "groq/gpt-oss-120b"].map((m) => estimateAgents(cfg(m), dev, [])), estimateJudge(cfg("gemini/gemma-4-31b"), 80)]);
+    const text = renderEstimate([estimateAgents(cfg("gemini/gemini-3.5-flash-lite"), dev, []), estimateAgents(groqFree("groq/gpt-oss-120b"), dev, []), estimateJudge(cfg("gemini/gemma-4-31b"), 80)]);
     expect(text).toMatch(/\| gemini\/gemini-3\.5-flash-lite \(agents\) \| 40 \|/);
     expect(text).toMatch(/\| groq\/gpt-oss-120b \(agents\) \| 40 \|.*% of tok\/day/);
     expect(text).toMatch(/\| gemini\/gemma-4-31b \(judge\) \| 80 \|/);
     expect(text).toContain("Agents run in parallel");
     expect(text).toContain("Daily limit unknown for gemini/gemini-3.5-flash-lite, gemini/gemma-4-31b");
-    expect(text).toContain("$0.00");
+    expect(text).toContain("$0.00"); // Gemini (free); the Groq row is priced now
   });
 });
