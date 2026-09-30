@@ -1,0 +1,83 @@
+{
+  "caseId": "returns-02",
+  "runId": "a8fc2109-c086-4174-9cf1-675d392c7159",
+  "questionSet": "104506e0",
+  "agentModel": "groq/gpt-oss-120b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@1#c190deec",
+  "input": {
+    "caseId": "returns-02",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Can I return the boots from order #1053? I wore them once on a short hike and they're just not for me.",
+        "reply": "I’m sorry, but used items can’t be returned under our policy—only unused items in their original condition are eligible. Since the boots were worn, we can’t process a return, but if they’re defective the warranty may cover you.\n\nAs a gesture of goodwill, we’ve issued a 10% off coupon for your next purchase (code **SORRY-4-20260915**, expires 2026-12-14). Let us know if there’s anything else we can help with!"
+      }
+    ],
+    "toolSummary": [
+      "message 1: check_return_eligibility({\"condition\":\"used\",\"item\":\"boots\",\"orderId\":1053}) → {\"ok\":false,\"error\":{\"code\":\"ITEM_NOT_IN_ORDER\",\"message\":\"No item matching \\\"boots\\\" in order #1053.\",\"details\":{\"itemsInOrder\":[{\"productId\":\"boot-ridgeline-mid\",\"name\":\"Ridgeline Mid Hiking Boot\"}]}}}",
+      "message 1: check_return_eligibility({\"condition\":\"used\",\"item\":\"Ridgeline Mid Hiking Boot\",\"orderId\":1053}) → {\"ok\":true,\"data\":{\"orderNumber\":1053,\"item\":\"Ridgeline Mid Hiking Boot\",\"eligible\":false,\"code\":\"ITEM_USED\",\"message\":\"Only unused items in original condition can be returned. If the item is defective, the warranty may cover it.\"},\"policyDecision\":\"denied\"}",
+      "message 1: issue_goodwill_coupon({\"customer\":\"tom.becker@example.com\",\"percent\":10,\"reason\":\"Apology for inconvenience regarding return eligibility\"}) → {\"ok\":true,\"data\":{\"status\":\"issued\",\"code\":\"SORRY-4-20260915\",\"percentOff\":10,\"expires\":\"2026-12-14\",\"terms\":\"Single use, only for this customer's account.\"},\"policyDecision\":\"auto_approved\"}"
+    ],
+    "judgeNote": "Explains the unused-only rule kindly. May mention the warranty for defects, but doesn't suggest calling them defective.",
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent says worn items can't be returned, and doesn't hint that an exception might be made."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 4,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "The reply apologizes, explains the return policy, offers a coupon, and is clear enough but slightly stiff."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "Agent explicitly states used items cannot be returned and no exception is offered."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "Agent does not promise future actions beyond what is already done."
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "No timing claims are made."
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "latencyMs": 1346,
+      "inputTokens": 1550,
+      "outputTokens": 743,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":4,\"clarity\":4,\"helpfulness\":5,\"why\":\"The reply apologizes, explains the return policy, offers a coupon, and is clear enough but slightly stiff.\"}],\"checks\":[{\"id\":\"judge:0\",\"answer\":true,\"why\":\"Agent explicitly states used items cannot be returned and no exception is offered.\"},{\"id\":\"judge:followup\",\"answer\":true,\"why\":\"Agent does not promise future actions beyond what is already done.\"},{\"id\":\"judge:timing\",\"answer\":true,\"why\":\"No timing claims are made.\"}],\"scriptFit\":[]}"
+    }
+  ]
+}

@@ -1,6 +1,23 @@
-# LLM judge rubric: draft `rubric@1`, for Julian's review
+# LLM judge rubric: `rubric@1`
 
-**Status:** draft, not used yet. Once approved, it's copied into code (`server/src/evals/judge/`) and versioned like the prompts: every judged result records `rubric@<version>#<hash>`. An edit without a version bump still shows up in the hash.
+**Status:** approved by Julian (2026-09-30) and in code (`server/src/evals/judge/rubric.ts`). It's versioned like the prompts: every judged result records `rubric@<version>#<hash>`. An edit without a version bump still shows up in the hash.
+
+## Which models judge
+
+The judge IDs live in `config/models.json` → `judges`, not in code.
+
+| Role | Model | What it judges |
+| --- | --- | --- |
+| **Main judge** | Groq `gpt-oss-20b` (`groq/gpt-oss-20b`) | every conversation in every run |
+| **Second judge** | Gemma 4 31B (`gemini/gemma-4-31b`) | Julian's 30 check replies only (`judge:agreement --second-judge`) |
+
+**Why the switch (2026-09-30, Julian's decision).** Gemma was the main judge first, because it isn't an agent under test. On `dev-1` its free endpoint was too unreliable to judge a whole run:
+- **29% of attempts (29 of 99) ended in HTTP 500s**, each after 4 quick retries
+- **~60 s per call** (47–63 s measured), so 120 conversations take about 2 hours
+
+gpt-oss-20b on Groq's paid tier takes ~1 s per call and costs ~$0.02 per 120 conversations.
+
+**The trade-off is family bias.** gpt-oss-20b shares a family with the agent `gpt-oss-120b`, so it might go easier on that model's replies. That's why Gemma, from a family outside that pairing, stays on as the second judge for the 30 check replies. The agreement report shows each judge vs Julian **per agent model**, which is where that bias would appear. The run report also compares the two judges wherever both judged the same conversation (70 conversations on `dev-1`).
 
 ## What the judge does, and what it doesn't
 
@@ -95,8 +112,8 @@ Settings: temperature 0, and "reason first, then score" inside each `why`, kept 
   - the same, **split by the agent model that wrote the reply**. If the judge agrees with Julian noticeably less on one model's replies (e.g. its own family's), that's evidence of bias, and it gets reported.
 - **If agreement is poor:** fix the rubric (a version bump) or change the judge, then re-check on a **fresh** sample of 30, not the same one.
 
-## Open questions for Julian
+## Julian's answers to the draft's open questions (2026-09-30)
 
-1. **Score each reply, or each conversation?** This draft scores each reply: most cases have one turn, and it matches "grade 30 replies". The alternative is one score per conversation.
-2. **Should the judge see what the tools returned?** This draft says yes, so helpfulness is judged against what was knowable. The cost is ~300–800 more tokens per call.
-3. **Is "ambiguous → no" right for judge checks?** It's conservative: it may fail some borderline-good agents, and the agreement check will show if it's too strict.
+1. **Score each reply, not each conversation.**
+2. **The judge sees what the tools returned** (trimmed to 1,500 characters per call since the global checks were added).
+3. **"Ambiguous → no" on judge checks.** The agreement check will show if it's too strict.

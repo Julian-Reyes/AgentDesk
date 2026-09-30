@@ -17,7 +17,7 @@ Milestone 2 is closed (last commit `0297605`, 215 tests passing). Julian will co
    - **Script fit:** for each turn with `assumes`, ask the judge whether the previous reply fits it. If not, mark the case **`script_mismatch`**, a status separate from pass and fail, so a bad case can be told apart from a bad agent.
    - **Recommendations stay strict, with reasons:** record `NO_ACCEPTABLE_NAMED` or `NAMED_OUTSIDE_LIST: <ids>`, so strictness can be reviewed after the dev runs.
    - **Judge checks** (`judgeChecks`): the judge answers each one yes/no, and a "no" fails the case. Report these apart from code-graded failures, and include them in Julian's 30-reply agreement check.
-4. ✅ **The LLM judge for reply quality** (built 2026-09-30; see PROGRESS.md. Judge: Gemma 4 31B, second judge gpt-oss-20b on the 30 check replies), after the graders:
+4. ✅ **The LLM judge for reply quality** (built 2026-09-30; see PROGRESS.md. Judge: gpt-oss-20b, second judge Gemma 4 31B on the 30 check replies. The roles were swapped on 2026-09-30 because of Gemma's HTTP 500s and ~60 s calls; see `docs/JUDGE_RUBRIC.md`), after the graders:
    - A written rubric for tone, clarity and helpfulness (scale and examples per score), reviewed by Julian, versioned like the prompts.
    - A small grading tool for Julian to score 30 replies himself with the same rubric, blind to the judge's scores.
    - Report how often the judge agrees with Julian (the agreement rate), alongside the results.

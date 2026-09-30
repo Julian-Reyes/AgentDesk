@@ -113,7 +113,7 @@ Save each conversation as a **run** containing each **step**: messages, the rout
 - latency (p50/p95)
 - cost ($0, still recorded)
 
-**Reply quality** (tone, clarity, helpfulness) is graded by an LLM judge with a written rubric. **I grade 30 replies myself to check how often the judge agrees with me**, and that agreement rate is reported.
+**Reply quality** (tone, clarity, helpfulness) is graded by an LLM judge with a written rubric. **I grade 30 replies myself to check how often the judge agrees with me**, and that agreement rate is reported. The judge is Groq `gpt-oss-20b`; Gemma 4 31B is a second judge on the same 30 replies (rubric and reasons in `docs/JUDGE_RUBRIC.md`, model IDs in config).
 
 **Split:** about 40 dev conversations (for tuning prompts) and about 110 test conversations (**never tuned on**). Report the results with confidence intervals.
 
@@ -188,3 +188,4 @@ Once both projects are done, the Router can be swapped for the best model from S
 - **2026-09-29: `issue_refund(order_id, amount, reason, item?)`: damaged-item refunds name the item** and are automatic only if that item cost ≤ $50. Without it, an agent split a $179.99 damaged claim into an automatic $50 plus an escalation, bypassing the approvals queue.
 - **2026-09-29: Default dev model is Gemini 3.5 Flash Lite until the local model is set up, then Ollama.** Ollama on the Mac mini isn't set up yet, so hands-on testing uses Flash-Lite (15 RPM, 250K tokens/min). Trade-off: dev chats use Gemini's unknown daily quota until Ollama takes over.
 - **2026-09-30: Groq moved to its paid Developer plan, capped at $8/month by a hard spend limit** (Julian's decision). The free tier's 200K tokens/day made one dev run take ~3 days and a test run ~6. At the official prices (gpt-oss-120b $0.15/$0.60, qwen3.8-27b $0.80/$4.00 per million tokens in/out), a dev run is estimated at $0.50–1.13 and a test run at $1.37–3.10. Paid limits: 250K tokens/min, 1K requests/min. Prices are in the model config, so every run records its real cost.
+- **2026-09-30: Main LLM judge Gemma 4 31B → Groq `gpt-oss-20b`; Gemma becomes the second judge on the 30 check replies** (Julian's decision). On the `dev-1` run, Gemma's free endpoint returned HTTP 500s on 29% of attempts (29 of 99) and took ~60 s per call, leaving 50 of 120 conversations unjudged. gpt-oss-20b on Groq's paid tier takes ~1 s per call and ~$0.02 per 120 conversations. Trade-off: it shares a family with the agent `gpt-oss-120b`. Julian's 30-reply check reports agreement per agent model for both judges, and the run report compares the two judges wherever both judged a conversation.

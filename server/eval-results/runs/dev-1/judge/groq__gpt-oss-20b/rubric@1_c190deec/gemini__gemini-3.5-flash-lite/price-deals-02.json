@@ -1,0 +1,73 @@
+{
+  "caseId": "price-deals-02",
+  "runId": "195eb818-aa5f-4250-8962-117dd0b9edab",
+  "questionSet": "2a2c12d8",
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@1#c190deec",
+  "input": {
+    "caseId": "price-deals-02",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "If I buy 3 Glowworm 300 headlamps, what's my total?",
+        "reply": "With the \"buy 2, get 1 free\" headlamp deal applied, your subtotal for 3 Glowworm 300 Headlamps is $58.00 (regularly $87.00). Shipping is $7.99, bringing your total to $65.99. \n\n(Tip: If your order reaches $75.00 or more, you'll get free shipping!)"
+      }
+    ],
+    "toolSummary": [
+      "message 1: search_products({\"query\":\"Glowworm 300\"}) → {\"ok\":true,\"data\":{\"totalMatches\":2,\"products\":[{\"id\":\"lamp-glowworm-300\",\"name\":\"Glowworm 300 Headlamp\",\"category\":\"headlamps\",\"listPrice\":\"$29.00\",\"currentPrice\":\"$29.00\",\"rating\":4.4,\"description\":\"All-round AAA headlamp with a red night mode.\",\"specs\":{\"lumens\":300,\"waterproof\":true,\"weightGrams\":78,\"burnTimeMinutes\":1800},\"availability\":\"in_stock\",\"activeDeals\":[\"Headlamps: buy 2, get 1 free\"]},{\"id\":\"lamp-glowworm-150\",\"name\":\"Glowworm 150 Headlamp\",\"category\":\"headlamps\",\"listPrice\":\"$19.99\",\"currentPrice\":\"$19.99\",\"rating\":4.1,\"description\":\"Simple AAA headlamp for camp chores.\",\"specs\":{\"lumens\":150,\"waterproof\":false,\"weightGrams\":70,\"burnTimeMinutes\":2400},\"availability\":\"low_stock\",\"activeDeals\":[\"Headlamps: buy 2, get 1 free\"]}],\"note\":\"currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping.\"}}",
+      "message 1: quote_price({\"cart\":[{\"qty\":3,\"productId\":\"lamp-glowworm-300\"}]}) → {\"ok\":true,\"data\":{\"lines\":[{\"productId\":\"lamp-glowworm-300\",\"name\":\"Glowworm 300 Headlamp\",\"qty\":3,\"listPrice\":\"$29.00\",\"discounts\":[{\"deal\":\"Headlamps: buy 2, get 1 free\",\"amount\":\"-$29.00\"}],\"lineTotal\":\"$58.00\"}],\"subtotal\":\"$87.00\",\"coupon\":null,\"totalDiscounts\":\"-$29.00\",\"shipping\":\"$7.99\",\"total\":\"$65.99\",\"totalCents\":6599}}",
+      "message 1: get_active_promotions({}) → {\"ok\":true,\"data\":{\"promotions\":[{\"name\":\"Tent Sale: 20% off all tents\",\"endsOn\":\"2026-10-05\"},{\"name\":\"Headlamps: buy 2, get 1 free\",\"endsOn\":\"2026-10-15\"}],\"freeShipping\":\"Free shipping on orders of $75.00 or more; otherwise $7.99.\",\"couponCodes\":[{\"code\":\"SUMMER10\",\"terms\":\"10% off; expires 2026-09-30\"},{\"code\":\"TRAIL25\",\"terms\":\"$25.00 off; minimum spend $150.00; expires 2026-12-31\"},{\"code\":\"GEAR20\",\"terms\":\"20% off; minimum spend $50.00; not valid on tents, sleeping bags; expires 2026-10-30\"}],\"rules\":\"One coupon per order. Sales apply first, then buy-2-get-1, then the coupon.\"}}"
+    ],
+    "judgeNote": "Explains that one headlamp is free and that shipping is added because the order is under $75.",
+    "checks": [
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "The reply clearly states the discounted subtotal, shipping, and total, and offers a tip about free shipping."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The reply only provides pricing information and does not promise future actions."
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "No timing claims are made in the reply."
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "latencyMs": 1155,
+      "inputTokens": 1861,
+      "outputTokens": 747,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"The reply clearly states the discounted subtotal, shipping, and total, and offers a tip about free shipping.\"}],\"checks\":[{\"id\":\"judge:followup\",\"answer\":true,\"why\":\"The reply only provides pricing information and does not promise future actions.\"},{\"id\":\"judge:timing\",\"answer\":true,\"why\":\"No timing claims are made in the reply.\"}],\"scriptFit\":[]}"
+    }
+  ]
+}

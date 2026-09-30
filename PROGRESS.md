@@ -474,20 +474,56 @@ Julian asked for a pilot before `dev-1`: 5 dev cases (`price-deals-01`, `refund-
   - 29 of 99 attempts ended in HTTP 500s from Gemma's free endpoint (29%), each after 4 quick retries.
   - The last 21 conversations were never reached: the run was stopped by the session's 2-hour background-command limit, before the slower retry passes ran.
   - That's far above Julian's 10% threshold.
-- **Pending Julian's approval: switch the judge to `groq/gpt-oss-20b`.**
-  - Reliable on Groq's paid tier, ~1 s per call, ~$0.03–0.05 for all 120.
-  - Caveat: same family as gpt-oss-120b. Julian's 30-reply blind grading measures that bias per model.
-  - The proposal is to re-judge all 120 with gpt-oss-20b, so the run isn't split across two judges: `npm run eval:judge -- --name dev-1 --judge groq/gpt-oss-20b`. It shows the estimate and asks first.
-  - The 70 Gemma verdicts stay on disk under their own judge folder, for comparing the two judges.
-- **Preliminary numbers** (`report.md`, rebuilt from the saved files, **incomplete** because 50 conversations lack verdicts):
-  - Routing: 100% for all three models.
-  - Code checks pass: Flash-Lite 37/40, gpt-oss 32/40, Qwen 30/40.
-  - **gpt-oss-120b: 5 policy violations. Not yet reviewed:** read those conversations first next session.
-  - Grounding violations: 1 (Qwen).
-  - These are dev-set numbers, for tuning only. Reported results come from the test set.
+- **Preliminary numbers** (from before the judge switch) are superseded by the section below.
+
+### Judge switch: gpt-oss-20b judges, Gemma is the second judge (2026-09-30)
+**Julian's decision.** The two judges swap roles:
+- **Main judge: `groq/gpt-oss-20b`**, on every conversation.
+- **Second judge: `gemini/gemma-4-31b`**, on Julian's 30 check replies only.
+
+**Why:** Gemma's free endpoint returned HTTP 500s on 29% of attempts (29 of 99) and took ~60 s per call. That left 50 of 120 `dev-1` conversations unjudged, far above the 10% threshold. The cost is family bias: gpt-oss-20b shares a family with the agent gpt-oss-120b. It's measured two ways: Julian's check reports each judge vs Julian per agent model, and the run report compares the two judges. Recorded in `docs/JUDGE_RUBRIC.md` ("Which models judge"), the spec's change log, `docs/M3_PLAN.md` and `docs/FREE_TIERS.md`.
+
+**Code:**
+- **Judge IDs in config:** `config/models.json` → `judges: { main, second }`, validated against the model list. `eval:run`, `eval:judge` and `eval:report` default to `judges.main`. The scripts no longer hardcode a judge.
+- **Judge-vs-judge section in the run report:** `writeRunReport(store, judge, compareWith)`. Wherever the other configured judge has a valid verdict on the same conversation (same run id, same questions), the report ends with:
+  - how many final statuses flip, and which ones
+  - each yes/no disagreement, and which judge said "no"
+  - score agreement overall and per agent model, with Wilson CIs
+
+  Each conversation's yes/no answers are counted once, not once per reply.
+- **`judge:agreement --second-judge gemini/gemma-4-31b`:** `judge:grade` prints this command when Julian finishes.
+  - It reuses a verdict the second judge already gave that exact conversation in a saved run (same run id, same rubric, byte-identical input). So Gemma won't redo the up-to-70 conversations it already judged.
+  - A provider error (e.g. a Gemma 500) leaves the item open for the next run. Before, it was recorded as a permanent failure, or crashed the script.
+  - The second judge stays opt-in, so the end-to-end test never calls a real model.
+- **Tests:** 325 passing (3 new):
+  - the judges config
+  - pairing two judges' outputs (answers not double-counted; checked by breaking it on purpose)
+  - the comparison section end to end with two fake judges (status flip, who said no, score agreement, no section without shared verdicts)
+
+**Re-judge of `dev-1` with gpt-oss-20b:** all 120 conversations, **0 provider errors, 0 judge failures**.
+- 122 calls, because 2 got an invalid-output retry and then succeeded.
+- 1.2 s p50 / 2.2 s p95 per call, a few minutes in total.
+- **$0.04**, against an estimate of $0.02. Output was 90K tokens, not the estimated 36K.
+
+**`dev-1` results** (`server/eval-results/runs/dev-1/report.md`; dev set, for tuning only):
+
+| | Flash-Lite | gpt-oss-120b | qwen3.8-27b |
+| --- | --- | --- | --- |
+| Pass / fail / script mismatch | 35 / 5 / 0 | 28 / 11 / 1 | 23 / 16 / 1 |
+| Task success | 88% (74–95%) | 72% (56–83%) | 59% (43–73%) |
+| Policy violations | 0 | **5** | 0 |
+| Grounding violations | 0 | 0 | 1 |
+
+**gpt-oss-20b vs Gemma on the 70 conversations both judged:**
+- **Final status:** the same on 65 of 70 (93%, CI 84–97%).
+  - Flips against gpt-oss-120b: 1 each way.
+  - Flips against Qwen: 2 fail/mismatch with gpt-oss-20b, 1 the other way. Qwen has no family tie to gpt-oss, so any bias there wouldn't be family bias.
+- **Yes/no answers:** 95% agree (176/185). gpt-oss-20b said "no" 4 times where Gemma said yes; the reverse happened 5 times.
+- **Scores:** within ±1 on 96–99% of 77 replies. Exact agreement: tone 87%, clarity 61%, helpfulness 70%.
+- **The one thing to watch:** on gpt-oss-120b's own replies, gpt-oss-20b scores helpfulness **+0.45** higher than Gemma. On Flash-Lite's replies it's +0.19, and on Qwen's +0.00. Exact helpfulness agreement is lowest there (58%). That fits family bias, but it's a 31-reply subset, and it's two judges compared with each other, not with Julian. His blind check decides.
 
 **Next session:**
-1. Julian decides on the judge switch, then judge `dev-1`.
+1. ~~Judge switch and re-judge of `dev-1`~~ done (above).
 2. Review gpt-oss's 5 policy violations and the failures in the report.
 3. Julian's 30-reply blind grading (`npm run judge:sample -- --from server/eval-results/runs/dev-1/judged.jsonl --out <dir>`).
 4. Prompt tuning on the dev set.
