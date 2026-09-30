@@ -20,10 +20,10 @@ import { SPLITS } from "../evals/case-schema.ts";
 import { ALL_CASES } from "../evals/cases/index.ts";
 import { createGradingCatalog } from "../evals/grading/catalog.ts";
 import { JUDGE_RUBRIC } from "../evals/judge/rubric.ts";
-import { confirm, duration, throttleNotice } from "../evals/runner/cli.ts";
+import { confirm, coverageNote, duration, judgeEventLine, throttleNotice } from "../evals/runner/cli.ts";
 import { estimateAgents, estimateJudge, renderEstimate } from "../evals/runner/estimate.ts";
 import { writeRunReport } from "../evals/runner/finish.ts";
-import { runAgentsStage, runJudgeStage, unjudged } from "../evals/runner/stages.ts";
+import { judgeCoverage, runAgentsStage, runJudgeStage, unjudged } from "../evals/runner/stages.ts";
 import { RunStore } from "../evals/runner/store.ts";
 import { validateCases } from "../evals/validate-cases.ts";
 import { getModelConfig } from "../llm/config.ts";
@@ -140,10 +140,10 @@ try {
       judgeModel: judgeConfig.id,
       rubric,
       provider: createProvider(judgeConfig, { throttle: throttleNotice }),
-      onEvent: (e) =>
-        console.log(e.kind === "judged" ? `[judge] ${e.index}/${e.total} ${e.model} ${e.caseId}: ${e.ok ? "ok" : "judge failed"} in ${duration(e.latencyMs)}` : `[judge] STOPPED with ${e.remaining} left: ${e.reason.slice(0, 160)}`),
+      onEvent: (e) => console.log(judgeEventLine(e)),
     });
     if (why) console.log(`The judge hit a daily quota. Resume with: npm run eval:judge -- --name ${values.name}`);
+    console.log(coverageNote(judgeCoverage(store, judgeConfig.id, rubric), judgeConfig.id));
   }
 } finally {
   await main.close();

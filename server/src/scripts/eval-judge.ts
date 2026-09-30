@@ -8,10 +8,10 @@
 import { parseArgs } from "node:util";
 import { promptId } from "../agents/prompts.ts";
 import { JUDGE_RUBRIC } from "../evals/judge/rubric.ts";
-import { confirm, duration, throttleNotice } from "../evals/runner/cli.ts";
+import { confirm, coverageNote, judgeEventLine, throttleNotice } from "../evals/runner/cli.ts";
 import { estimateJudge, renderEstimate } from "../evals/runner/estimate.ts";
 import { writeRunReport } from "../evals/runner/finish.ts";
-import { runJudgeStage, unjudged } from "../evals/runner/stages.ts";
+import { judgeCoverage, runJudgeStage, unjudged } from "../evals/runner/stages.ts";
 import { RunStore } from "../evals/runner/store.ts";
 import { getModelConfig } from "../llm/config.ts";
 import { createProvider } from "../llm/factory.ts";
@@ -44,9 +44,9 @@ if (todo.length) {
     rubric,
     provider: createProvider(config, { throttle: throttleNotice }),
     force: values.force,
-    onEvent: (e) =>
-      console.log(e.kind === "judged" ? `[judge] ${e.index}/${e.total} ${e.model} ${e.caseId}: ${e.ok ? "ok" : "judge failed"} in ${duration(e.latencyMs)}` : `[judge] STOPPED with ${e.remaining} left: ${e.reason.slice(0, 160)}`),
+    onEvent: (e) => console.log(judgeEventLine(e)),
   });
 }
+console.log(coverageNote(judgeCoverage(store, config.id, rubric), config.id));
 writeRunReport(store, { model: config.id, rubric });
 console.log(`Report: ${store.dir}/report.md`);

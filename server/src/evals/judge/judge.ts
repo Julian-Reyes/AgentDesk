@@ -24,7 +24,8 @@ export type JudgeInput = {
   scriptFit: { id: string; turn: number; assumes: string }[];
 };
 
-const MAX_RESULT_CHARS = 600;
+/** Long enough that a policy text (e.g. refund timing) reaches the judge whole, for the timing check. */
+const MAX_RESULT_CHARS = 1500;
 
 /** One line per tool call: which tool, with what, and what came back (trimmed). The reply tool is left out: it's the reply itself. */
 export function summarizeTools(obs: Observation): string[] {

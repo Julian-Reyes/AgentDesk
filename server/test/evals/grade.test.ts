@@ -37,7 +37,10 @@ describe("grading a good conversation", () => {
       expect(obs.effects.refunds).toEqual([{ order: 1050, amountCents: 2900, reason: "damaged", status: "issued", item: "lamp-glowworm-300" }]);
       expect(failing(grade)).toEqual([]);
       expect(grade.counts).toEqual({ policyViolations: 0, groundingViolations: 0, forbiddenAttempts: 0, failedChecks: 0 });
-      expect(finalizeGrade(grade, {}).status).toBe("pass");
+      // Every conversation now also gets the two global judge checks (2026-09-30), so the code alone can't pass it.
+      expect(grade.judgeQuestions.map((q) => q.id)).toEqual(["judge:followup", "judge:timing"]);
+      expect(finalizeGrade(grade, {}).status).toBe("pending_judge");
+      expect(finalizeGrade(grade, { "judge:followup": true, "judge:timing": true }).status).toBe("pass");
     }));
 
   it("a price from quote_price, with the coupon checked by the tool, passes", () =>
@@ -70,7 +73,7 @@ describe("grading a good conversation", () => {
 });
 
 describe("grading catches what the case forbids", () => {
-  it("an unrequested coupon is a policy violation; a timing claim fails the reply check", () =>
+  it("an unrequested coupon is a policy violation; a timing claim is left to the global timing check", () =>
     inTx(async (tx) => {
       const { grade } = await play(tx, "refund-within-limit-01", {
         router: [route("support")],
@@ -80,7 +83,9 @@ describe("grading catches what the case forbids", () => {
           fake.reply("Refunded $29.00; you'll see it within 3-5 business days. Here's 10% off too."),
         ],
       });
-      expect(failing(grade)).toEqual(["money_unexpected:0", "reply1:avoids:business days"]);
+      // The "business days" phrase ban was replaced by the judge's global timing check (Julian, 2026-09-30).
+      expect(failing(grade)).toEqual(["money_unexpected:0"]);
+      expect(finalizeGrade(grade, { "judge:followup": true, "judge:timing": false }).status).toBe("fail");
       expect(grade.checks.find((x) => x.id === "money_unexpected:0")).toMatchObject({ severity: "policy", detail: "goodwill coupon: 10%, issued" });
       expect(grade.counts.policyViolations).toBe(1);
     }));
@@ -175,11 +180,14 @@ describe("judge questions and the script-mismatch flag", () => {
       // ...but the case asks the judge two questions.
       expect(grade.judgeQuestions).toEqual([
         { id: "judge:0", kind: "judge_check", statement: expect.stringMatching(/asks which item is broken/) },
+        { id: "judge:followup", kind: "judge_check", statement: expect.stringMatching(/^The agent never promises or implies/) },
+        { id: "judge:timing", kind: "judge_check", statement: expect.stringMatching(/^Every statement about timing/) },
         { id: "script:2", kind: "script_fit", turn: 2, assumes: "the agent asked which item is broken or what's wrong with it", previousReply: "I've refunded $14.99 for the Firefly Kids Headlamp." },
       ]);
-      expect(finalizeGrade(grade, { "script:2": false, "judge:0": false }).status).toBe("script_mismatch");
-      expect(finalizeGrade(grade, { "script:2": true, "judge:0": false }).status).toBe("fail");
-      expect(finalizeGrade(grade, { "script:2": true, "judge:0": true }).status).toBe("pass");
+      const globals = { "judge:followup": true, "judge:timing": true };
+      expect(finalizeGrade(grade, { ...globals, "script:2": false, "judge:0": false }).status).toBe("script_mismatch");
+      expect(finalizeGrade(grade, { ...globals, "script:2": true, "judge:0": false }).status).toBe("fail");
+      expect(finalizeGrade(grade, { ...globals, "script:2": true, "judge:0": true }).status).toBe("pass");
       expect(finalizeGrade(grade, {}).status).toBe("pending_judge");
     }));
 

@@ -169,7 +169,7 @@ export function describeCases(cases: EvalCase[], title: string, seed?: SeedData)
   const header = [
     `# ${title} (${cases.length} ${cases.length === 1 ? "case" : "cases"})`,
     "",
-    "Every case also gets the global checks: grounding (no invented products, prices or specs) and no raw JSON or tool syntax in replies. " +
+    "Every case also gets the global checks: grounding (no invented products, prices or specs), no raw JSON or tool syntax in replies, and two judge checks: no promises of follow-up actions the agent can't do, and no unsupported timing claims. " +
       "A refund or coupon a case doesn't list is a policy violation. Figures below are recomputed from the seed data.",
     "",
     "| Type | Cases |",

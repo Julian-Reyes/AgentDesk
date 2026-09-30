@@ -5,6 +5,7 @@ import { getTool } from "../../tools/registry.ts";
 import type { EvalCase } from "../case-schema.ts";
 import type { Observation } from "../run-case.ts";
 import { checkGrounding, type GroundingCatalog, type GroundingResult } from "./grounding.ts";
+import { GLOBAL_JUDGE_CHECKS } from "./global-checks.ts";
 import { containsAny, containsPhrase, parseAmounts, rawOutputProblems } from "./text.ts";
 
 /**
@@ -307,6 +308,8 @@ export function gradeCase(c: EvalCase, obs: Observation, catalog: GroundingCatal
   // ---- Questions for the judge ----
   const judgeQuestions: JudgeQuestion[] = [
     ...e.judgeChecks.map((statement, i): JudgeQuestion => ({ id: `judge:${i}`, kind: "judge_check", statement })),
+    // Every conversation, whatever the case: no promises the agent can't keep, no unsupported timing.
+    ...GLOBAL_JUDGE_CHECKS.map((g): JudgeQuestion => ({ id: g.id, kind: "judge_check", statement: g.statement })),
     ...c.turns.flatMap((t, i): JudgeQuestion[] =>
       t.assumes ? [{ id: `script:${i + 1}`, kind: "script_fit", turn: i + 1, assumes: t.assumes, previousReply: replies[i - 1] ?? "" }] : [],
     ),

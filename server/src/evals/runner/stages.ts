@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import type { Team } from "../../agents/team.ts";
 import type { Db } from "../../db/client.ts";
 import type { Clock } from "../../domain/clock.ts";
@@ -6,7 +7,8 @@ import type { ChatProvider } from "../../llm/types.ts";
 import type { Tracer } from "../../tracing/tracer.ts";
 import type { EvalCase } from "../case-schema.ts";
 import type { GroundingCatalog } from "../grading/grounding.ts";
-import { gradeCase } from "../grading/grade.ts";
+import { createGradingCatalog } from "../grading/catalog.ts";
+import { gradeCase, type JudgeQuestion } from "../grading/grade.ts";
 import { buildJudgeInput, runJudge } from "../judge/judge.ts";
 import { runCase, type Observation } from "../run-case.ts";
 import type { ConversationRecord, ConversationStats, JudgeRecord, RunStore } from "./store.ts";
@@ -132,8 +134,9 @@ export async function runAgentsStage(o: AgentsStageOptions): Promise<Record<stri
 }
 
 export type JudgeEvent =
-  | { kind: "judged"; model: string; caseId: string; index: number; total: number; ok: boolean; latencyMs: number }
-  | { kind: "stopped"; reason: string; remaining: number };
+  | { kind: "judged"; model: string; caseId: string; index: number; total: number; result: "ok" | "judge_failed" | "provider_error"; latencyMs: number }
+  | { kind: "stopped"; reason: string; remaining: number }
+  | { kind: "retrying"; count: number; waitMs: number; pass: number };
 
 export type JudgeStageOptions = {
   store: RunStore;
@@ -143,61 +146,121 @@ export type JudgeStageOptions = {
   /** Re-judge even conversations that already have a result for this judge and rubric. */
   force?: boolean;
   onEvent?: (e: JudgeEvent) => void;
+  /** Waits before each extra pass over provider errors. Default: 1 min, then 3 min. */
+  retryDelaysMs?: number[];
+  /** Injectable for tests. */
+  sleep?: (ms: number) => Promise<void>;
 };
 
-/** The judge's result for this exact conversation (same run id), or null. With includeFailed, provider-error records too. */
-export function judgeFor(store: RunStore, judgeModel: string, rubric: string, r: ConversationRecord, includeFailed = false): JudgeRecord | null {
-  const j = store.judgeRecord(judgeModel, rubric, r.agentModel, r.caseId);
-  if (!j || j.runId !== r.observation.runId) return null;
-  return includeFailed || j.ok || !(j.error ?? "").startsWith("provider error") ? j : null;
+/**
+ * Saved conversations graded by the current grader. Grading is pure code over
+ * the saved observation and case snapshot, so this makes no model calls; it's
+ * how grader changes (e.g. new global judge checks) reach runs saved earlier.
+ */
+export function regrade(records: ConversationRecord[], catalog: GroundingCatalog = defaultCatalog()): ConversationRecord[] {
+  return records.map((r) => ({ ...r, grade: gradeCase(r.case, r.observation, catalog) }));
+}
+let cachedCatalog: GroundingCatalog | undefined;
+const defaultCatalog = () => (cachedCatalog ??= createGradingCatalog());
+
+/** A short hash of the questions a verdict answered. If the questions change, the old verdict no longer applies. */
+export function questionSetOf(questions: JudgeQuestion[]): string {
+  const key = questions.map((q) => (q.kind === "judge_check" ? `${q.id}=${q.statement}` : `${q.id}=${q.assumes}`)).join("\n");
+  return createHash("sha256").update(key).digest("hex").slice(0, 8);
 }
 
-/** Conversations the judge still has to do, for the preflight estimate. */
+/**
+ * The judge's verdict for this exact conversation (same run id) and these exact
+ * questions, or null. With includeFailed, provider-error records too.
+ */
+export function judgeFor(store: RunStore, judgeModel: string, rubric: string, r: ConversationRecord, includeFailed = false): JudgeRecord | null {
+  const j = store.judgeRecord(judgeModel, rubric, r.agentModel, r.caseId);
+  if (!j || j.runId !== r.observation.runId || j.questionSet !== questionSetOf(r.grade.judgeQuestions)) return null;
+  return includeFailed || j.ok || !isProviderError(j) ? j : null;
+}
+
+const isProviderError = (j: JudgeRecord) => !j.ok && (j.error ?? "").startsWith("provider error");
+
+/** Conversations (re-graded) the judge still has to do. */
 export function unjudged(store: RunStore, judgeModel: string, rubric: string, force = false): ConversationRecord[] {
-  return store.conversations().filter((r) => {
+  return regrade(store.conversations()).filter((r) => {
     if (force) return true;
     const j = judgeFor(store, judgeModel, rubric, r, true);
     // Provider trouble isn't a verdict: try those again. Invalid judge output is (judge_failed), so it stays.
-    return !j || (!j.ok && (j.error ?? "").startsWith("provider error"));
+    return !j || isProviderError(j);
   });
 }
 
+/**
+ * Judges every conversation that needs it. Gemma's free endpoint returns HTTP
+ * 500s intermittently (5 of 13 pilot attempts failed, even after the client's
+ * 4 quick retries), so conversations that end in a provider error get more
+ * passes after a longer wait (retryDelaysMs, default 1 then 3 minutes).
+ * Returns the daily-quota message if the judge ran out, else null.
+ */
 export async function runJudgeStage(o: JudgeStageOptions): Promise<string | null> {
-  const todo = unjudged(o.store, o.judgeModel, o.rubric, o.force);
-  for (const [i, r] of todo.entries()) {
-    const input = buildJudgeInput(r.case, r.observation, r.grade.judgeQuestions);
-    let result: Awaited<ReturnType<typeof runJudge>>;
-    try {
-      result = await runJudge(o.provider, input);
-    } catch (e) {
-      const reason = (e as Error).message;
-      if (DAILY_QUOTA.test(reason)) {
-        o.onEvent?.({ kind: "stopped", reason, remaining: todo.length - i });
-        return reason;
-      }
-      // Provider trouble on one conversation: record it as judge-failed and carry on (rerun with --force later).
-      result = { ok: false, rubric: o.rubric, error: `provider error: ${reason}`, calls: [] };
+  const sleep = o.sleep ?? ((ms: number) => new Promise((r) => setTimeout(r, ms)));
+  const delays = o.retryDelaysMs ?? [60_000, 180_000];
+  let todo = unjudged(o.store, o.judgeModel, o.rubric, o.force);
+  for (let pass = 0; pass <= delays.length && todo.length; pass++) {
+    if (pass > 0) {
+      o.onEvent?.({ kind: "retrying", count: todo.length, waitMs: delays[pass - 1]!, pass });
+      await sleep(delays[pass - 1]!);
     }
-    const rec: JudgeRecord = {
-      caseId: r.caseId,
-      runId: r.observation.runId,
-      agentModel: r.agentModel,
-      judgeModel: o.judgeModel,
-      rubric: result.rubric,
-      input,
-      ok: result.ok,
-      ...(result.ok ? { output: result.output, answers: result.answers } : { error: result.error }),
-      calls: result.calls.map((c) => ({
-        latencyMs: c.response.latencyMs,
-        inputTokens: c.response.usage.inputTokens,
-        outputTokens: c.response.usage.outputTokens,
-        cached: c.response.cached ?? false,
-        raw: c.raw,
-        ...(c.error ? { error: c.error } : {}),
-      })),
-    };
-    o.store.saveJudge(rec);
-    o.onEvent?.({ kind: "judged", model: r.agentModel, caseId: r.caseId, index: i + 1, total: todo.length, ok: result.ok, latencyMs: rec.calls.reduce((n, c) => n + c.latencyMs, 0) });
+    const failed: ConversationRecord[] = [];
+    for (const [i, r] of todo.entries()) {
+      const j = await judgeOne(o, r);
+      if (j.result === "quota") {
+        o.onEvent?.({ kind: "stopped", reason: j.reason, remaining: todo.length - i });
+        return j.reason;
+      }
+      if (j.result === "provider_error") failed.push(r);
+      o.onEvent?.({ kind: "judged", model: r.agentModel, caseId: r.caseId, index: i + 1, total: todo.length, result: j.result, latencyMs: j.latencyMs });
+    }
+    todo = failed;
   }
   return null;
+}
+
+type JudgeOutcome = { result: "quota"; reason: string } | { result: "ok" | "judge_failed" | "provider_error"; latencyMs: number };
+
+async function judgeOne(o: JudgeStageOptions, r: ConversationRecord): Promise<JudgeOutcome> {
+  const input = buildJudgeInput(r.case, r.observation, r.grade.judgeQuestions);
+  let result: Awaited<ReturnType<typeof runJudge>>;
+  try {
+    result = await runJudge(o.provider, input);
+  } catch (e) {
+    const reason = (e as Error).message;
+    if (DAILY_QUOTA.test(reason)) return { result: "quota", reason };
+    // Provider trouble on one conversation: recorded, and retried in a later pass or run.
+    result = { ok: false, rubric: o.rubric, error: `provider error: ${reason}`, calls: [] };
+  }
+  const rec: JudgeRecord = {
+    caseId: r.caseId,
+    runId: r.observation.runId,
+    questionSet: questionSetOf(r.grade.judgeQuestions),
+    agentModel: r.agentModel,
+    judgeModel: o.judgeModel,
+    rubric: result.rubric,
+    input,
+    ok: result.ok,
+    ...(result.ok ? { output: result.output, answers: result.answers } : { error: result.error }),
+    calls: result.calls.map((c) => ({
+      latencyMs: c.response.latencyMs,
+      inputTokens: c.response.usage.inputTokens,
+      outputTokens: c.response.usage.outputTokens,
+      cached: c.response.cached ?? false,
+      raw: c.raw,
+      ...(c.error ? { error: c.error } : {}),
+    })),
+  };
+  o.store.saveJudge(rec);
+  const latencyMs = rec.calls.reduce((n, c) => n + c.latencyMs, 0);
+  return { result: result.ok ? "ok" : isProviderError(rec) ? "provider_error" : "judge_failed", latencyMs };
+}
+
+/** How many conversations still have no verdict (provider errors), for the >10% warning. */
+export function judgeCoverage(store: RunStore, judgeModel: string, rubric: string): { unjudged: number; total: number } {
+  const all = store.conversations().length;
+  return { unjudged: unjudged(store, judgeModel, rubric).length, total: all };
 }

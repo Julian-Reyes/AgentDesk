@@ -11,7 +11,7 @@ export const REFUND_WITHIN_LIMIT = defineCases([
     turns: [
       {
         customer: "The Glowworm headlamp from order #1050 arrived with a cracked lens and won't turn on.",
-        reply: { amounts: [2900], avoids: ["business days"] },
+        reply: { amounts: [2900] },
       },
     ],
     expect: {
@@ -30,7 +30,7 @@ export const REFUND_WITHIN_LIMIT = defineCases([
     type: "refund_within_limit",
     why: "#1055 (Sofia) is delayed; a late delivery earns back the $7.99 shipping, automatically. A goodwill coupon is allowed on top (≤ 10%, queued since she got one 10 days ago), not required.",
     customer: "sofia.alvarez@example.com",
-    turns: [{ customer: "My order #1055 is really late. Can I at least get my shipping cost back?", reply: { amounts: [799], avoids: ["business days"] } }],
+    turns: [{ customer: "My order #1055 is really late. Can I at least get my shipping cost back?", reply: { amounts: [799] } }],
     expect: {
       route: "support",
       outcome: ["resolved", "approval_needed"],
@@ -54,7 +54,7 @@ export const REFUND_WITHIN_LIMIT = defineCases([
       {
         customer: "It's the kids' headlamp, the Firefly. It won't switch on at all, and the battery door is cracked.",
         assumes: "the agent asked which item is broken or what's wrong with it",
-        reply: { amounts: [1499], avoids: ["business days"] },
+        reply: { amounts: [1499] },
       },
     ],
     expect: {

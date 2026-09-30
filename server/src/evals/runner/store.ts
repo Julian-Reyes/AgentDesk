@@ -55,6 +55,8 @@ export type JudgeRecord = {
   caseId: string;
   /** The judged conversation's run id: a re-run conversation gets a new id, so an old verdict can't be mistaken for its own. */
   runId: string;
+  /** Hash of the questions answered (questionSetOf): a verdict only counts for the same questions. */
+  questionSet: string;
   agentModel: string;
   judgeModel: string;
   rubric: string;
