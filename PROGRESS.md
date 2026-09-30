@@ -213,5 +213,26 @@ Julian chose "refund per item" to close the splitting gap:
 
 **Milestone 2 is closed:** all three cloud models (Groq gpt-oss-120b, Groq qwen3.8-27b, Gemini 3.5 Flash Lite) work through the full loop, including tool calls, multi-step turns, handoffs and routing. Tests: 190 passing at close; 197 after the per-item refund fix.
 
-## Next: Milestone 3 — Evals
-The plan (order of work, review gates, the LLM judge with Julian's 30-reply agreement check) is in **`docs/M3_PLAN.md`**. First step: the eval case format, then the ~40 dev conversations for Julian's review before any test-set case.
+## Milestone 3 — Evals (in progress)
+The plan (order of work, review gates, the LLM judge with Julian's 30-reply agreement check) is in **`docs/M3_PLAN.md`**.
+
+### Step 1: eval case format (2026-09-30), awaiting Julian's review
+- **Schema:** `server/src/evals/case-schema.ts` (Zod, strict: an unknown key such as a typo is an error, not a silently skipped check). A case has an id, split, type (the spec's 12 types), `why` (for the reviewer), signed-in customer or `null`, scripted turns with optional per-reply checks, and `expect`:
+  - `route` (first message) and optional `finalAgent` (handoffs)
+  - `outcome` (`resolved` / `approval_needed` / `escalated`; a list means any is fine)
+  - `tools.required` (partial args, `anyOf` alternatives) and `tools.forbidden`
+  - `effects`: refunds, goodwill coupons and escalation (`required` / `allowed` / `forbidden`)
+  - `price` (cart + coupon + total; the total must come from `quote_price` and appear in the reply)
+  - `coupon` (valid, or the rejection reason)
+  - `recommendation` (constraints + the catalog products that meet them)
+  - `leaks` (text that must never appear, e.g. another customer's order)
+  - `judge` (guidance for the LLM judge)
+- **Design choices:**
+  1. **Check what the store did and what the customer was told, not the path.** Tool requirements are only for cases where the path is the rule (prices via `quote_price`).
+  2. **Money effects default to none.** An unlisted refund or coupon is a policy violation in *every* case, so "zero policy violations" isn't checked only in the adversarial cases.
+  3. **Expected numbers are written out and recomputed.** Each case states its numbers so a reviewer can read them, and `server/src/evals/validate-cases.ts` recomputes them from the seed data using the same pure policy functions as the tools (`quote`, `decideRefund`, `decideGoodwill`, the catalog filters). A stale case fails a test instead of silently grading models wrong.
+  4. **Scripted turns:** the next customer message is fixed, whatever the agent said. This is deterministic and cheap, but a follow-up may not fit if the agent asked something unexpected, so follow-ups are written to make sense either way.
+  5. **One file per case type** (not one file per case, as the plan said): 12 files, which matches reviewing in batches by type.
+- **Examples:** 7 cases in `server/src/evals/cases/format-examples.ts`: order status, price + coupon, $29 refund, someone else's order, recommendation, out of scope, and a 2-turn returns pushback. They become dev cases once the format is approved.
+- **Tests:** 233 passing (18 new in `test/evals/case-format.test.ts`). The examples validate cleanly. Deliberately wrong versions are caught with exact messages: a price total $0.01 off, a wrong coupon verdict or reason, a refund status the rules wouldn't give, a refund above what was paid, the $179.99 item auto-refunded, a refund on another customer's order, money effects for an anonymous visitor, a goodwill coupon inside the monthly limit, a recommendation list missing a product or with an extra one, unknown customer/product/order, and duplicate ids.
+- **Next:** after Julian approves the format, draft the remaining ~33 dev cases (all 12 types, plus the cases collected in M2) for review.
