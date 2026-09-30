@@ -1,0 +1,430 @@
+{
+  "caseId": "invalid-coupon-02",
+  "case": {
+    "id": "invalid-coupon-02",
+    "split": "dev",
+    "type": "invalid_coupon",
+    "why": "GEAR20 excludes tents and sleeping bags. The Canopy 2 still gets the automatic tent sale: $151.20, free shipping.",
+    "source": "spec table",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "I want the Canopy 2 tent with code GEAR20. What's the total?"
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "price": {
+        "cart": [
+          {
+            "productId": "tent-canopy-2",
+            "qty": 1
+          }
+        ],
+        "coupon": "GEAR20",
+        "totalCents": 15120
+      },
+      "coupon": {
+        "code": "GEAR20",
+        "valid": false,
+        "reason": "CATEGORY_EXCLUDED"
+      },
+      "leaks": [],
+      "judgeChecks": [
+        "The agent explains that GEAR20 doesn't apply to tents."
+      ]
+    }
+  },
+  "agentModel": "groq/qwen3.8-27b",
+  "team": {
+    "router": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "shopping@1#a30c8613"
+    },
+    "support": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "support@2#cca33593"
+    }
+  },
+  "observation": {
+    "runId": "8782f926-6bbc-40a2-bbed-38dfbf79c7dc",
+    "turns": [
+      {
+        "customer": "I want the Canopy 2 tent with code GEAR20. What's the total?",
+        "reply": "Let me check that out for you right away. One moment.",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "I want the Canopy 2 tent with code GEAR20. What's the total?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"shopping\", \"category\": \"pricing_deals\", \"urgency\": \"normal\", \"confidence\": 0.95}",
+          "decision": {
+            "route": "shopping",
+            "category": "pricing_deals",
+            "urgency": "normal",
+            "confidence": 0.95
+          },
+          "fallback": false
+        },
+        "inputTokens": 357,
+        "outputTokens": 31,
+        "latencyMs": 336,
+        "cached": false,
+        "costMicros": 410,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "shopping@1#a30c8613",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fgve0zm62",
+                "name": "search_products",
+                "arguments": "{\"limit\":5,\"query\":\"Canopy 2\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2115,
+        "outputTokens": 42,
+        "latencyMs": 542,
+        "cached": false,
+        "costMicros": 1860,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fgve0zm62",
+          "name": "search_products",
+          "arguments": "{\"limit\":5,\"query\":\"Canopy 2\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 1,
+              "products": [
+                {
+                  "id": "tent-canopy-2",
+                  "name": "Canopy 2 Trail Tent",
+                  "category": "tents",
+                  "listPrice": "$189.00",
+                  "currentPrice": "$151.20",
+                  "rating": 4.5,
+                  "description": "Lightweight two-person trail tent with a full-coverage fly.",
+                  "specs": {
+                    "seasons": 3,
+                    "material": "20D ripstop polyester",
+                    "waterproof": true,
+                    "weightGrams": 2000,
+                    "capacityPersons": 2,
+                    "waterproofRatingMm": 2500
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Tent Sale: 20% off all tents"
+                  ]
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "shopping@1#a30c8613",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "easw0kqn3",
+                "name": "quote_price",
+                "arguments": "{\"cart\":[{\"productId\":\"tent-canopy-2\",\"qty\":1}],\"coupon\":\"GEAR20\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2350,
+        "outputTokens": 60,
+        "latencyMs": 543,
+        "cached": false,
+        "costMicros": 2120,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "easw0kqn3",
+          "name": "quote_price",
+          "arguments": "{\"cart\":[{\"productId\":\"tent-canopy-2\",\"qty\":1}],\"coupon\":\"GEAR20\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "lines": [
+                {
+                  "productId": "tent-canopy-2",
+                  "name": "Canopy 2 Trail Tent",
+                  "qty": 1,
+                  "listPrice": "$189.00",
+                  "discounts": [
+                    {
+                      "deal": "Tent Sale: 20% off all tents",
+                      "amount": "-$37.80"
+                    }
+                  ],
+                  "lineTotal": "$151.20"
+                }
+              ],
+              "subtotal": "$189.00",
+              "coupon": {
+                "code": "GEAR20",
+                "applied": false,
+                "reason": "CATEGORY_EXCLUDED",
+                "message": "Coupon GEAR20 can't be used on tents, sleeping bags, and everything in the cart is in an excluded category."
+              },
+              "totalDiscounts": "-$37.80",
+              "shipping": "FREE",
+              "total": "$151.20",
+              "totalCents": 15120
+            },
+            "policyDecision": "denied"
+          }
+        },
+        "policyDecision": "denied",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "shopping@1#a30c8613",
+        "data": {
+          "step": 3,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": "Your Canopy 2 Trail Tent total is **$151.20** (was $189.00, with 20% off from the Tent Sale) plus FREE shipping.\n\nOne heads-up: the code **GEAR20** couldn't be applied — it's not valid for tents, and that's all that's in your cart, so the discount wasn't honored. Your total stands at $151.20.\n\n",
+            "toolCalls": [
+              {
+                "id": "6vsyg8vfm",
+                "name": "reply",
+                "arguments": "{\"message\":\"Let me check that out for you right away. One moment.\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2607,
+        "outputTokens": 136,
+        "latencyMs": 980,
+        "cached": false,
+        "costMicros": 2630,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "6vsyg8vfm",
+          "name": "reply",
+          "arguments": "{\"message\":\"Let me check that out for you right away. One moment.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "Let me check that out for you right away. One moment."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "Let me check that out for you right away. One moment."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "shopping",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "invalid-coupon-02",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to shopping"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "price_quoted",
+        "label": "quote_price for tent-canopy-2×1 with GEAR20",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "price_stated",
+        "label": "reply 1 states $151.20",
+        "pass": false,
+        "severity": "task",
+        "detail": "amounts in reply: none"
+      },
+      {
+        "id": "coupon",
+        "label": "checks GEAR20 (CATEGORY_EXCLUDED)",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent explains that GEAR20 doesn't apply to tents."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 1
+    },
+    "codeStatus": "fail"
+  },
+  "stats": {
+    "modelCalls": 4,
+    "cachedCalls": 0,
+    "toolCalls": 2,
+    "inputTokens": 7429,
+    "outputTokens": 269,
+    "latencyMs": 2401,
+    "turnLatencyMs": [
+      2401
+    ],
+    "costMicros": 7020,
+    "wallMs": 2450
+  },
+  "finishedAt": "2026-09-30T17:44:20.600Z"
+}

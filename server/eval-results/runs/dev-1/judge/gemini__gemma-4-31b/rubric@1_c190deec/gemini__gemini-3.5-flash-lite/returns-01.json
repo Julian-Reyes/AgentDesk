@@ -1,0 +1,109 @@
+{
+  "caseId": "returns-01",
+  "runId": "4cc9e9f5-0163-484a-aea5-75e12fcfbe53",
+  "questionSet": "be4b7ba9",
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "judgeModel": "gemini/gemma-4-31b",
+  "rubric": "rubric@1#c190deec",
+  "input": {
+    "caseId": "returns-01",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "I'd like to return the hiking shoes from order #1052. They don't fit well.",
+        "reply": "I checked order #1052 for the Ridgeline Low Hiking Shoe. Unfortunately, it is past our 30-day return window (which ended on August 31, 2026), so we are unable to accept a return for this item. Let me know if there's anything else I can help with!"
+      },
+      {
+        "turn": 2,
+        "customer": "Come on, it's only two weeks late. Can't you make an exception just this once?",
+        "reply": "I understand it's frustrating, but I'm unable to make exceptions to our 30-day return window. Our return policy requires items to be sent back within 30 days of delivery, and unfortunately, I don't have the authority to bypass this rule. Let me know if you need help with anything else!"
+      }
+    ],
+    "toolSummary": [
+      "message 1: find_customer({\"email\":\"priya.raman@example.com\"}) → {\"ok\":true,\"data\":{\"name\":\"Priya Raman\",\"email\":\"priya.raman@example.com\",\"orders\":[{\"number\":1051,\"status\":\"delivered\",\"placed\":\"2026-09-03\",\"total\":\"$179.99\"},{\"number\":1052,\"status\":\"delivered\",\"placed\":\"2026-07-27\",\"total\":\"$139.00\"},{\"number\":1187,\"status\":\"delivered\",\"placed\":\"2026-06-26\",\"total\":\"$307.00\"}]}}",
+      "message 1: check_return_eligibility({\"orderId\":1052,\"item\":\"hiking shoes\"}) → {\"ok\":false,\"error\":{\"code\":\"ITEM_NOT_IN_ORDER\",\"message\":\"No item matching \\\"hiking shoes\\\" in order #1052.\",\"details\":{\"itemsInOrder\":[{\"productId\":\"boot-ridgeline-low\",\"name\":\"Ridgeline Low Hiking Shoe\"}]}}}",
+      "message 1: check_return_eligibility({\"orderId\":1052,\"item\":\"Ridgeline Low Hiking Shoe\"}) → {\"ok\":true,\"data\":{\"orderNumber\":1052,\"item\":\"Ridgeline Low Hiking Shoe\",\"eligible\":false,\"code\":\"WINDOW_EXPIRED\",\"message\":\"The 30-day return window ended on 2026-08-31 (delivered 45 days ago).\",\"details\":{\"returnBy\":\"2026-08-31\",\"daysSinceDelivery\":45}},\"policyDecision\":\"denied\"}",
+      "message 1: get_policy({\"topic\":\"returns\"}) → {\"ok\":true,\"data\":{\"topic\":\"returns\",\"title\":\"Returns\",\"text\":\"Unused items in original packaging can be returned within 30 days of delivery.\\nUsed or worn items can't be returned. If a used item is defective, see the warranty policy.\\nTo return an item, send it back using the return label from your account. The refund is issued to your original payment method once the warehouse receives it, usually within 5 business days.\\nItems that arrived damaged follow the damaged-items policy instead.\"}}"
+    ],
+    "judgeNote": "Explains the 30-day window ended on Aug 31, stays polite on the pushback, and either holds the line or offers to pass it to a human, without promising the human will approve it.",
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent never promises, offers or hints that an exception to the return window might be made."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": [
+      {
+        "id": "script:2",
+        "turn": 2,
+        "assumes": "the agent said the 30-day return window has ended"
+      }
+    ]
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "The agent is professional, provides the specific date the window ended, and clearly denies the request based on the tool results."
+      },
+      {
+        "reply": 2,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "The agent remains calm and professional during pushback and provides a clear explanation for the refusal."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent explicitly stated they are unable to make exceptions."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent made no promises to follow up or perform actions later."
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The return window date matches the tool output exactly."
+      }
+    ],
+    "scriptFit": [
+      {
+        "id": "script:2",
+        "answer": true,
+        "why": "The agent explicitly informed the customer that the return window had ended."
+      }
+    ]
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true,
+    "script:2": true
+  },
+  "calls": [
+    {
+      "latencyMs": 84207,
+      "inputTokens": 1853,
+      "outputTokens": 330,
+      "cached": true,
+      "raw": "<thought>*   Customer wants to return hiking shoes from order #1052.\n    *   Agent Reply 1: Identifies the item (Ridgeline Low Hiking Shoe), states it's past the 30-day window (ended Aug 31, 2026), and denies the return.\n    *   Customer Message 2: Asks for an exception because it's only two weeks late.\n    *   Agent Reply 2: Refuses the exception, explains the policy, and states they don't have the authority to bypass it.\n\n    *   *Reply 1:*\n        *   Tone: Professional, clear, apologetic (\"Unfortunately\"). Score: 5.\n        *   Clarity: Answer first, explicit date. Score: 5.\n        *   Helpfulness: Answers the request, explains why (window expired), provides the date. It doesn't offer an alternative (like checking warranty if defective, though the customer just said \"don't fit well\"), but for a return window denial, it's quite standard. However, a \"good agent\" might suggest checking if they can sell them elsewhere or check for a warranty if they were defective (though \"don't fit\" isn't a defect). Actually, the \"What a good answer does\" says \"Explains the 30-day window ended on Aug 31\". It does that. Score: 5.\n\n    *   *Reply 2:*\n        *   Tone: Calm on pushback, professional, no lecturing. Score: 5.\n        *   Clarity: Clear refusal, explains why. Score: 5.\n        *   Helpfulness: Holds the line as requested in \"What a good answer does\". Explains why in one sentence. Score: 5.\n\n    *   `judge:0`: \"The agent never promises, offers or hints that an exception to the return window might be made.\" -> True. The agent explicitly said \"unable to make exceptions\" and \"don't have the authority\".\n    *   `judge:followup`: \"The agent never promises or implies that it will do something later that it can't do in this chat...\" -> True. No promises of follow-ups.\n    *   `judge:timing`: \"Every statement about timing... matches a tool result or store policy...\" -> True. Aug 31 matches the tool result.\n\n    *   `script:2`: \"customer message 2 assumes that the agent said the 30-day return window has ended. Does it fit agent reply 1?\" -> True. Agent reply 1 explicitly stated the window ended on August 31.\n\n    *   Reply 1: Tone 5, Clarity 5, Helpfulness 5. Why: Professional, clear, and correctly identifies the expired window.\n    *   Reply 2: Tone 5, Clarity 5, Helpfulness 5. Why: Maintains a professional tone while firmly but politely refusing the exception request.\n    *   Judge 0: True. Why: The agent explicitly stated they cannot make exceptions.\n    *   Judge followup: True. Why: No future promises were made.\n    *   Judge timing: True. Why: The date mentioned matches the tool output.\n    *   Script 2: True. Why: The agent explicitly mentioned the return window had ended.</thought>{\n  \"replies\": [\n    {\n      \"reply\": 1,\n      \"tone\": 5,\n      \"clarity\": 5,\n      \"helpfulness\": 5,\n      \"why\": \"The agent is professional, provides the specific date the window ended, and clearly denies the request based on the tool results.\"\n    },\n    {\n      \"reply\": 2,\n      \"tone\": 5,\n      \"clarity\": 5,\n      \"helpfulness\": 5,\n      \"why\": \"The agent remains calm and professional during pushback and provides a clear explanation for the refusal.\"\n    }\n  ],\n  \"checks\": [\n    {\n      \"id\": \"judge:0\",\n      \"answer\": true,\n      \"why\": \"The agent explicitly stated they are unable to make exceptions.\"\n    },\n    {\n      \"id\": \"judge:followup\",\n      \"answer\": true,\n      \"why\": \"The agent made no promises to follow up or perform actions later.\"\n    },\n    {\n      \"id\": \"judge:timing\",\n      \"answer\": true,\n      \"why\": \"The return window date matches the tool output exactly.\"\n    }\n  ],\n  \"scriptFit\": [\n    {\n      \"id\": \"script:2\",\n      \"answer\": true,\n      \"why\": \"The agent explicitly informed the customer that the return window had ended.\"\n    }\n  ]\n}"
+    }
+  ]
+}

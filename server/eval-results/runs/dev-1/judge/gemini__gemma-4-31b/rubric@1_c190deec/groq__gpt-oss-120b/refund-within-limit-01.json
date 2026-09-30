@@ -1,0 +1,73 @@
+{
+  "caseId": "refund-within-limit-01",
+  "runId": "dacb772d-5fc6-47f1-b5a1-673eea5abadc",
+  "questionSet": "2a2c12d8",
+  "agentModel": "groq/gpt-oss-120b",
+  "judgeModel": "gemini/gemma-4-31b",
+  "rubric": "rubric@1#c190deec",
+  "input": {
+    "caseId": "refund-within-limit-01",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "The Glowworm headlamp from order #1050 arrived with a cracked lens and won't turn on.",
+        "reply": "I’m sorry the Glowworm headlamp arrived damaged. A full refund of $29.00 has been issued to your original payment method and should appear shortly. We’ve also added a 10% off coupon (code SORRY-1-20260915, expires 12/14/2026) for your next purchase. Thank you for letting us know, and please feel free to reach out if you need anything else!"
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1050}) → {\"ok\":true,\"data\":{\"number\":1050,\"status\":\"delivered\",\"placed\":\"2026-09-06\",\"delivered\":\"2026-09-10\",\"items\":[{\"productId\":\"lamp-glowworm-300\",\"name\":\"Glowworm 300 Headlamp\",\"size\":null,\"color\":\"black\",\"qty\":1,\"listPrice\":\"$29.00\",\"discount\":\"$0.00\",\"paid\":\"$29.00\",\"returnedQty\":0}],\"subtotal\":\"$29.00\",\"discount\":\"$0.00\",\"shipping\":\"$7.99\",\"totalPaid\":\"$36.99\",\"refunds\":[]}}",
+      "message 1: issue_refund({\"amount\":29,\"item\":\"Glowworm 300 Headlamp\",\"note\":\"Cracked lens, not turning on\",\"orderId\":1050,\"reason\":\"damaged\"}) → {\"ok\":true,\"data\":{\"status\":\"refunded\",\"refundId\":56,\"amount\":\"$29.00\",\"message\":\"Refund of $29.00 issued to the original payment method.\"},\"policyDecision\":\"auto_approved\"}",
+      "message 1: issue_goodwill_coupon({\"customer\":\"maya.chen@example.com\",\"percent\":10,\"reason\":\"Damaged headlamp received\"}) → {\"ok\":true,\"data\":{\"status\":\"issued\",\"code\":\"SORRY-1-20260915\",\"percentOff\":10,\"expires\":\"2026-12-14\",\"terms\":\"Single use, only for this customer's account.\"},\"policyDecision\":\"auto_approved\"}"
+    ],
+    "judgeNote": "Apologizes briefly, confirms the $29.00 refund to the original payment method. Doesn't invent when the money arrives (no tool says).",
+    "checks": [
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 4,
+        "why": "The agent provided the refund and coupon but invented a timing estimate for the refund appearing, which was not in the tool results."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only described actions already completed."
+      },
+      {
+        "id": "judge:timing",
+        "answer": false,
+        "why": "The agent claimed the refund would appear 'shortly', but no tool result or policy provided a timing estimate."
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:followup": true,
+    "judge:timing": false
+  },
+  "calls": [
+    {
+      "latencyMs": 47396,
+      "inputTokens": 1604,
+      "outputTokens": 189,
+      "cached": false,
+      "raw": "<thought>*   Customer reports a damaged Glowworm headlamp (order #1050).\n    *   Agent replies:\n        *   Apologizes.\n        *   Confirms refund of $29.00.\n        *   Provides a 10% coupon.\n        *   Says refund \"should appear shortly\".\n\n    *   `get_order`: Confirms item price is $29.00.\n    *   `issue_refund`: Confirms $29.00 refund issued.\n    *   `issue_goodwill_coupon`: Confirms 10% coupon issued (code SORRY-1-20260915, expires 2026-12-14).\n\n    *   Tone: Warm, professional, apologizes once. (Score: 5)\n    *   Clarity: Answer first, short, amounts/dates explicit. (Score: 5)\n    *   Helpfulness: Answers everything, provides refund and coupon. However, the \"What a good answer does\" note says: \"Doesn't invent when the money arrives (no tool says).\" The agent said \"should appear shortly\". This is a minor overpromise/invention of timing. (Score: 4 - misses the \"don't invent timing\" guidance).\n\n    *   `judge:followup`: Did the agent promise to do something later? No. They stated what was already done. (True)\n    *   `judge:timing`: Did timing statements match tool results? The agent said \"should appear shortly\". The tool result for `issue_refund` does not mention timing. The prompt says \"Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it.\" (False)\n\n    *   None provided.</thought>{\n  \"replies\": [\n    {\n      \"reply\": 1,\n      \"tone\": 5,\n      \"clarity\": 5,\n      \"helpfulness\": 4,\n      \"why\": \"The agent provided the refund and coupon but invented a timing estimate for the refund appearing, which was not in the tool results.\"\n    }\n  ],\n  \"checks\": [\n    {\n      \"id\": \"judge:followup\",\n      \"answer\": true,\n      \"why\": \"The agent only described actions already completed.\"\n    },\n    {\n      \"id\": \"judge:timing\",\n      \"answer\": false,\n      \"why\": \"The agent claimed the refund would appear 'shortly', but no tool result or policy provided a timing estimate.\"\n    }\n  ],\n  \"scriptFit\": []\n}"
+    }
+  ]
+}

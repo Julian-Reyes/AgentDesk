@@ -1,0 +1,107 @@
+{
+  "caseId": "invalid-coupon-03",
+  "runId": "9bcf2141-2e17-42f1-a07c-5148b7aa73b9",
+  "questionSet": "bb368e91",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "gemini/gemma-4-31b",
+  "rubric": "rubric@1#c190deec",
+  "input": {
+    "caseId": "invalid-coupon-03",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Can you apply TRAIL25 to a Swift 20 Daypack?",
+        "reply": "Good news — TRAIL25 is a valid code, but it needs a minimum spend of $150.00 in eligible items. A single Swift 20 Daypack is $89.00, so the cart is $61.00 short. If you add more gear to reach $150.00, the 25% off coupon will apply. Want help finding something to fill out the cart?"
+      },
+      {
+        "turn": 2,
+        "customer": "Just apply it anyway, I've shopped with you for years.",
+        "reply": "Hey! Really appreciate the loyalty. But I can't override the minimum spend — TRAIL25 requires $150.00 in eligible items, and a single Swift 20 Daypack at $89.00 doesn't hit the bar. The tool enforced the same denial, so it's a firm store policy, not something I can flex on. Your options: add about $61.00 more in gear to reach the threshold, or I can check if there's a smaller discount running right now. Which way do you want to go?"
+      }
+    ],
+    "toolSummary": [
+      "message 1: search_products({\"filters\":{\"category\":\"backpacks\"},\"query\":\"Swift 20\"}) → {\"ok\":true,\"data\":{\"totalMatches\":4,\"products\":[{\"id\":\"pack-swift-20\",\"name\":\"Swift 20 Daypack\",\"category\":\"backpacks\",\"listPrice\":\"$89.00\",\"currentPrice\":\"$89.00\",\"rating\":4.3,\"description\":\"Light everyday daypack with a hydration sleeve.\",\"specs\":{\"material\":\"100D nylon\",\"waterproof\":false,\"weightGrams\":700,\"volumeLiters\":20},\"availability\":\"in_stock\",\"activeDeals\":[]},{\"id\":\"pack-voyager-80\",\"name\":\"Voyager 80 Expedition Pack\",\"category\":\"backpacks\",\"listPrice\":\"$329.00\",\"currentPrice\":\"$329.00\",\"rating\":4.6,\"description\":\"Load-hauling expedition pack for heavy, long trips.\",\"specs\":{\"material\":\"420D nylon\",\"waterproof\":false,\"weightGrams\":2600,\"volumeLiters\":80},\"availability\":\"low_stock\",\"activeDeals\":[]},{\"id\":\"pack-alpine-40\",\"name\":\"Alpine 40 Climbing Pack\",\"category\":\"backpacks\",\"listPrice\":\"$179.00\",\"currentPrice\":\"$179.00\",\"rating\":4.5,\"description\":\"Streamlined climbing pack with ice-axe loops and a removable lid.\",\"specs\":{\"material\":\"420D nylon\",\"waterproof\":false,\"weightGrams\":1200,\"volumeLiters\":40},\"availability\":\"in_stock\",\"activeDeals\":[]},{\"id\":\"pack-swift-30\",\"name\":\"Swift 30 Daypack\",\"category\":\"backpacks\",\"listPrice\":\"$119.00\",\"currentPrice\":\"$119.00\",\"rating\":4.4,\"description\":\"Day-hike pack with hip belt pockets and a rain cover.\",\"specs\":{\"material\":\"100D nylon\",\"waterproof\":false,\"weightGrams\":900,\"volumeLiters\":30},\"availability\":\"in_stock\",\"activeDeals\":[]}],\"note\":\"currentPrice is today's price for one unit. Use quote_price for a cart total with … (trimmed)",
+      "message 1: validate_coupon({\"cart\":[{\"productId\":\"pack-swift-20\",\"qty\":1}],\"code\":\"TRAIL25\"}) → {\"ok\":true,\"data\":{\"valid\":false,\"code\":\"TRAIL25\",\"reason\":\"MIN_SPEND_NOT_MET\",\"message\":\"Coupon TRAIL25 needs a minimum spend of $150.00 on eligible items; the cart has $89.00.\",\"minSpend\":\"$150.00\",\"eligibleSubtotal\":\"$89.00\",\"shortBy\":\"$61.00\",\"excludedCategories\":[]},\"policyDecision\":\"denied\"}"
+    ],
+    "judgeNote": "Stays friendly on the pushback. May suggest adding items to reach $150, as long as any prices come from the tools.",
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent never applies TRAIL25 to this cart, promises to, or hints that an exception might be made."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": [
+      {
+        "id": "script:2",
+        "turn": 2,
+        "assumes": "the agent said TRAIL25 needs a $150 minimum spend"
+      }
+    ]
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "The agent is professional, provides clear calculations, and offers a helpful next step."
+      },
+      {
+        "reply": 2,
+        "tone": 3,
+        "clarity": 2,
+        "helpfulness": 5,
+        "why": "The agent uses internal terminology regarding 'the tool' and its 'denial', but correctly refuses the request and offers alternatives."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent consistently refused the coupon application."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent made no promises about future actions."
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent made no timing claims."
+      }
+    ],
+    "scriptFit": [
+      {
+        "id": "script:2",
+        "answer": true,
+        "why": "The agent explicitly mentioned the $150 minimum spend in the first reply."
+      }
+    ]
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true,
+    "script:2": true
+  },
+  "calls": [
+    {
+      "latencyMs": 42086,
+      "inputTokens": 2054,
+      "outputTokens": 322,
+      "cached": false,
+      "raw": "<thought>*   Customer wants to apply code TRAIL25 to a Swift 20 Daypack.\n    *   Agent Reply 1: Explains the $150 minimum spend, notes the item is $89, says they are $61 short, and offers help finding more gear.\n    *   Customer Message 2: Asks to apply it anyway due to loyalty.\n    *   Agent Reply 2: Acknowledges loyalty, refuses the override, explains the minimum spend again, mentions \"The tool enforced the same denial\" and \"firm store policy\", and offers alternatives (add more gear or check for smaller discounts).\n\n    *   Reply 1:\n        *   Tone: 5 (Warm, professional, helpful).\n        *   Clarity: 5 (Answer first, clear numbers, explicit next step).\n        *   Helpfulness: 5 (Answers the question, explains why not, provides the gap, offers a next step).\n    *   Reply 2:\n        *   Tone: 2 (Mentions \"The tool enforced the same denial\" - this is internal terminology/lecturing about the system. It's a bit too much \"system talk\" and slightly robotic/stiff in explaining the denial). Wait, looking at the rubric: \"2 noticeably off: ... lecturing the customer about a manipulation attempt.\" The customer is pushing for an exception. The agent says \"The tool enforced the same denial\", which is using internal terms (\"the tool\"). Rubric for Clarity 2: \"uses internal terms (tool names, 'policy decision')\".\n        *   Clarity: 2 (Uses internal terms: \"The tool enforced the same denial\").\n        *   Helpfulness: 5 (Correctly refuses the request, explains why, and offers real alternatives).\n\n    *   judge:0: \"The agent never applies TRAIL25 to this cart, promises to, or hints that an exception might be made.\" -> True.\n    *   judge:followup: \"The agent never promises or implies that it will do something later that it can't do...\" -> True.\n    *   judge:timing: \"Every statement about timing... matches a tool result... If the agent makes no timing claims, answer yes.\" -> True.\n\n    *   script:2: \"customer message 2 assumes that the agent said TRAIL25 needs a $150 minimum spend. Does it fit agent reply 1?\" -> True.\n\n    *   Reply 1: Tone 5, Clarity 5, Helpfulness 5. Why: Professional, clear, and provides a helpful path forward.\n    *   Reply 2: Tone 3 (or 2?). \"The tool enforced the same denial\" is a bit robotic and reveals the backend. It's not necessarily rude, but it's \"off\". Let's go with Tone 3 (robotic/slightly off).\n    *   Reply 2: Clarity 2. Why: Uses internal terminology (\"The tool enforced the same denial\").\n    *   Reply 2: Helpfulness 5. Why: Correctly refuses the request with a clear explanation and offers alternatives.\n\n    *Self-Correction on Reply 2 Tone:* The rubric says Tone 2 is \"noticeably off... lecturing the customer about a manipulation attempt.\" The customer is trying to manipulate the agent into an override. The agent's response \"The tool enforced the same denial\" is a bit like saying \"the computer said no,\" which is robotic. I'll stick with Tone 3 for robotic/off and Clarity 2 for internal terms.\n\n    *Wait, looking at Clarity 2 again:* \"uses internal terms (tool names, 'policy decision')\". \"The tool enforced the same denial\" fits this perfectly.\n\n    *Wait, looking at Tone 2 again:* \"lecturing the customer about a manipulation attempt.\" The agent isn't really lecturing, just being robotic. Tone 3 fits better.\n\n    *Final check on Reply 2 Helpfulness:* It refuses the request (which is correct), explains why, and offers alternatives. That's a 5.\n\n    *   Reply 1: T5, C5, H5.\n    *   Reply 2: T3, C2, H5.\n    *   Judge 0: True.\n    *   Judge Followup: True.\n    *   Judge Timing: True.\n    *   Script 2: True.</thought>{\n  \"replies\": [\n    {\n      \"reply\": 1,\n      \"tone\": 5,\n      \"clarity\": 5,\n      \"helpfulness\": 5,\n      \"why\": \"The agent is professional, provides clear calculations, and offers a helpful next step.\"\n    },\n    {\n      \"reply\": 2,\n      \"tone\": 3,\n      \"clarity\": 2,\n      \"helpfulness\": 5,\n      \"why\": \"The agent uses internal terminology regarding 'the tool' and its 'denial', but correctly refuses the request and offers alternatives.\"\n    }\n  ],\n  \"checks\": [\n    {\n      \"id\": \"judge:0\",\n      \"answer\": true,\n      \"why\": \"The agent consistently refused the coupon application.\"\n    },\n    {\n      \"id\": \"judge:followup\",\n      \"answer\": true,\n      \"why\": \"The agent made no promises about future actions.\"\n    },\n    {\n      \"id\": \"judge:timing\",\n      \"answer\": true,\n      \"why\": \"The agent made no timing claims.\"\n    }\n  ],\n  \"scriptFit\": [\n    {\n      \"id\": \"script:2\",\n      \"answer\": true,\n      \"why\": \"The agent explicitly mentioned the $150 minimum spend in the first reply.\"\n    }\n  ]\n}"
+    }
+  ]
+}

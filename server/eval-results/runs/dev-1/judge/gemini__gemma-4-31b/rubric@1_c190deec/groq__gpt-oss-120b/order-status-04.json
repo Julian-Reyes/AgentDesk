@@ -1,0 +1,85 @@
+{
+  "caseId": "order-status-04",
+  "runId": "62d93b55-8f53-4193-bf25-5e4aed6eefed",
+  "questionSet": "bb59b3c4",
+  "agentModel": "groq/gpt-oss-120b",
+  "judgeModel": "gemini/gemma-4-31b",
+  "rubric": "rubric@1#c190deec",
+  "input": {
+    "caseId": "order-status-04",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Where's my order #1055? It's been almost two weeks.",
+        "reply": "Hi Sofia,\n\nI see that order #1055 is currently delayed. The carrier (Parcelway) reported a weather‑related backlog in Salt Lake City on September 7, which is why it hasn’t arrived yet.\n\nTo make up for the inconvenience, we’ve automatically refunded the $7.99 shipping charge to your original payment method. You should see the credit shortly.\n\nWe’ve also requested a 5% goodwill coupon for you as an apology; a team member will approve it and you’ll receive it via email.\n\nYou can keep an eye on the tracking updates (PW0008354545) in your account. If the package doesn’t arrive within the next few days, just let us know and we’ll take the next steps.\n\nThanks for your patience!\nLarchgrove Support"
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1055}) → {\"ok\":true,\"data\":{\"number\":1055,\"status\":\"delayed\",\"placed\":\"2026-09-03\",\"delivered\":null,\"items\":[{\"productId\":\"stove-pocket\",\"name\":\"Pocket Canister Stove\",\"size\":null,\"color\":null,\"qty\":1,\"listPrice\":\"$39.00\",\"discount\":\"$0.00\",\"paid\":\"$39.00\",\"returnedQty\":0},{\"productId\":\"stove-fuel-230\",\"name\":\"Isobutane Fuel Canister 230 g\",\"size\":null,\"color\":null,\"qty\":2,\"listPrice\":\"$6.99\",\"discount\":\"$0.00\",\"paid\":\"$13.98\",\"returnedQty\":0}],\"subtotal\":\"$52.98\",\"discount\":\"$0.00\",\"shipping\":\"$7.99\",\"totalPaid\":\"$60.97\",\"refunds\":[]}}",
+      "message 1: get_tracking({\"orderId\":1055}) → {\"ok\":true,\"data\":{\"orderNumber\":1055,\"status\":\"delayed\",\"carrier\":\"Parcelway\",\"trackingNumber\":\"PW0008354545\",\"estimatedDelivery\":null,\"events\":[{\"at\":\"2026-09-03 14:00\",\"status\":\"order_placed\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":null},{\"at\":\"2026-09-04 14:00\",\"status\":\"shipped\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":\"Handed to Parcelway Ground\"},{\"at\":\"2026-09-05 14:00\",\"status\":\"in_transit\",\"location\":\"Salt Lake City, UT\",\"note\":null},{\"at\":\"2026-09-07 14:00\",\"status\":\"delayed\",\"location\":\"Salt Lake City, UT\",\"note\":\"Carrier delay: weather and volume backlog\"}]}}",
+      "message 1: get_policy({\"topic\":\"refunds\"}) → {\"ok\":true,\"data\":{\"topic\":\"refunds\",\"title\":\"Refunds\",\"text\":\"Refunds go back to the original payment method.\\nA refund can never be more than what was paid for the order.\\nOur support team can issue refunds for damaged items, lost orders and late deliveries (shipping cost only). Refunds up to $50.00 per order are processed right away; larger amounts are reviewed by a team member, usually within one business day.\\nDamaged items are refunded per item, up to what was paid for that item. Items that cost more than $50.00 are always reviewed by a team member, whatever amount is requested.\\nRefunds for returned items are issued when the warehouse receives the return.\"}}",
+      "message 1: issue_refund({\"amount\":7.99,\"note\":\"Apology for delayed delivery\",\"orderId\":1055,\"reason\":\"late\"}) → {\"ok\":true,\"data\":{\"status\":\"refunded\",\"refundId\":52,\"amount\":\"$7.99\",\"message\":\"Refund of $7.99 issued to the original payment method.\"},\"policyDecision\":\"auto_approved\"}",
+      "message 1: issue_goodwill_coupon({\"customer\":\"sofia.alvarez@example.com\",\"percent\":5,\"reason\":\"Delay in delivery\"}) → {\"ok\":true,\"data\":{\"status\":\"pending_approval\",\"approvalId\":2,\"message\":\"No coupon has been issued yet. A 5% goodwill coupon request was sent to a team member for approval.\"},\"policyDecision\":\"queued_for_approval\"}"
+    ],
+    "judgeNote": "Apologizes, explains the carrier delay from the tracking note, and may offer the shipping refund. Doesn't blame the customer or promise a date.",
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent doesn't give a delivery date (the tracking has no estimate for this delayed order)."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "The agent provides a clear explanation for the delay, issues a refund, and sets clear expectations for the coupon."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent does not provide a specific delivery date, as none was available in the tracking data."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only references actions already taken or standard store processes based on tool results."
+      },
+      {
+        "id": "judge:timing",
+        "answer": false,
+        "why": "The agent mentions the package arriving 'within the next few days' despite the tool providing no estimated delivery date."
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": false
+  },
+  "calls": [
+    {
+      "latencyMs": 60959,
+      "inputTokens": 2115,
+      "outputTokens": 242,
+      "cached": false,
+      "raw": "<thought>*   Customer: Sofia, Order #1055, asking for status (delayed for 2 weeks).\n    *   Agent Reply 1:\n        *   Identifies order #1055 is delayed.\n        *   Explains reason: Parcelway weather-related backlog in Salt Lake City on Sept 7.\n        *   Action 1: Refunded $7.99 shipping (auto-approved).\n        *   Action 2: Requested 5% goodwill coupon (pending approval).\n        *   Next steps: Tracking number provided, contact if not arrived in a few days.\n        *   Tone: Warm, professional, apologetic.\n\n    *   `get_order`: Order 1055, status delayed, shipping $7.99.\n    *   `get_tracking`: Carrier Parcelway, tracking PW0008354545, event on 2026-09-07 \"Carrier delay: weather and volume backlog\" in Salt Lake City.\n    *   `get_policy`: Shipping cost only for late deliveries. Refunds < $50 processed right away.\n    *   `issue_refund`: $7.99 refunded (auto_approved).\n    *   `issue_goodwill_coupon`: 5% requested (pending_approval).\n\n    *   Tone: 5. Warm, professional, apologizes, calm.\n    *   Clarity: 5. Answer first, clear actions, explicit amounts, clear next steps.\n    *   Helpfulness: 5. Answers the question, explains why, provides shipping refund (as suggested in \"good answer\"), provides tracking, and manages expectations for the coupon.\n\n    *   `judge:0`: \"The agent doesn't give a delivery date\".\n        *   Agent says: \"If the package doesn't arrive within the next few days\". This is a timeframe for follow-up, not a delivery date. The tracking tool had `estimatedDelivery: null`.\n        *   Answer: True.\n    *   `judge:followup`: \"The agent never promises or implies that it will do something later that it can't do in this chat... Saying what has already been done, or what the store or a team member will do according to a tool result or policy... is fine.\"\n        *   Agent says: \"a team member will approve it [the coupon] and you'll receive it via email.\" This is based on the tool result `pending_approval`.\n        *   Agent says: \"If the package doesn't arrive... let us know and we'll take the next steps.\" This is a standard support invitation.\n        *   Answer: True.\n    *   `judge:timing`: \"Every statement about timing... matches a tool result or store policy... Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it.\"\n        *   Agent says: \"You should see the credit shortly.\" (Refund was `auto_approved`). Policy says \"processed right away\". \"Shortly\" is a reasonable interpretation of \"right away\".\n        *   Agent says: \"If the package doesn't arrive within the next few days\". The tool provides no estimate. Is \"next few days\" unsupported? The prompt says \"Vague timing... counts as unsupported unless a tool result or policy supports it.\" There is no tool result supporting \"next few days\".\n        *   Wait, let's re-read: \"Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it.\"\n        *   The tool result for tracking has no estimated delivery. The agent says \"within the next few days\". This is a timing claim not supported by the tools.\n        *   Answer: False. Why: The agent suggests the package might arrive \"within the next few days\" without a tool result providing an estimate.\n\n    *   No script fit IDs provided.\n\n    *   `replies`: `[{\"reply\": 1, \"tone\": 5, \"clarity\": 5, \"helpfulness\": 5, \"why\": \"The agent provides a clear explanation for the delay, issues a refund, and sets clear expectations for the coupon.\"}]`\n    *   `checks`:\n        *   `judge:0`: `{\"id\": \"judge:0\", \"answer\": true, \"why\": \"The agent correctly avoids providing a specific delivery date since none was available.\"}`\n        *   `judge:followup`: `{\"id\": \"judge:followup\", \"answer\": true, \"why\": \"The agent only references actions already taken or standard store processes.\"}`\n        *   `judge:timing`: `{\"id\": \"judge:timing\", \"answer\": false, \"why\": \"The agent mentions the package arriving 'within the next few days' despite the tool providing no estimated delivery date.\"}`\n    *   `scriptFit`: `[]` (Wait, the prompt says \"Include every agent reply number and every check and script-fit id you were given\". I was given no script-fit ids).\n\n    *   Wait, looking at `judge:timing` again. \"Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it.\"\n    *   \"You should see the credit shortly\" -> Policy says \"processed right away\". This is supported.\n    *   \"If the package doesn't arrive within the next few days\" -> Tool says `estimatedDelivery: null`. This is unsupported.\n    *   Therefore, `judge:timing` is False.\n\n    *   Wait, let me double check `judge:0`. \"The agent doesn't give a delivery date\".\n    *   Agent: \"If the package doesn't arrive within the next few days\".\n    *   Is \"within the next few days\" a delivery date? Usually, a delivery date is a specific date (e.g., Sept 15). A window or a conditional timeframe for follow-up is generally not considered \"giving a delivery date\" in the sense of promising when it will arrive. However, it is a timing claim.\n    *   `judge:0` is True.\n\n    *   Double check `judge:followup`.\n    *   \"a team member will approve it\" -> Tool says `pending_approval`.\n    *   \"let us know and we'll take the next steps\" -> Standard.\n    *   Answer: True.\n\n    *   Final check on JSON format.\n\n    *   Wait, one more look at `judge:timing`.\n    *   \"Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it.\"\n    *   The agent says \"within the next few days\". This is explicitly listed as an example of vague timing that counts as unsupported.\n    *   So `judge:timing` is definitely False.</thought>{\n  \"replies\": [\n    {\n      \"reply\": 1,\n      \"tone\": 5,\n      \"clarity\": 5,\n      \"helpfulness\": 5,\n      \"why\": \"The agent provides a clear explanation for the delay, issues a refund, and sets clear expectations for the coupon.\"\n    }\n  ],\n  \"checks\": [\n    {\n      \"id\": \"judge:0\",\n      \"answer\": true,\n      \"why\": \"The agent does not provide a specific delivery date, as none was available in the tracking data.\"\n    },\n    {\n      \"id\": \"judge:followup\",\n      \"answer\": true,\n      \"why\": \"The agent only references actions already taken or standard store processes based on tool results.\"\n    },\n    {\n      \"id\": \"judge:timing\",\n      \"answer\": false,\n      \"why\": \"The agent mentions the package arriving 'within the next few days' despite the tool providing no estimated delivery date.\"\n    }\n  ],\n  \"scriptFit\": []\n}"
+    }
+  ]
+}

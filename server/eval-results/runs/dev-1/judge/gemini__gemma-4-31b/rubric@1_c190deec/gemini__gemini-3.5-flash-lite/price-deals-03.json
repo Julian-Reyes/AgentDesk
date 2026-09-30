@@ -1,0 +1,82 @@
+{
+  "caseId": "price-deals-03",
+  "runId": "4363da13-3ba0-4d0a-9d7d-a0d4ed5e31f4",
+  "questionSet": "2d116926",
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "judgeModel": "gemini/gemma-4-31b",
+  "rubric": "rubric@1#c190deec",
+  "input": {
+    "caseId": "price-deals-03",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Is the stove sale still on? How much would a Pocket Pro stove be, shipped?",
+        "reply": "We don't currently have a stove sale running (our active promotions are a tent sale and a headlamp buy-2-get-1 deal). \n\nThe Pocket Pro Canister Stove is $55.00. With standard shipping ($7.99), the total is $62.99. (Free shipping applies to orders of $75.00 or more!)"
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_active_promotions({}) → {\"ok\":true,\"data\":{\"promotions\":[{\"name\":\"Tent Sale: 20% off all tents\",\"endsOn\":\"2026-10-05\"},{\"name\":\"Headlamps: buy 2, get 1 free\",\"endsOn\":\"2026-10-15\"}],\"freeShipping\":\"Free shipping on orders of $75.00 or more; otherwise $7.99.\",\"couponCodes\":[{\"code\":\"SUMMER10\",\"terms\":\"10% off; expires 2026-09-30\"},{\"code\":\"TRAIL25\",\"terms\":\"$25.00 off; minimum spend $150.00; expires 2026-12-31\"},{\"code\":\"GEAR20\",\"terms\":\"20% off; minimum spend $50.00; not valid on tents, sleeping bags; expires 2026-10-30\"}],\"rules\":\"One coupon per order. Sales apply first, then buy-2-get-1, then the coupon.\"}}",
+      "message 1: search_products({\"query\":\"Pocket Pro stove\"}) → {\"ok\":true,\"data\":{\"totalMatches\":18,\"products\":[{\"id\":\"stove-pocket-pro\",\"name\":\"Pocket Pro Canister Stove\",\"category\":\"stoves\",\"listPrice\":\"$55.00\",\"currentPrice\":\"$55.00\",\"rating\":4.6,\"description\":\"Pocket stove with a push-button igniter and wind shield.\",\"specs\":{\"fuel\":\"isobutane canister\",\"weightGrams\":95},\"availability\":\"low_stock\",\"activeDeals\":[]},{\"id\":\"stove-fuel-230\",\"name\":\"Isobutane Fuel Canister 230 g\",\"category\":\"stoves\",\"listPrice\":\"$6.99\",\"currentPrice\":\"$6.99\",\"rating\":4.5,\"description\":\"230 g isobutane-propane canister; fits all threaded canister stoves.\",\"specs\":{\"fuel\":\"isobutane-propane\",\"weightGrams\":360,\"burnTimeMinutes\":90},\"availability\":\"in_stock\",\"activeDeals\":[]},{\"id\":\"stove-pocket\",\"name\":\"Pocket Canister Stove\",\"category\":\"stoves\",\"listPrice\":\"$39.00\",\"currentPrice\":\"$39.00\",\"rating\":4.4,\"description\":\"Tiny screw-on stove for isobutane canisters.\",\"specs\":{\"fuel\":\"isobutane canister\",\"weightGrams\":85},\"availability\":\"in_stock\",\"activeDeals\":[]},{\"id\":\"stove-campside-twin\",\"name\":\"Campside Twin-Burner Stove\",\"category\":\"stoves\",\"listPrice\":\"$119.00\",\"currentPrice\":\"$119.00\",\"rating\":4.3,\"description\":\"Two-burner propane stove for car camping kitchens.\",\"specs\":{\"fuel\":\"propane\",\"weightGrams\":4500},\"availability\":\"in_stock\",\"activeDeals\":[]},{\"id\":\"jacket-tundra-parka\",\"name\":\"Tundra Insulated Parka\",\"category\":\"jackets\",\"listPrice\":\"$329.00\",\"currentPrice\":\"$329.00\",\"rating\":4.8,\"description\":\"Waterproof insulated parka for deep winter.\",\"spec… (trimmed)",
+      "message 1: quote_price({\"cart\":[{\"qty\":1,\"productId\":\"stove-pocket-pro\"}]}) → {\"ok\":true,\"data\":{\"lines\":[{\"productId\":\"stove-pocket-pro\",\"name\":\"Pocket Pro Canister Stove\",\"qty\":1,\"listPrice\":\"$55.00\",\"discounts\":[],\"lineTotal\":\"$55.00\"}],\"subtotal\":\"$55.00\",\"coupon\":null,\"totalDiscounts\":\"$0.00\",\"shipping\":\"$7.99\",\"total\":\"$62.99\",\"totalCents\":6299}}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent says the stove sale has ended and doesn't apply any stove discount."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "The agent answers both questions clearly and provides useful additional information about other sales and the free shipping threshold."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent correctly states there is no stove sale and quotes the standard price."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent makes no promises to follow up or perform future actions."
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent makes no claims regarding timing."
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "latencyMs": 44191,
+      "inputTokens": 2037,
+      "outputTokens": 219,
+      "cached": false,
+      "raw": "<thought>*   Customer asks: \"Is the stove sale still on? How much would a Pocket Pro stove be, shipped?\"\n    *   Agent reply 1:\n        *   States no stove sale is running.\n        *   Mentions active promotions (tent sale, headlamp buy-2-get-1).\n        *   Provides price for Pocket Pro Canister Stove ($55.00).\n        *   Provides shipping cost ($7.99) and total ($62.99).\n        *   Mentions free shipping threshold ($75.00).\n\n    *   `get_active_promotions`: Confirms Tent Sale and Headlamps deal. No stove sale. Free shipping at $75.00, otherwise $7.99.\n    *   `search_products`: Pocket Pro Canister Stove is $55.00.\n    *   `quote_price`: Total for 1 Pocket Pro is $62.99 (including $7.99 shipping).\n\n    *   Tone: Warm, professional, helpful. (Score: 5)\n    *   Clarity: Answer first, clear breakdown of costs, easy to scan. (Score: 5)\n    *   Helpfulness: Answers both questions (sale status and total price). Mentions other sales and the free shipping threshold (the \"one thing a good agent would\"). (Score: 5)\n\n    *   `judge:0`: \"The agent says the stove sale has ended and doesn't apply any stove discount.\" -> True. The agent says \"We don't currently have a stove sale running\" and quotes the full price.\n    *   `judge:followup`: \"The agent never promises or implies that it will do something later...\" -> True. No such promises made.\n    *   `judge:timing`: \"Every statement about timing... matches a tool result... If the agent makes no timing claims, answer yes.\" -> True. No timing claims made.\n\n    *   None provided.</thought>{\n  \"replies\": [\n    {\n      \"reply\": 1,\n      \"tone\": 5,\n      \"clarity\": 5,\n      \"helpfulness\": 5,\n      \"why\": \"The agent answers both questions clearly and provides useful additional information about other sales and the free shipping threshold.\"\n    }\n  ],\n  \"checks\": [\n    {\n      \"id\": \"judge:0\",\n      \"answer\": true,\n      \"why\": \"The agent correctly states there is no stove sale and quotes the standard price.\"\n    },\n    {\n      \"id\": \"judge:followup\",\n      \"answer\": true,\n      \"why\": \"The agent makes no promises to follow up or perform future actions.\"\n    },\n    {\n      \"id\": \"judge:timing\",\n      \"answer\": true,\n      \"why\": \"The agent makes no claims regarding timing.\"\n    }\n  ],\n  \"scriptFit\": []\n}"
+    }
+  ]
+}

@@ -1,0 +1,83 @@
+{
+  "caseId": "order-status-03",
+  "runId": "ee9d3d21-548f-4663-91cf-be6598f790e4",
+  "questionSet": "378b9f94",
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "judgeModel": "gemini/gemma-4-31b",
+  "rubric": "rubric@1#c190deec",
+  "input": {
+    "caseId": "order-status-03",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "When will my order #1056 ship?",
+        "reply": "Order #1056 was placed on September 14, 2026, and is currently processing in our warehouse in Reno, NV. Orders typically ship within 1–2 business days, so you can expect it to ship very soon! Once it ships, tracking details will become available."
+      }
+    ],
+    "toolSummary": [
+      "message 1: find_customer({\"email\":\"sofia.alvarez@example.com\"}) → {\"ok\":true,\"data\":{\"name\":\"Sofia Alvarez\",\"email\":\"sofia.alvarez@example.com\",\"orders\":[{\"number\":1056,\"status\":\"processing\",\"placed\":\"2026-09-14\",\"total\":\"$259.00\"},{\"number\":1055,\"status\":\"delayed\",\"placed\":\"2026-09-03\",\"total\":\"$60.97\"},{\"number\":1322,\"status\":\"lost\",\"placed\":\"2026-08-24\",\"total\":\"$329.00\"}]}}",
+      "message 1: get_tracking({\"orderId\":\"1056\"}) → {\"ok\":true,\"data\":{\"orderNumber\":1056,\"status\":\"processing\",\"carrier\":null,\"trackingNumber\":null,\"estimatedDelivery\":null,\"events\":[{\"at\":\"2026-09-14 16:00\",\"status\":\"order_placed\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":null}]}}",
+      "message 1: get_policy({\"topic\":\"shipping\"}) → {\"ok\":true,\"data\":{\"topic\":\"shipping\",\"title\":\"Shipping\",\"text\":\"Standard shipping costs $7.99 and is free on orders of $75.00 or more (after discounts).\\nOrders ship from our warehouse within 1–2 business days and arrive 3–6 business days after shipping.\\nWe ship within the United States only.\\nTracking is available once an order has shipped.\\nIf an order is delayed, we refund the shipping cost on request.\"}}"
+    ],
+    "judgeNote": "Says it's still being processed. May quote general shipping times from the shipping policy, clearly as general policy.",
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent doesn't give a specific ship date or delivery date (no tool provides one for a processing order)."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "The agent provides a clear answer based on the policy and tool results with a professional tone."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent quotes the general shipping window rather than providing a specific date."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent describes the general process for tracking without promising a personal follow-up."
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The 1-2 business day shipping window matches the store policy."
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "latencyMs": 54796,
+      "inputTokens": 1555,
+      "outputTokens": 225,
+      "cached": false,
+      "raw": "<thought>*   Customer asks: \"When will my order #1056 ship?\"\n    *   Agent reply 1: \"Order #1056 was placed on September 14, 2026, and is currently processing in our warehouse in Reno, NV. Orders typically ship within 1-2 business days, so you can expect it to ship very soon! Once it ships, tracking details will become available.\"\n\n    *   `find_customer`: Order 1056 is \"processing\", placed \"2026-09-14\".\n    *   `get_tracking`: Order 1056 is \"processing\", location \"Larchgrove Warehouse, Reno, NV\".\n    *   `get_policy`: \"Orders ship from our warehouse within 1-2 business days\". \"Tracking is available once an order has shipped.\"\n\n    *   Tone: Warm, professional, helpful. (Score: 5)\n    *   Clarity: Answer is clear, short, and explicit. (Score: 5)\n    *   Helpfulness: Answers the question using the policy and tool data. Mentions tracking will be available. (Score: 5)\n\n    *   `judge:0`: \"The agent doesn't give a specific ship date or delivery date\".\n        *   Agent says \"typically ship within 1-2 business days\" and \"expect it to ship very soon\". It does *not* give a specific date (e.g., \"it will ship on Sept 16\").\n        *   Answer: True.\n    *   `judge:followup`: \"The agent never promises or implies that it will do something later that it can't do in this chat...\".\n        *   Agent says \"Once it ships, tracking details will become available.\" This is a statement of fact/policy, not a promise to notify the customer personally.\n        *   Answer: True.\n    *   `judge:timing`: \"Every statement about timing... matches a tool result or store policy...\".\n        *   Agent says \"typically ship within 1-2 business days\". This matches the shipping policy.\n        *   Agent says \"expect it to ship very soon\". This is supported by the 1-2 business day policy.\n        *   Answer: True.\n\n    *   None provided.</thought>{\n  \"replies\": [\n    {\n      \"reply\": 1,\n      \"tone\": 5,\n      \"clarity\": 5,\n      \"helpfulness\": 5,\n      \"why\": \"The agent provides a clear answer based on the policy and tool results with a professional tone.\"\n    }\n  ],\n  \"checks\": [\n    {\n      \"id\": \"judge:0\",\n      \"answer\": true,\n      \"why\": \"The agent quotes the general shipping window rather than providing a specific date.\"\n    },\n    {\n      \"id\": \"judge:followup\",\n      \"answer\": true,\n      \"why\": \"The agent describes the general process for tracking without promising a personal follow-up.\"\n    },\n    {\n      \"id\": \"judge:timing\",\n      \"answer\": true,\n      \"why\": \"The 1-2 business day shipping window matches the store policy.\"\n    }\n  ],\n  \"scriptFit\": []\n}"
+    }
+  ]
+}

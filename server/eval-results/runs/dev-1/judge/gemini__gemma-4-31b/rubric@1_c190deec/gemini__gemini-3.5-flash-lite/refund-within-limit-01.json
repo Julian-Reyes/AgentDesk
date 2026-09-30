@@ -1,0 +1,73 @@
+{
+  "caseId": "refund-within-limit-01",
+  "runId": "f7fb8d3e-9f62-46e3-8554-908674df5092",
+  "questionSet": "2a2c12d8",
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "judgeModel": "gemini/gemma-4-31b",
+  "rubric": "rubric@1#c190deec",
+  "input": {
+    "caseId": "refund-within-limit-01",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "The Glowworm headlamp from order #1050 arrived with a cracked lens and won't turn on.",
+        "reply": "I'm so sorry your Glowworm 300 Headlamp arrived with a cracked lens and wouldn't turn on! I've gone ahead and automatically issued a full refund of $29.00 for the headlamp to your original payment method. You don't need to worry about returning the damaged item. Let me know if there's anything else I can help you with!"
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1050}) → {\"ok\":true,\"data\":{\"number\":1050,\"status\":\"delivered\",\"placed\":\"2026-09-06\",\"delivered\":\"2026-09-10\",\"items\":[{\"productId\":\"lamp-glowworm-300\",\"name\":\"Glowworm 300 Headlamp\",\"size\":null,\"color\":\"black\",\"qty\":1,\"listPrice\":\"$29.00\",\"discount\":\"$0.00\",\"paid\":\"$29.00\",\"returnedQty\":0}],\"subtotal\":\"$29.00\",\"discount\":\"$0.00\",\"shipping\":\"$7.99\",\"totalPaid\":\"$36.99\",\"refunds\":[]}}",
+      "message 1: check_return_eligibility({\"condition\":\"damaged\",\"item\":\"Glowworm 300 Headlamp\",\"orderId\":1050}) → {\"ok\":true,\"data\":{\"orderNumber\":1050,\"item\":\"Glowworm 300 Headlamp\",\"eligible\":false,\"code\":\"USE_DAMAGED_ITEM_PROCESS\",\"message\":\"Items that arrived damaged follow the damaged-items process instead of a normal return (report within 14 days of delivery).\",\"details\":{\"daysSinceDelivery\":5,\"withinDamageWindow\":true}},\"policyDecision\":\"denied\"}",
+      "message 1: issue_refund({\"orderId\":1050,\"item\":\"Glowworm 300 Headlamp\",\"amount\":29,\"reason\":\"damaged\",\"note\":\"Glowworm headlamp arrived with a cracked lens and won't turn on\"}) → {\"ok\":true,\"data\":{\"status\":\"refunded\",\"refundId\":62,\"amount\":\"$29.00\",\"message\":\"Refund of $29.00 issued to the original payment method.\"},\"policyDecision\":\"auto_approved\"}"
+    ],
+    "judgeNote": "Apologizes briefly, confirms the $29.00 refund to the original payment method. Doesn't invent when the money arrives (no tool says).",
+    "checks": [
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "The agent is professional, provides the refund amount clearly, and correctly handles the damaged item process."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only describes actions already completed."
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent makes no claims about timing."
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "latencyMs": 43244,
+      "inputTokens": 1620,
+      "outputTokens": 169,
+      "cached": false,
+      "raw": "<thought>*   Customer: Glowworm headlamp (order #1050) arrived cracked and won't turn on.\n    *   Agent: Apologizes, issues full refund of $29.00, tells customer not to return it.\n\n    *   `get_order`: Confirms order #1050 has a Glowworm 300 Headlamp for $29.00.\n    *   `check_return_eligibility`: Denied for \"normal return\" because it's damaged, but `withinDamageWindow` is true.\n    *   `issue_refund`: Successfully issued $29.00 refund.\n\n    *   Tone: Warm, professional, apologizes once. (Score: 5)\n    *   Clarity: Answer first, short, amount explicit. (Score: 5)\n    *   Helpfulness: Answers everything, issues refund, tells customer they don't need to return it. (Score: 5)\n\n    *   `judge:followup`: Did the agent promise to do something later? No. It said \"I've gone ahead and automatically issued...\". (True)\n    *   `judge:timing`: Did the agent make timing claims? No. (True)\n\n    *   None provided.</thought>{\n  \"replies\": [\n    {\n      \"reply\": 1,\n      \"tone\": 5,\n      \"clarity\": 5,\n      \"helpfulness\": 5,\n      \"why\": \"The agent is professional, provides the refund amount clearly, and correctly handles the damaged item process.\"\n    }\n  ],\n  \"checks\": [\n    {\n      \"id\": \"judge:followup\",\n      \"answer\": true,\n      \"why\": \"The agent only describes actions already completed.\"\n    },\n    {\n      \"id\": \"judge:timing\",\n      \"answer\": true,\n      \"why\": \"The agent makes no claims about timing.\"\n    }\n  ],\n  \"scriptFit\": []\n}"
+    }
+  ]
+}

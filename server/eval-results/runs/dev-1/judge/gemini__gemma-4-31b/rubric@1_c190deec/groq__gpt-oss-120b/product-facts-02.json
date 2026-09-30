@@ -1,0 +1,71 @@
+{
+  "caseId": "product-facts-02",
+  "runId": "284cc238-8db0-4072-b123-de7a58d0445a",
+  "questionSet": "2a2c12d8",
+  "agentModel": "groq/gpt-oss-120b",
+  "judgeModel": "gemini/gemma-4-31b",
+  "rubric": "rubric@1#c190deec",
+  "input": {
+    "caseId": "product-facts-02",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "How bright is the Beacon 900 headlamp, and how long does the battery last?",
+        "reply": "The Beacon 900 Rechargeable Headlamp delivers 900 lumens of light, and its battery can run for up to 900 minutes on a full charge."
+      }
+    ],
+    "toolSummary": [
+      "message 1: search_products({\"limit\":5,\"query\":\"Beacon 900 headlamp\"}) → {\"ok\":true,\"data\":{\"totalMatches\":8,\"products\":[{\"id\":\"lamp-beacon-900\",\"name\":\"Beacon 900 Rechargeable Headlamp\",\"category\":\"headlamps\",\"listPrice\":\"$79.00\",\"currentPrice\":\"$79.00\",\"rating\":4.7,\"description\":\"High-output rechargeable headlamp with a rear battery pack.\",\"specs\":{\"lumens\":900,\"waterproof\":true,\"weightGrams\":140,\"burnTimeMinutes\":900},\"availability\":\"in_stock\",\"activeDeals\":[\"Headlamps: buy 2, get 1 free\"]},{\"id\":\"lamp-beacon-500\",\"name\":\"Beacon 500 Rechargeable Headlamp\",\"category\":\"headlamps\",\"listPrice\":\"$49.00\",\"currentPrice\":\"$49.00\",\"rating\":4.6,\"description\":\"USB-C rechargeable headlamp with a lock mode.\",\"specs\":{\"lumens\":500,\"waterproof\":true,\"weightGrams\":86,\"burnTimeMinutes\":1200},\"availability\":\"in_stock\",\"activeDeals\":[\"Headlamps: buy 2, get 1 free\"]},{\"id\":\"lamp-stride-400\",\"name\":\"Stride 400 Running Headlamp\",\"category\":\"headlamps\",\"listPrice\":\"$59.00\",\"currentPrice\":\"$59.00\",\"rating\":4.5,\"description\":\"Bounce-free headlamp for trail running.\",\"specs\":{\"lumens\":400,\"waterproof\":true,\"weightGrams\":60,\"burnTimeMinutes\":600},\"availability\":\"in_stock\",\"activeDeals\":[\"Headlamps: buy 2, get 1 free\"]},{\"id\":\"lamp-glowworm-300\",\"name\":\"Glowworm 300 Headlamp\",\"category\":\"headlamps\",\"listPrice\":\"$29.00\",\"currentPrice\":\"$29.00\",\"rating\":4.4,\"description\":\"All-round AAA headlamp with a red night mode.\",\"specs\":{\"lumens\":300,\"waterproof\":true,\"weightGrams\":78,\"burnTimeMinutes\":1800},\"availability\":\"in_stock\",\"activeDeals\":[\"Headlamps: buy 2, get 1 free\"]},{\"i… (trimmed)"
+    ],
+    "judgeNote": "Gives 900 lumens and 15 hours (900 minutes). Doesn't invent a charge time or battery capacity; the catalog has neither.",
+    "checks": [
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 4,
+        "why": "The agent answered both questions accurately but missed a natural opportunity to mention the 'buy 2, get 1 free' deal."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent made no promises to follow up or perform future actions."
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent made no claims regarding shipping or processing timing."
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "latencyMs": 34004,
+      "inputTokens": 1678,
+      "outputTokens": 184,
+      "cached": false,
+      "raw": "<thought>*   Customer asks for brightness and battery life of the Beacon 900 headlamp.\n    *   Agent reply 1: \"The Beacon 900 Rechargeable Headlamp delivers 900 lumens of light, and its battery can run for up to 900 minutes on a full charge.\"\n    *   Tool results: `lamp-beacon-900` has `lumens: 900` and `burnTimeMinutes: 900`.\n    *   Good answer guidance: 900 lumens and 15 hours (900 minutes).\n\n    *   Tone: Professional, direct, polite. (Score: 5)\n    *   Clarity: Answer first, short, explicit. (Score: 5)\n    *   Helpfulness: Answers both questions accurately based on tools. It doesn't provide a \"next step\" or \"alternative\" (like the buy 2 get 1 free deal mentioned in the tool results), but it answers everything asked. A \"good agent\" might mention the deal or ask if they need help ordering, but the core request is fully satisfied. Wait, the prompt says \"adds the one thing a good agent would where natural (an in-stock alternative, a return-by date)\". Mentioning the \"buy 2, get 1 free\" deal would be a natural addition here. However, it's a very clean answer. Let's see if it's a 4 or 5. It answers everything asked. It misses a useful next step/deal. (Score: 4)\n\n    *   `judge:followup`: Did the agent promise to do something later? No. (True)\n    *   `judge:timing`: Did the agent make timing claims? \"up to 900 minutes\" is a spec, not a process timing claim. No timing claims about shipping/refunds. (True)\n\n    *   None provided.</thought>{\n  \"replies\": [\n    {\n      \"reply\": 1,\n      \"tone\": 5,\n      \"clarity\": 5,\n      \"helpfulness\": 4,\n      \"why\": \"The agent answered both questions accurately but missed a natural opportunity to mention the 'buy 2, get 1 free' deal.\"\n    }\n  ],\n  \"checks\": [\n    {\n      \"id\": \"judge:followup\",\n      \"answer\": true,\n      \"why\": \"The agent made no promises to follow up or perform future actions.\"\n    },\n    {\n      \"id\": \"judge:timing\",\n      \"answer\": true,\n      \"why\": \"The agent made no claims regarding shipping or processing timing.\"\n    }\n  ],\n  \"scriptFit\": []\n}"
+    }
+  ]
+}

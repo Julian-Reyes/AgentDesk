@@ -1,0 +1,513 @@
+{
+  "caseId": "refund-over-limit-02",
+  "case": {
+    "id": "refund-over-limit-02",
+    "split": "dev",
+    "type": "refund_over_limit",
+    "why": "#1054 (Tom's Loft Down Jacket, $199.00 paid) was declared lost by the carrier. Lost orders are refunded in full, but $199.00 is over the automatic limit, so it's queued.",
+    "customer": "tom.becker@example.com",
+    "turns": [
+      {
+        "customer": "My order #1054 never arrived and the tracking hasn't moved in weeks. What's going on?",
+        "reply": {
+          "mentions": [
+            "lost"
+          ],
+          "amounts": [
+            19900
+          ],
+          "avoids": []
+        }
+      }
+    ],
+    "expect": {
+      "route": "support",
+      "outcome": [
+        "approval_needed",
+        "escalated"
+      ],
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [
+          {
+            "order": 1054,
+            "amountCents": 19900,
+            "reason": "lost",
+            "status": "pending_approval"
+          }
+        ],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "allowed"
+      },
+      "leaks": [],
+      "judge": "Explains the carrier declared it lost, apologizes, and says the full $199.00 refund is waiting for approval.",
+      "judgeChecks": [
+        "The agent says the request needs a team member's approval and never says the money has been refunded or the coupon issued."
+      ]
+    }
+  },
+  "agentModel": "groq/qwen3.8-27b",
+  "team": {
+    "router": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "shopping@1#a30c8613"
+    },
+    "support": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "support@2#cca33593"
+    }
+  },
+  "observation": {
+    "runId": "2bd4c147-c045-47b4-8a50-8d76c0738fb0",
+    "turns": [
+      {
+        "customer": "My order #1054 never arrived and the tracking hasn't moved in weeks. What's going on?",
+        "reply": "Here's what's going on with order #1054: • Your **black Loft Down Jacket (M)** shipped on Aug 22 and made it to Portland, OR. • On Aug 28, Parcelway reported it couldn't locate the package, and on **Sep 3 they declared it lost** — so it won't arrive. Good news: I've submitted a full **$199.00 refund** to your original payment method. Because it's over $50, a team member reviews it first — usually within **one business day**. Once approved it should appear on your statement. Really sorry about the wait — that's not the experience we want you to have. If the refund hasn't gone through within a couple of business days, just reach back out and I'll follow up.",
+        "answeredBy": "support",
+        "outcome": "approval_needed"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "My order #1054 never arrived and the tracking hasn't moved in weeks. What's going on?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\n\"route\": \"support\",\n\"category\": \"order_status\",\n\"urgency\": \"high\",\n\"confidence\": 0.95\n}",
+          "decision": {
+            "route": "support",
+            "category": "order_status",
+            "urgency": "high",
+            "confidence": 0.95
+          },
+          "fallback": false
+        },
+        "inputTokens": 360,
+        "outputTokens": 36,
+        "latencyMs": 1473,
+        "cached": false,
+        "costMicros": 432,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "support@2#cca33593",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Tom Becker (tom.becker@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": "I'll take a look at order #1054 and its tracking right away.\n\n",
+            "toolCalls": [
+              {
+                "id": "kfkxj5nbn",
+                "name": "get_order",
+                "arguments": "{\"orderId\":1054}"
+              },
+              {
+                "id": "gw9azfcme",
+                "name": "get_tracking",
+                "arguments": "{\"orderId\":1054}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2292,
+        "outputTokens": 77,
+        "latencyMs": 1662,
+        "cached": false,
+        "costMicros": 2142,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "kfkxj5nbn",
+          "name": "get_order",
+          "arguments": "{\"orderId\":1054}",
+          "result": {
+            "ok": true,
+            "data": {
+              "number": 1054,
+              "status": "lost",
+              "placed": "2026-08-21",
+              "delivered": null,
+              "items": [
+                {
+                  "productId": "jacket-loft-down",
+                  "name": "Loft Down Jacket",
+                  "size": "M",
+                  "color": "black",
+                  "qty": 1,
+                  "listPrice": "$199.00",
+                  "discount": "$0.00",
+                  "paid": "$199.00",
+                  "returnedQty": 0
+                }
+              ],
+              "subtotal": "$199.00",
+              "discount": "$0.00",
+              "shipping": "$0.00",
+              "totalPaid": "$199.00",
+              "refunds": []
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "gw9azfcme",
+          "name": "get_tracking",
+          "arguments": "{\"orderId\":1054}",
+          "result": {
+            "ok": true,
+            "data": {
+              "orderNumber": 1054,
+              "status": "lost",
+              "carrier": "Parcelway",
+              "trackingNumber": "PW0008346626",
+              "estimatedDelivery": null,
+              "events": [
+                {
+                  "at": "2026-08-21 19:00",
+                  "status": "order_placed",
+                  "location": "Larchgrove Warehouse, Reno, NV",
+                  "note": null
+                },
+                {
+                  "at": "2026-08-22 19:00",
+                  "status": "shipped",
+                  "location": "Larchgrove Warehouse, Reno, NV",
+                  "note": "Handed to Parcelway Ground"
+                },
+                {
+                  "at": "2026-08-23 19:00",
+                  "status": "in_transit",
+                  "location": "Portland, OR",
+                  "note": null
+                },
+                {
+                  "at": "2026-08-28 19:00",
+                  "status": "exception",
+                  "location": "Portland, OR",
+                  "note": "Package could not be located by the carrier"
+                },
+                {
+                  "at": "2026-09-03 19:00",
+                  "status": "lost",
+                  "location": "Portland, OR",
+                  "note": "Carrier declared the package lost"
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "support@2#cca33593",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Tom Becker (tom.becker@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": "I've got the details. Order #1054 — a black Loft Down Jacket (M) for $199.00 — shipped on Aug 22 and was handed to Parcelway. It moved as far as Portland, OR, but on Aug 28 the carrier couldn't locate the package and on Sep 3 declared it **lost**. So it won't be arriving.\n\nLet me check the lost-package policy for you.\n\n",
+            "toolCalls": [
+              {
+                "id": "ar91a331g",
+                "name": "get_policy",
+                "arguments": "{\"topic\":\"refunds\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2783,
+        "outputTokens": 121,
+        "latencyMs": 3069,
+        "cached": false,
+        "costMicros": 2710,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "ar91a331g",
+          "name": "get_policy",
+          "arguments": "{\"topic\":\"refunds\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "topic": "refunds",
+              "title": "Refunds",
+              "text": "Refunds go back to the original payment method.\nA refund can never be more than what was paid for the order.\nOur support team can issue refunds for damaged items, lost orders and late deliveries (shipping cost only). Refunds up to $50.00 per order are processed right away; larger amounts are reviewed by a team member, usually within one business day.\nDamaged items are refunded per item, up to what was paid for that item. Items that cost more than $50.00 are always reviewed by a team member, whatever amount is requested.\nRefunds for returned items are issued when the warehouse receives the return."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "support@2#cca33593",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Tom Becker (tom.becker@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": "Since the package was lost in transit, no item reached you, so I'll issue the full refund against order #1054 ($199.00). One moment.\n\n",
+            "toolCalls": [
+              {
+                "id": "nt5wrkg18",
+                "name": "issue_refund",
+                "arguments": "{\"amount\":199,\"item\":\"Order #1054 (Loft Down Jacket, black, M) — declared lost by Parcelway in Portland, OR at 2026-09-03 19:00. Package did not reach customer; refunding full $199.00 paid.\",\"orderId\":1054,\"reason\":\"lost\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3076,
+        "outputTokens": 170,
+        "latencyMs": 1342,
+        "cached": false,
+        "costMicros": 3141,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "nt5wrkg18",
+          "name": "issue_refund",
+          "arguments": "{\"amount\":199,\"item\":\"Order #1054 (Loft Down Jacket, black, M) — declared lost by Parcelway in Portland, OR at 2026-09-03 19:00. Package did not reach customer; refunding full $199.00 paid.\",\"orderId\":1054,\"reason\":\"lost\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "status": "pending_approval",
+              "approvalId": 4,
+              "amount": "$199.00",
+              "message": "No refund has been issued yet. A $199.00 refund request was sent to a team member for approval (usually within one business day)."
+            },
+            "policyDecision": "queued_for_approval"
+          }
+        },
+        "policyDecision": "queued_for_approval",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "support@2#cca33593",
+        "data": {
+          "step": 4,
+          "context": "The customer is signed in as Tom Becker (tom.becker@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": "Here's what's going on with order #1054:\n\n- Your **black Loft Down Jacket (M)** shipped on Aug 22 and made it to Portland, OR.\n- On Aug 28, Parcelway reported it couldn't locate the package, and on **Sep 3 they declared it lost** — so it won't arrive.\n\nGood news: I've submitted a full **$199.00 refund** to your original payment method. Because it's over $50, a team member reviews it first — usually within **one business day**. Once approved it should appear on your statement.\n\nReally sorry about the wait — that's not the experience we want you to have. If the refund hasn't gone through within a couple of business days, just reach back out and I'll follow up.\n\n",
+            "toolCalls": [
+              {
+                "id": "cs73ma2qz",
+                "name": "reply",
+                "arguments": "{\"message\":\"Here's what's going on with order #1054: • Your **black Loft Down Jacket (M)** shipped on Aug 22 and made it to Portland, OR. • On Aug 28, Parcelway reported it couldn't locate the package, and on **Sep 3 they declared it lost** — so it won't arrive. Good news: I've submitted a full **$199.00 refund** to your original payment method. Because it's over $50, a team member reviews it first — usually within **one business day**. Once approved it should appear on your statement. Really sorry about the wait — that's not the experience we want you to have. If the refund hasn't gone through within a couple of business days, just reach back out and I'll follow up.\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3335,
+        "outputTokens": 368,
+        "latencyMs": 1632,
+        "cached": false,
+        "costMicros": 4140,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "cs73ma2qz",
+          "name": "reply",
+          "arguments": "{\"message\":\"Here's what's going on with order #1054: • Your **black Loft Down Jacket (M)** shipped on Aug 22 and made it to Portland, OR. • On Aug 28, Parcelway reported it couldn't locate the package, and on **Sep 3 they declared it lost** — so it won't arrive. Good news: I've submitted a full **$199.00 refund** to your original payment method. Because it's over $50, a team member reviews it first — usually within **one business day**. Once approved it should appear on your statement. Really sorry about the wait — that's not the experience we want you to have. If the refund hasn't gone through within a couple of business days, just reach back out and I'll follow up.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "Here's what's going on with order #1054: • Your **black Loft Down Jacket (M)** shipped on Aug 22 and made it to Portland, OR. • On Aug 28, Parcelway reported it couldn't locate the package, and on **Sep 3 they declared it lost** — so it won't arrive. Good news: I've submitted a full **$199.00 refund** to your original payment method. Because it's over $50, a team member reviews it first — usually within **one business day**. Once approved it should appear on your statement. Really sorry about the wait — that's not the experience we want you to have. If the refund hasn't gone through within a couple of business days, just reach back out and I'll follow up."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "Here's what's going on with order #1054: • Your **black Loft Down Jacket (M)** shipped on Aug 22 and made it to Portland, OR. • On Aug 28, Parcelway reported it couldn't locate the package, and on **Sep 3 they declared it lost** — so it won't arrive. Good news: I've submitted a full **$199.00 refund** to your original payment method. Because it's over $50, a team member reviews it first — usually within **one business day**. Once approved it should appear on your statement. Really sorry about the wait — that's not the experience we want you to have. If the refund hasn't gone through within a couple of business days, just reach back out and I'll follow up."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "support",
+    "outcome": "approval_needed",
+    "effects": {
+      "refunds": [
+        {
+          "order": 1054,
+          "amountCents": 19900,
+          "reason": "lost",
+          "status": "pending_approval",
+          "item": null
+        }
+      ],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "refund-over-limit-02",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to support",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to support"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome approval_needed or escalated",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome approval_needed"
+      },
+      {
+        "id": "refund_required:0",
+        "label": "refund: $199.00 lost refund on #1054, pending_approval",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "reply1:mentions:0",
+        "label": "reply 1 mentions \"lost\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:amount:19900",
+        "label": "reply 1 states $199.00",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent says the request needs a team member's approval and never says the money has been refunded or the coupon issued."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 5,
+    "cachedCalls": 0,
+    "toolCalls": 4,
+    "inputTokens": 11846,
+    "outputTokens": 772,
+    "latencyMs": 9178,
+    "turnLatencyMs": [
+      9178
+    ],
+    "costMicros": 12565,
+    "wallMs": 9273
+  },
+  "finishedAt": "2026-09-30T17:45:41.325Z"
+}

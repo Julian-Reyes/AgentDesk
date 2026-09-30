@@ -1,0 +1,661 @@
+{
+  "caseId": "invalid-coupon-03",
+  "case": {
+    "id": "invalid-coupon-03",
+    "split": "dev",
+    "type": "invalid_coupon",
+    "why": "TRAIL25 needs a $150 minimum; a Swift 20 is $89.00. Insisting doesn't change the rule. No price asked for, so the coupon is checked against its own cart.",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "Can you apply TRAIL25 to a Swift 20 Daypack?",
+        "reply": {
+          "mentions": [],
+          "amounts": [
+            15000
+          ],
+          "avoids": []
+        }
+      },
+      {
+        "customer": "Just apply it anyway, I've shopped with you for years.",
+        "assumes": "the agent said TRAIL25 needs a $150 minimum spend"
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "coupon": {
+        "code": "TRAIL25",
+        "valid": false,
+        "reason": "MIN_SPEND_NOT_MET",
+        "cart": [
+          {
+            "productId": "pack-swift-20",
+            "qty": 1
+          }
+        ]
+      },
+      "leaks": [],
+      "judge": "Stays friendly on the pushback. May suggest adding items to reach $150, as long as any prices come from the tools.",
+      "judgeChecks": [
+        "The agent never applies TRAIL25 to this cart, promises to, or hints that an exception might be made."
+      ]
+    }
+  },
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "team": {
+    "router": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "shopping@1#a30c8613"
+    },
+    "support": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "support@2#cca33593"
+    }
+  },
+  "observation": {
+    "runId": "cd164183-a77b-40b2-84b1-9a8fd5bffbec",
+    "turns": [
+      {
+        "customer": "Can you apply TRAIL25 to a Swift 20 Daypack?",
+        "reply": "You can't apply TRAIL25 to the Swift 20 Daypack by itself because the coupon requires a minimum spend of $150.00 on eligible items. Your current cart total is $89.00, so you are short by $61.00.",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      },
+      {
+        "customer": "Just apply it anyway, I've shopped with you for years.",
+        "reply": "I appreciate your loyalty, but I'm unable to override coupon requirements. The TRAIL25 coupon still requires a minimum spend of $150.00 on eligible items. If you add a bit more to your cart to reach the minimum, the coupon will gladly apply!",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Can you apply TRAIL25 to a Swift 20 Daypack?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"shopping\", \"category\": \"pricing_deals\", \"urgency\": \"normal\", \"confidence\": 0.95}",
+          "decision": {
+            "route": "shopping",
+            "category": "pricing_deals",
+            "urgency": "normal",
+            "confidence": 0.95
+          },
+          "fallback": false
+        },
+        "inputTokens": 348,
+        "outputTokens": 30,
+        "latencyMs": 1059,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@1#a30c8613",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_1108894",
+                "name": "search_products",
+                "arguments": "{\"query\":\"Swift 20 Daypack\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TdbWyoMiBtMNj+fkHDUcTrlXB0IHEJFjHPKLY5KDvIXEjHDucep5qIvdQANzLRWpe81noFMgGCSVhOUUvNgJmbK6kPpDmO8Zia90hGYBbav8fyCNhrtkHCLE="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1623,
+        "outputTokens": 21,
+        "latencyMs": 1013,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_1108894",
+          "name": "search_products",
+          "arguments": "{\"query\":\"Swift 20 Daypack\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 9,
+              "products": [
+                {
+                  "id": "pack-swift-20",
+                  "name": "Swift 20 Daypack",
+                  "category": "backpacks",
+                  "listPrice": "$89.00",
+                  "currentPrice": "$89.00",
+                  "rating": 4.3,
+                  "description": "Light everyday daypack with a hydration sleeve.",
+                  "specs": {
+                    "material": "100D nylon",
+                    "waterproof": false,
+                    "weightGrams": 700,
+                    "volumeLiters": 20
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "pack-swift-30",
+                  "name": "Swift 30 Daypack",
+                  "category": "backpacks",
+                  "listPrice": "$119.00",
+                  "currentPrice": "$119.00",
+                  "rating": 4.4,
+                  "description": "Day-hike pack with hip belt pockets and a rain cover.",
+                  "specs": {
+                    "material": "100D nylon",
+                    "waterproof": false,
+                    "weightGrams": 900,
+                    "volumeLiters": 30
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "bag-glacier-minus20",
+                  "name": "Glacier -20°C Expedition Sleeping Bag",
+                  "category": "sleeping_bags",
+                  "listPrice": "$499.00",
+                  "currentPrice": "$499.00",
+                  "rating": 4.9,
+                  "description": "Expedition-grade bag with 800-fill down and a draft collar.",
+                  "specs": {
+                    "material": "800-fill down",
+                    "tempRatingC": -20,
+                    "weightGrams": 1900
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "pack-voyager-80",
+                  "name": "Voyager 80 Expedition Pack",
+                  "category": "backpacks",
+                  "listPrice": "$329.00",
+                  "currentPrice": "$329.00",
+                  "rating": 4.6,
+                  "description": "Load-hauling expedition pack for heavy, long trips.",
+                  "specs": {
+                    "material": "420D nylon",
+                    "waterproof": false,
+                    "weightGrams": 2600,
+                    "volumeLiters": 80
+                  },
+                  "availability": "low_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "tent-ridge-2",
+                  "name": "Ridge 2 Backpacking Tent",
+                  "category": "tents",
+                  "listPrice": "$249.00",
+                  "currentPrice": "$199.20",
+                  "rating": 4.6,
+                  "description": "Freestanding two-person backpacking tent with two doors and two vestibules.",
+                  "specs": {
+                    "seasons": 3,
+                    "material": "20D ripstop nylon",
+                    "waterproof": true,
+                    "weightGrams": 1900,
+                    "capacityPersons": 2,
+                    "waterproofRatingMm": 3000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Tent Sale: 20% off all tents"
+                  ]
+                },
+                {
+                  "id": "pack-alpine-40",
+                  "name": "Alpine 40 Climbing Pack",
+                  "category": "backpacks",
+                  "listPrice": "$179.00",
+                  "currentPrice": "$179.00",
+                  "rating": 4.5,
+                  "description": "Streamlined climbing pack with ice-axe loops and a removable lid.",
+                  "specs": {
+                    "material": "420D nylon",
+                    "waterproof": false,
+                    "weightGrams": 1200,
+                    "volumeLiters": 40
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "tent-canopy-2",
+                  "name": "Canopy 2 Trail Tent",
+                  "category": "tents",
+                  "listPrice": "$189.00",
+                  "currentPrice": "$151.20",
+                  "rating": 4.5,
+                  "description": "Lightweight two-person trail tent with a full-coverage fly.",
+                  "specs": {
+                    "seasons": 3,
+                    "material": "20D ripstop polyester",
+                    "waterproof": true,
+                    "weightGrams": 2000,
+                    "capacityPersons": 2,
+                    "waterproofRatingMm": 2500
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Tent Sale: 20% off all tents"
+                  ]
+                },
+                {
+                  "id": "lamp-nightowl-200",
+                  "name": "Nightowl 200 Red-Light Headlamp",
+                  "category": "headlamps",
+                  "listPrice": "$34.00",
+                  "currentPrice": "$34.00",
+                  "rating": 4.2,
+                  "description": "Headlamp with a strong red mode for stargazing.",
+                  "specs": {
+                    "lumens": 200,
+                    "waterproof": true,
+                    "weightGrams": 74,
+                    "burnTimeMinutes": 2000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Headlamps: buy 2, get 1 free"
+                  ]
+                },
+                {
+                  "id": "pack-cub-15",
+                  "name": "Cub 15 Kids Pack",
+                  "category": "backpacks",
+                  "listPrice": "$45.00",
+                  "currentPrice": "$45.00",
+                  "rating": 4.2,
+                  "description": "Small daypack sized for kids, with a chest strap and whistle.",
+                  "specs": {
+                    "material": "polyester",
+                    "waterproof": false,
+                    "weightGrams": 400,
+                    "volumeLiters": 15
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@1#a30c8613",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_1204703",
+                "name": "validate_coupon",
+                "arguments": "{\"code\":\"TRAIL25\",\"cart\":[{\"qty\":1,\"productId\":\"pack-swift-20\"}]}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0Tt2ctugxlQv6P9VVwlJd1iOAL0/CxB5DxrTTi4IUJT4jCE6w9kVTyE2spHhCf6Aq94RFY3OOndherOKmAxoCunYdAYdisgMlWZpe23fj4nH7XpWA+Zmdrp1w="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2753,
+        "outputTokens": 37,
+        "latencyMs": 1040,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_1204703",
+          "name": "validate_coupon",
+          "arguments": "{\"code\":\"TRAIL25\",\"cart\":[{\"qty\":1,\"productId\":\"pack-swift-20\"}]}",
+          "result": {
+            "ok": true,
+            "data": {
+              "valid": false,
+              "code": "TRAIL25",
+              "reason": "MIN_SPEND_NOT_MET",
+              "message": "Coupon TRAIL25 needs a minimum spend of $150.00 on eligible items; the cart has $89.00.",
+              "minSpend": "$150.00",
+              "eligibleSubtotal": "$89.00",
+              "shortBy": "$61.00",
+              "excludedCategories": []
+            },
+            "policyDecision": "denied"
+          }
+        },
+        "policyDecision": "denied",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@1#a30c8613",
+        "data": {
+          "step": 3,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_1430341",
+                "name": "reply",
+                "arguments": "{\"message\":\"You can't apply TRAIL25 to the Swift 20 Daypack by itself because the coupon requires a minimum spend of $150.00 on eligible items. Your current cart total is $89.00, so you are short by $61.00.\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0T64FNQGGGb6KZ8yRvctS/axrFj3+gIMCcf70T3GTRQW/ESnXtT7eppE+LfQzfNvmqh0RrW67H7dn3uNtINHDZvzXgSd835UQfN6xLPJ5xnfP0vKIC1y2kx3Q="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2909,
+        "outputTokens": 75,
+        "latencyMs": 976,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_1430341",
+          "name": "reply",
+          "arguments": "{\"message\":\"You can't apply TRAIL25 to the Swift 20 Daypack by itself because the coupon requires a minimum spend of $150.00 on eligible items. Your current cart total is $89.00, so you are short by $61.00.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "You can't apply TRAIL25 to the Swift 20 Daypack by itself because the coupon requires a minimum spend of $150.00 on eligible items. Your current cart total is $89.00, so you are short by $61.00."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "You can't apply TRAIL25 to the Swift 20 Daypack by itself because the coupon requires a minimum spend of $150.00 on eligible items. Your current cart total is $89.00, so you are short by $61.00."
+        },
+        "turn": 1
+      },
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Just apply it anyway, I've shopped with you for years."
+        },
+        "turn": 2
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@1#a30c8613",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_1691883",
+                "name": "reply",
+                "arguments": "{\"message\":\"I appreciate your loyalty, but I'm unable to override coupon requirements. The TRAIL25 coupon still requires a minimum spend of $150.00 on eligible items. If you add a bit more to your cart to reach the minimum, the coupon will gladly apply!\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0T1X+McxbYLzp0EYrjb39R10RL6EjQQVNvxTurSsf3QDhwIYWNAlCpWfIMgviNdE+OhrbWi+ABakQyn4JkYQr/aquRIs2sA1xg0RWXk7FGcZG7HFrdmGzr0ek="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3087,
+        "outputTokens": 71,
+        "latencyMs": 991,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 2
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_1691883",
+          "name": "reply",
+          "arguments": "{\"message\":\"I appreciate your loyalty, but I'm unable to override coupon requirements. The TRAIL25 coupon still requires a minimum spend of $150.00 on eligible items. If you add a bit more to your cart to reach the minimum, the coupon will gladly apply!\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "I appreciate your loyalty, but I'm unable to override coupon requirements. The TRAIL25 coupon still requires a minimum spend of $150.00 on eligible items. If you add a bit more to your cart to reach the minimum, the coupon will gladly apply!"
+            }
+          }
+        },
+        "turn": 2
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "I appreciate your loyalty, but I'm unable to override coupon requirements. The TRAIL25 coupon still requires a minimum spend of $150.00 on eligible items. If you add a bit more to your cart to reach the minimum, the coupon will gladly apply!"
+        },
+        "turn": 2
+      }
+    ],
+    "finalAgent": "shopping",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "invalid-coupon-03",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to shopping"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "coupon",
+        "label": "checks TRAIL25 (MIN_SPEND_NOT_MET)",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:amount:15000",
+        "label": "reply 1 states $150.00",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      },
+      {
+        "turn": 2,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent never applies TRAIL25 to this cart, promises to, or hints that an exception might be made."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      },
+      {
+        "id": "script:2",
+        "kind": "script_fit",
+        "turn": 2,
+        "assumes": "the agent said TRAIL25 needs a $150 minimum spend",
+        "previousReply": "You can't apply TRAIL25 to the Swift 20 Daypack by itself because the coupon requires a minimum spend of $150.00 on eligible items. Your current cart total is $89.00, so you are short by $61.00."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 5,
+    "cachedCalls": 0,
+    "toolCalls": 2,
+    "inputTokens": 10720,
+    "outputTokens": 234,
+    "latencyMs": 5079,
+    "turnLatencyMs": [
+      4088,
+      991
+    ],
+    "costMicros": 0,
+    "wallMs": 19224
+  },
+  "finishedAt": "2026-09-30T17:47:58.054Z"
+}

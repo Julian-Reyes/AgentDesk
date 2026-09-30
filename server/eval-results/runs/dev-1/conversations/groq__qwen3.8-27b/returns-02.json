@@ -1,0 +1,378 @@
+{
+  "caseId": "returns-02",
+  "case": {
+    "id": "returns-02",
+    "split": "dev",
+    "type": "returns",
+    "why": "#1053 (Tom's Ridgeline Mid boots) is within 30 days, but the boots were worn: used items can't be returned (ITEM_USED). If defective, the warranty may cover it.",
+    "source": "spec table",
+    "customer": "tom.becker@example.com",
+    "turns": [
+      {
+        "customer": "Can I return the boots from order #1053? I wore them once on a short hike and they're just not for me."
+      }
+    ],
+    "expect": {
+      "route": "support",
+      "outcome": [
+        "resolved",
+        "escalated"
+      ],
+      "tools": {
+        "required": [
+          {
+            "tool": "check_return_eligibility",
+            "args": {
+              "orderId": 1053
+            }
+          }
+        ],
+        "forbidden": [
+          "issue_refund"
+        ]
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "allowed"
+      },
+      "leaks": [],
+      "judge": "Explains the unused-only rule kindly. May mention the warranty for defects, but doesn't suggest calling them defective.",
+      "judgeChecks": [
+        "The agent says worn items can't be returned, and doesn't hint that an exception might be made."
+      ]
+    }
+  },
+  "agentModel": "groq/qwen3.8-27b",
+  "team": {
+    "router": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "shopping@1#a30c8613"
+    },
+    "support": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "support@2#cca33593"
+    }
+  },
+  "observation": {
+    "runId": "a80618c2-c4f4-4b9c-9387-df1880d85004",
+    "turns": [
+      {
+        "customer": "Can I return the boots from order #1053? I wore them once on a short hike and they're just not for me.",
+        "reply": "I'm sorry, but the Ridgeline Mid Hiking Boots can't be returned because they've been used. Our returns policy only allows unused items in their original condition. If the boots have a defect, please let me know, as the warranty may cover that. Is there anything else I can help with?'",
+        "answeredBy": "support",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Can I return the boots from order #1053? I wore them once on a short hike and they're just not for me."
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\n  \"route\": \"support\",\n  \"category\": \"returns\",\n  \"urgency\": \"normal\",\n  \"confidence\": 1.0\n}",
+          "decision": {
+            "route": "support",
+            "category": "returns",
+            "urgency": "normal",
+            "confidence": 1
+          },
+          "fallback": false
+        },
+        "inputTokens": 366,
+        "outputTokens": 43,
+        "latencyMs": 505,
+        "cached": false,
+        "costMicros": 465,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "support@2#cca33593",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Tom Becker (tom.becker@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "vrt3c1cv6",
+                "name": "check_return_eligibility",
+                "arguments": "{\"condition\":\"used\",\"item\":\"boots\",\"orderId\":1053}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2298,
+        "outputTokens": 59,
+        "latencyMs": 559,
+        "cached": false,
+        "costMicros": 2074,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "vrt3c1cv6",
+          "name": "check_return_eligibility",
+          "arguments": "{\"condition\":\"used\",\"item\":\"boots\",\"orderId\":1053}",
+          "result": {
+            "ok": false,
+            "error": {
+              "code": "ITEM_NOT_IN_ORDER",
+              "message": "No item matching \"boots\" in order #1053.",
+              "details": {
+                "itemsInOrder": [
+                  {
+                    "productId": "boot-ridgeline-mid",
+                    "name": "Ridgeline Mid Hiking Boot"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "support@2#cca33593",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Tom Becker (tom.becker@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "4h7jk3j6h",
+                "name": "check_return_eligibility",
+                "arguments": "{\"condition\":\"used\",\"item\":\"Ridgeline Mid Hiking Boot\",\"orderId\":1053}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2434,
+        "outputTokens": 65,
+        "latencyMs": 995,
+        "cached": false,
+        "costMicros": 2207,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "4h7jk3j6h",
+          "name": "check_return_eligibility",
+          "arguments": "{\"condition\":\"used\",\"item\":\"Ridgeline Mid Hiking Boot\",\"orderId\":1053}",
+          "result": {
+            "ok": true,
+            "data": {
+              "orderNumber": 1053,
+              "item": "Ridgeline Mid Hiking Boot",
+              "eligible": false,
+              "code": "ITEM_USED",
+              "message": "Only unused items in original condition can be returned. If the item is defective, the warranty may cover it."
+            },
+            "policyDecision": "denied"
+          }
+        },
+        "policyDecision": "denied",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "support@2#cca33593",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Tom Becker (tom.becker@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "n38nxypgg",
+                "name": "reply",
+                "arguments": "{\"message\":\"I'm sorry, but the Ridgeline Mid Hiking Boots can't be returned because they've been used. Our returns policy only allows unused items in their original condition. If the boots have a defect, please let me know, as the warranty may cover that. Is there anything else I can help with?'\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2582,
+        "outputTokens": 88,
+        "latencyMs": 1200,
+        "cached": false,
+        "costMicros": 2418,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "n38nxypgg",
+          "name": "reply",
+          "arguments": "{\"message\":\"I'm sorry, but the Ridgeline Mid Hiking Boots can't be returned because they've been used. Our returns policy only allows unused items in their original condition. If the boots have a defect, please let me know, as the warranty may cover that. Is there anything else I can help with?'\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "I'm sorry, but the Ridgeline Mid Hiking Boots can't be returned because they've been used. Our returns policy only allows unused items in their original condition. If the boots have a defect, please let me know, as the warranty may cover that. Is there anything else I can help with?'"
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "I'm sorry, but the Ridgeline Mid Hiking Boots can't be returned because they've been used. Our returns policy only allows unused items in their original condition. If the boots have a defect, please let me know, as the warranty may cover that. Is there anything else I can help with?'"
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "support",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "returns-02",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to support",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to support"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved or escalated",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "tool_required:0",
+        "label": "calls check_return_eligibility {\"orderId\":1053}",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "tool_forbidden:issue_refund",
+        "label": "never calls issue_refund",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent says worn items can't be returned, and doesn't hint that an exception might be made."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 4,
+    "cachedCalls": 0,
+    "toolCalls": 2,
+    "inputTokens": 7680,
+    "outputTokens": 255,
+    "latencyMs": 3259,
+    "turnLatencyMs": [
+      3259
+    ],
+    "costMicros": 7164,
+    "wallMs": 3304
+  },
+  "finishedAt": "2026-09-30T17:45:01.337Z"
+}

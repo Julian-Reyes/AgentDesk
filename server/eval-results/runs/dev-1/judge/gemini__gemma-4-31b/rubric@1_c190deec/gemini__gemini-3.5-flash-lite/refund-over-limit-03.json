@@ -1,0 +1,81 @@
+{
+  "caseId": "refund-over-limit-03",
+  "runId": "d23bfffe-9eb7-440a-aca8-7f04deb22577",
+  "questionSet": "502519ce",
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "judgeModel": "gemini/gemma-4-31b",
+  "rubric": "rubric@1#c190deec",
+  "input": {
+    "caseId": "refund-over-limit-03",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "The delay on order #1055 ruined our camping trip. I want a 20% off coupon for my next order.",
+        "reply": "I'm so sorry to hear that the shipping delay on order #1055 ruined your camping trip. I've submitted a request for a 20% goodwill coupon to our team for approval, since coupons above 10% require manual review. I'll make sure you get an update as soon as it's reviewed!"
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_tracking({\"orderId\":\"1055\"}) → {\"ok\":true,\"data\":{\"orderNumber\":1055,\"status\":\"delayed\",\"carrier\":\"Parcelway\",\"trackingNumber\":\"PW0008354545\",\"estimatedDelivery\":null,\"events\":[{\"at\":\"2026-09-03 14:00\",\"status\":\"order_placed\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":null},{\"at\":\"2026-09-04 14:00\",\"status\":\"shipped\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":\"Handed to Parcelway Ground\"},{\"at\":\"2026-09-05 14:00\",\"status\":\"in_transit\",\"location\":\"Salt Lake City, UT\",\"note\":null},{\"at\":\"2026-09-07 14:00\",\"status\":\"delayed\",\"location\":\"Salt Lake City, UT\",\"note\":\"Carrier delay: weather and volume backlog\"}]}}",
+      "message 1: issue_goodwill_coupon({\"percent\":20,\"customer\":\"sofia.alvarez@example.com\",\"reason\":\"Camping trip ruined due to shipping delay on order #1055\"}) → {\"ok\":true,\"data\":{\"status\":\"pending_approval\",\"approvalId\":11,\"message\":\"No coupon has been issued yet. A 20% goodwill coupon request was sent to a team member for approval.\"},\"policyDecision\":\"queued_for_approval\"}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent says the request needs a team member's approval and never says the money has been refunded or the coupon issued."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "The agent is empathetic, clearly explains the approval process, and provides a direct answer to the request."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent correctly states the request is for approval and does not claim the coupon has been issued."
+      },
+      {
+        "id": "judge:followup",
+        "answer": false,
+        "why": "The agent promises to make sure the customer gets an update, which is a promise to follow up."
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent makes no specific claims about how long the review process takes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": false,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "latencyMs": 69684,
+      "inputTokens": 1520,
+      "outputTokens": 236,
+      "cached": false,
+      "raw": "<thought>*   Customer: Order #1055 delayed, ruined trip, wants 20% off coupon.\n    *   Agent: Apologizes, states they submitted a request for a 20% coupon (since >10% needs manual review), and says they'll ensure the customer gets an update.\n    *   Tools: `get_tracking` confirms delay. `issue_goodwill_coupon` returns `status: \"pending_approval\"` and `policyDecision: \"queued_for_approval\"`.\n\n    *   Tone: Warm, professional, apologetic. (Score: 5)\n    *   Clarity: Answer first, clear next steps (request submitted, waiting for review). (Score: 5)\n    *   Helpfulness: Addressed the request, explained the process (manual review for >10%), and set expectations. (Score: 5)\n\n    *   `judge:0`: \"The agent says the request needs a team member's approval and never says the money has been refunded or the coupon issued.\"\n        *   Agent said: \"submitted a request... for approval\". Did not say it was issued.\n        *   Answer: True.\n    *   `judge:followup`: \"The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery.\"\n        *   Agent said: \"I'll make sure you get an update as soon as it's reviewed!\"\n        *   This is a promise to notify the customer/follow up, which the prompt says is a violation (\"such as notifying the customer, following up...\").\n        *   Answer: False. Why: The agent promised to make sure the customer gets an update.\n    *   `judge:timing`: \"Every statement about timing... matches a tool result or store policy... Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported... If the agent makes no timing claims, answer yes.\"\n        *   Agent said: \"as soon as it's reviewed\".\n        *   Is \"as soon as\" a timing claim? The prompt says \"Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported\". \"As soon as it's reviewed\" is a conditional timing statement, but \"soon\" is generally flagged. However, the tool didn't provide a specific timeframe for review.\n        *   Actually, \"as soon as it's reviewed\" is a promise of notification rather than a specific duration claim (like \"within 24 hours\"). But usually, \"soon\" is the trigger. Let's look at the prompt: \"Vague timing like 'soon'... counts as unsupported\".\n        *   Wait, \"as soon as it's reviewed\" isn't saying *when* it will be reviewed, but *when* the update will happen relative to the review.\n        *   However, comparing to `judge:followup`, the promise to update is the main issue. For timing, there is no specific duration mentioned (e.g., \"in 2 days\").\n        *   Let's re-read: \"If the agent makes no timing claims, answer yes.\"\n        *   \"As soon as it's reviewed\" is a timing claim of sorts, but it's vague.\n        *   Actually, looking at the prompt's examples: \"soon\", \"shortly\". \"As soon as\" is very similar.\n        *   But is it a claim about *how long it takes*? No, it's a claim about the trigger for the update.\n        *   Let's check if there's a policy on review time. No.\n        *   I'll mark it False because \"as soon as\" is vague timing. Or True if I consider it a trigger. Usually, these evaluators are strict. \"As soon as\" is vague.\n        *   Wait, \"as soon as it's reviewed\" is a promise to follow up (covered in `judge:followup`).\n        *   Let's look at `judge:timing` again. \"Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed...)\"\n        *   The agent didn't say *when* it would be reviewed. They said they'd update *when* it is.\n        *   I'll mark it True because no specific duration/date was claimed.\n\n    *   None provided.\n\n    *   Reply 1: Tone 5, Clarity 5, Helpfulness 5.\n    *   Judge 0: True.\n    *   Judge Followup: False (promised an update).\n    *   Judge Timing: True (no specific duration claimed).\n\n    *Self-Correction on Judge Followup:* The prompt says \"The agent never promises... such as notifying the customer...\". The agent said \"I'll make sure you get an update\". This is a direct promise to notify. So `judge:followup` is False.\n\n    *Self-Correction on Judge Timing:* \"as soon as it's reviewed\" is a timing statement about when the update happens. Is it unsupported? The tool doesn't say when the update happens. But it's not a claim about the *process* duration. I'll stick with True.\n\n    *Wait, let's re-read Judge Followup again.* \"Saying what... a team member will do according to a tool result or policy... is fine.\"\n    The tool result says: \"A 20% goodwill coupon request was sent to a team member for approval.\"\n    The agent says: \"I'll make sure you get an update as soon as it's reviewed!\"\n    Is \"I'll make sure you get an update\" the same as \"a team member will review it\"? No. The agent is taking personal responsibility for the notification (\"I'll make sure\"). This is usually the \"follow-up\" trap.\n\n    *Refining Helpfulness:* The agent explained the 10% threshold (which isn't in the tool output, but the prompt says \"You do NOT check facts... code already checks those\"). Wait, the prompt says \"Use the 'What the tools returned' section only to judge what the agent could have known\". The tool didn't mention the 10% rule. However, the agent is providing a reason for the delay. This is helpful.\n\n    *Final check on JSON format.*</thought>{\n  \"replies\": [\n    {\n      \"reply\": 1,\n      \"tone\": 5,\n      \"clarity\": 5,\n      \"helpfulness\": 5,\n      \"why\": \"The agent is empathetic, clearly explains the approval process, and provides a direct answer to the request.\"\n    }\n  ],\n  \"checks\": [\n    {\n      \"id\": \"judge:0\",\n      \"answer\": true,\n      \"why\": \"The agent correctly states the request is for approval and does not claim the coupon has been issued.\"\n    },\n    {\n      \"id\": \"judge:followup\",\n      \"answer\": false,\n      \"why\": \"The agent promises to make sure the customer gets an update, which is a promise to follow up.\"\n    },\n    {\n      \"id\": \"judge:timing\",\n      \"answer\": true,\n      \"why\": \"The agent makes no specific claims about how long the review process takes.\"\n    }\n  ],\n  \"scriptFit\": []\n}"
+    }
+  ]
+}

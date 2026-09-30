@@ -454,3 +454,40 @@ Julian asked for a pilot before `dev-1`: 5 dev cases (`price-deals-01`, `refund-
   2. `refund-within-limit-01`: "You should see it in your account soon.", an unsupported timing claim. The `"business days"` ban misses this wording; the judge caught it (helpfulness 4, "invented a timeline").
 - **Speed:** Flash-Lite took 8.7 s per call at p50 and **51.5 s at p95**. The two-message `returns-01` took 4 minutes. The agents stage took ~8.5 minutes against a 6-minute estimate; Gemma took 47–63 s per verdict, as measured before. Tokens came to 45K in and 1K out, against the estimate's 51K and 3.9K.
 - **Size:** ~29 KB per conversation, judge verdict included. So a dev run (120 conversations) is ≈ 3.5 MB and a full test run (330) ≈ 10 MB. The replay cache and `judged.jsonl` stay out of git.
+
+### Global judge checks, judge retries, and `dev-1` (2026-09-30), paused here
+**Done and committed:**
+- **Groq Developer plan,** capped at $8/month by a hard spend limit (Julian's decision). The rule is in CLAUDE.md and the spec. Groq prices are in the model config, so runs record real cost. The paid limits were confirmed from the API's headers.
+- **Two global judge checks on every conversation** (wording approved): no promises of follow-up actions the agent can't do, and no unsupported timing claims. The second replaces the "business days" phrase ban.
+- **Supporting changes:**
+  - saved runs are re-graded by the current grader (code only)
+  - verdicts are tagged with their question set
+  - the judge sees tool results up to 1,500 characters
+  - judge input is ASCII-normalized
+  - judge models run at temperature 0, as the rubric specifies
+- **Slower retry passes for judge provider errors** (1 min, then 3 min), with a warning when more than 10% of conversations are unjudged.
+- **`pilot-1` re-judged:** 3 pass / 2 fail. The judge correctly flagged "I'll let you know once it's approved" (follow-up) and "you should see it soon" (timing).
+
+**Where `dev-1` stands** (`server/eval-results/runs/dev-1/`, 2.9 MB):
+- **Agents stage: complete.** 40 dev cases × 3 models (Gemini 3.5 Flash-Lite, Groq gpt-oss-120b, Groq qwen3.8-27b), 120 conversations. Groq cost $0.41 in total ($0.05 gpt-oss, $0.36 Qwen), against an estimate of $0.50–1.13. No provider errors.
+- **Judge stage: 70 of 120 conversations judged by Gemma 4 31B, 50 without a verdict.**
+  - 29 of 99 attempts ended in HTTP 500s from Gemma's free endpoint (29%), each after 4 quick retries.
+  - The last 21 conversations were never reached: the run was stopped by the session's 2-hour background-command limit, before the slower retry passes ran.
+  - That's far above Julian's 10% threshold.
+- **Pending Julian's approval: switch the judge to `groq/gpt-oss-20b`.**
+  - Reliable on Groq's paid tier, ~1 s per call, ~$0.03–0.05 for all 120.
+  - Caveat: same family as gpt-oss-120b. Julian's 30-reply blind grading measures that bias per model.
+  - The proposal is to re-judge all 120 with gpt-oss-20b, so the run isn't split across two judges: `npm run eval:judge -- --name dev-1 --judge groq/gpt-oss-20b`. It shows the estimate and asks first.
+  - The 70 Gemma verdicts stay on disk under their own judge folder, for comparing the two judges.
+- **Preliminary numbers** (`report.md`, rebuilt from the saved files, **incomplete** because 50 conversations lack verdicts):
+  - Routing: 100% for all three models.
+  - Code checks pass: Flash-Lite 37/40, gpt-oss 32/40, Qwen 30/40.
+  - **gpt-oss-120b: 5 policy violations. Not yet reviewed:** read those conversations first next session.
+  - Grounding violations: 1 (Qwen).
+  - These are dev-set numbers, for tuning only. Reported results come from the test set.
+
+**Next session:**
+1. Julian decides on the judge switch, then judge `dev-1`.
+2. Review gpt-oss's 5 policy violations and the failures in the report.
+3. Julian's 30-reply blind grading (`npm run judge:sample -- --from server/eval-results/runs/dev-1/judged.jsonl --out <dir>`).
+4. Prompt tuning on the dev set.
