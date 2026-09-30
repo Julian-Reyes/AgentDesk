@@ -13,7 +13,7 @@ export const STOCK = defineCases([
     turns: [
       {
         customer: "Do you have the Squall rain jacket in size M, green?",
-        reply: { mentions: [["in stock", "available", "we have", "3 left", "three left"]], avoids: OUT_OF_STOCK },
+        reply: { mentions: [["in stock", "3 left", "three left", "3 available", "three available", "3 units"]], avoids: OUT_OF_STOCK },
       },
     ],
     expect: {
@@ -23,6 +23,7 @@ export const STOCK = defineCases([
         required: [{ anyOf: [{ tool: "check_stock", args: { productId: "jacket-squall" } }, { tool: "get_product", args: { id: "jacket-squall" } }] }],
       },
       effects: { escalation: "forbidden" },
+      judgeChecks: ["The agent says the Squall Rain Jacket in M, green is in stock."],
       judge: "Yes, in stock, and ideally that only a few are left.",
     },
   },

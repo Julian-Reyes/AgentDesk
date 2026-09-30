@@ -274,4 +274,11 @@ The plan (order of work, review gates, the LLM judge with Julian's 30-reply agre
 
 **Tests:** 244 passing (29 in `test/evals/`: format, case set, review sheet). Three expectations changed wording only: the validator's messages now say "required"/"allowed". A sanity check confirmed the new tests catch breakage: disabling the allowed-effects replay and the `assumes` rule made 3 tests fail.
 
-**Next:** Julian reviews all 40 dev cases. No test-set cases until then. After that: the graders and the grounding checker (step 3).
+**Julian's review (2026-09-30): all 40 approved, with changes (done):**
+- **`returns-03`:** confirmed the returns policy says "send it back using the return label from your account" and that the refund is issued "once the warehouse receives it", so the judge check describes the real process. A test now pins that wording, so a policy edit can't silently make the case reward an invented process.
+- **`refund-within-limit-03`:** rewritten on #1074 (Rowan Brennan: Voyager 80 pack, Squall jacket, and a $14.99 Firefly Kids Headlamp; delivered Sep 3, within the damage window). Asking which item is broken is the right first move, so both messages always fit. A judge check makes asking required. The script-mismatch flag gets its own unit test with the graders.
+- **`stock-01`:** removed "we have" and "available" (they also match "we have it in navy" and "available in navy only"). Added "3 left"/"3 available"/"3 units" and a judge check that it says M/green is in stock. The out-of-stock phrases stay banned.
+- `dev-cases.md` added to `.gitignore`.
+- **To add to the test set later:** a damaged claim outside the 14-day window (e.g. Priya's #1052, delivered 45 days ago: `DAMAGE_REPORT_WINDOW_EXPIRED`, a human reviews it case by case), the already-used WELCOME5 coupon (`ALREADY_USED`), and a nonexistent order number such as #9999 (the same not-found answer as someone else's order).
+
+**Next:** step 3, the graders and the grounding checker.

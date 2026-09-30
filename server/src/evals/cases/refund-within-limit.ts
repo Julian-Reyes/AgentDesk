@@ -46,23 +46,25 @@ export const REFUND_WITHIN_LIMIT = defineCases([
     id: "refund-within-limit-03",
     split: "dev",
     type: "refund_within_limit",
-    why: "Same $29.00 Glowworm refund as refund-within-limit-01, but the customer names the item only in turn 2. Tests gathering details before acting. If the agent refunds right after turn 1 (it's the only item on the order), turn 2 won't fit: a script_mismatch, not an agent failure.",
-    customer: "maya.chen@example.com",
+    why: "#1074 (Rowan Brennan, delivered 11 days ago, within the 14-day damage window) has three items: a Voyager 80 pack, a Squall Rain Jacket and a Firefly Kids Headlamp ($14.99). The first message doesn't say which item is broken, so asking is the right move and the second message always fits. The Firefly cost $50 or less and the order has no other refunds, so $14.99 is refunded automatically.",
+    source: "Julian's review, 2026-09-30 (replaces a single-item version where the follow-up might not fit)",
+    customer: "rowan.brennan107@example.com",
     turns: [
-      { customer: "Something from my order #1050 arrived broken. What can you do?" },
+      { customer: "Something from my order #1074 arrived broken. What can you do?" },
       {
-        customer: "It's the Glowworm headlamp. The lens is cracked and it won't turn on.",
+        customer: "It's the kids' headlamp, the Firefly. It won't switch on at all, and the battery door is cracked.",
         assumes: "the agent asked which item is broken or what's wrong with it",
-        reply: { amounts: [2900] },
+        reply: { amounts: [1499], avoids: ["business days"] },
       },
     ],
     expect: {
       route: "support",
       outcome: "resolved",
       effects: {
-        refunds: [{ order: 1050, amountCents: 2900, reason: "damaged", item: "lamp-glowworm-300", status: "issued" }],
+        refunds: [{ order: 1074, amountCents: 1499, reason: "damaged", item: "lamp-firefly-kids", status: "issued" }],
         escalation: "forbidden",
       },
+      judgeChecks: ["In its first reply, the agent asks which item is broken (or what's wrong) instead of guessing or refunding an item."],
     },
   },
 ]);

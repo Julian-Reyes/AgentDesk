@@ -53,7 +53,7 @@ export const RETURNS = defineCases([
     id: "returns-03",
     split: "dev",
     type: "returns",
-    why: "#1043 (Daniel's Swift 30) was delivered 10 days ago and is unused: eligible until 2026-10-05. The customer sends it back with the label from their account; the warehouse refunds on receipt. The agent can't process a return itself.",
+    why: "#1043 (Daniel's Swift 30) was delivered 10 days ago and is unused: eligible until 2026-10-05. The returns policy (get_policy \"returns\") says to send it back with the return label from the account and that the refund is issued once the warehouse receives it (a test checks the policy still says so). The agent can't process a return itself.",
     source: "manual testing 2026-09-29 (support@1 said it would process the return)",
     customer: "daniel.okafor@example.com",
     turns: [
