@@ -36,6 +36,8 @@ Every number below comes from the provider's **official docs**. Third-party blog
   | Gemma 4 26B, Gemma 4 31B (open models, served via the Gemini API) | 30 | 16K |
   | Gemini 2 Flash, 2 Flash Lite, 2.5 Pro, 3.1 Pro | 0 (no free access) | 0 |
 
+- **Gemma 4 31B (`gemma-4-31b-it`), the LLM judge (Julian's choice, 2026-09-30).** Model id confirmed from the API's own model list. Account limits: 30 RPM, 16K TPM (the table above); daily limit unknown. **First real call (2026-09-30, one judge request, rubric@1):** valid JSON in JSON mode, but it's **preceded by a `<thought>...</thought>` block**, which the judge strips before parsing. **62.6 s latency**, 1,115 input and 248 output tokens. At that speed, ~160 judge calls for a 40-case × 4-model dev run take ~3 hours.
+- **Groq `openai/gpt-oss-20b`**: the second judge, on Julian's 30 check replies only. Model id confirmed from Groq's model list. Same free limits as the other Groq models (30 RPM, 1,000 RPD, 8K TPM, 200K TPD), with its own quota. Not called yet.
 - **Daily limits can't be looked up.** Successful responses carry no rate-limit headers (checked 2026-09-29 with one call each to `gemini-3.5-flash-lite` and `gemini-3.1-flash-lite`, both HTTP 200). The only source is the 429 error once a daily quota runs out, which is how the 20/day for 3.8 Flash was found.
 - **Availability:** `gemini-3.8-flash` returned frequent **503 "This model is currently experiencing high demand"** errors on 2026-09-29.
 - Client handling: the rate limiter keeps every attempt (retries included) under 5/min; per-minute 429s are retried using Gemini's retry hint from the error body (it sends no `Retry-After` header); a 429 that names a daily quota fails fast.

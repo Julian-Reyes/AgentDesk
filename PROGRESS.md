@@ -338,4 +338,42 @@ All code only. Tests use the fake provider with the real loop and real tools.
 
 Sanity check: turning off price grounding, the leak check or the unexpected-coupon check makes 3, 1 and 1 tests fail.
 
-**Next:** step 4, the LLM judge. That means a rubric for reply quality (reviewed by Julian, versioned like the prompts), the yes/no answers to judge checks and script-fit questions, and a tool for Julian to score 30 replies blind to the judge. Then step 5, the runner.
+### Step 4: the LLM judge and Julian's blind grading tool (2026-09-30)
+**Decisions (Julian, 2026-09-30):**
+- **Judge: Gemma 4 31B** (`gemini/gemma-4-31b`), because it isn't an agent under test.
+- **Second judge: Groq `gpt-oss-20b`** (`groq/gpt-oss-20b`), on the 30 check replies only.
+- **A paid judge from outside all four families** stays a possible later confirmation run, with a cost estimate first.
+- **Why two free judges:** every free option shares a family with an agent (Gemma with Gemini Flash-Lite, gpt-oss-20b with gpt-oss-120b). Bias is therefore measured, not assumed away: agreement with Julian is reported per agent model, and a judge that agrees less on its own family's replies shows up there.
+- **Rubric `rubric@1` approved** (`docs/JUDGE_RUBRIC.md`, code in `server/src/evals/judge/rubric.ts`, versioned like the prompts):
+  - scores each reply, not each conversation
+  - the judge sees what the tools returned
+  - on judge checks, "if unclear, answer no", with a one-line reason
+
+**The judge** (`server/src/evals/judge/judge.ts`):
+- One call per conversation. It scores every agent reply 1–5 (tone, clarity, helpfulness) and answers the judge checks and script-fit questions yes/no.
+- It sees the conversation, a one-line-per-call summary of what the tools returned (the `reply` tool left out, each result trimmed to 600 characters), and the case's note on a good answer.
+- It doesn't see the code-check results or the model's name. A test checks that no model name appears in its input.
+- The output is validated with Zod, plus completeness: every reply scored once, and every question answered once with no extras. On invalid output it retries once, stating the problem, then gives up; the case is then `judge_failed`.
+- Its yes/no answers feed `finalizeGrade()`.
+
+**The one real test call** (Julian approved it): Gemma 4 31B returned valid JSON with sensible answers on a script-mismatch example. It said "no" to "asks which item" and "no" to the script fit, and gave reply 2 a tone score of 2 for being dismissive. It took **62.6 s**, using 1,115 input and 248 output tokens. It **writes a `<thought>` block before the JSON** even in JSON mode, so thought blocks are now stripped before parsing (tested with braces inside). Details are in `docs/FREE_TIERS.md`.
+
+**Julian's blind grading tool:**
+- `npm run judge:sample -- --from <judged.jsonl> --out <dir>` draws 30 replies:
+  - round-robin across the agent models (7–8 each)
+  - at most one reply per conversation
+  - seeded, and shuffled so the order says nothing about the model
+- It writes two files. `sample.json` is what Julian sees: the judge's exact inputs, with no model names and no scores. `key.json` holds the models, run ids and judge scores, and the grading tool never reads it. A draw is refused if one already exists in that directory.
+- `npm run judge:grade -- <dir>` shows each reply with the same inputs as the judge (conversation, tool summary, the note on a good answer), marks the reply to grade, and asks the three scores, the same yes/no questions, and an optional note. It saves after every item; type `q` to stop and rerun to resume.
+- `npm run judge:agreement -- <dir> --second-judge groq/gpt-oss-20b` needs every item graded. It runs the second judge on the sampled conversations only (resumable), then writes `agreement.md` with:
+  - exact and within-±1 agreement per dimension
+  - the mean difference
+  - yes/no agreement
+  - all with Wilson 95% CIs, overall and **per agent model**, for judge vs Julian, second judge vs Julian, and judge vs judge.
+- The `--from` file (judged conversations, one per line) comes from the eval runner, step 5. So Julian's grading happens after the first dev run.
+
+**Tests:** 302 passing (17 new):
+- `test/evals/judge.test.ts`: input building, the no-model-names check, retries and give-up, thought stripping, feeding `finalizeGrade`.
+- `test/evals/judge-sample.test.ts`: stratification, blindness, reproducibility, the Wilson CI against known values, agreement maths, and an **end-to-end run of the real commands**: draw, grade with piped answers, stop, resume, refuse agreement until done, report.
+
+**Next:** step 5, the runner. It covers the per-conversation store reset, checkpoint and resume, the rate limiter, progress/ETA, the preflight estimate, judging each conversation, and writing the judged-conversations file the grading tool reads.
