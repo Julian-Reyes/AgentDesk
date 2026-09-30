@@ -376,4 +376,63 @@ Sanity check: turning off price grounding, the leak check or the unexpected-coup
 - `test/evals/judge.test.ts`: input building, the no-model-names check, retries and give-up, thought stripping, feeding `finalizeGrade`.
 - `test/evals/judge-sample.test.ts`: stratification, blindness, reproducibility, the Wilson CI against known values, agreement maths, and an **end-to-end run of the real commands**: draw, grade with piped answers, stop, resume, refuse agreement until done, report.
 
-**Next:** step 5, the runner. It covers the per-conversation store reset, checkpoint and resume, the rate limiter, progress/ETA, the preflight estimate, judging each conversation, and writing the judged-conversations file the grading tool reads.
+### Step 5: the eval runner (2026-09-30)
+Julian's requirements, all built:
+- the judge runs by default
+- judging is a separate stage with cached results
+- `--no-judge` for quick iterations
+- the first dev run uses the three cloud models
+- a per-model preflight estimate that includes daily limits, shown before any real run
+
+**Commands:**
+- **`npm run eval:run -- --name dev-1`** runs the dev split on `gemini/gemini-3.5-flash-lite`, `groq/gpt-oss-120b` and `groq/qwen3.8-27b`, then judges with `gemini/gemma-4-31b`.
+  - Options: `--no-judge`, `--split`, `--models`, `--cases`, `--judge`, `--yes`, `--estimate-only`, `--rerun-errors`.
+  - It always prints the estimate and asks `Start? [y/N]` first. Without a terminal and without `--yes`, it never starts.
+- **`npm run eval:judge -- --name dev-1 [--judge …] [--force]`** judges or re-judges a saved run **without replaying any agent calls**. It shows its own estimate and asks first.
+- **`npm run eval:report -- --name dev-1 [--no-judge]`** rebuilds the report from the saved files.
+
+**How it works** (`server/src/evals/runner/`):
+- **Agents stage:**
+  - Each (model, case) conversation runs in its own **rolled-back transaction**, so every case starts from the seeded store. A test checks that a refund made during a case is gone afterwards.
+  - Traces go to Postgres through a separate connection, so they survive the rollback.
+  - Models run **in parallel** (separate quotas), one case at a time per model, with progress and ETA per model. Throttle waits of 5 s or more are printed.
+- **Checkpoints = files:**
+  - Each finished conversation is written atomically to `eval-results/runs/<name>/conversations/<model>/<case>.json`. It holds the observation, the code grade, the stats, and a **snapshot of the case**, so later case edits can't change how the run is judged.
+  - Rerunning the same `--name` resumes.
+  - A **daily-quota error** stops only that model: the case isn't saved (it isn't a result), and the others carry on.
+- **Provider errors** (unreachable, 5xx) are marked on the conversation, reported separately, and left out of task success. `--rerun-errors` retries them. A model that only produced unparseable output is *not* a provider error; that's the model's failure.
+- **Judge stage:**
+  - Verdicts are cached per conversation under `judge/<judge model>/<rubric version>/`. So a new judge or rubric gets its own verdicts, and nothing is re-judged unless `--force`.
+  - Each verdict records the conversation's run id, so a re-run conversation never inherits an old verdict.
+  - Provider trouble during judging is retried on the next run. Invalid judge output after one retry is `judge_failed`.
+- **Report** (`report.md`), per model:
+  - statuses: pass, fail, script mismatch, judge pending, judge failed, provider error
+  - **task success** (pass ÷ pass+fail, with a Wilson 95% CI), next to a code-only pass rate for `--no-judge` runs
+  - routing accuracy, and success for router/shopping/support cases
+  - policy violations, grounding violations, forbidden attempts
+  - escalation rate
+  - average model and tool calls, latency per turn and per call (p50/p95; the model's own time, without our throttle waits)
+  - tokens, cached calls, cost
+  - tool-call health
+  - judge quality means with 95% CIs, and the share of replies scoring ≤ 2
+  - the most common failures, with case ids
+  - a case × model table
+
+  It also writes `judged.jsonl`, the input for `npm run judge:sample`.
+- **Preflight estimate** (`estimate.ts`), per model:
+  - calls, tokens, and the time each per-minute limit needs (requests/min, tokens/min, the model's own speed)
+  - the share of each **daily** limit ("unknown" for Gemini)
+  - the time needed and the **bottleneck**
+  - cost
+  - a judge row
+
+  The per-conversation figures come from the M2 measurements (qwen's ~1.5× tokenizer, Flash-Lite's 13 s p50, Gemma's 62.6 s) and switch to the run's own averages after 5 finished conversations. Retries aren't included.
+- **Config:** the daily limits `rpd`/`tpd` were added to model configs, for the estimate only: Groq 1,000 requests and 200K tokens per day, Gemini 3.8 Flash 20 requests per day, Flash-Lite and Gemma unknown.
+
+**Tests:** 316 passing (14 new):
+- `test/evals/estimate.test.ts`: case-shape costs, the tokenizer and speed factors, the daily-limit bottleneck, switching to measured averages, the judge row, rendering.
+- `test/evals/runner.test.ts` (DB, fake models): two models side by side, a daily quota stopping one of them cleanly, resuming only what's missing, rollback, judge caching, `--force`, and a new judge or rubric getting its own verdicts. Also `--no-judge` showing *judge pending* and staying out of task success, the stale-verdict guard, and telling provider errors from model failures.
+
+**Not committed yet: run results.** `server/eval-results/` isn't gitignored. Committing a run's files would let anyone check the reported numbers, and they hold only fictional data; that's Julian's call when the first run is done.
+
+**Next:** Julian approves the first dev run from the estimate, then runs `npm run eval:run -- --name dev-1` (it asks before starting).

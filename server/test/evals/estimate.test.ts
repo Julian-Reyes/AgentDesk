@@ -1,0 +1,73 @@
+import { describe, expect, it } from "vitest";
+import { ALL_CASES } from "../../src/evals/cases/index.ts";
+import { caseCost, estimateAgents, estimateJudge, renderEstimate } from "../../src/evals/runner/estimate.ts";
+import { getModelConfig } from "../../src/llm/config.ts";
+
+const byId = (id: string) => ALL_CASES.find((c) => c.id === id)!;
+const dev = ALL_CASES.filter((c) => c.split === "dev");
+const env = { GEMINI_API_KEY: "x", GROQ_API_KEY: "x" };
+const cfg = (id: string) => getModelConfig(id, undefined, env);
+
+describe("per-conversation cost from the case's shape", () => {
+  it("a Router-only case is one call per message", () => {
+    expect(caseCost(byId("out-of-scope-01"), "groq/gpt-oss-120b")).toMatchObject({ calls: 1, inputTokens: 420 });
+  });
+
+  it("an agent case: router + ~3.5 agent calls per message, later messages carry more context", () => {
+    const one = caseCost(byId("order-status-01"), "groq/gpt-oss-120b");
+    expect(one).toMatchObject({ calls: 4.5, inputTokens: 420 + 3.5 * 1600, latencyMs: 4.5 * 600 });
+    const two = caseCost(byId("returns-01"), "groq/gpt-oss-120b");
+    expect(two.inputTokens).toBe(420 + 3.5 * 1600 + 3.5 * 1600 * 1.6);
+  });
+
+  it("uses each model's measured tokenizer and speed", () => {
+    expect(caseCost(byId("order-status-01"), "groq/qwen3.8-27b").inputTokens).toBe(Math.round((420 + 5600) * 1.5));
+    expect(caseCost(byId("order-status-01"), "gemini/gemini-3.5-flash-lite").latencyMs).toBe(4.5 * 13000);
+  });
+});
+
+describe("time and the bottleneck, per model", () => {
+  it("Groq: the daily token limit decides, and the dev set needs more than one day", () => {
+    const e = estimateAgents(cfg("groq/qwen3.8-27b"), dev, []);
+    expect(e.conversations).toBe(40);
+    expect(e.days.tokens!).toBeGreaterThan(1);
+    expect(e.daysNeeded).toBe(Math.ceil(e.days.tokens!));
+    expect(e.bottleneck).toBe("tokens/day (200,000)");
+  });
+
+  it("Gemini Flash-Lite: daily limit unknown; model speed is the per-minute bottleneck", () => {
+    const e = estimateAgents(cfg("gemini/gemini-3.5-flash-lite"), dev, []);
+    expect(e.daysNeeded).toBeNull();
+    expect(e.bottleneck).toBe("model speed (latency)");
+    expect(e.activeMinutes).toBe(e.minutes.latency);
+    expect(e.minutes.latency).toBeGreaterThan(e.minutes.requests!);
+  });
+
+  it("switches to the run's own averages once 5 conversations are finished", () => {
+    const finished = Array.from({ length: 5 }, () => ({ calls: 4, inputTokens: 5000, outputTokens: 200, latencyMs: 2000 }));
+    const e = estimateAgents(cfg("groq/gpt-oss-120b"), dev.slice(0, 10), finished);
+    expect(e).toMatchObject({ calls: 40, inputTokens: 50000, outputTokens: 2000, source: "this run's 5 finished conversations" });
+    expect(estimateAgents(cfg("groq/gpt-oss-120b"), dev.slice(0, 10), finished.slice(0, 4)).source).toMatch(/M2 measurements/);
+  });
+
+  it("nothing left to run means nothing to wait for", () => {
+    expect(estimateAgents(cfg("groq/gpt-oss-120b"), [], [])).toMatchObject({ calls: 0, activeMinutes: 0, daysNeeded: 1 });
+  });
+
+  it("the judge: one call per conversation at Gemma's measured speed", () => {
+    const e = estimateJudge(cfg("gemini/gemma-4-31b"), 120);
+    expect(e).toMatchObject({ role: "judge", calls: 120, inputTokens: 180000 });
+    expect(e.minutes.latency).toBeCloseTo((120 * 62.6) / 60);
+    expect(e.bottleneck).toBe("model speed (latency)");
+  });
+
+  it("renders one row per model, the parallel total, and the unknown daily limits", () => {
+    const text = renderEstimate([...["gemini/gemini-3.5-flash-lite", "groq/gpt-oss-120b"].map((m) => estimateAgents(cfg(m), dev, [])), estimateJudge(cfg("gemini/gemma-4-31b"), 80)]);
+    expect(text).toMatch(/\| gemini\/gemini-3\.5-flash-lite \(agents\) \| 40 \|/);
+    expect(text).toMatch(/\| groq\/gpt-oss-120b \(agents\) \| 40 \|.*% of tok\/day/);
+    expect(text).toMatch(/\| gemini\/gemma-4-31b \(judge\) \| 80 \|/);
+    expect(text).toContain("Agents run in parallel");
+    expect(text).toContain("Daily limit unknown for gemini/gemini-3.5-flash-lite, gemini/gemma-4-31b");
+    expect(text).toContain("$0.00");
+  });
+});

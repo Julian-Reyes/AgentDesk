@@ -39,6 +39,10 @@ export const ModelConfigSchema = z.object({
   rpm: z.number().int().positive().optional(),
   /** Throttle: at most this many tokens (input + output) per minute. */
   tpm: z.number().int().positive().optional(),
+  /** Free-tier requests per day, for the preflight estimate only (not enforced; a daily-quota 429 fails fast). Omitted = unknown. */
+  rpd: z.number().int().positive().optional(),
+  /** Free-tier tokens per day, for the preflight estimate only. Omitted = unknown. */
+  tpd: z.number().int().positive().optional(),
 });
 export type ModelConfig = z.infer<typeof ModelConfigSchema>;
 
