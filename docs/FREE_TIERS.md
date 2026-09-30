@@ -49,6 +49,12 @@ Every number below comes from the provider's **official docs**. Third-party blog
 - Data: "By default, Groq does not retain customer data for inference requests" (except up to 30 days for reliability/abuse monitoring). The docs don't say whether data is used for training.
 - Sources: [rate limits](https://console.groq.com/docs/rate-limits), [OpenAI compatibility](https://console.groq.com/docs/openai), [tool use](https://console.groq.com/docs/tool-use), [your data](https://console.groq.com/docs/your-data).
 
+### Groq paid tier (Developer plan): checked 2026-09-30, not signed up
+- **Prices per million tokens** (Groq model pages and the models table): `openai/gpt-oss-120b` **$0.15 input** (cached input $0.075) / **$0.60 output**; `qwen/qwen3.8-27b` **$0.80 input / $4.00 output**.
+- **Developer plan limits** (models table, "DEVELOPER PLAN" columns): **250K TPM and 1K RPM** for both models. No daily limits are listed. The rate-limits page calls these "base limits" and points to the account's limits page for the exact values.
+- **Spend limit:** Settings → Billing → Limits → Add Limit (monthly, USD), with email alerts at 50/75/90%. It's a **hard cap**: requests are blocked with HTTP 400 `blocked_api_access` until the next billing cycle or a higher limit. Spend tracking lags **10–15 minutes**, so usage can slightly exceed the limit. It needs a paid-tier account and organization-owner permission. Upgrade at Settings → Billing → Plans.
+- Sources: [models](https://console.groq.com/docs/models), [gpt-oss-120b](https://console.groq.com/docs/model/openai/gpt-oss-120b), [qwen3.8-27b](https://console.groq.com/docs/model/qwen/qwen3.8-27b), [rate limits](https://console.groq.com/docs/rate-limits), [spend limits](https://console.groq.com/docs/spend-limits).
+
 ### GitHub Models
 - Closed to new customers 2026-06-16, fully retired 2026-07-30 (playground, catalog and inference API all gone).
 - Sources: [retirement announcement](https://github.blog/changelog/2026-07-01-github-models-is-being-fully-retired-on-july-30-2026/), [now retired](https://github.blog/changelog/2026-07-30-github-models-is-now-retired/).

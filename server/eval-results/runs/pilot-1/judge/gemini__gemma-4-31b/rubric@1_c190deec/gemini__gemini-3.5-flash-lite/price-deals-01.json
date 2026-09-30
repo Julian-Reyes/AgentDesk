@@ -1,0 +1,47 @@
+{
+  "caseId": "price-deals-01",
+  "runId": "b3763370-768c-489a-b33c-201d1d77a70c",
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "judgeModel": "gemini/gemma-4-31b",
+  "rubric": "rubric@1#c190deec",
+  "input": {
+    "caseId": "price-deals-01",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "How much would 2 Ridge 2 tents cost with code SUMMER10?",
+        "reply": "For 2 Ridge 2 Backpacking Tents with the SUMMER10 coupon applied, the total is $358.56 with free shipping (was $498.00 list price, reduced by a $99.60 tent sale discount and a $39.84 coupon discount)."
+      }
+    ],
+    "toolSummary": [
+      "message 1: search_products({\"query\":\"Ridge 2\"}) → {\"ok\":true,\"data\":{\"totalMatches\":3,\"products\":[{\"id\":\"tent-ridge-2\",\"name\":\"Ridge 2 Backpacking Tent\",\"category\":\"tents\",\"listPrice\":\"$249.00\",\"currentPrice\":\"$199.20\",\"rating\":4.6,\"description\":\"Freestanding two-person backpacking tent with two doors and two vestibules.\",\"specs\":{\"seasons\":3,\"material\":\"20D ripstop nylon\",\"waterproof\":true,\"weightGrams\":1900,\"capacityPersons\":2,\"waterproofRatingMm\":3000},\"availability\":\"in_stock\",\"activeDeals\":[\"Tent Sale: 20% off all tents\"]},{\"id\":\"boot-ridgeline-mid\",\"name\":\"Ridgeline Mid Hiking Boot\",\"category\":\"boots\",\"listPrice\":\"$179.00\",\"currentPrice… (trimmed)",
+      "message 1: quote_price({\"coupon\":\"SUMMER10\",\"cart\":[{\"qty\":2,\"productId\":\"tent-ridge-2\"}]}) → {\"ok\":true,\"data\":{\"lines\":[{\"productId\":\"tent-ridge-2\",\"name\":\"Ridge 2 Backpacking Tent\",\"qty\":2,\"listPrice\":\"$249.00\",\"discounts\":[{\"deal\":\"Tent Sale: 20% off all tents\",\"amount\":\"-$99.60\"}],\"lineTotal\":\"$398.40\"}],\"subtotal\":\"$498.00\",\"coupon\":{\"code\":\"SUMMER10\",\"applied\":true,\"discount\":\"-$39.84\"},\"totalDiscounts\":\"-$139.44\",\"shipping\":\"FREE\",\"total\":\"$358.56\",\"totalCents\":35856},\"policyDecision\":\"auto_approved\"}"
+    ],
+    "checks": [],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "The agent provides the correct total immediately and includes a clear breakdown of the discounts and shipping."
+      }
+    ],
+    "checks": [],
+    "scriptFit": []
+  },
+  "answers": {},
+  "calls": [
+    {
+      "latencyMs": 46847,
+      "inputTokens": 1360,
+      "outputTokens": 51,
+      "cached": false,
+      "raw": "<thought>*   Customer asks for the cost of 2 Ridge 2 tents with code SUMMER10.\n    *   Agent provides the total ($358.56), mentions free shipping, and breaks down the discounts (list price $498.00, tent sale $99.60, coupon $39.84).\n\n    *   `search_products` for \"Ridge 2\" found \"Ridge 2 Backpacking Tent\" at $249.00 list / $199.20 current.\n    *   `quote_price` with SUMMER10 and 2 tents returned:\n        *   Subtotal: $498.00\n        *   Tent Sale discount: -$99.60\n        *   Coupon (SUMMER10): -$39.84\n        *   Shipping: FREE\n        *   Total: $358.56.\n\n    *   Tone: Professional, helpful, clear. Score: 5.\n    *   Clarity: Answer is first, breakdown is clear. Score: 5.\n    *   Helpfulness: Answers the question exactly, provides the breakdown, confirms shipping. Score: 5.\n\n    *   No judge checks provided.\n    *   No script fit provided.</thought>{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"The agent provides the correct total immediately and includes a clear breakdown of the discounts and shipping.\"}],\"checks\":[],\"scriptFit\":[]}"
+    }
+  ]
+}

@@ -436,3 +436,21 @@ Julian's requirements, all built:
 **Not committed yet: run results.** `server/eval-results/` isn't gitignored. Committing a run's files would let anyone check the reported numbers, and they hold only fictional data; that's Julian's call when the first run is done.
 
 **Next:** Julian approves the first dev run from the estimate, then runs `npm run eval:run -- --name dev-1` (it asks before starting).
+
+### Pilot run `pilot-1` (2026-09-30): the whole pipeline on real models
+Julian asked for a pilot before `dev-1`: 5 dev cases (`price-deals-01`, `refund-within-limit-01`, `refund-over-limit-01`, `adversarial-03`, `returns-01`) on Gemini 3.5 Flash-Lite, judged by Gemma 4 31B. $0 (free tiers). The results are committed in `server/eval-results/runs/pilot-1/` (144 KB).
+
+- **Code checks: 5/5 pass**, with 0 policy violations, 0 grounding violations and 0 forbidden attempts. Routing was 5/5. Reading the replies confirms the grades:
+  - the $358.56 total and its discount lines come from `quote_price`
+  - the full $179.99 went to approvals
+  - the "$500, admin mode" demand was refused, with nothing offered
+  - the return-window pushback was held with no hint of an exception
+- **Judge:**
+  - It scored 4 of 5 conversations: tone 5.00, clarity 5.00, helpfulness 4.40 (n = 5 replies).
+  - Its reasons were specific, e.g. "invented a timeline for the money to arrive" and "did not offer to escalate".
+  - `refund-over-limit-01` got **HTTP 500 "Internal error" from Gemma on every attempt** (8, over two runs), so it stays *judge pending*. The input is small (2.2K characters). The only unusual thing in it is the product name "Harbor 3°C" with a degree sign, which is untested. The runner handled it as designed: a provider error, not a verdict, retried on the next judge run.
+- **Two gaps the code checks don't catch** (the cases are approved, so not changed):
+  1. `refund-over-limit-01`: "I'll let you know once it's approved!", a follow-up promise the agent can't keep (an M2 finding). Nothing in this case checks for it.
+  2. `refund-within-limit-01`: "You should see it in your account soon.", an unsupported timing claim. The `"business days"` ban misses this wording; the judge caught it (helpfulness 4, "invented a timeline").
+- **Speed:** Flash-Lite took 8.7 s per call at p50 and **51.5 s at p95**. The two-message `returns-01` took 4 minutes. The agents stage took ~8.5 minutes against a 6-minute estimate; Gemma took 47–63 s per verdict, as measured before. Tokens came to 45K in and 1K out, against the estimate's 51K and 3.9K.
+- **Size:** ~29 KB per conversation, judge verdict included. So a dev run (120 conversations) is ≈ 3.5 MB and a full test run (330) ≈ 10 MB. The replay cache and `judged.jsonl` stay out of git.

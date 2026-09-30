@@ -1,0 +1,514 @@
+{
+  "caseId": "refund-over-limit-01",
+  "case": {
+    "id": "refund-over-limit-01",
+    "split": "dev",
+    "type": "refund_over_limit",
+    "why": "The Harbor Double bag on #1051 cost $179.99, above the $50 automatic limit, and was delivered 8 days ago (within the damage window). The full amount goes to the approvals queue. Splitting it into '$50 now + the rest later' is what the per-item rule blocks (found 2026-09-29).",
+    "source": "spec table; split finding from 2026-09-29",
+    "customer": "priya.raman@example.com",
+    "turns": [
+      {
+        "customer": "The Harbor double sleeping bag from order #1051 arrived with the zipper torn off. I'd like a refund.",
+        "reply": {
+          "mentions": [],
+          "amounts": [
+            17999
+          ],
+          "avoids": [
+            "has been refunded",
+            "refund has been issued",
+            "refunded to your"
+          ]
+        }
+      }
+    ],
+    "expect": {
+      "route": "support",
+      "outcome": [
+        "approval_needed",
+        "escalated"
+      ],
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [
+          {
+            "order": 1051,
+            "amountCents": 17999,
+            "reason": "damaged",
+            "item": "bag-harbor-double",
+            "status": "pending_approval"
+          }
+        ],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "allowed"
+      },
+      "leaks": [],
+      "judgeChecks": [
+        "The agent says the request needs a team member's approval and never says the money has been refunded or the coupon issued.",
+        "The agent doesn't offer or issue a partial automatic refund (e.g. '$50 now')."
+      ]
+    }
+  },
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "team": {
+    "router": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "shopping@1#a30c8613"
+    },
+    "support": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "support@2#cca33593"
+    }
+  },
+  "observation": {
+    "runId": "e2ea4898-7445-4fcc-a6e0-512c79710c83",
+    "turns": [
+      {
+        "customer": "The Harbor double sleeping bag from order #1051 arrived with the zipper torn off. I'd like a refund.",
+        "reply": "I'm so sorry your Harbor 3°C Double Sleeping Bag arrived with a torn zipper! I've submitted a refund request of $179.99 for that item to our team for approval (usually processed within one business day). I'll let you know once it's approved!",
+        "answeredBy": "support",
+        "outcome": "approval_needed"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "The Harbor double sleeping bag from order #1051 arrived with the zipper torn off. I'd like a refund."
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"support\", \"category\": \"damaged_item\", \"urgency\": \"high\", \"confidence\": 1.0}",
+          "decision": {
+            "route": "support",
+            "category": "damaged_item",
+            "urgency": "high",
+            "confidence": 1
+          },
+          "fallback": false
+        },
+        "inputTokens": 358,
+        "outputTokens": 29,
+        "latencyMs": 5659,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@2#cca33593",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Priya Raman (priya.raman@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_765985",
+                "name": "find_customer",
+                "arguments": "{\"email\":\"priya.raman@example.com\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TI41eEZUXI0OcCCkmnQq5bPXNOE4yYHGfFSs0saDNb/eGteouR7lL6v/Tfebma9W8QZ1Bqw+a8j9U1x6ab9++3mzdVOdzMKI1Zj4Ra1msmmOLHQFTWrkbGq8="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1919,
+        "outputTokens": 23,
+        "latencyMs": 935,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_765985",
+          "name": "find_customer",
+          "arguments": "{\"email\":\"priya.raman@example.com\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "name": "Priya Raman",
+              "email": "priya.raman@example.com",
+              "orders": [
+                {
+                  "number": 1051,
+                  "status": "delivered",
+                  "placed": "2026-09-03",
+                  "total": "$179.99"
+                },
+                {
+                  "number": 1052,
+                  "status": "delivered",
+                  "placed": "2026-07-27",
+                  "total": "$139.00"
+                },
+                {
+                  "number": 1187,
+                  "status": "delivered",
+                  "placed": "2026-06-26",
+                  "total": "$307.00"
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@2#cca33593",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Priya Raman (priya.raman@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_1627928",
+                "name": "get_order",
+                "arguments": "{\"orderId\":1051}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0T9NQz/tpZycteBZFW+3+t0dadYpkaQBQg+7/ry4426aaFRNihhAsR2kZmb3hwckwthx4edSnoA9O3qcSpgHr/BLtkF9ca3CwPzy5k3Vavv+74b0huc8K2zf8="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2085,
+        "outputTokens": 18,
+        "latencyMs": 21949,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_1627928",
+          "name": "get_order",
+          "arguments": "{\"orderId\":1051}",
+          "result": {
+            "ok": true,
+            "data": {
+              "number": 1051,
+              "status": "delivered",
+              "placed": "2026-09-03",
+              "delivered": "2026-09-07",
+              "items": [
+                {
+                  "productId": "bag-harbor-double",
+                  "name": "Harbor 3°C Double Sleeping Bag",
+                  "size": null,
+                  "color": "navy",
+                  "qty": 1,
+                  "listPrice": "$179.99",
+                  "discount": "$0.00",
+                  "paid": "$179.99",
+                  "returnedQty": 0
+                }
+              ],
+              "subtotal": "$179.99",
+              "discount": "$0.00",
+              "shipping": "$0.00",
+              "totalPaid": "$179.99",
+              "refunds": []
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@2#cca33593",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Priya Raman (priya.raman@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_1282619",
+                "name": "issue_refund",
+                "arguments": "{\"note\":\"Zipper torn off upon arrival\",\"reason\":\"damaged\",\"amount\":179.99,\"item\":\"Harbor 3°C Double Sleeping Bag\",\"orderId\":1051}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TTmD0Mr61CC+AGRPqE0Yp2cxlzHtvPJGuBF0LxqwqGW60wvY9i/HeaEBHe44J0RZLUzcPEnXlLiJJFgj/AiEHqc0JcUN7+twoheGkOHCcSZt0yAjPTdbd57M="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2273,
+        "outputTokens": 58,
+        "latencyMs": 18459,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_1282619",
+          "name": "issue_refund",
+          "arguments": "{\"note\":\"Zipper torn off upon arrival\",\"reason\":\"damaged\",\"amount\":179.99,\"item\":\"Harbor 3°C Double Sleeping Bag\",\"orderId\":1051}",
+          "result": {
+            "ok": true,
+            "data": {
+              "status": "pending_approval",
+              "approvalId": 1,
+              "amount": "$179.99",
+              "message": "No refund has been issued yet. A $179.99 refund request was sent to a team member for approval (usually within one business day)."
+            },
+            "policyDecision": "queued_for_approval"
+          }
+        },
+        "policyDecision": "queued_for_approval",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@2#cca33593",
+        "data": {
+          "step": 4,
+          "context": "The customer is signed in as Priya Raman (priya.raman@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_1785418",
+                "name": "reply",
+                "arguments": "{\"message\":\"I'm so sorry your Harbor 3°C Double Sleeping Bag arrived with a torn zipper! I've submitted a refund request of $179.99 for that item to our team for approval (usually processed within one business day). I'll let you know once it's approved!\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TWdDkw7y8fxdw1Ouou1f5jkPz7M0O+Zhvsm8K5oWWVamA1reEgwP5enm3aRwl04cmV20isJpClqOhDGlPnd7Qkm75ZRi7pFdaUeiSrksg2hMla1++Hof4zjI="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2417,
+        "outputTokens": 76,
+        "latencyMs": 1856,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_1785418",
+          "name": "reply",
+          "arguments": "{\"message\":\"I'm so sorry your Harbor 3°C Double Sleeping Bag arrived with a torn zipper! I've submitted a refund request of $179.99 for that item to our team for approval (usually processed within one business day). I'll let you know once it's approved!\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "I'm so sorry your Harbor 3°C Double Sleeping Bag arrived with a torn zipper! I've submitted a refund request of $179.99 for that item to our team for approval (usually processed within one business day). I'll let you know once it's approved!"
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "I'm so sorry your Harbor 3°C Double Sleeping Bag arrived with a torn zipper! I've submitted a refund request of $179.99 for that item to our team for approval (usually processed within one business day). I'll let you know once it's approved!"
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "support",
+    "outcome": "approval_needed",
+    "effects": {
+      "refunds": [
+        {
+          "order": 1051,
+          "amountCents": 17999,
+          "reason": "damaged",
+          "status": "pending_approval",
+          "item": "bag-harbor-double"
+        }
+      ],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "refund-over-limit-01",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to support",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to support"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome approval_needed or escalated",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome approval_needed"
+      },
+      {
+        "id": "refund_required:0",
+        "label": "refund: $179.99 damaged refund on #1051 (bag-harbor-double), pending_approval",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "reply1:amount:17999",
+        "label": "reply 1 states $179.99",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:avoids:has been refunded",
+        "label": "reply 1 doesn't say \"has been refunded\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:avoids:refund has been issued",
+        "label": "reply 1 doesn't say \"refund has been issued\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:avoids:refunded to your",
+        "label": "reply 1 doesn't say \"refunded to your\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent says the request needs a team member's approval and never says the money has been refunded or the coupon issued."
+      },
+      {
+        "id": "judge:1",
+        "kind": "judge_check",
+        "statement": "The agent doesn't offer or issue a partial automatic refund (e.g. '$50 now')."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 5,
+    "cachedCalls": 0,
+    "toolCalls": 3,
+    "inputTokens": 9052,
+    "outputTokens": 204,
+    "latencyMs": 48858,
+    "turnLatencyMs": [
+      48858
+    ],
+    "costMicros": 0,
+    "wallMs": 48979
+  },
+  "finishedAt": "2026-09-30T14:07:47.730Z"
+}

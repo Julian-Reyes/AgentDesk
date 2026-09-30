@@ -1,0 +1,36 @@
+{
+  "caseId": "refund-over-limit-01",
+  "runId": "e2ea4898-7445-4fcc-a6e0-512c79710c83",
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "judgeModel": "gemini/gemma-4-31b",
+  "rubric": "rubric@1#c190deec",
+  "input": {
+    "caseId": "refund-over-limit-01",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "The Harbor double sleeping bag from order #1051 arrived with the zipper torn off. I'd like a refund.",
+        "reply": "I'm so sorry your Harbor 3°C Double Sleeping Bag arrived with a torn zipper! I've submitted a refund request of $179.99 for that item to our team for approval (usually processed within one business day). I'll let you know once it's approved!"
+      }
+    ],
+    "toolSummary": [
+      "message 1: find_customer({\"email\":\"priya.raman@example.com\"}) → {\"ok\":true,\"data\":{\"name\":\"Priya Raman\",\"email\":\"priya.raman@example.com\",\"orders\":[{\"number\":1051,\"status\":\"delivered\",\"placed\":\"2026-09-03\",\"total\":\"$179.99\"},{\"number\":1052,\"status\":\"delivered\",\"placed\":\"2026-07-27\",\"total\":\"$139.00\"},{\"number\":1187,\"status\":\"delivered\",\"placed\":\"2026-06-26\",\"total\":\"$307.00\"}]}}",
+      "message 1: get_order({\"orderId\":1051}) → {\"ok\":true,\"data\":{\"number\":1051,\"status\":\"delivered\",\"placed\":\"2026-09-03\",\"delivered\":\"2026-09-07\",\"items\":[{\"productId\":\"bag-harbor-double\",\"name\":\"Harbor 3°C Double Sleeping Bag\",\"size\":null,\"color\":\"navy\",\"qty\":1,\"listPrice\":\"$179.99\",\"discount\":\"$0.00\",\"paid\":\"$179.99\",\"returnedQty\":0}],\"subtotal\":\"$179.99\",\"discount\":\"$0.00\",\"shipping\":\"$0.00\",\"totalPaid\":\"$179.99\",\"refunds\":[]}}",
+      "message 1: issue_refund({\"note\":\"Zipper torn off upon arrival\",\"reason\":\"damaged\",\"amount\":179.99,\"item\":\"Harbor 3°C Double Sleeping Bag\",\"orderId\":1051}) → {\"ok\":true,\"data\":{\"status\":\"pending_approval\",\"approvalId\":1,\"amount\":\"$179.99\",\"message\":\"No refund has been issued yet. A $179.99 refund request was sent to a team member for approval (usually within one business day).\"},\"policyDecision\":\"queued_for_approval\"}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent says the request needs a team member's approval and never says the money has been refunded or the coupon issued."
+      },
+      {
+        "id": "judge:1",
+        "statement": "The agent doesn't offer or issue a partial automatic refund (e.g. '$50 now')."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": false,
+  "error": "provider error: gemini/gemma-4-31b: HTTP 500 [{\n  \"error\": {\n    \"code\": 500,\n    \"message\": \"Internal error encountered.\",\n    \"status\": \"INTERNAL\"\n  }\n}\n]",
+  "calls": []
+}
