@@ -1,0 +1,150 @@
+{
+  "caseId": "comparison-03",
+  "runId": "aea1b082-8108-4ed9-b5b8-ae08272d1e4c",
+  "questionSet": "bcea299b",
+  "agentModel": "groq/gpt-oss-120b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "comparison-03",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Ember 0°C down bag or the Drift -5°C synthetic: which is warmer, and which is lighter?",
+        "reply": "The Drift -5°C Synthetic Sleeping Bag is rated for colder temperatures (-5°C) so it’s the warmer of the two, while the Ember 0°C Down Sleeping Bag weighs only 850 g compared with the Drift’s 1,700 g, making the Ember the lighter option."
+      }
+    ],
+    "toolSummary": [
+      "message 1: search_products({\"limit\":2,\"query\":\"Ember 0°C down bag\"}) → {\"ok\":true,\"data\":{\"totalMatches\":12,\"products\":[{\"id\":\"bag-ember-0\",\"name\":\"Ember 0°C Down Sleeping Bag\",\"category\":\"sleeping_bags\",\"listPrice\":\"$259.00\",\"currentPrice\":\"$259.00\",\"rating\":4.7,\"description\":\"Three-season mummy bag with 650-fill responsibly sourced down.\",\"specs\":{\"material\":\"650-fill down\",\"tempRatingC\":0,\"weightGrams\":850},\"availability\":\"in_stock\",\"activeDeals\":[]},{\"id\":\"bag-ember-minus10\",\"name\":\"Ember -10°C Down Sleeping Bag\",\"category\":\"sleeping_bags\",\"listPrice\":\"$349.00\",\"currentPrice\":\"$349.00\",\"rating\":4.7,\"description\":\"Warmer version of the Ember for shoulder-season and early winter trips.\",\"specs\":{\"material\":\"650-fill down\",\"tempRatingC\":-10,\"weightGrams\":1150},\"availability\":\"in_stock\",\"activeDeals\":[]}],\"note\":\"currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping.\"}}",
+      "message 1: search_products({\"limit\":2,\"query\":\"Drift -5°C synthetic\"}) → {\"ok\":true,\"data\":{\"totalMatches\":7,\"products\":[{\"id\":\"bag-drift-minus5\",\"name\":\"Drift -5°C Synthetic Sleeping Bag\",\"category\":\"sleeping_bags\",\"listPrice\":\"$139.00\",\"currentPrice\":\"$139.00\",\"rating\":4.3,\"description\":\"Synthetic mummy bag for cold nights on a budget.\",\"specs\":{\"material\":\"synthetic fill\",\"tempRatingC\":-5,\"weightGrams\":1700},\"availability\":\"in_stock\",\"activeDeals\":[]},{\"id\":\"bag-drift-5\",\"name\":\"Drift 5°C Synthetic Sleeping Bag\",\"category\":\"sleeping_bags\",\"listPrice\":\"$99.00\",\"currentPrice\":\"$99.00\",\"rating\":4.2,\"description\":\"Budget-friendly synthetic mummy bag that stays warm when damp.\",\"specs\":{\"material\":\"synthetic fill\",\"tempRatingC\":5,\"weightGrams\":1300},\"availability\":\"low_stock\",\"activeDeals\":[]}],\"note\":\"currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping.\"}}"
+    ],
+    "judgeNote": "May add that synthetic fill stays warm when damp (from the Drift's description). No invented fill weights or comfort ratings.",
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent says the Drift -5°C is rated warmer (to -5°C vs 0°C) and the Ember 0°C is lighter."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "The reply is warm, clear, and fully addresses both questions."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": false,
+        "why": "The agent incorrectly claims the Drift -5 °C bag is rated warmer than the Ember 0 °C bag; in fact the Drift is rated for colder temperatures (-5 °C) while the Ember is rated for 0 °C. The Ember is indeed lighter, but the statement about the Drift being warmer is false. Answer: no."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent’s reply only provides temperature and weight comparisons and does not promise or imply any future action such as notifying, following up, or checking on approvals, refunds, or deliveries. Therefore it complies with the rule.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 3
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent's reply contains no statements about shipping, arrival, refunds, reviews, or processing times, so the timing claim condition is satisfied. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": false,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "scores",
+      "latencyMs": 586,
+      "inputTokens": 1400,
+      "outputTokens": 248,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"The reply is warm, clear, and fully addresses both questions.\"}]}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 1682,
+      "inputTokens": 1103,
+      "outputTokens": 534,
+      "cached": false,
+      "raw": "{\"why\":\"The agent incorrectly claims the Drift -5 °C bag is rated warmer than the Ember 0 °C bag; in fact the Drift is rated for colder temperatures (-5 °C) while the Ember is rated for 0 °C. The Ember is indeed lighter, but the statement about the Drift being warmer is false. Answer: no.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1767,
+      "inputTokens": 1167,
+      "outputTokens": 276,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply only provides temperature and weight comparisons and does not promise or imply any future action such as notifying, following up, or checking on approvals, refunds, or deliveries. Therefore it complies with the rule.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 757,
+      "inputTokens": 1167,
+      "outputTokens": 276,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply only provides temperature and weight comparisons and does not promise or imply any future action such as notifying, following up, or checking on approvals, refunds, or deliveries. Therefore it complies with the rule.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1022,
+      "inputTokens": 1156,
+      "outputTokens": 322,
+      "cached": false,
+      "raw": "{\"why\":\"The agent's reply contains no statements about shipping, arrival, refunds, reviews, or processing times, so the timing claim condition is satisfied. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1426,
+      "inputTokens": 1167,
+      "outputTokens": 276,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply only provides temperature and weight comparisons and does not promise or imply any future action such as notifying, following up, or checking on approvals, refunds, or deliveries. Therefore it complies with the rule.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 1195,
+      "inputTokens": 1156,
+      "outputTokens": 235,
+      "cached": false,
+      "raw": "{\"why\":\"The agent's reply contains no statements about shipping, arrival, refunds, reviews, processing times, or any other timing. Therefore all timing claims (none) trivially match the conversation. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 1006,
+      "inputTokens": 1156,
+      "outputTokens": 148,
+      "cached": false,
+      "raw": "{\"why\":\"The agent's reply contains no statements about shipping, arrival, refunds, reviews, processing times, or any other timing. Therefore all timing claims (none) match the conversation or policy. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

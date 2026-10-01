@@ -74,11 +74,11 @@
     }
   },
   "observation": {
-    "runId": "22b07980-c8a2-48f7-930d-3470c187ae36",
+    "runId": "fb402ddd-690e-4cea-ad98-514d7ec64933",
     "turns": [
       {
         "customer": "My order #1055 is really late. Can I at least get my shipping cost back?",
-        "reply": "Your shipping cost of $7.99 has been refunded to the original payment method. If you have any other questions, just let me know.\"",
+        "reply": "Your shipping cost of $7.99 has been refunded to the original payment method.  \n\nThanks for your patience.",
         "answeredBy": "support",
         "outcome": "resolved"
       }
@@ -99,20 +99,20 @@
         "promptVersion": "router@1#f10fc861",
         "data": {
           "attempt": 1,
-          "raw": "{\"route\":\"support\",\"category\":\"refunds\",\"urgency\":\"normal\",\"confidence\":0.98}",
+          "raw": "{\"route\":\"support\",\"category\":\"refunds\",\"urgency\":\"high\",\"confidence\":0.99}",
           "decision": {
             "route": "support",
             "category": "refunds",
-            "urgency": "normal",
-            "confidence": 0.98
+            "urgency": "high",
+            "confidence": 0.99
           },
           "fallback": false
         },
         "inputTokens": 427,
-        "outputTokens": 141,
-        "latencyMs": 1366,
+        "outputTokens": 192,
+        "latencyMs": 1748,
         "cached": false,
-        "costMicros": 149,
+        "costMicros": 179,
         "turn": 1
       },
       {
@@ -129,27 +129,27 @@
             "content": null,
             "toolCalls": [
               {
-                "id": "fc_55574d36-4526-4bfe-a79d-ae7b17fef79e",
+                "id": "fc_ee0aa7a3-8122-4930-bf9f-24f50268a1f7",
                 "name": "get_order",
                 "arguments": "{\"orderId\":1055}"
               }
             ]
           },
-          "reasoning": "We need to handle a request: order #1055 late, wants shipping cost refund. Steps: look up order details? Use get_order to see shipping cost? Might need to know shipping cost amount. Also need to check policy: shipping refunds for late? Use get_policy topic \"shipping\" or \"refunds\". But likely shipping cost refund for late is possible under policy: maybe shipping cost refund if delayed beyond estimate. We should issue refund of shipping cost. Use issue_refund tool with amount = shipping cost, reason \"late\". Need amount; need to know shipping cost from order. So first get_order for orderId 1055.",
+          "reasoning": "We need to handle a request: order #1055 is late, wants shipping cost refund. Steps: check order? Probably we need get_order to see shipping cost? But we can directly issue_refund for shipping cost. However need to know amount. We don't know amount; need to look up order details. Use get_order.",
           "finishReason": "tool_calls"
         },
         "inputTokens": 1738,
-        "outputTokens": 160,
-        "latencyMs": 1099,
+        "outputTokens": 97,
+        "latencyMs": 521,
         "cached": false,
-        "costMicros": 357,
+        "costMicros": 319,
         "turn": 1
       },
       {
         "kind": "tool_call",
         "agent": "support",
         "data": {
-          "callId": "fc_55574d36-4526-4bfe-a79d-ae7b17fef79e",
+          "callId": "fc_ee0aa7a3-8122-4930-bf9f-24f50268a1f7",
           "name": "get_order",
           "arguments": "{\"orderId\":1055}",
           "result": {
@@ -207,41 +207,38 @@
             "content": null,
             "toolCalls": [
               {
-                "id": "fc_3ce9bf49-1ad7-40e9-8a03-20af52ef4d19",
-                "name": "issue_refund",
-                "arguments": "{\"amount\":7.99,\"note\":\"Shipping cost refund for delayed order\",\"orderId\":1055,\"reason\":\"late\"}"
+                "id": "fc_92581b8a-a0a3-45a2-9036-d3cdab143a3c",
+                "name": "get_policy",
+                "arguments": "{\"topic\":\"refunds\"}"
               }
             ]
           },
-          "reasoning": "We need to handle request: order #1055 is late, wants shipping cost back. According to policy, refunds for late orders: shipping cost only. Need to issue refund. Use issue_refund with amount shipping $7.99, orderId 1055, reason \"late\". No item. Then respond with result.",
+          "reasoning": "We need to address late order, request shipping cost refund. According to policy: need to check refunds policy for late shipping. Let's fetch policy.",
           "finishReason": "tool_calls"
         },
         "inputTokens": 1946,
-        "outputTokens": 124,
-        "latencyMs": 956,
+        "outputTokens": 49,
+        "latencyMs": 526,
         "cached": false,
-        "costMicros": 366,
+        "costMicros": 321,
         "turn": 1
       },
       {
         "kind": "tool_call",
         "agent": "support",
         "data": {
-          "callId": "fc_3ce9bf49-1ad7-40e9-8a03-20af52ef4d19",
-          "name": "issue_refund",
-          "arguments": "{\"amount\":7.99,\"note\":\"Shipping cost refund for delayed order\",\"orderId\":1055,\"reason\":\"late\"}",
+          "callId": "fc_92581b8a-a0a3-45a2-9036-d3cdab143a3c",
+          "name": "get_policy",
+          "arguments": "{\"topic\":\"refunds\"}",
           "result": {
             "ok": true,
             "data": {
-              "status": "refunded",
-              "refundId": 78,
-              "amount": "$7.99",
-              "message": "Refund of $7.99 issued to the original payment method."
-            },
-            "policyDecision": "auto_approved"
+              "topic": "refunds",
+              "title": "Refunds",
+              "text": "Refunds go back to the original payment method.\nA refund can never be more than what was paid for the order.\nOur support team can issue refunds for damaged items, lost orders and late deliveries (shipping cost only). Refunds up to $50.00 per order are processed right away; larger amounts are reviewed by a team member, usually within one business day.\nDamaged items are refunded per item, up to what was paid for that item. Items that cost more than $50.00 are always reviewed by a team member, whatever amount is requested.\nRefunds for returned items are issued when the warehouse receives the return."
+            }
           }
         },
-        "policyDecision": "auto_approved",
         "turn": 1
       },
       {
@@ -258,52 +255,71 @@
             "content": null,
             "toolCalls": [
               {
-                "id": "repaired_0",
-                "name": "reply",
-                "arguments": "{\"message\":\"Your shipping cost of $7.99 has been refunded to the original payment method. If you have any other questions, just let me know.\\\"\"}"
+                "id": "fc_143512e3-7e39-4ede-8789-65859e0174fd",
+                "name": "issue_refund",
+                "arguments": "{\"amount\":7.99,\"note\":\"Shipping cost refund for delayed order\",\"orderId\":1055,\"reason\":\"late\"}"
               }
             ]
           },
-          "failedAttempts": [
-            {
-              "status": 400,
-              "code": "tool_use_failed",
-              "message": "{\"error\":{\"message\":\"Failed to parse tool call arguments as JSON\",\"type\":\"invalid_request_error\",\"code\":\"tool_use_failed\",\"failed_generation\":\"{\\\"name\\\": \\\"reply\\\", \\\"arguments\\\": Your shipping cost of $7.99 has been refunded to the original payment method. If you have any other questions, just let ",
-              "failedGeneration": "{\"name\": \"reply\", \"arguments\": Your shipping cost of $7.99 has been refunded to the original payment method. If you have any other questions, just let me know.\"}"
-            }
-          ],
-          "repaired": true,
-          "finishReason": "repaired"
+          "reasoning": "We need to handle request: order #1055 is delayed, wants shipping cost refund. Shipping cost is $7.99. Refund policy: for late deliveries, shipping cost only; refunds up to $50 processed right away. So we can issue refund of $7.99 for shipping. Use issue_refund tool with amount 7.99, reason \"late\", orderId 1055, note maybe. No item needed. Then reply with result.\n\n",
+          "finishReason": "tool_calls"
         },
-        "inputTokens": 0,
-        "outputTokens": 0,
-        "latencyMs": 702,
+        "inputTokens": 2122,
+        "outputTokens": 151,
+        "latencyMs": 1700,
         "cached": false,
-        "costMicros": 0,
+        "costMicros": 409,
         "turn": 1
       },
       {
         "kind": "tool_call",
         "agent": "support",
         "data": {
-          "callId": "repaired_0",
-          "name": "reply",
-          "arguments": "{\"message\":\"Your shipping cost of $7.99 has been refunded to the original payment method. If you have any other questions, just let me know.\\\"\"}",
+          "callId": "fc_143512e3-7e39-4ede-8789-65859e0174fd",
+          "name": "issue_refund",
+          "arguments": "{\"amount\":7.99,\"note\":\"Shipping cost refund for delayed order\",\"orderId\":1055,\"reason\":\"late\"}",
           "result": {
             "ok": true,
             "data": {
-              "delivered": true,
-              "message": "Your shipping cost of $7.99 has been refunded to the original payment method. If you have any other questions, just let me know.\""
-            }
+              "status": "refunded",
+              "refundId": 102,
+              "amount": "$7.99",
+              "message": "Refund of $7.99 issued to the original payment method."
+            },
+            "policyDecision": "auto_approved"
           }
         },
+        "policyDecision": "auto_approved",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 4,
+          "context": "The customer is signed in as Sofia Alvarez (sofia.alvarez@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": "Your shipping cost of $7.99 has been refunded to the original payment method.  \n\nThanks for your patience."
+          },
+          "finishReason": "stop"
+        },
+        "inputTokens": 2217,
+        "outputTokens": 27,
+        "latencyMs": 412,
+        "cached": false,
+        "costMicros": 349,
         "turn": 1
       },
       {
         "kind": "reply",
         "agent": "support",
         "data": {
-          "message": "Your shipping cost of $7.99 has been refunded to the original payment method. If you have any other questions, just let me know.\""
+          "message": "Your shipping cost of $7.99 has been refunded to the original payment method.  \n\nThanks for your patience.",
+          "implicit": true
         },
         "turn": 1
       }
@@ -413,17 +429,17 @@
     "codeStatus": "pass"
   },
   "stats": {
-    "modelCalls": 4,
+    "modelCalls": 5,
     "cachedCalls": 0,
-    "toolCalls": 2,
-    "inputTokens": 4111,
-    "outputTokens": 425,
-    "latencyMs": 4123,
+    "toolCalls": 3,
+    "inputTokens": 8450,
+    "outputTokens": 516,
+    "latencyMs": 4907,
     "turnLatencyMs": [
-      4123
+      4907
     ],
-    "costMicros": 872,
-    "wallMs": 4178
+    "costMicros": 1577,
+    "wallMs": 4947
   },
-  "finishedAt": "2026-10-01T16:50:26.781Z"
+  "finishedAt": "2026-10-01T16:57:52.394Z"
 }

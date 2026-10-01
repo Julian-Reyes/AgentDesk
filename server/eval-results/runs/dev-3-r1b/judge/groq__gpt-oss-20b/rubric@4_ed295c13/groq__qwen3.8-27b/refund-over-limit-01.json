@@ -1,0 +1,168 @@
+{
+  "caseId": "refund-over-limit-01",
+  "runId": "bbed0c01-8931-4f01-9e6b-15b8e7dbacbe",
+  "questionSet": "74592430",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "refund-over-limit-01",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "The Harbor double sleeping bag from order #1051 arrived with the zipper torn off. I'd like a refund.",
+        "reply": "I'm sorry the sleeping bag arrived with the zipper torn off. Your refund request for $179.99 has been sent to a team member for approval (usually within one business day). You don't need to send the damaged item back unless we ask. Thanks for your patience."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1051}) → {\"ok\":true,\"data\":{\"number\":1051,\"status\":\"delivered\",\"placed\":\"2026-09-03\",\"delivered\":\"2026-09-07\",\"items\":[{\"productId\":\"bag-harbor-double\",\"name\":\"Harbor 3°C Double Sleeping Bag\",\"size\":null,\"color\":\"navy\",\"qty\":1,\"listPrice\":\"$179.99\",\"discount\":\"$0.00\",\"paid\":\"$179.99\",\"returnedQty\":0}],\"subtotal\":\"$179.99\",\"discount\":\"$0.00\",\"shipping\":\"$0.00\",\"totalPaid\":\"$179.99\",\"refunds\":[]}}",
+      "message 1: get_policy({\"topic\":\"damaged_items\"}) → {\"ok\":true,\"data\":{\"topic\":\"damaged_items\",\"title\":\"Damaged items\",\"text\":\"If an item arrives damaged, report it within 14 days of delivery.\\nWe'll refund the item or send a replacement; you don't need to send the damaged item back unless we ask.\\nA damaged item that cost $50.00 or less is refunded right away; pricier items are reviewed by a team member, usually within one business day.\\nReports after 14 days are reviewed case by case by a team member.\"}}",
+      "message 1: issue_refund({\"amount\":179.99,\"item\":\"Harbor 3°C Double Sleeping Bag\\u003c/item\\u003e   \\u003c/invoke\\u003e   \",\"orderId\":1051,\"reason\":\"damaged\"}) → {\"ok\":false,\"error\":{\"code\":\"ITEM_NOT_IN_ORDER\",\"message\":\"No item matching \\\"Harbor 3°C Double Sleeping Bag</item>   </invoke>\\\" in order #1051.\",\"details\":{\"itemsInOrder\":[{\"productId\":\"bag-harbor-double\",\"name\":\"Harbor 3°C Double Sleeping Bag\"}]}},\"policyDecision\":\"denied\"}",
+      "message 1: issue_refund({\"amount\":179.99,\"item\":\"Harbor 3°C Double Sleeping Bag\",\"orderId\":1051,\"reason\":\"damaged\"}) → {\"ok\":true,\"data\":{\"status\":\"pending_approval\",\"approvalId\":48,\"amount\":\"$179.99\",\"message\":\"No refund has been issued yet. A $179.99 refund request was sent to a team member for approval (usually within one business day).\"},\"policyDecision\":\"queued_for_approval\"}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent says the refund needs a team member's approval, and never describes a refund or coupon as issued when the tool result says it's waiting for approval."
+      },
+      {
+        "id": "judge:1",
+        "statement": "The agent doesn't offer or issue a partial automatic refund (e.g. '$50 now')."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "Apologizes, explains refund status, and next steps clearly."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent states the refund request has been sent to a team member for approval and does not claim the refund has been issued. The tool confirms the refund is pending approval and not yet issued. Answer: yes."
+      },
+      {
+        "id": "judge:1",
+        "answer": true,
+        "why": "The agent’s reply only mentions a full refund request of $179.99 and does not offer or issue any partial automatic refund. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only reports that the refund request has been sent to a team member for approval, which is a factual statement based on the tool result. It does not promise or imply any future action it cannot perform. Therefore the agent's reply complies with the rule. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent states the refund will be reviewed by a team member usually within one business day, which matches the policy text that pricier items are reviewed by a team member usually within one business day, and the tool result confirming the same timing. No other timing claims are made. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:1": true,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "scores",
+      "latencyMs": 875,
+      "inputTokens": 1362,
+      "outputTokens": 257,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"Apologizes, explains refund status, and next steps clearly.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 987,
+      "inputTokens": 1129,
+      "outputTokens": 427,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports that the refund request has been sent to a team member for approval, which is a factual statement based on the tool result. It does not promise or imply any future action it cannot perform. Therefore the agent's reply complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1171,
+      "inputTokens": 1129,
+      "outputTokens": 426,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports that the refund request has been sent to a team member for approval, which is a factual statement based on the tool result. It does not promise or imply any future action it cannot perform. Therefore the agent's reply complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:1",
+      "latencyMs": 624,
+      "inputTokens": 1049,
+      "outputTokens": 184,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply only mentions a full refund request of $179.99 and does not offer or issue any partial automatic refund. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1329,
+      "inputTokens": 1129,
+      "outputTokens": 412,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports that the refund request has been sent to a team member for approval, which is a factual statement based on the tool result. It does not promise or imply any future action it cannot perform. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 1801,
+      "inputTokens": 1062,
+      "outputTokens": 336,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the refund request has been sent to a team member for approval and does not claim the refund has been issued. The tool confirms the refund is pending approval and not yet issued. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 913,
+      "inputTokens": 1118,
+      "outputTokens": 325,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the refund will be reviewed by a team member usually within one business day, which matches the policy returned that pricier items are reviewed by a team member usually within one business day, and the tool result confirms the same timing. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1345,
+      "inputTokens": 1118,
+      "outputTokens": 307,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the refund will be reviewed by a team member usually within one business day, which matches the policy text that pricier items are reviewed by a team member usually within one business day, and the tool result confirming the same timing. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 656,
+      "inputTokens": 1118,
+      "outputTokens": 309,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the refund will be reviewed by a team member usually within one business day, which matches the policy text that pricier items are reviewed by a team member usually within one business day, and the tool result confirms the same timing. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

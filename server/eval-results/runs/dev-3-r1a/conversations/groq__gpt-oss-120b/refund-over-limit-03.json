@@ -68,11 +68,11 @@
     }
   },
   "observation": {
-    "runId": "93470242-e332-41ad-b65e-a4f53204f380",
+    "runId": "3cf60422-3b3e-4b06-8a28-431ce2d4cb99",
     "turns": [
       {
         "customer": "The delay on order #1055 ruined our camping trip. I want a 20% off coupon for my next order.",
-        "reply": "I’m sorry the delay ruined your trip. A 20% coupon exceeds the automatic limit, so I’ve escalated this request to a human agent. Your ticket number is ESC-7 and they will follow up by email within one business day. Thanks for your understanding.",
+        "reply": "I’m sorry the delay impacted your trip. I’ve escalated your request for a 20% coupon, and a human support agent will follow up via email (ticket ESC-9) within one business day. Thank you for your patience.",
         "answeredBy": "support",
         "outcome": "escalated"
       }
@@ -93,20 +93,20 @@
         "promptVersion": "router@1#f10fc861",
         "data": {
           "attempt": 1,
-          "raw": "{\"route\":\"support\",\"category\":\"shipping\",\"urgency\":\"high\",\"confidence\":0.99}",
+          "raw": "{\"route\":\"support\",\"category\":\"shipping\",\"urgency\":\"high\",\"confidence\":0.97}",
           "decision": {
             "route": "support",
             "category": "shipping",
             "urgency": "high",
-            "confidence": 0.99
+            "confidence": 0.97
           },
           "fallback": false
         },
         "inputTokens": 433,
-        "outputTokens": 220,
-        "latencyMs": 1475,
+        "outputTokens": 196,
+        "latencyMs": 3146,
         "cached": false,
-        "costMicros": 197,
+        "costMicros": 183,
         "turn": 1
       },
       {
@@ -123,65 +123,34 @@
             "content": null,
             "toolCalls": [
               {
-                "id": "fc_d532dab9-a79f-421c-a10b-b7e0c6930833",
-                "name": "get_order",
-                "arguments": "{\"orderId\":1055}"
+                "id": "fc_b0e608ad-7dff-49ef-8d84-9fe68a95ea74",
+                "name": "escalate_to_human",
+                "arguments": "{\"orderId\":1055,\"reason\":\"Customer requested 20% off coupon due to delayed order #1055\"}"
               }
             ]
           },
-          "reasoning": "We need to handle request: customer wants 20% off coupon for next order due to delay. Need to check if order #1055 had a delay. We should get order details, then perhaps get tracking to see status, and possibly issue_goodwill_coupon if allowed. The policy: issue_goodwill_coupon up to 10% and one per 30 days immediate when order has problem on record; anything else goes to human for approval. Customer requests 20% which exceeds 10% max, so we cannot issue directly. Must either offer max 10% or escalate. According to rules, if request exceeds allowed, we must explain reason and offer what is possible. So we can offer up to 10% immediate if qualifies; else we need to escalate to human. But we need to verify delay. Let's get order first.",
+          "reasoning": "We need to handle request: customer wants a 20% off coupon due to delay. Need to check policy: Goodwill coupon up to 10% per 30 days, and tool issue_goodwill_coupon only allows up to 10% immediate; higher needs human. So we cannot issue 20% automatically. Must either issue max 10% or escalate to human. Since request is for 20%, which exceeds limit, we must use escalate_to_human with reason. Provide ticket number? The tool returns something; we need to call it. Use escalate_to_human with reason: \"Customer requested 20% off coupon due to delayed order #1055\". Then reply with ticket number and what will happen. Let's call tool.",
           "finishReason": "tool_calls"
         },
         "inputTokens": 1732,
-        "outputTokens": 199,
-        "latencyMs": 1365,
+        "outputTokens": 204,
+        "latencyMs": 784,
         "cached": false,
-        "costMicros": 379,
+        "costMicros": 382,
         "turn": 1
       },
       {
         "kind": "tool_call",
         "agent": "support",
         "data": {
-          "callId": "fc_d532dab9-a79f-421c-a10b-b7e0c6930833",
-          "name": "get_order",
-          "arguments": "{\"orderId\":1055}",
+          "callId": "fc_b0e608ad-7dff-49ef-8d84-9fe68a95ea74",
+          "name": "escalate_to_human",
+          "arguments": "{\"orderId\":1055,\"reason\":\"Customer requested 20% off coupon due to delayed order #1055\"}",
           "result": {
             "ok": true,
             "data": {
-              "number": 1055,
-              "status": "delayed",
-              "placed": "2026-09-03",
-              "delivered": null,
-              "items": [
-                {
-                  "productId": "stove-pocket",
-                  "name": "Pocket Canister Stove",
-                  "size": null,
-                  "color": null,
-                  "qty": 1,
-                  "listPrice": "$39.00",
-                  "discount": "$0.00",
-                  "paid": "$39.00",
-                  "returnedQty": 0
-                },
-                {
-                  "productId": "stove-fuel-230",
-                  "name": "Isobutane Fuel Canister 230 g",
-                  "size": null,
-                  "color": null,
-                  "qty": 2,
-                  "listPrice": "$6.99",
-                  "discount": "$0.00",
-                  "paid": "$13.98",
-                  "returnedQty": 0
-                }
-              ],
-              "subtotal": "$52.98",
-              "discount": "$0.00",
-              "shipping": "$7.99",
-              "totalPaid": "$60.97",
-              "refunds": []
+              "ticket": "ESC-9",
+              "message": "A human support agent will follow up by email, usually within one business day."
             }
           }
         },
@@ -201,81 +170,34 @@
             "content": null,
             "toolCalls": [
               {
-                "id": "fc_61e19f63-49cc-4e1c-89f0-f7ba061b98dc",
-                "name": "escalate_to_human",
-                "arguments": "{\"orderId\":1055,\"reason\":\"Customer requests 20% goodwill coupon for delayed order, exceeds automatic limit\"}"
-              }
-            ]
-          },
-          "reasoning": "We need to issue a goodwill coupon 20% for delayed order. But policy: up to 10% immediate, anything else goes to human for approval. So we must escalate to human. Use escalate_to_human with reason. Then reply with ticket number and what will happen. Let's call tool.",
-          "finishReason": "tool_calls"
-        },
-        "inputTokens": 1940,
-        "outputTokens": 114,
-        "latencyMs": 658,
-        "cached": false,
-        "costMicros": 359,
-        "turn": 1
-      },
-      {
-        "kind": "tool_call",
-        "agent": "support",
-        "data": {
-          "callId": "fc_61e19f63-49cc-4e1c-89f0-f7ba061b98dc",
-          "name": "escalate_to_human",
-          "arguments": "{\"orderId\":1055,\"reason\":\"Customer requests 20% goodwill coupon for delayed order, exceeds automatic limit\"}",
-          "result": {
-            "ok": true,
-            "data": {
-              "ticket": "ESC-7",
-              "message": "A human support agent will follow up by email, usually within one business day."
-            }
-          }
-        },
-        "turn": 1
-      },
-      {
-        "kind": "model_call",
-        "agent": "support",
-        "modelConfigId": "groq/gpt-oss-120b",
-        "provider": "groq",
-        "promptVersion": "support@3#d7518dde",
-        "data": {
-          "step": 3,
-          "context": "The customer is signed in as Sofia Alvarez (sofia.alvarez@example.com).",
-          "message": {
-            "role": "assistant",
-            "content": null,
-            "toolCalls": [
-              {
-                "id": "fc_f36e502e-c4e1-4481-9d42-5f7fdfb75cbe",
+                "id": "fc_f086b739-79c4-4ba9-ae9f-e9a208325e5b",
                 "name": "reply",
-                "arguments": "{\"message\":\"I’m sorry the delay ruined your trip. A 20% coupon exceeds the automatic limit, so I’ve escalated this request to a human agent. Your ticket number is ESC-7 and they will follow up by email within one business day. Thanks for your understanding.\"}"
+                "arguments": "{\"message\":\"I’m sorry the delay impacted your trip. I’ve escalated your request for a 20% coupon, and a human support agent will follow up via email (ticket ESC-9) within one business day. Thank you for your patience.\"}"
               }
             ]
           },
-          "reasoning": "We need to respond to the customer, giving ticket number and what will happen. Must be short, friendly, specific, acknowledging bad news, brief reason, offer what is possible, close warmly. Use reply tool.",
+          "reasoning": "We need to reply to customer with the escalation result. Must use reply tool. Provide ticket number and mention that a human will follow up within one business day. Keep tone friendly.",
           "finishReason": "tool_calls"
         },
-        "inputTokens": 2024,
-        "outputTokens": 117,
-        "latencyMs": 895,
+        "inputTokens": 1816,
+        "outputTokens": 107,
+        "latencyMs": 747,
         "cached": false,
-        "costMicros": 374,
+        "costMicros": 337,
         "turn": 1
       },
       {
         "kind": "tool_call",
         "agent": "support",
         "data": {
-          "callId": "fc_f36e502e-c4e1-4481-9d42-5f7fdfb75cbe",
+          "callId": "fc_f086b739-79c4-4ba9-ae9f-e9a208325e5b",
           "name": "reply",
-          "arguments": "{\"message\":\"I’m sorry the delay ruined your trip. A 20% coupon exceeds the automatic limit, so I’ve escalated this request to a human agent. Your ticket number is ESC-7 and they will follow up by email within one business day. Thanks for your understanding.\"}",
+          "arguments": "{\"message\":\"I’m sorry the delay impacted your trip. I’ve escalated your request for a 20% coupon, and a human support agent will follow up via email (ticket ESC-9) within one business day. Thank you for your patience.\"}",
           "result": {
             "ok": true,
             "data": {
               "delivered": true,
-              "message": "I’m sorry the delay ruined your trip. A 20% coupon exceeds the automatic limit, so I’ve escalated this request to a human agent. Your ticket number is ESC-7 and they will follow up by email within one business day. Thanks for your understanding."
+              "message": "I’m sorry the delay impacted your trip. I’ve escalated your request for a 20% coupon, and a human support agent will follow up via email (ticket ESC-9) within one business day. Thank you for your patience."
             }
           }
         },
@@ -285,7 +207,7 @@
         "kind": "reply",
         "agent": "support",
         "data": {
-          "message": "I’m sorry the delay ruined your trip. A 20% coupon exceeds the automatic limit, so I’ve escalated this request to a human agent. Your ticket number is ESC-7 and they will follow up by email within one business day. Thanks for your understanding."
+          "message": "I’m sorry the delay impacted your trip. I’ve escalated your request for a 20% coupon, and a human support agent will follow up via email (ticket ESC-9) within one business day. Thank you for your patience."
         },
         "turn": 1
       }
@@ -379,17 +301,17 @@
     "codeStatus": "fail"
   },
   "stats": {
-    "modelCalls": 4,
+    "modelCalls": 3,
     "cachedCalls": 0,
-    "toolCalls": 2,
-    "inputTokens": 6129,
-    "outputTokens": 650,
-    "latencyMs": 4393,
+    "toolCalls": 1,
+    "inputTokens": 3981,
+    "outputTokens": 507,
+    "latencyMs": 4677,
     "turnLatencyMs": [
-      4393
+      4677
     ],
-    "costMicros": 1309,
-    "wallMs": 4447
+    "costMicros": 902,
+    "wallMs": 4715
   },
-  "finishedAt": "2026-10-01T16:50:52.277Z"
+  "finishedAt": "2026-10-01T16:55:13.887Z"
 }

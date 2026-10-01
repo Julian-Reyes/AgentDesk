@@ -1,0 +1,150 @@
+{
+  "caseId": "order-status-03",
+  "runId": "f05dbed1-7fa4-4d7b-b052-f90e9aa54f0c",
+  "questionSet": "378b9f94",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "order-status-03",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "When will my order #1056 ship?",
+        "reply": "Thanks for checking in. Order #1056 (your Traverse 65 Trekking Pack) is still in **processing** at our warehouse in Reno, NV — it hasn't been handed to a carrier yet, so there's no tracking number or estimated delivery date available just yet.\n\nAs soon as it ships, a tracking number and delivery estimate will appear on your account. I can't watch it and follow up from here, but you'll see the update in your order status once it's on the way. Anything else you'd like me to look into?"
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1056}) → {\"ok\":true,\"data\":{\"number\":1056,\"status\":\"processing\",\"placed\":\"2026-09-14\",\"delivered\":null,\"items\":[{\"productId\":\"pack-traverse-65\",\"name\":\"Traverse 65 Trekking Pack\",\"size\":\"M/L\",\"color\":\"green\",\"qty\":1,\"listPrice\":\"$259.00\",\"discount\":\"$0.00\",\"paid\":\"$259.00\",\"returnedQty\":0}],\"subtotal\":\"$259.00\",\"discount\":\"$0.00\",\"shipping\":\"$0.00\",\"totalPaid\":\"$259.00\",\"refunds\":[]}}",
+      "message 1: get_tracking({\"orderId\":1056}) → {\"ok\":true,\"data\":{\"orderNumber\":1056,\"status\":\"processing\",\"carrier\":null,\"trackingNumber\":null,\"estimatedDelivery\":null,\"events\":[{\"at\":\"2026-09-14 16:00\",\"status\":\"order_placed\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":null}]}}"
+    ],
+    "judgeNote": "Says it's still being processed. May quote general shipping times from the shipping policy, clearly as general policy.",
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent doesn't give a specific ship date or delivery date (no tool provides one for a processing order)."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "The reply clearly explains the order status and next steps, is warm and professional, and fully addresses the customer's question."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent states the order is still processing and that no tracking number or estimated delivery date is available, matching the tool data which shows status processing and no estimated delivery. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent does not promise to follow up or do anything beyond stating that the system will update the order status; it acknowledges its limitation and refers to standard process. This complies with the rule. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": false,
+        "why": "The agent states that as soon as the order ships, a tracking number will appear, but the tool data shows the order is still processing with no shipping date, and no policy text is provided to support that timing. Therefore the timing claim is unsupported.",
+        "votes": [
+          false,
+          false,
+          false
+        ],
+        "noConclusion": 2
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": false
+  },
+  "calls": [
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 686,
+      "inputTokens": 910,
+      "outputTokens": 347,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states they cannot watch or follow up from here and only informs the customer that updates will appear in their account once the order ships. No promise or implication of future action beyond what the system will provide is made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 809,
+      "inputTokens": 833,
+      "outputTokens": 378,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the order is still processing and that no tracking number or estimated delivery date is available, matching the tool data which shows status processing and no estimated delivery. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1062,
+      "inputTokens": 910,
+      "outputTokens": 485,
+      "cached": false,
+      "raw": "{\"why\":\"The agent does not promise to follow up or do anything beyond stating that the system will update the order status; it acknowledges its limitation and refers to standard process. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 1150,
+      "inputTokens": 1143,
+      "outputTokens": 213,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"The reply clearly explains the order status and next steps, is warm and professional, and fully addresses the customer's question.\"}]}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 1217,
+      "inputTokens": 899,
+      "outputTokens": 642,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that a tracking number and delivery estimate will appear as soon as the order ships, but the tool result shows the order is still processing with no shipping date and no policy is cited to support that timing. Therefore the timing claim is unsupported. Answer: no.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1294,
+      "inputTokens": 910,
+      "outputTokens": 500,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the order is still processing and that the system will update the tracking info once shipped, and explicitly says it cannot follow up from here, so no impossible promise is made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1800,
+      "inputTokens": 899,
+      "outputTokens": 600,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that as soon as the order ships, a tracking number will appear, but the tool data shows the order is still processing with no shipping date, and no policy text is provided to support that timing. Therefore the timing claim is unsupported.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 1146,
+      "inputTokens": 899,
+      "outputTokens": 616,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that as soon as the order ships, a tracking number will appear, but the tool data shows the order is still processing with no shipping date and no policy is cited to support that timing. Therefore the timing claim is unsupported.\",\"answer\":false}"
+    }
+  ]
+}

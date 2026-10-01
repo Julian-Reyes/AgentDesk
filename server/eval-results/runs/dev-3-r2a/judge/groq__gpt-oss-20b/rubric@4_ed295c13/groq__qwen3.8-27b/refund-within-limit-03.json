@@ -1,0 +1,182 @@
+{
+  "caseId": "refund-within-limit-03",
+  "runId": "fa706203-5195-4e44-9f66-1846e559a245",
+  "questionSet": "2e7a127e",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "refund-within-limit-03",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Something from my order #1074 arrived broken. What can you do?",
+        "reply": "I can see the three items in your order. Which one (or ones) arrived broken?\n\nJust tell me the item name, and if you can, a quick note on what's damaged — then I can confirm what refund we can arrange for you."
+      },
+      {
+        "turn": 2,
+        "customer": "It's the kids' headlamp, the Firefly. It won't switch on at all, and the battery door is cracked.",
+        "reply": "I've gone ahead and refunded the headlamp — **$14.99** has been issued to your original payment method. You can keep or dispose of the broken unit; you don't need to send it back.\n\nIf you'd like a replacement instead of just the money back, or if anything else in that order gave you trouble, let me know and I'll help sort it out."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1074}) → {\"ok\":true,\"data\":{\"number\":1074,\"status\":\"delivered\",\"placed\":\"2026-08-30\",\"delivered\":\"2026-09-03\",\"items\":[{\"productId\":\"pack-voyager-80\",\"name\":\"Voyager 80 Expedition Pack\",\"size\":\"M/L\",\"color\":\"grey\",\"qty\":1,\"listPrice\":\"$329.00\",\"discount\":\"$0.00\",\"paid\":\"$329.00\",\"returnedQty\":0},{\"productId\":\"jacket-squall\",\"name\":\"Squall Rain Jacket\",\"size\":\"L\",\"color\":\"green\",\"qty\":1,\"listPrice\":\"$149.00\",\"discount\":\"$0.00\",\"paid\":\"$149.00\",\"returnedQty\":0},{\"productId\":\"lamp-firefly-kids\",\"name\":\"Firefly Kids Headlamp\",\"size\":null,\"color\":\"pink\",\"qty\":1,\"listPrice\":\"$14.99\",\"discount\":\"$0.00\",\"paid\":\"$14.99\",\"returnedQty\":0}],\"subtotal\":\"$492.99\",\"discount\":\"$0.00\",\"shipping\":\"$0.00\",\"totalPaid\":\"$492.99\",\"refunds\":[]}}",
+      "message 2: get_policy({\"topic\":\"damaged_items\"}) → {\"ok\":true,\"data\":{\"topic\":\"damaged_items\",\"title\":\"Damaged items\",\"text\":\"If an item arrives damaged, report it within 14 days of delivery.\\nWe'll refund the item or send a replacement; you don't need to send the damaged item back unless we ask.\\nA damaged item that cost $50.00 or less is refunded right away; pricier items are reviewed by a team member, usually within one business day.\\nReports after 14 days are reviewed case by case by a team member.\"}}",
+      "message 2: issue_refund({\"amount\":14.99,\"item\":\"Firefly Kids Headlamp\",\"note\":\"Arrived damaged: battery door cracked, unit does not switch on. Refunded as priced item $50 or less.\",\"orderId\":1074,\"reason\":\"damaged\"}) → {\"ok\":true,\"data\":{\"status\":\"refunded\",\"refundId\":88,\"amount\":\"$14.99\",\"message\":\"Refund of $14.99 issued to the original payment method.\"},\"policyDecision\":\"auto_approved\"}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "In its first reply, the agent asks which item is broken (or what's wrong) instead of guessing or refunding an item."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": [
+      {
+        "id": "script:2",
+        "turn": 2,
+        "assumes": "the agent asked which item is broken or what's wrong with it"
+      }
+    ]
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "Clear, friendly request for details and next steps."
+      },
+      {
+        "reply": 2,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "Explicit refund info, next steps, and replacement offer."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent’s first reply explicitly asks the customer to identify which item(s) arrived broken and to describe the damage, rather than making a guess or issuing a refund. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only confirms a refund that was already processed and offers future help if requested, which is permissible. No impossible promises were made. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent made no timing claims in either reply, so there is nothing to contradict the policy or tool results. Therefore the statement about timing is consistent with the available information. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": [
+      {
+        "id": "script:2",
+        "answer": true,
+        "why": "The agent’s reply 1 explicitly asks which item(s) arrived broken and requests a brief description of the damage. The customer’s message 2 supplies exactly that information – identifying the Firefly Kids Headlamp and describing its failure and cracked battery door. Thus the customer’s reply fits the agent’s request. Answer: yes."
+      }
+    ]
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true,
+    "script:2": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:0",
+      "latencyMs": 561,
+      "inputTokens": 1132,
+      "outputTokens": 206,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s first reply explicitly asks the customer to identify which item(s) arrived broken and to describe the damage, rather than making a guess or issuing a refund. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 658,
+      "inputTokens": 1193,
+      "outputTokens": 323,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refund processing time, or review duration. All timing claims are absent, so they trivially match the policy or tool results. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 893,
+      "inputTokens": 1193,
+      "outputTokens": 348,
+      "cached": false,
+      "raw": "{\"why\":\"All timing statements are consistent with policy or absent. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 906,
+      "inputTokens": 1204,
+      "outputTokens": 557,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only confirmed a refund that was already processed and offered future help if requested, which is permissible. No impossible promises were made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 919,
+      "inputTokens": 1440,
+      "outputTokens": 361,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"Clear, friendly request for details and next steps.\"},{\"reply\":2,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"Explicit refund info, next steps, and replacement offer.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1019,
+      "inputTokens": 1204,
+      "outputTokens": 514,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only confirms a refund that has already been processed and offers a replacement, with no unachievable promises or future actions beyond standard policy. All statements reflect completed actions or standard policy. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1021,
+      "inputTokens": 1204,
+      "outputTokens": 556,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only confirms a refund that was already processed and offers future help if requested, which is permissible. No impossible promises were made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1020,
+      "inputTokens": 1193,
+      "outputTokens": 334,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no timing claims in either reply, so there is nothing to contradict the policy or tool results. Therefore the statement about timing is consistent with the available information. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "script:2",
+      "latencyMs": 1070,
+      "inputTokens": 1134,
+      "outputTokens": 296,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply 1 explicitly asks which item(s) arrived broken and requests a brief description of the damage. The customer’s message 2 supplies exactly that information – identifying the Firefly Kids Headlamp and describing its failure and cracked battery door. Thus the customer’s reply fits the agent’s request. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

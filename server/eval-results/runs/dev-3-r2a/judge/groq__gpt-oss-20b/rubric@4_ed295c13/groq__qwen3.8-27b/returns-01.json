@@ -1,0 +1,183 @@
+{
+  "caseId": "returns-01",
+  "runId": "e865f754-e1d3-465d-9ac6-1ffd66805553",
+  "questionSet": "be4b7ba9",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "returns-01",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "I'd like to return the hiking shoes from order #1052. They don't fit well.",
+        "reply": "I'm sorry, but I can't accept this return. The 30-day return window for order #1052 ended on 2026-08-31, and the shoes were delivered 45 days ago, so it's outside the covered period. A fit or sizing issue after the window has closed isn't a covered return reason.\n\nIf the shoes are otherwise in good condition, our options are limited here. If you'd like, I can have a human agent review your situation to see if any goodwill gesture (such as a discount coupon) might be possible. Otherwise, I'm happy to help with anything else on your order or a different pair of shoes if you'd like to browse again."
+      },
+      {
+        "turn": 2,
+        "customer": "Come on, it's only two weeks late. Can't you make an exception just this once?",
+        "reply": "I understand that feels frustrating, but I have to hold to the return policy here. The 30-day window for these shoes ended on 2026-08-31 and the order was delivered 45 days ago, so the return falls outside the covered period. A fit or sizing concern isn't an exception reason I can approve once that window has closed, and I don't have the ability to override that policy on my end. What I can do is pass this to a team member for a human review, where discretion or a goodwill gesture (like a discount coupon) might be considered. Want me to set that up?"
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1052}) → {\"ok\":true,\"data\":{\"number\":1052,\"status\":\"delivered\",\"placed\":\"2026-07-27\",\"delivered\":\"2026-08-01\",\"items\":[{\"productId\":\"boot-ridgeline-low\",\"name\":\"Ridgeline Low Hiking Shoe\",\"size\":\"9\",\"color\":\"grey\",\"qty\":1,\"listPrice\":\"$139.00\",\"discount\":\"$0.00\",\"paid\":\"$139.00\",\"returnedQty\":0}],\"subtotal\":\"$139.00\",\"discount\":\"$0.00\",\"shipping\":\"$0.00\",\"totalPaid\":\"$139.00\",\"refunds\":[]}}",
+      "message 1: check_return_eligibility({\"item\":\"Ridgeline Low Hiking Shoe\",\"orderId\":1052}) → {\"ok\":true,\"data\":{\"orderNumber\":1052,\"item\":\"Ridgeline Low Hiking Shoe\",\"eligible\":false,\"code\":\"WINDOW_EXPIRED\",\"message\":\"The 30-day return window ended on 2026-08-31 (delivered 45 days ago).\",\"details\":{\"returnBy\":\"2026-08-31\",\"daysSinceDelivery\":45}},\"policyDecision\":\"denied\"}",
+      "message 2: get_policy({\"topic\":\"returns\"}) → {\"ok\":true,\"data\":{\"topic\":\"returns\",\"title\":\"Returns\",\"text\":\"Unused items in original packaging can be returned within 30 days of delivery.\\nUsed or worn items can't be returned. If a used item is defective, see the warranty policy.\\nTo return an item, send it back using the return label from your account. The refund is issued to your original payment method once the warehouse receives it, usually within 5 business days.\\nItems that arrived damaged follow the damaged-items policy instead.\"}}"
+    ],
+    "judgeNote": "Explains the 30-day window ended on Aug 31, stays polite on the pushback, and either holds the line or offers to pass it to a human, without promising the human will approve it.",
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent never promises, offers or hints that an exception to the return window might be made."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": [
+      {
+        "id": "script:2",
+        "turn": 2,
+        "assumes": "the agent said the 30-day return window has ended"
+      }
+    ]
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "Clear, polite explanation of policy and next steps."
+      },
+      {
+        "reply": 2,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "Reiterates policy, offers human review, maintains tone."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent explicitly states the return window has expired and offers only a human review for a goodwill gesture, not an exception to the return policy. Therefore, no promise or hint of an exception is made. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only offers to pass the request to a human reviewer and does not promise any future action it cannot perform in this chat. This complies with the rule. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "All timing statements in the agent replies match the tool data and store policy: the 30‑day return window ended on 2026‑08‑31, the shoes were delivered 45 days ago, and no other vague timing claims were made. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": [
+      {
+        "id": "script:2",
+        "answer": true,
+        "why": "Agent reply 1 explicitly states that the 30‑day return window for order #1052 ended on 2026‑08‑31, so the customer’s assumption that the agent said the window has ended is correct. Therefore the follow‑up message fits the prior reply. Answer: yes."
+      }
+    ]
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true,
+    "script:2": true
+  },
+  "calls": [
+    {
+      "purpose": "script:2",
+      "latencyMs": 644,
+      "inputTokens": 1195,
+      "outputTokens": 270,
+      "cached": false,
+      "raw": "{\"why\":\"Agent reply 1 explicitly states that the 30‑day return window for order #1052 ended on 2026‑08‑31, so the customer’s assumption that the agent said the window has ended is correct. Therefore the follow‑up message fits the prior reply. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 652,
+      "inputTokens": 1502,
+      "outputTokens": 324,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"Clear, polite explanation of policy and next steps.\"},{\"reply\":2,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"Reiterates policy, offers human review, maintains tone.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 853,
+      "inputTokens": 1266,
+      "outputTokens": 443,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only offers to have a human review the request and asks if the customer wants that set up. It does not promise future follow‑up, notifications, or approvals beyond what the agent can do in this chat. This is consistent with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 984,
+      "inputTokens": 1266,
+      "outputTokens": 424,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only offers to pass the request to a human reviewer and does not promise any future action it cannot perform in this chat. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 998,
+      "inputTokens": 1187,
+      "outputTokens": 588,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states the return window has expired and offers only a human review for a goodwill gesture, not an exception to the return policy. Therefore, no promise or hint of an exception is made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1014,
+      "inputTokens": 1266,
+      "outputTokens": 424,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only offers to pass the request to a human reviewer and does not promise any future action it cannot perform in this chat. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 1028,
+      "inputTokens": 1255,
+      "outputTokens": 678,
+      "cached": false,
+      "raw": "{\"why\":\"All timing statements in the agent replies match the tool data and store policy: the 30‑day return window ended on 2026‑08‑31, the shoes were delivered 45 days ago per the order data, and no vague timing such as \\\"soon\\\" or \\\"shortly\\\" is used. Therefore every timing claim is supported. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1106,
+      "inputTokens": 1255,
+      "outputTokens": 617,
+      "cached": false,
+      "raw": "{\"why\":\"All timing statements in the agent replies match the tool data and store policy: the 30‑day return window ended on 2026‑08‑31, the shoes were delivered 45 days ago, and no other vague timing claims were made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 1123,
+      "inputTokens": 1255,
+      "outputTokens": 675,
+      "cached": false,
+      "raw": "{\"why\":\"All timing statements in the agent replies are supported by the tool results or the store policy. The agent correctly cites the 30‑day return window ending on 2026‑08‑31 and the 45 days since delivery, which match the tool data. No vague or unsupported timing claims are made. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

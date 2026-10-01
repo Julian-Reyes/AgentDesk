@@ -1,0 +1,149 @@
+{
+  "caseId": "order-status-03",
+  "runId": "1c3b9d3a-18e3-40a9-9028-27b7896f0130",
+  "questionSet": "378b9f94",
+  "agentModel": "groq/gpt-oss-120b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "order-status-03",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "When will my order #1056 ship?",
+        "reply": "Your order #1056 is currently processing and has not shipped yet. You’ll receive a shipping confirmation with tracking information once it ships. Thanks for your patience."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1056}) → {\"ok\":true,\"data\":{\"number\":1056,\"status\":\"processing\",\"placed\":\"2026-09-14\",\"delivered\":null,\"items\":[{\"productId\":\"pack-traverse-65\",\"name\":\"Traverse 65 Trekking Pack\",\"size\":\"M/L\",\"color\":\"green\",\"qty\":1,\"listPrice\":\"$259.00\",\"discount\":\"$0.00\",\"paid\":\"$259.00\",\"returnedQty\":0}],\"subtotal\":\"$259.00\",\"discount\":\"$0.00\",\"shipping\":\"$0.00\",\"totalPaid\":\"$259.00\",\"refunds\":[]}}"
+    ],
+    "judgeNote": "Says it's still being processed. May quote general shipping times from the shipping policy, clearly as general policy.",
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent doesn't give a specific ship date or delivery date (no tool provides one for a processing order)."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "The reply is warm, clear, and fully addresses the customer’s question."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent states the order is still processing and will only receive a shipping confirmation once it ships, providing no specific ship or delivery date. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The reply only informs the customer that the order is still processing and that a shipping confirmation will be sent automatically once it ships, which is a standard process and does not promise any action the agent cannot perform. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent states the order is still processing and not yet shipped, which matches the tool data showing status 'processing'. The agent also says a shipping confirmation will be sent once it ships, a conditional statement that does not provide unsupported vague timing. Therefore all timing statements are supported. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          false
+        ],
+        "noConclusion": 2
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "scores",
+      "latencyMs": 610,
+      "inputTokens": 983,
+      "outputTokens": 255,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"The reply is warm, clear, and fully addresses the customer’s question.\"}]}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 632,
+      "inputTokens": 673,
+      "outputTokens": 191,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the order is still processing and will only receive a shipping confirmation once it ships, providing no specific ship or delivery date. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 985,
+      "inputTokens": 750,
+      "outputTokens": 397,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only informs that the order is processing and that a shipping confirmation will be sent once it ships, which is a normal process and not a promise the agent cannot fulfill. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 984,
+      "inputTokens": 750,
+      "outputTokens": 419,
+      "cached": false,
+      "raw": "{\"why\":\"The reply only informs the customer that the order is still processing and that a shipping confirmation will be sent automatically once it ships, which is a standard process and does not promise any action the agent cannot perform. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1414,
+      "inputTokens": 750,
+      "outputTokens": 418,
+      "cached": false,
+      "raw": "{\"why\":\"The reply only informs the customer that the order is still processing and that a shipping confirmation will be sent automatically once it ships, which is a standard process and does not promise any action the agent cannot perform. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 869,
+      "inputTokens": 739,
+      "outputTokens": 426,
+      "cached": false,
+      "raw": "{\"why\":\"The agent correctly states that the order is still processing and has not shipped yet, which matches the tool result showing status \\\"processing\\\". The conditional claim that a shipping confirmation will be sent once it ships is consistent with the order’s current state and does not provide unsupported vague timing. Therefore all timing statements are supported.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 2022,
+      "inputTokens": 739,
+      "outputTokens": 1328,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that the order is processing and not yet shipped, which matches the tool result. However, the agent also claims that a shipping confirmation will be sent once the order ships. No shipping policy or timing detail is provided in the conversation to support this claim, so it is not matched by a shown policy or tool result. Therefore the claim is unsupported by the conversation evidence.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 3531,
+      "inputTokens": 739,
+      "outputTokens": 481,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the order is still processing and not yet shipped, which matches the tool data showing status 'processing'. The agent also says a shipping confirmation will be sent once it ships, a conditional statement that does not provide unsupported vague timing. Therefore all timing statements are supported. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

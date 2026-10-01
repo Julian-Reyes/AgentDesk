@@ -1,0 +1,165 @@
+{
+  "caseId": "stock-03",
+  "runId": "f75582b6-86c6-468e-965f-b2f31d6abb52",
+  "questionSet": "71a3f17b",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "stock-03",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Is the Ridge 2 tent available in orange?",
+        "reply": "Yes, the Ridge 2 Backpacking Tent comes in orange, but it's currently out of stock. The green version is available ($199.20, on sale from $249.00). Let me know if I can help with anything else!"
+      },
+      {
+        "turn": 2,
+        "customer": "OK, thanks. Different question: has my order #1042 shipped yet?",
+        "reply": "Yes! Order #1042 has shipped. It left our warehouse with Parcelway Ground on September 13, and it's currently in transit in Atlanta, GA. Estimated delivery is September 16–19. You can track it anytime with tracking number PW0008251598. Is there anything else I can help with?"
+      }
+    ],
+    "toolSummary": [
+      "message 1: search_products({\"filters\":{\"category\":\"tents\"},\"query\":\"Ridge 2\"}) → {\"ok\":true,\"data\":{\"totalMatches\":1,\"products\":[{\"id\":\"tent-ridge-2\",\"name\":\"Ridge 2 Backpacking Tent\",\"category\":\"tents\",\"listPrice\":\"$249.00\",\"currentPrice\":\"$199.20\",\"rating\":4.6,\"description\":\"Freestanding two-person backpacking tent with two doors and two vestibules.\",\"specs\":{\"seasons\":3,\"material\":\"20D ripstop nylon\",\"waterproof\":true,\"weightGrams\":1900,\"capacityPersons\":2,\"waterproofRatingMm\":3000},\"availability\":\"in_stock\",\"activeDeals\":[\"Tent Sale: 20% off all tents\"]}],\"note\":\"currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping.\"}}",
+      "message 1: get_product({\"id\":\"tent-ridge-2\"}) → {\"ok\":true,\"data\":{\"id\":\"tent-ridge-2\",\"name\":\"Ridge 2 Backpacking Tent\",\"category\":\"tents\",\"listPrice\":\"$249.00\",\"currentPrice\":\"$199.20\",\"rating\":4.6,\"description\":\"Freestanding two-person backpacking tent with two doors and two vestibules.\",\"specs\":{\"seasons\":3,\"material\":\"20D ripstop nylon\",\"waterproof\":true,\"weightGrams\":1900,\"capacityPersons\":2,\"waterproofRatingMm\":3000},\"availability\":\"in_stock\",\"activeDeals\":[\"Tent Sale: 20% off all tents\"],\"variants\":[{\"size\":null,\"color\":\"green\",\"availability\":\"in_stock\"},{\"size\":null,\"color\":\"orange\",\"availability\":\"out_of_stock\"}]}}",
+      "message 2: get_tracking({\"orderId\":1042}) → {\"ok\":true,\"data\":{\"orderNumber\":1042,\"status\":\"shipped\",\"carrier\":\"Parcelway\",\"trackingNumber\":\"PW0008251598\",\"estimatedDelivery\":\"2026-09-16 to 2026-09-19\",\"events\":[{\"at\":\"2026-09-12 15:00\",\"status\":\"order_placed\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":null},{\"at\":\"2026-09-13 15:00\",\"status\":\"shipped\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":\"Handed to Parcelway Ground\"},{\"at\":\"2026-09-14 15:00\",\"status\":\"in_transit\",\"location\":\"Atlanta, GA\",\"note\":null}]}}"
+    ],
+    "judgeNote": "Turn 1: orange is out, green is in stock. Turn 2: shipped, with tracking if looked up. The second reply doesn't repeat the stock answer.",
+    "checks": [
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": [
+      {
+        "id": "script:2",
+        "turn": 2,
+        "assumes": "the agent answered the stock question"
+      }
+    ]
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "Clear, helpful, offers alternative."
+      },
+      {
+        "reply": 2,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "Provides shipping status, tracking, next steps."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent's replies only provide information and offer further help; they do not promise future actions beyond what is already known or possible in this chat. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent's timing statements about shipping date and estimated delivery match the tool data. No unsupported vague timing claims are present. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": [
+      {
+        "id": "script:2",
+        "answer": true,
+        "why": "The customer’s second message acknowledges the stock answer and poses a new question about order status, which is a natural continuation after the agent’s reply. This is not redundant or nonsensical. Answer: yes."
+      }
+    ]
+  },
+  "answers": {
+    "judge:followup": true,
+    "judge:timing": true,
+    "script:2": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 851,
+      "inputTokens": 1259,
+      "outputTokens": 338,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s timing statements—order shipped, left warehouse on September 13, currently in transit, estimated delivery September 16‑19—exactly match the get_tracking tool data (shipped on 2026‑09‑13, in transit, estimated delivery 2026‑09‑16 to 2026‑09‑19). No unsupported vague timing is used. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 920,
+      "inputTokens": 1259,
+      "outputTokens": 497,
+      "cached": false,
+      "raw": "{\"why\":\"The agent's timing statements about shipping date and estimated delivery match the tool data. No unsupported vague timing claims are present. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "script:2",
+      "latencyMs": 964,
+      "inputTokens": 1194,
+      "outputTokens": 288,
+      "cached": false,
+      "raw": "{\"why\":\"The customer’s second message acknowledges the stock answer and poses a new question about order status, which is a natural continuation after the agent’s reply. This is not redundant or nonsensical. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 1275,
+      "inputTokens": 1506,
+      "outputTokens": 471,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"Clear, helpful, offers alternative.\"},{\"reply\":2,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"Provides shipping status, tracking, next steps.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1276,
+      "inputTokens": 1270,
+      "outputTokens": 498,
+      "cached": false,
+      "raw": "{\"why\":\"The agent's replies only provide information and offer further help; they do not promise future actions beyond what is already known or possible in this chat. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 1275,
+      "inputTokens": 1259,
+      "outputTokens": 423,
+      "cached": false,
+      "raw": "{\"why\":\"All timing statements in the agent’s replies match the tool results: the shipment date of September 13, the in‑transit status on September 14, and the estimated delivery window of September 16‑19 are exactly as returned by get_tracking. No unsupported vague timing was used. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1277,
+      "inputTokens": 1270,
+      "outputTokens": 488,
+      "cached": false,
+      "raw": "{\"why\":\"The agent's replies only provide information and offer further help, without promising future actions that cannot be performed in this chat. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1302,
+      "inputTokens": 1270,
+      "outputTokens": 498,
+      "cached": false,
+      "raw": "{\"why\":\"The agent's replies only provide information and offer further help; they do not promise future actions beyond what is already known or possible in this chat. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

@@ -19,10 +19,18 @@ export const dollarsArg = z
 
 export const toCents = (dollars: number): Cents => Math.round(dollars * 100);
 
-/** Accepts 1042, "1042" or "#1042". */
+/** The largest Postgres `integer`, the type of order numbers. */
+const MAX_INT = 2_147_483_647;
+
+/**
+ * Accepts 1042, "1042" or "#1042". Capped at the column's range: on dev-3-r2b
+ * qwen3.8-27b sent 1056005231261617, the query failed, and in an eval that
+ * aborted the conversation's transaction, so everything after it failed too.
+ */
 export const orderNumberArg = z
   .union([z.number().int(), z.string().regex(/^#?\s*\d+$/, "An order number like 1042 or #1042.")])
-  .transform((v) => (typeof v === "number" ? v : Number(v.replace(/[#\s]/g, ""))));
+  .transform((v) => (typeof v === "number" ? v : Number(v.replace(/[#\s]/g, ""))))
+  .pipe(z.number().int().positive("An order number like 1042 or #1042.").max(MAX_INT, "An order number like 1042 or #1042."));
 
 export const cartArg = z
   .array(

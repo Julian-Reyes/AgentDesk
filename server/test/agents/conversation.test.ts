@@ -1,4 +1,5 @@
-import { describe, expect, it } from "vitest";
+import { sql } from "drizzle-orm";
+import { describe, expect, it, vi } from "vitest";
 import {
   CLARIFY_FALLBACK,
   Conversation,
@@ -10,6 +11,7 @@ import type { Tx } from "../../src/db/client.ts";
 import { fixedClock } from "../../src/domain/clock.ts";
 import { FakeProvider, fake, type FakeStep } from "../../src/llm/fake.ts";
 import type { ChatMessage } from "../../src/llm/types.ts";
+import { getTool } from "../../src/tools/registry.ts";
 import { MemoryTracer } from "../../src/tracing/tracer.ts";
 import { toolCallHealth } from "../../src/tracing/tool-call-health.ts";
 import { MAYA, PRIYA, inTx } from "../helpers.ts";
@@ -195,6 +197,27 @@ describe("agent loop: policy outcomes come from the tools", () => {
 });
 
 describe("agent loop: guardrails", () => {
+  it("a tool whose query fails rolls back alone: the rest of the conversation still works (dev-3-r2b)", () =>
+    inTx(async (tx) => {
+      const getOrder = getTool("get_order")!;
+      const spy = vi.spyOn(getOrder, "run").mockImplementationOnce(async (ctx) => {
+        await ctx.db.execute(sql`select 1 / 0`);
+        throw new Error("unreachable");
+      });
+      try {
+        const t = await setup(tx, {
+          customerId: MAYA,
+          router: [route("support")],
+          agent: [fake.tools(["get_order", { orderId: 1042 }]), fake.tools(["get_order", { orderId: 1042 }]), fake.reply("It shipped.")],
+        });
+        expect((await t.convo.send("Where's #1042?")).reply).toBe("It shipped.");
+        expect(t.toolSteps().filter((x) => x.name === "get_order").map((x) => x.result.ok)).toEqual([false, true]);
+        expect(t.toolSteps()[0]!.result.error.code).toBe("TOOL_FAILED");
+      } finally {
+        spy.mockRestore();
+      }
+    }));
+
   it("an agent can't call another agent's tools, unknown tools, or send broken JSON", () =>
     inTx(async (tx) => {
       const t = await setup(tx, {

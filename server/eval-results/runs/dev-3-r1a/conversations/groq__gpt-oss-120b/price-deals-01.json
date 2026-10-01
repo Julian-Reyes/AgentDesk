@@ -65,11 +65,11 @@
     }
   },
   "observation": {
-    "runId": "978e71b5-68a1-47ae-8012-7e0a74d967ab",
+    "runId": "f5471e90-96ad-419a-8ff3-13280dab83a7",
     "turns": [
       {
         "customer": "How much would 2 Ridge 2 tents cost with code SUMMER10?",
-        "reply": "Two Ridge 2 Backpacking Tents cost $398.40 after the 20% tent sale. With coupon SUMMER10 you get an additional $39.84 off, shipping is FREE, and the total is $358.56.",
+        "reply": "Two Ridge 2 Backpacking Tents cost $398.40 before the coupon. The SUMMER10 coupon applies a 10% discount of $39.84. Shipping is FREE. Your total is $358.56.",
         "answeredBy": "shopping",
         "outcome": "resolved"
       }
@@ -100,10 +100,10 @@
           "fallback": false
         },
         "inputTokens": 424,
-        "outputTokens": 121,
-        "latencyMs": 637,
+        "outputTokens": 96,
+        "latencyMs": 539,
         "cached": false,
-        "costMicros": 136,
+        "costMicros": 121,
         "turn": 1
       },
       {
@@ -120,33 +120,33 @@
             "content": null,
             "toolCalls": [
               {
-                "id": "fc_8eac5a3d-b0ba-4db3-bada-3b92497194e3",
+                "id": "fc_32fb8e0c-57bb-4a7d-b548-cf5f9f157b20",
                 "name": "search_products",
-                "arguments": "{\"limit\":5,\"query\":\"Ridge 2 tent\"}"
+                "arguments": "{\"filters\":{\"category\":\"tents\",\"inStockOnly\":true},\"limit\":5,\"query\":\"Ridge 2 tent\"}"
               }
             ]
           },
-          "reasoning": "We need to find product ID for \"Ridge 2 tent\". Search.",
+          "reasoning": "We need to find product \"Ridge 2\" tent. Use search.",
           "finishReason": "tool_calls"
         },
         "inputTokens": 1845,
-        "outputTokens": 55,
-        "latencyMs": 562,
+        "outputTokens": 78,
+        "latencyMs": 490,
         "cached": false,
-        "costMicros": 310,
+        "costMicros": 324,
         "turn": 1
       },
       {
         "kind": "tool_call",
         "agent": "shopping",
         "data": {
-          "callId": "fc_8eac5a3d-b0ba-4db3-bada-3b92497194e3",
+          "callId": "fc_32fb8e0c-57bb-4a7d-b548-cf5f9f157b20",
           "name": "search_products",
-          "arguments": "{\"limit\":5,\"query\":\"Ridge 2 tent\"}",
+          "arguments": "{\"filters\":{\"category\":\"tents\",\"inStockOnly\":true},\"limit\":5,\"query\":\"Ridge 2 tent\"}",
           "result": {
             "ok": true,
             "data": {
-              "totalMatches": 13,
+              "totalMatches": 8,
               "products": [
                 {
                   "id": "tent-ridge-2",
@@ -191,22 +191,6 @@
                   ]
                 },
                 {
-                  "id": "boot-ridgeline-mid",
-                  "name": "Ridgeline Mid Hiking Boot",
-                  "category": "boots",
-                  "listPrice": "$179.00",
-                  "currentPrice": "$179.00",
-                  "rating": 4.5,
-                  "description": "Waterproof mid-cut hiking boot with a membrane liner.",
-                  "specs": {
-                    "material": "suede and mesh",
-                    "waterproof": true,
-                    "weightGrams": 1200
-                  },
-                  "availability": "in_stock",
-                  "activeDeals": []
-                },
-                {
                   "id": "tent-canopy-2",
                   "name": "Canopy 2 Trail Tent",
                   "category": "tents",
@@ -247,6 +231,27 @@
                   "activeDeals": [
                     "Tent Sale: 20% off all tents"
                   ]
+                },
+                {
+                  "id": "tent-fernlight-2",
+                  "name": "Fernlight 2 Ultralight Tent",
+                  "category": "tents",
+                  "listPrice": "$389.00",
+                  "currentPrice": "$311.20",
+                  "rating": 4.4,
+                  "description": "Trekking-pole-supported ultralight shelter for two.",
+                  "specs": {
+                    "seasons": 3,
+                    "material": "silnylon",
+                    "waterproof": true,
+                    "weightGrams": 1200,
+                    "capacityPersons": 2,
+                    "waterproofRatingMm": 1500
+                  },
+                  "availability": "low_stock",
+                  "activeDeals": [
+                    "Tent Sale: 20% off all tents"
+                  ]
                 }
               ],
               "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
@@ -269,27 +274,98 @@
             "content": null,
             "toolCalls": [
               {
-                "id": "fc_0f2e95f4-dd3b-40bb-8fed-7f97b4a26f20",
-                "name": "quote_price",
-                "arguments": "{\"cart\":[{\"productId\":\"tent-ridge-2\",\"qty\":2}],\"coupon\":\"SUMMER10\"}"
+                "id": "fc_2e35b99e-e11f-4f64-ab7b-b5b2a8e4afb8",
+                "name": "get_active_promotions",
+                "arguments": "{}"
               }
             ]
           },
-          "reasoning": "We need price for 2 Ridge 2 tents with coupon SUMMER10. Need to validate coupon and quote price. Use quote_price with cart: productId \"tent-ridge-2\", qty 2, coupon \"SUMMER10\".",
+          "reasoning": "We need cost for 2 Ridge 2 tents with code SUMMER10. Need to validate coupon and quote price. First check if coupon exists via get_active_promotions maybe.",
           "finishReason": "tool_calls"
         },
-        "inputTokens": 2499,
-        "outputTokens": 91,
-        "latencyMs": 999,
+        "inputTokens": 2543,
+        "outputTokens": 58,
+        "latencyMs": 510,
         "cached": false,
-        "costMicros": 429,
+        "costMicros": 416,
         "turn": 1
       },
       {
         "kind": "tool_call",
         "agent": "shopping",
         "data": {
-          "callId": "fc_0f2e95f4-dd3b-40bb-8fed-7f97b4a26f20",
+          "callId": "fc_2e35b99e-e11f-4f64-ab7b-b5b2a8e4afb8",
+          "name": "get_active_promotions",
+          "arguments": "{}",
+          "result": {
+            "ok": true,
+            "data": {
+              "promotions": [
+                {
+                  "name": "Tent Sale: 20% off all tents",
+                  "endsOn": "2026-10-05"
+                },
+                {
+                  "name": "Headlamps: buy 2, get 1 free",
+                  "endsOn": "2026-10-15"
+                }
+              ],
+              "freeShipping": "Free shipping on orders of $75.00 or more; otherwise $7.99.",
+              "couponCodes": [
+                {
+                  "code": "SUMMER10",
+                  "terms": "10% off; expires 2026-09-30"
+                },
+                {
+                  "code": "TRAIL25",
+                  "terms": "$25.00 off; minimum spend $150.00; expires 2026-12-31"
+                },
+                {
+                  "code": "GEAR20",
+                  "terms": "20% off; minimum spend $50.00; not valid on tents, sleeping bags; expires 2026-10-30"
+                }
+              ],
+              "rules": "One coupon per order. Sales apply first, then buy-2-get-1, then the coupon."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@2#3e94b8f1",
+        "data": {
+          "step": 3,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_6493ae66-ac2a-4d4d-a3ad-df3660da77e2",
+                "name": "quote_price",
+                "arguments": "{\"cart\":[{\"productId\":\"tent-ridge-2\",\"qty\":2}],\"coupon\":\"SUMMER10\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to quote price for 2 Ridge 2 tents with coupon SUMMER10. Need to validate coupon first maybe, but quote_price will apply. Use quote_price tool.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2763,
+        "outputTokens": 90,
+        "latencyMs": 520,
+        "cached": false,
+        "costMicros": 468,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_6493ae66-ac2a-4d4d-a3ad-df3660da77e2",
           "name": "quote_price",
           "arguments": "{\"cart\":[{\"productId\":\"tent-ridge-2\",\"qty\":2}],\"coupon\":\"SUMMER10\"}",
           "result": {
@@ -334,41 +410,41 @@
         "provider": "groq",
         "promptVersion": "shopping@2#3e94b8f1",
         "data": {
-          "step": 3,
+          "step": 4,
           "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
           "message": {
             "role": "assistant",
             "content": null,
             "toolCalls": [
               {
-                "id": "fc_1c6fb356-3dec-4dd9-8e59-a67279eb9aea",
+                "id": "fc_efb32ce7-c9a7-450a-a924-9e6df532c902",
                 "name": "reply",
-                "arguments": "{\"message\":\"Two Ridge 2 Backpacking Tents cost $398.40 after the 20% tent sale. With coupon SUMMER10 you get an additional $39.84 off, shipping is FREE, and the total is $358.56.\"}"
+                "arguments": "{\"message\":\"Two Ridge 2 Backpacking Tents cost $398.40 before the coupon. The SUMMER10 coupon applies a 10% discount of $39.84. Shipping is FREE. Your total is $358.56.\"}"
               }
             ]
           },
-          "reasoning": "We have the quote result. Need to reply with the total cost and details. Must use reply tool. Keep short, friendly, specific. Include that coupon applied. Provide line total etc. Use exactly amounts.\n\nWe have lineTotal $398.40 (2 tents after tent sale 20% off each). Subtotal $498.00 (list price). Coupon discount -$39.84. Shipping FREE. Total $358.56.\n\nWe'll reply.",
+          "reasoning": "We need to reply to the customer with the total cost for 2 Ridge 2 tents with code SUMMER10. Use the quote result. Provide line total, coupon discount, shipping free, total. Must keep reply under 2000 chars, friendly. Use reply tool.\n\n",
           "finishReason": "tool_calls"
         },
-        "inputTokens": 2679,
-        "outputTokens": 163,
-        "latencyMs": 755,
+        "inputTokens": 2943,
+        "outputTokens": 124,
+        "latencyMs": 528,
         "cached": false,
-        "costMicros": 500,
+        "costMicros": 516,
         "turn": 1
       },
       {
         "kind": "tool_call",
         "agent": "shopping",
         "data": {
-          "callId": "fc_1c6fb356-3dec-4dd9-8e59-a67279eb9aea",
+          "callId": "fc_efb32ce7-c9a7-450a-a924-9e6df532c902",
           "name": "reply",
-          "arguments": "{\"message\":\"Two Ridge 2 Backpacking Tents cost $398.40 after the 20% tent sale. With coupon SUMMER10 you get an additional $39.84 off, shipping is FREE, and the total is $358.56.\"}",
+          "arguments": "{\"message\":\"Two Ridge 2 Backpacking Tents cost $398.40 before the coupon. The SUMMER10 coupon applies a 10% discount of $39.84. Shipping is FREE. Your total is $358.56.\"}",
           "result": {
             "ok": true,
             "data": {
               "delivered": true,
-              "message": "Two Ridge 2 Backpacking Tents cost $398.40 after the 20% tent sale. With coupon SUMMER10 you get an additional $39.84 off, shipping is FREE, and the total is $358.56."
+              "message": "Two Ridge 2 Backpacking Tents cost $398.40 before the coupon. The SUMMER10 coupon applies a 10% discount of $39.84. Shipping is FREE. Your total is $358.56."
             }
           }
         },
@@ -378,7 +454,7 @@
         "kind": "reply",
         "agent": "shopping",
         "data": {
-          "message": "Two Ridge 2 Backpacking Tents cost $398.40 after the 20% tent sale. With coupon SUMMER10 you get an additional $39.84 off, shipping is FREE, and the total is $358.56."
+          "message": "Two Ridge 2 Backpacking Tents cost $398.40 before the coupon. The SUMMER10 coupon applies a 10% discount of $39.84. Shipping is FREE. Your total is $358.56."
         },
         "turn": 1
       }
@@ -487,17 +563,17 @@
     "codeStatus": "pass"
   },
   "stats": {
-    "modelCalls": 4,
+    "modelCalls": 5,
     "cachedCalls": 0,
-    "toolCalls": 2,
-    "inputTokens": 7447,
-    "outputTokens": 430,
-    "latencyMs": 2953,
+    "toolCalls": 3,
+    "inputTokens": 10518,
+    "outputTokens": 446,
+    "latencyMs": 2587,
     "turnLatencyMs": [
-      2953
+      2587
     ],
-    "costMicros": 1375,
-    "wallMs": 3005
+    "costMicros": 1845,
+    "wallMs": 2657
   },
-  "finishedAt": "2026-10-01T16:48:50.001Z"
+  "finishedAt": "2026-10-01T16:53:34.830Z"
 }

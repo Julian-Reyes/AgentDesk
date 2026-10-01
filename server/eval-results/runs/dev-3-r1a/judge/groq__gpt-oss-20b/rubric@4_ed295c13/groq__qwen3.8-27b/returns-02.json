@@ -1,0 +1,150 @@
+{
+  "caseId": "returns-02",
+  "runId": "aa6c2214-bb92-4a4b-89e1-90cbe15f7cd1",
+  "questionSet": "104506e0",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "returns-02",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Can I return the boots from order #1053? I wore them once on a short hike and they're just not for me.",
+        "reply": "Unfortunately, the Ridgeline Mid Hiking Boots can't be returned because they've been worn. Our returns policy only covers unused items in their original condition, so once they've been used on a hike, the return is declined.\n\nIf the boots are defective in any way, the warranty might still cover the issue, though that would apply to a structural fault rather than fit or preference.\n\nI'm sorry this doesn't work out how you hoped, and thanks for understanding. If there's anything else on that order I can help with, just let me know."
+      }
+    ],
+    "toolSummary": [
+      "message 1: check_return_eligibility({\"condition\":\"used\",\"item\":\"TEN-CF2200 Trail Runner\",\"orderId\":1053}) → {\"ok\":false,\"error\":{\"code\":\"ITEM_NOT_IN_ORDER\",\"message\":\"No item matching \\\"TEN-CF2200 Trail Runner\\\" in order #1053.\",\"details\":{\"itemsInOrder\":[{\"productId\":\"boot-ridgeline-mid\",\"name\":\"Ridgeline Mid Hiking Boot\"}]}}}",
+      "message 1: check_return_eligibility({\"condition\":\"used\",\"item\":\"Ridgeline Mid Hiking Boot\",\"orderId\":1053}) → {\"ok\":true,\"data\":{\"orderNumber\":1053,\"item\":\"Ridgeline Mid Hiking Boot\",\"eligible\":false,\"code\":\"ITEM_USED\",\"message\":\"Only unused items in original condition can be returned. If the item is defective, the warranty may cover it.\"},\"policyDecision\":\"denied\"}"
+    ],
+    "judgeNote": "Explains the unused-only rule kindly. May mention the warranty for defects, but doesn't suggest calling them defective.",
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent says worn items can't be returned, and doesn't hint that an exception might be made."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "The reply clearly explains the return policy, offers the warranty option, and invites further assistance, making it helpful and courteous."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent explicitly states that worn items cannot be returned and does not suggest any exception to the policy. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only explains the return policy and offers further assistance; it does not promise or imply any future action it cannot perform in this chat. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent made no statements about shipping, arrival, refunds, reviews, or processing times, so all timing claims (none) trivially match policy or tool results. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 1
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "scores",
+      "latencyMs": 1146,
+      "inputTokens": 1122,
+      "outputTokens": 308,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"The reply clearly explains the return policy, offers the warranty option, and invites further assistance, making it helpful and courteous.\"}]}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 587,
+      "inputTokens": 878,
+      "outputTokens": 277,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refunds, reviews, or processing times, so all timing claims (none) trivially match policy or tool results. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 914,
+      "inputTokens": 889,
+      "outputTokens": 398,
+      "cached": false,
+      "raw": "{\"why\":\"The agent does not promise or imply any future action it cannot perform; it simply informs the customer of the return policy and offers further assistance. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 915,
+      "inputTokens": 889,
+      "outputTokens": 331,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only explains the return policy and offers further assistance; it does not promise or imply any future action it cannot perform in this chat. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 913,
+      "inputTokens": 878,
+      "outputTokens": 277,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refunds, reviews, or processing times, so all timing claims (none) trivially match policy or tool results. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 1060,
+      "inputTokens": 810,
+      "outputTokens": 275,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states that worn items cannot be returned and does not suggest any exception to the policy. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 822,
+      "inputTokens": 889,
+      "outputTokens": 333,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only explains the return policy and offers further assistance; it does not promise or imply any future action it cannot perform in this chat. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 783,
+      "inputTokens": 878,
+      "outputTokens": 273,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refunds, reviews, or processing times, so all timing claims (none) trivially match policy or tool results.\",\"answer\":true}"
+    }
+  ]
+}

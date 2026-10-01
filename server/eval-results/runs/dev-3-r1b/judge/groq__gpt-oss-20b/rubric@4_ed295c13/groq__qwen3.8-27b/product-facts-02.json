@@ -1,0 +1,131 @@
+{
+  "caseId": "product-facts-02",
+  "runId": "dfd2d807-62f6-4d94-9134-b8a28ff6e28c",
+  "questionSet": "2a2c12d8",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "product-facts-02",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "How bright is the Beacon 900 headlamp, and how long does the battery last?",
+        "reply": "The Beacon 900 Rechargeable Headlamp puts out 900 lumens and has up to 900 minutes (about 15 hours) of burn time on its battery. It's $79.00, in stock in black, and there's currently a buy 2, get 1 free deal on headlamps. Let me know if you'd like more details!"
+      }
+    ],
+    "toolSummary": [
+      "message 1: search_products({\"query\":\"Beacon 900\"}) → {\"ok\":true,\"data\":{\"totalMatches\":2,\"products\":[{\"id\":\"lamp-beacon-900\",\"name\":\"Beacon 900 Rechargeable Headlamp\",\"category\":\"headlamps\",\"listPrice\":\"$79.00\",\"currentPrice\":\"$79.00\",\"rating\":4.7,\"description\":\"High-output rechargeable headlamp with a rear battery pack.\",\"specs\":{\"lumens\":900,\"waterproof\":true,\"weightGrams\":140,\"burnTimeMinutes\":900},\"availability\":\"in_stock\",\"activeDeals\":[\"Headlamps: buy 2, get 1 free\"]},{\"id\":\"lamp-beacon-500\",\"name\":\"Beacon 500 Rechargeable Headlamp\",\"category\":\"headlamps\",\"listPrice\":\"$49.00\",\"currentPrice\":\"$49.00\",\"rating\":4.6,\"description\":\"USB-C rechargeable headlamp with a lock mode.\",\"specs\":{\"lumens\":500,\"waterproof\":true,\"weightGrams\":86,\"burnTimeMinutes\":1200},\"availability\":\"in_stock\",\"activeDeals\":[\"Headlamps: buy 2, get 1 free\"]}],\"note\":\"currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping.\"}}",
+      "message 1: get_product({\"id\":\"lamp-beacon-900\"}) → {\"ok\":true,\"data\":{\"id\":\"lamp-beacon-900\",\"name\":\"Beacon 900 Rechargeable Headlamp\",\"category\":\"headlamps\",\"listPrice\":\"$79.00\",\"currentPrice\":\"$79.00\",\"rating\":4.7,\"description\":\"High-output rechargeable headlamp with a rear battery pack.\",\"specs\":{\"lumens\":900,\"waterproof\":true,\"weightGrams\":140,\"burnTimeMinutes\":900},\"availability\":\"in_stock\",\"activeDeals\":[\"Headlamps: buy 2, get 1 free\"],\"variants\":[{\"size\":null,\"color\":\"black\",\"availability\":\"in_stock\"}]}}"
+    ],
+    "judgeNote": "Gives 900 lumens and 15 hours (900 minutes). Doesn't invent a charge time or battery capacity; the catalog has neither.",
+    "checks": [
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "The reply gives the requested brightness and battery life, adds price and availability, and offers a deal, all in a friendly tone."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only provided product details and offered to give more information if requested; it did not promise or imply any future action it cannot perform in this chat. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent stated the headlamp has up to 900 minutes of burn time, which matches the tool's burnTimeMinutes of 900. No other timing claims were made. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 622,
+      "inputTokens": 1084,
+      "outputTokens": 308,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only provides product details and offers to give more information if requested; it does not promise or imply any future action it cannot perform in this chat. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 716,
+      "inputTokens": 1317,
+      "outputTokens": 319,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"The reply gives the requested brightness and battery life, adds price and availability, and offers a deal, all in a friendly tone.\"}]}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 718,
+      "inputTokens": 1073,
+      "outputTokens": 392,
+      "cached": false,
+      "raw": "{\"why\":\"The agent stated the headlamp has up to 900 minutes of burn time, which matches the tool's burnTimeMinutes of 900. No other timing claims were made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 703,
+      "inputTokens": 1084,
+      "outputTokens": 307,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only provided product details and offered to give more information if requested; it did not promise or imply any future action it cannot perform in this chat. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 2837,
+      "inputTokens": 1084,
+      "outputTokens": 306,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only provides product details and offers to give more information; it does not promise or imply any future action it cannot perform in this chat. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 723,
+      "inputTokens": 1073,
+      "outputTokens": 338,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the lamp has up to 900 minutes (about 15 hours) of burn time, which matches the tool data showing burnTimeMinutes: 900. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 653,
+      "inputTokens": 1073,
+      "outputTokens": 294,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the headlamp has up to 900 minutes (about 15 hours) of burn time, which matches the tool data showing burnTimeMinutes: 900. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

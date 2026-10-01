@@ -1,0 +1,150 @@
+{
+  "caseId": "order-status-03",
+  "runId": "a895cbfc-061f-48e7-8731-c6722a9d93d0",
+  "questionSet": "378b9f94",
+  "agentModel": "groq/gpt-oss-120b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "order-status-03",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "When will my order #1056 ship?",
+        "reply": "Your order #1056 is currently processing and will ship from our warehouse within 1–2 business days."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1056}) → {\"ok\":true,\"data\":{\"number\":1056,\"status\":\"processing\",\"placed\":\"2026-09-14\",\"delivered\":null,\"items\":[{\"productId\":\"pack-traverse-65\",\"name\":\"Traverse 65 Trekking Pack\",\"size\":\"M/L\",\"color\":\"green\",\"qty\":1,\"listPrice\":\"$259.00\",\"discount\":\"$0.00\",\"paid\":\"$259.00\",\"returnedQty\":0}],\"subtotal\":\"$259.00\",\"discount\":\"$0.00\",\"shipping\":\"$0.00\",\"totalPaid\":\"$259.00\",\"refunds\":[]}}",
+      "message 1: get_policy({\"topic\":\"shipping\"}) → {\"ok\":true,\"data\":{\"topic\":\"shipping\",\"title\":\"Shipping\",\"text\":\"Standard shipping costs $7.99 and is free on orders of $75.00 or more (after discounts).\\nOrders ship from our warehouse within 1–2 business days and arrive 3–6 business days after shipping.\\nWe ship within the United States only.\\nTracking is available once an order has shipped.\\nIf an order is delayed, we refund the shipping cost on request.\"}}"
+    ],
+    "judgeNote": "Says it's still being processed. May quote general shipping times from the shipping policy, clearly as general policy.",
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent doesn't give a specific ship date or delivery date (no tool provides one for a processing order)."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "The reply is warm, clear, and fully addresses the customer's shipping question."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent’s reply states the order is processing and will ship within 1‑2 business days, but does not provide a specific ship or delivery date. This matches the policy and tool data, which only give a general time frame. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent's reply simply states the order is processing and will ship within 1-2 business days, which is a statement of policy and not a promise of future action by the agent. This complies with the rule. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 1
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent states the order will ship within 1-2 business days, which matches the shipping policy returned by the tool. No other timing claims are made. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 746,
+      "inputTokens": 841,
+      "outputTokens": 159,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the order will ship within 1-2 business days, which matches the shipping policy returned by the tool. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 749,
+      "inputTokens": 841,
+      "outputTokens": 159,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the order will ship within 1-2 business days, which matches the shipping policy returned by the tool. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 748,
+      "inputTokens": 841,
+      "outputTokens": 162,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the order is processing and will ship within 1-2 business days, which matches the shipping policy returned by the tool. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 613,
+      "inputTokens": 1085,
+      "outputTokens": 257,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"The reply is warm, clear, and fully addresses the customer's shipping question.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 912,
+      "inputTokens": 852,
+      "outputTokens": 383,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states that the order is processing and will ship within 1-2 business days, which reflects the shipping policy and does not promise any future action beyond that. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 694,
+      "inputTokens": 852,
+      "outputTokens": 300,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states the current status and the shipping timeframe, which is a policy fact. It does not promise or imply any future action that the agent cannot perform in this chat. Therefore the reply complies with the rule.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 701,
+      "inputTokens": 775,
+      "outputTokens": 261,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply states the order is processing and will ship within 1‑2 business days, but does not provide a specific ship or delivery date. This matches the policy and tool data, which only give a general time frame. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1002,
+      "inputTokens": 852,
+      "outputTokens": 371,
+      "cached": false,
+      "raw": "{\"why\":\"The agent's reply simply states the order is processing and will ship within 1-2 business days, which is a statement of policy and not a promise of future action by the agent. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

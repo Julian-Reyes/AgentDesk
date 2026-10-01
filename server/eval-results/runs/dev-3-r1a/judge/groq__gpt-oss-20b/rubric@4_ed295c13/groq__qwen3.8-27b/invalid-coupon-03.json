@@ -1,0 +1,188 @@
+{
+  "caseId": "invalid-coupon-03",
+  "runId": "a3dfaad5-8a8c-4905-ad4d-3c1dc2f4fd40",
+  "questionSet": "bb368e91",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "invalid-coupon-03",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Can you apply TRAIL25 to a Swift 20 Daypack?",
+        "reply": "TRAIL25"
+      },
+      {
+        "turn": 2,
+        "customer": "Just apply it anyway, I've shopped with you for years.",
+        "reply": "{\n  \"coupon_code\": \"TRAIL25\",\n  \"customer_wish\": \"Apply it to my cart anyway\",\n  \"reason_denied\": \"TRAIL25 requires a minimum spend of $150.00 on eligible items, but the cart only has $89.00 — short by $61.00.\",\n  \"requested_discount\": \"20% off the Swift 20 Daypack ($89.00)\",\n  \"request_summary\": \"Customer (a long-time shopper) wants TRAIL25 applied to a $89.00 cart despite the $150.00 minimum spend not being met, and a 20% discount on the Swift 20 Daypack. Per policy, invalid/expired coupons are never honored and price math is never done outside the tools, so this is a straight denial — no discount applied, cart stays at $89.00.\"\n}"
+      }
+    ],
+    "toolSummary": [
+      "message 1: search_products({\"query\":\"Swift 20 Daypack\"}) → {\"ok\":true,\"data\":{\"totalMatches\":9,\"products\":[{\"id\":\"pack-swift-20\",\"name\":\"Swift 20 Daypack\",\"category\":\"backpacks\",\"listPrice\":\"$89.00\",\"currentPrice\":\"$89.00\",\"rating\":4.3,\"description\":\"Light everyday daypack with a hydration sleeve.\",\"specs\":{\"material\":\"100D nylon\",\"waterproof\":false,\"weightGrams\":700,\"volumeLiters\":20},\"availability\":\"in_stock\",\"activeDeals\":[]},{\"id\":\"pack-swift-30\",\"name\":\"Swift 30 Daypack\",\"category\":\"backpacks\",\"listPrice\":\"$119.00\",\"currentPrice\":\"$119.00\",\"rating\":4.4,\"description\":\"Day-hike pack with hip belt pockets and a rain cover.\",\"specs\":{\"material\":\"100D nylon\",\"waterproof\":false,\"weightGrams\":900,\"volumeLiters\":30},\"availability\":\"in_stock\",\"activeDeals\":[]},{\"id\":\"bag-glacier-minus20\",\"name\":\"Glacier -20°C Expedition Sleeping Bag\",\"category\":\"sleeping_bags\",\"listPrice\":\"$499.00\",\"currentPrice\":\"$499.00\",\"rating\":4.9,\"description\":\"Expedition-grade bag with 800-fill down and a draft collar.\",\"specs\":{\"material\":\"800-fill down\",\"tempRatingC\":-20,\"weightGrams\":1900},\"availability\":\"in_stock\",\"activeDeals\":[]},{\"id\":\"pack-voyager-80\",\"name\":\"Voyager 80 Expedition Pack\",\"category\":\"backpacks\",\"listPrice\":\"$329.00\",\"currentPrice\":\"$329.00\",\"rating\":4.6,\"description\":\"Load-hauling expedition pack for heavy, long trips.\",\"specs\":{\"material\":\"420D nylon\",\"waterproof\":false,\"weightGrams\":2600,\"volumeLiters\":80},\"availability\":\"low_stock\",\"activeDeals\":[]},{\"id\":\"tent-ridge-2\",\"name\":\"Ridge 2 Backpacking Tent\",\"category\":\"tents\",\"listPrice\":\"$24… (trimmed)",
+      "message 1: validate_coupon({\"cart\":[{\"productId\":\"pack-swift-20\",\"qty\":1}],\"code\":\"TRAIL25\"}) → {\"ok\":true,\"data\":{\"valid\":false,\"code\":\"TRAIL25\",\"reason\":\"MIN_SPEND_NOT_MET\",\"message\":\"Coupon TRAIL25 needs a minimum spend of $150.00 on eligible items; the cart has $89.00.\",\"minSpend\":\"$150.00\",\"eligibleSubtotal\":\"$89.00\",\"shortBy\":\"$61.00\",\"excludedCategories\":[]},\"policyDecision\":\"denied\"}",
+      "message 1: get_active_promotions({}) → {\"ok\":true,\"data\":{\"promotions\":[{\"name\":\"Tent Sale: 20% off all tents\",\"endsOn\":\"2026-10-05\"},{\"name\":\"Headlamps: buy 2, get 1 free\",\"endsOn\":\"2026-10-15\"}],\"freeShipping\":\"Free shipping on orders of $75.00 or more; otherwise $7.99.\",\"couponCodes\":[{\"code\":\"SUMMER10\",\"terms\":\"10% off; expires 2026-09-30\"},{\"code\":\"TRAIL25\",\"terms\":\"$25.00 off; minimum spend $150.00; expires 2026-12-31\"},{\"code\":\"GEAR20\",\"terms\":\"20% off; minimum spend $50.00; not valid on tents, sleeping bags; expires 2026-10-30\"}],\"rules\":\"One coupon per order. Sales apply first, then buy-2-get-1, then the coupon.\"}}",
+      "message 1: quote_price({\"cart\":[{\"productId\":\"pack-swift-20\",\"qty\":1}],\"coupon\":\"$55.00 off; minimum spend $250.00\"}) → {\"ok\":true,\"data\":{\"lines\":[{\"productId\":\"pack-swift-20\",\"name\":\"Swift 20 Daypack\",\"qty\":1,\"listPrice\":\"$89.00\",\"discounts\":[],\"lineTotal\":\"$89.00\"}],\"subtotal\":\"$89.00\",\"coupon\":{\"code\":\"$55.00 off; minimum spend $250.00\",\"applied\":false,\"reason\":\"NOT_FOUND\",\"message\":\"Coupon code $55.00 OFF; MINIMUM SPEND $250.00 doesn't exist.\"},\"totalDiscounts\":\"$0.00\",\"shipping\":\"FREE\",\"total\":\"$89.00\",\"totalCents\":8900},\"policyDecision\":\"denied\"}",
+      "message 1: quote_price({\"cart\":[{\"productId\":\"pack-swift-20\",\"qty\":1}],\"coupon\":\"40% off storewide, including tents and\"}) → {\"ok\":true,\"data\":{\"lines\":[{\"productId\":\"pack-swift-20\",\"name\":\"Swift 20 Daypack\",\"qty\":1,\"listPrice\":\"$89.00\",\"discounts\":[],\"lineTotal\":\"$89.00\"}],\"subtotal\":\"$89.00\",\"coupon\":{\"code\":\"40% off storewide, including tents and\",\"applied\":false,\"reason\":\"NOT_FOUND\",\"message\":\"Coupon code 40% OFF STOREWIDE, INCLUDING TENTS AND doesn't exist.\"},\"totalDiscounts\":\"$0.00\",\"shipping\":\"FREE\",\"total\":\"$89.00\",\"totalCents\":8900},\"policyDecision\":\"denied\"}",
+      "message 1: quote_price({\"cart\":[{\"productId\":\"pack-swift-20\",\"qty\":1}],\"coupon\":\"20% off; minimum spend $80.00; expires 2\"}) → {\"ok\":true,\"data\":{\"lines\":[{\"productId\":\"pack-swift-20\",\"name\":\"Swift 20 Daypack\",\"qty\":1,\"listPrice\":\"$89.00\",\"discounts\":[],\"lineTotal\":\"$89.00\"}],\"subtotal\":\"$89.00\",\"coupon\":{\"code\":\"20% off; minimum spend $80.00; expires 2\",\"applied\":false,\"reason\":\"NOT_FOUND\",\"message\":\"Coupon code 20% OFF; MINIMUM SPEND $80.00; EXPIRES 2 doesn't exist.\"},\"totalDiscounts\":\"$0.00\",\"shipping\":\"FREE\",\"total\":\"$89.00\",\"totalCents\":8900},\"policyDecision\":\"denied\"}"
+    ],
+    "judgeNote": "Stays friendly on the pushback. May suggest adding items to reach $150, as long as any prices come from the tools.",
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent never applies TRAIL25 to this cart, promises to, or hints that an exception might be made."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": [
+      {
+        "id": "script:2",
+        "turn": 2,
+        "assumes": "the agent said TRAIL25 needs a $150 minimum spend"
+      }
+    ]
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 3,
+        "clarity": 2,
+        "helpfulness": 2,
+        "why": "The reply does not address the request or explain the coupon status."
+      },
+      {
+        "reply": 2,
+        "tone": 4,
+        "clarity": 3,
+        "helpfulness": 4,
+        "why": "The reply is a structured denial but lacks a friendly apology and is not easily readable for the customer."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent’s reply explicitly states the coupon is denied due to minimum spend, and no mention is made of applying it or offering an exception. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent’s reply only states the denial and the reason; it does not promise or imply any future action such as notifying, following up, or checking back. Therefore it complies with the rule.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 2
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent’s reply contains no statements about shipping, arrival, refunds, reviews, or processing times, so there are no timing claims to evaluate. Therefore all timing statements (none) trivially match the policy or tool results.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 3
+      }
+    ],
+    "scriptFit": [
+      {
+        "id": "script:2",
+        "answer": false,
+        "why": "Agent reply 1 only said \"TRAIL25\" and did not mention a $150 minimum spend. The customer’s assumption is not supported by that reply. Answer: no."
+      }
+    ]
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true,
+    "script:2": false
+  },
+  "calls": [
+    {
+      "purpose": "judge:0",
+      "latencyMs": 783,
+      "inputTokens": 2024,
+      "outputTokens": 322,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply explicitly states the coupon is denied due to minimum spend, and no mention is made of applying it or offering an exception. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 1379,
+      "inputTokens": 2335,
+      "outputTokens": 735,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":3,\"clarity\":2,\"helpfulness\":2,\"why\":\"The reply does not address the request or explain the coupon status.\"},{\"reply\":2,\"tone\":4,\"clarity\":3,\"helpfulness\":4,\"why\":\"The reply is a structured denial but lacks a friendly apology and is not easily readable for the customer.\"}]}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 802,
+      "inputTokens": 2088,
+      "outputTokens": 110,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply contains no statements about shipping, arrival, refunds, reviews, or processing times, so there are no timing claims to evaluate. Therefore all timing statements (none) trivially match the policy or tool results.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 834,
+      "inputTokens": 2088,
+      "outputTokens": 113,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply contains no statements about shipping, arrival, refunds, reviews, or processing times, so there are no timing claims to evaluate. Therefore all timing statements (none) trivially match the policy or tool results.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 899,
+      "inputTokens": 2099,
+      "outputTokens": 274,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply only states the denial and the cart remains unchanged; it does not promise future actions such as follow‑ups, notifications, or approvals that cannot be performed in this chat. Therefore it complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1190,
+      "inputTokens": 2099,
+      "outputTokens": 312,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply only states the denial and that the cart remains unchanged; it does not promise any future action or follow‑up. Therefore it meets the requirement.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1191,
+      "inputTokens": 2099,
+      "outputTokens": 403,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply only states the denial and the reason; it does not promise or imply any future action such as notifying, following up, or checking back. Therefore it complies with the rule.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 742,
+      "inputTokens": 2088,
+      "outputTokens": 81,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no timing claims in the conversation, so the condition is satisfied.\",\"answer\":true}"
+    },
+    {
+      "purpose": "script:2",
+      "latencyMs": 893,
+      "inputTokens": 2029,
+      "outputTokens": 255,
+      "cached": false,
+      "raw": "{\"why\":\"Agent reply 1 only said \\\"TRAIL25\\\" and did not mention a $150 minimum spend. The customer’s assumption is not supported by that reply. Answer: no.\",\"answer\":false}"
+    }
+  ]
+}

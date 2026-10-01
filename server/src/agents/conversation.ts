@@ -364,7 +364,12 @@ export class Conversation {
         result = { ok: false, error: { code: "INVALID_ARGS", message: "Arguments were not valid JSON." } };
       } else {
         try {
-          result = await callTool(tool, { db: this.deps.db, now: this.deps.clock(), session: this.deps.session }, args);
+          // Each call in its own transaction (a savepoint when the conversation is
+          // already in one, as in evals and tests): a tool that throws on a database
+          // error rolls back only its own writes, and the conversation's connection
+          // stays usable. Without it, one failed query aborted a whole eval
+          // conversation and then the grader's queries (dev-3-r2b, 2026-10-01).
+          result = await this.deps.db.transaction((tx) => callTool(tool, { db: tx, now: this.deps.clock(), session: this.deps.session }, args));
         } catch (e) {
           // A real bug or infrastructure failure (tools don't throw for business outcomes).
           threw = (e as Error).message;

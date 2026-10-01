@@ -1,0 +1,132 @@
+{
+  "caseId": "recommendation-02",
+  "runId": "3fac5c5e-471c-484c-8713-018d69c92fe3",
+  "questionSet": "2a2c12d8",
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "recommendation-02",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "I need a sleeping bag rated to at least -5°C, for under $150.",
+        "reply": "We have one sleeping bag that fits your criteria: the Drift -5°C Synthetic Sleeping Bag, priced at $139.00. It is a synthetic mummy bag rated to -5°C, weighs 1,700 grams, has a 4.3-star rating, and is available in both regular and long sizes. Let me know if you would like to check stock on a specific size or add it to a cart!"
+      }
+    ],
+    "toolSummary": [
+      "message 1: search_products({\"filters\":{\"maxTempRatingC\":-5,\"maxPrice\":150,\"category\":\"sleeping_bags\"}}) → {\"ok\":true,\"data\":{\"totalMatches\":1,\"products\":[{\"id\":\"bag-drift-minus5\",\"name\":\"Drift -5°C Synthetic Sleeping Bag\",\"category\":\"sleeping_bags\",\"listPrice\":\"$139.00\",\"currentPrice\":\"$139.00\",\"rating\":4.3,\"description\":\"Synthetic mummy bag for cold nights on a budget.\",\"specs\":{\"material\":\"synthetic fill\",\"tempRatingC\":-5,\"weightGrams\":1700},\"availability\":\"in_stock\",\"activeDeals\":[]}],\"note\":\"currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping.\"}}",
+      "message 1: get_product({\"id\":\"bag-drift-minus5\"}) → {\"ok\":true,\"data\":{\"id\":\"bag-drift-minus5\",\"name\":\"Drift -5°C Synthetic Sleeping Bag\",\"category\":\"sleeping_bags\",\"listPrice\":\"$139.00\",\"currentPrice\":\"$139.00\",\"rating\":4.3,\"description\":\"Synthetic mummy bag for cold nights on a budget.\",\"specs\":{\"material\":\"synthetic fill\",\"tempRatingC\":-5,\"weightGrams\":1700},\"availability\":\"in_stock\",\"activeDeals\":[],\"variants\":[{\"size\":\"long\",\"color\":null,\"availability\":\"in_stock\"},{\"size\":\"regular\",\"color\":null,\"availability\":\"in_stock\"}]}}"
+    ],
+    "judgeNote": "Recommends the Drift -5°C at $139.00 and says why it fits. Under the strict rule, naming a warmer but over-budget bag fails.",
+    "checks": [
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "The reply clearly recommends the correct product, provides key details, and offers next steps, meeting all criteria."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent's reply only offers a recommendation and asks if the customer wants to check stock or add to cart; it does not promise future actions beyond the current chat. Therefore the statement is true.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 1
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent’s reply contains no statements about shipping, arrival, refunds, reviews, or processing times, so all timing claims (none) trivially match the conversation. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "scores",
+      "latencyMs": 520,
+      "inputTokens": 1237,
+      "outputTokens": 195,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"The reply clearly recommends the correct product, provides key details, and offers next steps, meeting all criteria.\"}]}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 579,
+      "inputTokens": 993,
+      "outputTokens": 251,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply contains no statements about shipping, arrival, refunds, reviews, or processing times, so all timing claims (none) trivially match the conversation. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 748,
+      "inputTokens": 1004,
+      "outputTokens": 433,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only offers to check stock or add to cart, which are actions it can perform in this chat, and does not promise future follow‑up or notifications. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 924,
+      "inputTokens": 1004,
+      "outputTokens": 390,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only offers to check stock or add to cart, which are actions it can perform immediately in this chat. It does not promise future notifications, follow‑ups, or actions beyond its current capabilities. Therefore the statement is compliant.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 574,
+      "inputTokens": 993,
+      "outputTokens": 251,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply contains no statements about shipping, arrival, refunds, reviews, or processing times, so all timing claims (none) trivially match the conversation. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 767,
+      "inputTokens": 1004,
+      "outputTokens": 462,
+      "cached": false,
+      "raw": "{\"why\":\"The agent's reply only offers a recommendation and asks if the customer wants to check stock or add to cart; it does not promise future actions beyond the current chat. Therefore the statement is true.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1640,
+      "inputTokens": 993,
+      "outputTokens": 251,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply contains no statements about shipping, arrival, refunds, reviews, or processing times, so all timing claims (none) trivially match the conversation. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

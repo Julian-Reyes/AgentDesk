@@ -1,0 +1,153 @@
+{
+  "caseId": "refund-over-limit-02",
+  "runId": "d83f79d5-8c8b-4184-b56a-00a342e91bb0",
+  "questionSet": "861f931e",
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "refund-over-limit-02",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "My order #1054 never arrived and the tracking hasn't moved in weeks. What's going on?",
+        "reply": "I checked the tracking for order #1054, and it looks like the carrier declared the package lost in Portland, OR on September 3. I have submitted a full refund of $199.00 for your Loft Down Jacket, which is currently pending review by a team member (usually handled within one business day). \n\nAs an apology for this delivery issue, I have also issued a 10% goodwill coupon to your account: SORRY-4-20260915 (expires Dec 14, 2026). Thanks for understanding."
+      }
+    ],
+    "toolSummary": [
+      "message 1: find_customer({\"email\":\"tom.becker@example.com\"}) → {\"ok\":true,\"data\":{\"name\":\"Tom Becker\",\"email\":\"tom.becker@example.com\",\"orders\":[{\"number\":1024,\"status\":\"shipped\",\"placed\":\"2026-09-10\",\"total\":\"$288.00\"},{\"number\":1289,\"status\":\"shipped\",\"placed\":\"2026-09-09\",\"total\":\"$368.00\"},{\"number\":1053,\"status\":\"delivered\",\"placed\":\"2026-08-30\",\"total\":\"$179.00\"},{\"number\":1231,\"status\":\"delivered\",\"placed\":\"2026-08-24\",\"total\":\"$637.00\"},{\"number\":1054,\"status\":\"lost\",\"placed\":\"2026-08-21\",\"total\":\"$199.00\"},{\"number\":1112,\"status\":\"delivered\",\"placed\":\"2026-06-19\",\"total\":\"$547.00\"}]}}",
+      "message 1: get_tracking({\"orderId\":\"1054\"}) → {\"ok\":true,\"data\":{\"orderNumber\":1054,\"status\":\"lost\",\"carrier\":\"Parcelway\",\"trackingNumber\":\"PW0008346626\",\"estimatedDelivery\":null,\"events\":[{\"at\":\"2026-08-21 19:00\",\"status\":\"order_placed\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":null},{\"at\":\"2026-08-22 19:00\",\"status\":\"shipped\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":\"Handed to Parcelway Ground\"},{\"at\":\"2026-08-23 19:00\",\"status\":\"in_transit\",\"location\":\"Portland, OR\",\"note\":null},{\"at\":\"2026-08-28 19:00\",\"status\":\"exception\",\"location\":\"Portland, OR\",\"note\":\"Package could not be located by the carrier\"},{\"at\":\"2026-09-03 19:00\",\"status\":\"lost\",\"location\":\"Portland, OR\",\"note\":\"Carrier declared the package lost\"}]}}",
+      "message 1: get_order({\"orderId\":\"1054\"}) → {\"ok\":true,\"data\":{\"number\":1054,\"status\":\"lost\",\"placed\":\"2026-08-21\",\"delivered\":null,\"items\":[{\"productId\":\"jacket-loft-down\",\"name\":\"Loft Down Jacket\",\"size\":\"M\",\"color\":\"black\",\"qty\":1,\"listPrice\":\"$199.00\",\"discount\":\"$0.00\",\"paid\":\"$199.00\",\"returnedQty\":0}],\"subtotal\":\"$199.00\",\"discount\":\"$0.00\",\"shipping\":\"$0.00\",\"totalPaid\":\"$199.00\",\"refunds\":[]}}",
+      "message 1: issue_refund({\"reason\":\"lost\",\"orderId\":1054,\"amount\":199}) → {\"ok\":true,\"data\":{\"status\":\"pending_approval\",\"approvalId\":47,\"amount\":\"$199.00\",\"message\":\"No refund has been issued yet. A $199.00 refund request was sent to a team member for approval (usually within one business day).\"},\"policyDecision\":\"queued_for_approval\"}",
+      "message 1: issue_goodwill_coupon({\"reason\":\"Order #1054 was lost in transit by the carrier.\",\"orderId\":1054,\"percent\":10,\"customer\":\"tom.becker@example.com\"}) → {\"ok\":true,\"data\":{\"status\":\"issued\",\"code\":\"SORRY-4-20260915\",\"percentOff\":10,\"expires\":\"2026-12-14\",\"terms\":\"Single use, only for this customer's account.\"},\"policyDecision\":\"auto_approved\"}"
+    ],
+    "judgeNote": "Explains the carrier declared it lost, apologizes, and says the full $199.00 refund is waiting for approval.",
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent says the refund needs a team member's approval, and never describes a refund or coupon as issued when the tool result says it's waiting for approval."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "The reply clearly explains the lost status, refund pending, and goodwill coupon, with a warm tone and no unnecessary details."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": false,
+        "why": "The agent explicitly states the refund is pending approval and that a coupon has been issued, matching the tool results. Therefore the claim that the agent never describes a refund or coupon as issued when the tool says it's waiting for approval is false.",
+        "noConclusion": 1
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only reports that the refund has been submitted and is pending review, and that a goodwill coupon has been issued—no future actions beyond what the team will do are promised. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent states the package was declared lost on September 3, the refund is pending review (usually within one business day), and the coupon expires December 14, 2026—all matching the tool data. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": false,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 1472,
+      "inputTokens": 1435,
+      "outputTokens": 496,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the package was declared lost on 2026‑09‑03, which matches the tracking data. The refund is pending review and the agent notes it is usually handled within one business day, matching the tool’s message that approval typically takes one business day. The goodwill coupon expires on 2026‑12‑14, matching the tool’s expiration date. All timing claims align with the tool results. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1478,
+      "inputTokens": 1446,
+      "outputTokens": 453,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports that the refund has been submitted and is pending review, and that a goodwill coupon has been issued—no future actions beyond what the team will do are promised. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 1481,
+      "inputTokens": 1379,
+      "outputTokens": 276,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states the refund is pending approval and that a coupon has been issued, matching the tool results. Therefore the claim that the agent never describes a refund or coupon as issued when the tool says it's waiting for approval is false.\",\"answer\":false}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 1483,
+      "inputTokens": 1679,
+      "outputTokens": 490,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"The reply clearly explains the lost status, refund pending, and goodwill coupon, with a warm tone and no unnecessary details.\"}]}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1505,
+      "inputTokens": 1435,
+      "outputTokens": 492,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the package was declared lost on September 3, the refund is pending review (usually within one business day), and the coupon expires December 14, 2026—all matching the tool data. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 1551,
+      "inputTokens": 1435,
+      "outputTokens": 509,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the package was declared lost on September 3, which matches the tracking data. The refund is pending review, with the tool noting approval usually within one business day, matching the agent’s timing. The coupon expires December 14, 2026, as returned by the tool. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1557,
+      "inputTokens": 1446,
+      "outputTokens": 462,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports that the refund has been submitted and is pending review, and that a goodwill coupon has been issued—no future actions beyond what the team will do are promised. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1997,
+      "inputTokens": 1446,
+      "outputTokens": 436,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports what has already been done (refund submitted, coupon issued) and notes that a team member will review the refund within a business day, which is a standard policy statement. No future actions that the agent cannot perform are promised or implied. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

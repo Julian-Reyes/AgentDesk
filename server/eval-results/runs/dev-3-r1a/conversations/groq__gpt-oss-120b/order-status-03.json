@@ -84,11 +84,11 @@
     }
   },
   "observation": {
-    "runId": "4504439e-980f-472a-b575-ed532569312a",
+    "runId": "58decd21-bc46-47d6-9bc4-fe3a625aa62e",
     "turns": [
       {
         "customer": "When will my order #1056 ship?",
-        "reply": "Your order #1056 is currently processing and will ship within 1–2 business days. Thanks for your patience!\"",
+        "reply": "Your order #1056 is currently processing and will ship within 1–2 business days, according to our shipping policy. You’ll receive a tracking number once it ships. Thanks for your patience!",
         "answeredBy": "support",
         "outcome": "resolved"
       }
@@ -109,20 +109,20 @@
         "promptVersion": "router@1#f10fc861",
         "data": {
           "attempt": 1,
-          "raw": "{\"route\":\"support\",\"category\":\"order_status\",\"urgency\":\"normal\",\"confidence\":0.99}",
+          "raw": "{\"route\":\"support\",\"category\":\"shipping\",\"urgency\":\"normal\",\"confidence\":0.99}",
           "decision": {
             "route": "support",
-            "category": "order_status",
+            "category": "shipping",
             "urgency": "normal",
             "confidence": 0.99
           },
           "fallback": false
         },
         "inputTokens": 417,
-        "outputTokens": 121,
-        "latencyMs": 485,
+        "outputTokens": 119,
+        "latencyMs": 655,
         "cached": false,
-        "costMicros": 135,
+        "costMicros": 134,
         "turn": 1
       },
       {
@@ -139,7 +139,7 @@
             "content": null,
             "toolCalls": [
               {
-                "id": "fc_42b67396-0ca6-425c-96dc-32e0b4e82e86",
+                "id": "fc_36217c80-b0f7-4c7b-857d-9db3128a86b2",
                 "name": "get_order",
                 "arguments": "{\"orderId\":1056}"
               }
@@ -150,7 +150,7 @@
         },
         "inputTokens": 1716,
         "outputTokens": 47,
-        "latencyMs": 405,
+        "latencyMs": 534,
         "cached": false,
         "costMicros": 286,
         "turn": 1
@@ -159,7 +159,7 @@
         "kind": "tool_call",
         "agent": "support",
         "data": {
-          "callId": "fc_42b67396-0ca6-425c-96dc-32e0b4e82e86",
+          "callId": "fc_36217c80-b0f7-4c7b-857d-9db3128a86b2",
           "name": "get_order",
           "arguments": "{\"orderId\":1056}",
           "result": {
@@ -206,27 +206,27 @@
             "content": null,
             "toolCalls": [
               {
-                "id": "fc_8b81f37f-fbaf-425d-9b76-9a9804b6cbff",
+                "id": "fc_2204f5d7-3d32-4c53-a967-95a0bd483ab4",
                 "name": "get_policy",
                 "arguments": "{\"topic\":\"shipping\"}"
               }
             ]
           },
-          "reasoning": "We have order 1056 status processing. No shipping date. We need to answer when will it ship. The policy? Possibly shipping policy says processing -> ship within X days. Need to get shipping policy.",
+          "reasoning": "We have order status \"processing\". The user asks when will it ship. Need to see shipping policy? The order is processing, not yet shipped. We can reply: currently processing, will ship once prepared, typical shipping times? Need to get policy shipping.",
           "finishReason": "tool_calls"
         },
         "inputTokens": 1867,
-        "outputTokens": 61,
-        "latencyMs": 639,
+        "outputTokens": 71,
+        "latencyMs": 687,
         "cached": false,
-        "costMicros": 317,
+        "costMicros": 323,
         "turn": 1
       },
       {
         "kind": "tool_call",
         "agent": "support",
         "data": {
-          "callId": "fc_8b81f37f-fbaf-425d-9b76-9a9804b6cbff",
+          "callId": "fc_2204f5d7-3d32-4c53-a967-95a0bd483ab4",
           "name": "get_policy",
           "arguments": "{\"topic\":\"shipping\"}",
           "result": {
@@ -254,42 +254,34 @@
             "content": null,
             "toolCalls": [
               {
-                "id": "repaired_0",
+                "id": "fc_d540dd8a-33a4-440e-b212-de22a529eb84",
                 "name": "reply",
-                "arguments": "{\"message\":\"Your order #1056 is currently processing and will ship within 1–2 business days. Thanks for your patience!\\\"\"}"
+                "arguments": "{\"message\":\"Your order #1056 is currently processing and will ship within 1–2 business days, according to our shipping policy. You’ll receive a tracking number once it ships. Thanks for your patience!\"}"
               }
             ]
           },
-          "failedAttempts": [
-            {
-              "status": 400,
-              "code": "tool_use_failed",
-              "message": "{\"error\":{\"message\":\"Failed to parse tool call arguments as JSON\",\"type\":\"invalid_request_error\",\"code\":\"tool_use_failed\",\"failed_generation\":\"{\\\"name\\\": \\\"reply\\\", \\\"arguments\\\": Your order #1056 is currently processing and will ship within 1–2 business days. Thanks for your patience!\\\"}\"}}\n",
-              "failedGeneration": "{\"name\": \"reply\", \"arguments\": Your order #1056 is currently processing and will ship within 1–2 business days. Thanks for your patience!\"}"
-            }
-          ],
-          "repaired": true,
-          "finishReason": "repaired"
+          "reasoning": "We have order #1056 status \"processing\". Shipping policy says orders ship within 1-2 business days. Since it's still processing, likely not shipped yet. We can state that it will ship within 1–2 business days. No need to issue anything else. Provide answer.\n\n",
+          "finishReason": "tool_calls"
         },
-        "inputTokens": 0,
-        "outputTokens": 0,
-        "latencyMs": 865,
+        "inputTokens": 1990,
+        "outputTokens": 119,
+        "latencyMs": 515,
         "cached": false,
-        "costMicros": 0,
+        "costMicros": 370,
         "turn": 1
       },
       {
         "kind": "tool_call",
         "agent": "support",
         "data": {
-          "callId": "repaired_0",
+          "callId": "fc_d540dd8a-33a4-440e-b212-de22a529eb84",
           "name": "reply",
-          "arguments": "{\"message\":\"Your order #1056 is currently processing and will ship within 1–2 business days. Thanks for your patience!\\\"\"}",
+          "arguments": "{\"message\":\"Your order #1056 is currently processing and will ship within 1–2 business days, according to our shipping policy. You’ll receive a tracking number once it ships. Thanks for your patience!\"}",
           "result": {
             "ok": true,
             "data": {
               "delivered": true,
-              "message": "Your order #1056 is currently processing and will ship within 1–2 business days. Thanks for your patience!\""
+              "message": "Your order #1056 is currently processing and will ship within 1–2 business days, according to our shipping policy. You’ll receive a tracking number once it ships. Thanks for your patience!"
             }
           }
         },
@@ -299,7 +291,7 @@
         "kind": "reply",
         "agent": "support",
         "data": {
-          "message": "Your order #1056 is currently processing and will ship within 1–2 business days. Thanks for your patience!\""
+          "message": "Your order #1056 is currently processing and will ship within 1–2 business days, according to our shipping policy. You’ll receive a tracking number once it ships. Thanks for your patience!"
         },
         "turn": 1
       }
@@ -409,14 +401,14 @@
     "modelCalls": 4,
     "cachedCalls": 0,
     "toolCalls": 2,
-    "inputTokens": 4000,
-    "outputTokens": 229,
-    "latencyMs": 2394,
+    "inputTokens": 5990,
+    "outputTokens": 356,
+    "latencyMs": 2391,
     "turnLatencyMs": [
-      2394
+      2391
     ],
-    "costMicros": 738,
-    "wallMs": 2445
+    "costMicros": 1113,
+    "wallMs": 2431
   },
-  "finishedAt": "2026-10-01T16:49:52.507Z"
+  "finishedAt": "2026-10-01T16:54:23.755Z"
 }

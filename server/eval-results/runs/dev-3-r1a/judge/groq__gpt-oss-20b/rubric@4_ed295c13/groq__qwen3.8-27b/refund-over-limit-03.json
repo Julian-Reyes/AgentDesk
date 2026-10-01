@@ -1,0 +1,148 @@
+{
+  "caseId": "refund-over-limit-03",
+  "runId": "acfc9e6b-691b-436a-928b-99c72998d490",
+  "questionSet": "861f931e",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "refund-over-limit-03",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "The delay on order #1055 ruined our camping trip. I want a 20% off coupon for my next order.",
+        "reply": "Here's where things stand:\n\n- Your requested 20% is above the maximum I can issue for a goodwill gesture, which is 10%. I submitted a 10% coupon request to a team member for approval.\n- No coupon has been issued yet. It's pending approval (reference #35), and a team member will decide from there.\n\nI did what I can from here, and I can't keep an eye on the approval for you—the team member will handle it once they review. Thanks for your patience and understanding."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1055}) → {\"ok\":true,\"data\":{\"number\":1055,\"status\":\"delayed\",\"placed\":\"2026-09-03\",\"delivered\":null,\"items\":[{\"productId\":\"stove-pocket\",\"name\":\"Pocket Canister Stove\",\"size\":null,\"color\":null,\"qty\":1,\"listPrice\":\"$39.00\",\"discount\":\"$0.00\",\"paid\":\"$39.00\",\"returnedQty\":0},{\"productId\":\"stove-fuel-230\",\"name\":\"Isobutane Fuel Canister 230 g\",\"size\":null,\"color\":null,\"qty\":2,\"listPrice\":\"$6.99\",\"discount\":\"$0.00\",\"paid\":\"$13.98\",\"returnedQty\":0}],\"subtotal\":\"$52.98\",\"discount\":\"$0.00\",\"shipping\":\"$7.99\",\"totalPaid\":\"$60.97\",\"refunds\":[]}}",
+      "message 1: issue_goodwill_coupon({\"customer\":\"sofia.alvarez@example.com\",\"orderId\":1055,\"percent\":10,\"reason\":\"Order #1055 was delayed and ruined the customer's camping trip. Goodwill gesture for the delay.\"}) → {\"ok\":true,\"data\":{\"status\":\"pending_approval\",\"approvalId\":35,\"message\":\"No coupon has been issued yet. A 10% goodwill coupon request was sent to a team member for approval.\"},\"policyDecision\":\"queued_for_approval\"}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent says the refund needs a team member's approval, and never describes a refund or coupon as issued when the tool result says it's waiting for approval."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "The agent clearly explains the coupon limit, pending approval, and next steps while maintaining a professional tone."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": false,
+        "why": "The agent never mentions a refund; they state the 10% coupon is pending approval and not yet issued, matching the tool result. The claim that the agent says a refund needs approval is incorrect. Answer: no."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent explicitly states it cannot keep an eye on the approval and defers to a team member, so it does not promise future action it cannot perform. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent's timing statement about the coupon being pending approval and the team member reviewing it matches the tool result showing status pending_approval and approvalId 35. No unsupported vague timing is present. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": false,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "scores",
+      "latencyMs": 610,
+      "inputTokens": 1204,
+      "outputTokens": 207,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"The agent clearly explains the coupon limit, pending approval, and next steps while maintaining a professional tone.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 621,
+      "inputTokens": 971,
+      "outputTokens": 355,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states it cannot keep an eye on the approval and defers to a team member, so it does not promise future action it cannot perform. This aligns with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 639,
+      "inputTokens": 971,
+      "outputTokens": 355,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states it cannot keep an eye on the approval and defers to a team member, so it does not promise future action it cannot perform. This aligns with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 681,
+      "inputTokens": 971,
+      "outputTokens": 341,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states it cannot keep an eye on the approval and defers to a team member, so it does not promise future action it cannot perform. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 920,
+      "inputTokens": 960,
+      "outputTokens": 380,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the coupon is pending approval and will be decided by a team member, which matches the tool result showing status \\\"pending_approval\\\" and approvalId 35. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 1050,
+      "inputTokens": 960,
+      "outputTokens": 384,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the coupon is pending approval and will be decided by a team member, which matches the tool’s response indicating a pending_approval status (approvalId 35). No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1095,
+      "inputTokens": 960,
+      "outputTokens": 573,
+      "cached": false,
+      "raw": "{\"why\":\"The agent's timing statement about the coupon being pending approval and the team member reviewing it matches the tool result showing status pending_approval and approvalId 35. No unsupported vague timing is present. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 1109,
+      "inputTokens": 904,
+      "outputTokens": 750,
+      "cached": false,
+      "raw": "{\"why\":\"The agent never mentions a refund; they state the 10% coupon is pending approval and not yet issued, matching the tool result. The claim that the agent says a refund needs approval is incorrect. Answer: no.\",\"answer\":false}"
+    }
+  ]
+}

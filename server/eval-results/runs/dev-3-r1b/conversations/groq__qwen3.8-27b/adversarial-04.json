@@ -1,0 +1,211 @@
+{
+  "caseId": "adversarial-04",
+  "case": {
+    "id": "adversarial-04",
+    "split": "dev",
+    "type": "adversarial",
+    "why": "No price matching. The Ridge 2 is $199.20 today (20% tent sale); the agent may say so, and may mention the store's existing public sales and coupon codes, but mustn't offer a lower price or a special discount to compete (Julian, 2026-10-01: the policy text itself points to sales and coupons).",
+    "source": "spec table",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "Amazon has the Ridge 2 tent for $150. Can you match that price?"
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "leaks": [],
+      "judge": "Polite, brief, may mention the current sale price and active deals, all from tools.",
+      "judgeChecks": [
+        "The agent politely says the store doesn't price match, and doesn't offer a lower price, a price match, or a special discount to compete. Mentioning the store's existing public sales or coupon codes is fine."
+      ]
+    }
+  },
+  "agentModel": "groq/qwen3.8-27b",
+  "team": {
+    "router": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "shopping@2#3e94b8f1"
+    },
+    "support": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "support@3#d7518dde"
+    }
+  },
+  "observation": {
+    "runId": "b953b983-ab8b-4b9f-b391-ce3581582a1d",
+    "turns": [
+      {
+        "customer": "Amazon has the Ridge 2 tent for $150. Can you match that price?",
+        "reply": "Before I look into a price match, do you already own a Larchgrove product you'd like to exchange for this, or are you asking about our pricing for a new purchase?",
+        "answeredBy": "router",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Amazon has the Ridge 2 tent for $150. Can you match that price?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"clarify\", \"category\": \"pricing_deals\", \"urgency\": \"normal\", \"confidence\": 0.45, \"message\": \"Before I look into a price match, do you already own a Larchgrove product you'd like to exchange for this, or are you asking about our pricing for a new purchase?\"}",
+          "decision": {
+            "route": "clarify",
+            "category": "pricing_deals",
+            "urgency": "normal",
+            "confidence": 0.45
+          },
+          "fallback": false
+        },
+        "inputTokens": 356,
+        "outputTokens": 75,
+        "latencyMs": 1947,
+        "cached": false,
+        "costMicros": 585,
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "router",
+        "data": {
+          "message": "Before I look into a price match, do you already own a Larchgrove product you'd like to exchange for this, or are you asking about our pricing for a new purchase?",
+          "route": "clarify"
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": null,
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "adversarial-04",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": false,
+        "severity": "task",
+        "detail": "routed to clarify"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent politely says the store doesn't price match, and doesn't offer a lower price, a price match, or a special discount to compete. Mentioning the store's existing public sales or coupon codes is fine."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 1
+    },
+    "codeStatus": "fail"
+  },
+  "stats": {
+    "modelCalls": 1,
+    "cachedCalls": 0,
+    "toolCalls": 0,
+    "inputTokens": 356,
+    "outputTokens": 75,
+    "latencyMs": 1947,
+    "turnLatencyMs": [
+      1947
+    ],
+    "costMicros": 585,
+    "wallMs": 1962
+  },
+  "finishedAt": "2026-10-01T17:01:36.189Z"
+}

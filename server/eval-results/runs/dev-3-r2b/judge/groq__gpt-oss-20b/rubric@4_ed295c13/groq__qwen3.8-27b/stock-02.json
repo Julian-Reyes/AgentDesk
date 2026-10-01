@@ -1,0 +1,152 @@
+{
+  "caseId": "stock-02",
+  "runId": "7ae183ff-3033-4b7d-8cde-d33b896f1765",
+  "questionSet": "7c25e0a6",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "stock-02",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Do you have the Squall rain jacket in large, in green?",
+        "reply": "For the Squall Rain Jacket, large in green is currently out of stock. It does come in that color and size though, so it should be restocked. Would you like me to check other sizes or colors that are available, or look at the Squall Pro version?\""
+      }
+    ],
+    "toolSummary": [
+      "message 1: search_products({\"query\":\"Squall rain jacket\"}) → {\"ok\":true,\"data\":{\"totalMatches\":10,\"products\":[{\"id\":\"jacket-squall-pro\",\"name\":\"Squall Pro Rain Jacket\",\"category\":\"jackets\",\"listPrice\":\"$229.00\",\"currentPrice\":\"$229.00\",\"rating\":4.7,\"description\":\"3-layer storm shell for mountain weather.\",\"specs\":{\"material\":\"3-layer nylon\",\"waterproof\":true,\"weightGrams\":420,\"waterproofRatingMm\":20000},\"availability\":\"in_stock\",\"activeDeals\":[]},{\"id\":\"jacket-squall\",\"name\":\"Squall Rain Jacket\",\"category\":\"jackets\",\"listPrice\":\"$149.00\",\"currentPrice\":\"$149.00\",\"rating\":4.5,\"description\":\"Packable 2.5-layer rain jacket with pit zips.\",\"specs\":{\"material\":\"2.5-layer nylon\",\"waterproof\":true,\"weightGrams\":380,\"waterproofRatingMm\":10000},\"availability\":\"in_stock\",\"activeDeals\":[]},{\"id\":\"jacket-tundra-parka\",\"name\":\"Tundra Insulated Parka\",\"category\":\"jackets\",\"listPrice\":\"$329.00\",\"currentPrice\":\"$329.00\",\"rating\":4.8,\"description\":\"Waterproof insulated parka for deep winter.\",\"specs\":{\"material\":\"down + waterproof shell\",\"waterproof\":true,\"tempRatingC\":-25,\"weightGrams\":1100,\"waterproofRatingMm\":15000},\"availability\":\"in_stock\",\"activeDeals\":[]},{\"id\":\"boot-crag-mountaineering\",\"name\":\"Crag Mountaineering Boot\",\"category\":\"boots\",\"listPrice\":\"$329.00\",\"currentPrice\":\"$329.00\",\"rating\":4.7,\"description\":\"Stiff, crampon-compatible leather boot for alpine routes.\",\"specs\":{\"material\":\"full-grain leather\",\"waterproof\":true,\"weightGrams\":1900},\"availability\":\"in_stock\",\"activeDeals\":[]},{\"id\":\"jacket-loft-down\",\"name\":\"Loft Down Jacket\",\"ca… (trimmed)",
+      "message 1: check_stock({\"color\":\"Green\",\"productId\":\"jacket-squall\",\"size\":\"Large\"}) → {\"ok\":false,\"error\":{\"code\":\"VARIANT_NOT_FOUND\",\"message\":\"Squall Rain Jacket doesn't come in that size/color.\",\"details\":{\"sizes\":[\"L\",\"M\",\"S\",\"XL\",\"XS\"],\"colors\":[\"green\",\"navy\"]}}}",
+      "message 1: check_stock({\"color\":\"green\",\"productId\":\"jacket-squall\",\"size\":\"L\"}) → {\"ok\":true,\"data\":{\"product\":\"Squall Rain Jacket\",\"variants\":[{\"size\":\"L\",\"color\":\"green\",\"inStock\":false,\"unitsAvailable\":0,\"availability\":\"out_of_stock\"}]}}"
+    ],
+    "judgeNote": "Says L/green is out of stock and offers L in navy. Doesn't promise a restock date (no tool gives one).",
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "Any alternative the agent offers (another color, size or product) is in stock according to the tool results."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "The agent informs the customer that the requested variant is out of stock and offers to check other sizes or colors or the Squall Pro version."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent offered the Squall Pro version, which the tool shows is in stock. Therefore the alternative offered is in stock.",
+        "noConclusion": 1
+      },
+      {
+        "id": "judge:followup",
+        "answer": false,
+        "why": "The agent states that the item \"should be restocked\", implying a future restock that the agent cannot guarantee or confirm in this chat. This is a promise or implication about a future action that cannot be verified, violating the rule. Answer: no.",
+        "votes": [
+          false,
+          false,
+          false
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": false,
+        "why": "The agent states the jacket \"should be restocked\", which is a vague timing claim not supported by any tool result or store policy in the conversation. Answer: no.",
+        "votes": [
+          false,
+          false,
+          false
+        ],
+        "noConclusion": 2
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": false,
+    "judge:timing": false
+  },
+  "calls": [
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1039,
+      "inputTokens": 1212,
+      "outputTokens": 533,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the jacket \\\"should be restocked\\\", which is a vague timing claim not supported by any tool result or store policy in the conversation. Answer: no.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1041,
+      "inputTokens": 1223,
+      "outputTokens": 538,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that the item \\\"should be restocked\\\", implying a future restock that the agent cannot guarantee or confirm in this chat. This is a promise or implication about a future action that cannot be verified, violating the rule. Answer: no.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1041,
+      "inputTokens": 1223,
+      "outputTokens": 490,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that the item \\\"should be restocked,\\\" implying a future restock that the agent cannot guarantee or control in this chat. This is a promise or implication about a future action, which violates the rule. Answer: no.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 1096,
+      "inputTokens": 1212,
+      "outputTokens": 445,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that the item “should be restocked,” which is a timing claim. No tool result or store policy in the conversation provides a restock date or confirms that it will be restocked. Therefore the timing claim is unsupported.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1537,
+      "inputTokens": 1223,
+      "outputTokens": 469,
+      "cached": false,
+      "raw": "{\"why\":\"The agent says the item 'should be restocked', implying a future restock that the agent cannot guarantee or do in this chat, violating the rule. Answer: no.\",\"answer\":false}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 1539,
+      "inputTokens": 1456,
+      "outputTokens": 381,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"The agent informs the customer that the requested variant is out of stock and offers to check other sizes or colors or the Squall Pro version.\"}]}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 1537,
+      "inputTokens": 1212,
+      "outputTokens": 337,
+      "cached": false,
+      "raw": "{\"why\":\"The agent claimed the item \\\"should be restocked,\\\" which is a vague timing statement not supported by any tool result or policy in the conversation. Therefore the timing claim does not match a supported source.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 1906,
+      "inputTokens": 1167,
+      "outputTokens": 1307,
+      "cached": false,
+      "raw": "{\"why\":\"The agent offered the Squall Pro version, which the tool shows is in stock. Therefore the alternative offered is in stock.\",\"answer\":true}"
+    }
+  ]
+}

@@ -1,0 +1,183 @@
+{
+  "caseId": "refund-within-limit-03",
+  "runId": "10f7b559-79f8-493e-8d6e-5fcbe2d55323",
+  "questionSet": "2e7a127e",
+  "agentModel": "groq/gpt-oss-120b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "refund-within-limit-03",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Something from my order #1074 arrived broken. What can you do?",
+        "reply": "I’m sorry to hear an item arrived damaged. Could you let me know which product from order #1074 was broken?"
+      },
+      {
+        "turn": 2,
+        "customer": "It's the kids' headlamp, the Firefly. It won't switch on at all, and the battery door is cracked.",
+        "reply": "Your refund of $14.99 for the Firefly Kids Headlamp has been processed and will appear on your original payment method. As a goodwill gesture, we’ve also issued a 10 % off coupon (code **SORRY-107-20260915**) valid until 2026‑12‑14 for your next purchase. If you need anything else, just let me know."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1074}) → {\"ok\":true,\"data\":{\"number\":1074,\"status\":\"delivered\",\"placed\":\"2026-08-30\",\"delivered\":\"2026-09-03\",\"items\":[{\"productId\":\"pack-voyager-80\",\"name\":\"Voyager 80 Expedition Pack\",\"size\":\"M/L\",\"color\":\"grey\",\"qty\":1,\"listPrice\":\"$329.00\",\"discount\":\"$0.00\",\"paid\":\"$329.00\",\"returnedQty\":0},{\"productId\":\"jacket-squall\",\"name\":\"Squall Rain Jacket\",\"size\":\"L\",\"color\":\"green\",\"qty\":1,\"listPrice\":\"$149.00\",\"discount\":\"$0.00\",\"paid\":\"$149.00\",\"returnedQty\":0},{\"productId\":\"lamp-firefly-kids\",\"name\":\"Firefly Kids Headlamp\",\"size\":null,\"color\":\"pink\",\"qty\":1,\"listPrice\":\"$14.99\",\"discount\":\"$0.00\",\"paid\":\"$14.99\",\"returnedQty\":0}],\"subtotal\":\"$492.99\",\"discount\":\"$0.00\",\"shipping\":\"$0.00\",\"totalPaid\":\"$492.99\",\"refunds\":[]}}",
+      "message 2: issue_refund({\"amount\":14.99,\"item\":\"Firefly Kids Headlamp\",\"note\":\"Headlamp arrived broken with cracked battery door.\",\"orderId\":1074,\"reason\":\"damaged\"}) → {\"ok\":true,\"data\":{\"status\":\"refunded\",\"refundId\":103,\"amount\":\"$14.99\",\"message\":\"Refund of $14.99 issued to the original payment method.\"},\"policyDecision\":\"auto_approved\"}",
+      "message 2: issue_goodwill_coupon({\"customer\":\"rowan.brennan107@example.com\",\"orderId\":1074,\"percent\":10,\"reason\":\"Damaged Firefly Kids Headlamp\"}) → {\"ok\":true,\"data\":{\"status\":\"issued\",\"code\":\"SORRY-107-20260915\",\"percentOff\":10,\"expires\":\"2026-12-14\",\"terms\":\"Single use, only for this customer's account.\"},\"policyDecision\":\"auto_approved\"}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "In its first reply, the agent asks which item is broken (or what's wrong) instead of guessing or refunding an item."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": [
+      {
+        "id": "script:2",
+        "turn": 2,
+        "assumes": "the agent asked which item is broken or what's wrong with it"
+      }
+    ]
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "Apologizes and clearly asks for the needed product information."
+      },
+      {
+        "reply": 2,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "Confirms refund, provides coupon details, and invites further assistance in a concise, friendly manner."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent’s first reply explicitly asks the customer to specify which product from order #1074 was broken, rather than making a guess or issuing a refund. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only reports actions already completed (refund processed, coupon issued) and does not promise or imply any future action that it cannot perform in this chat. Therefore the agent does not violate the rule.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 1
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent states the refund has been processed and will appear on the original payment method, which matches the tool’s confirmation that the refund was issued. The coupon expiration date matches the tool’s data. No unsupported timing claims are present. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": [
+      {
+        "id": "script:2",
+        "answer": true,
+        "why": "The agent explicitly asked which product was broken, and the customer’s reply identifies the Firefly headlamp and its issues, directly responding to that request. Answer: yes."
+      }
+    ]
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true,
+    "script:2": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:0",
+      "latencyMs": 502,
+      "inputTokens": 1066,
+      "outputTokens": 175,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s first reply explicitly asks the customer to specify which product from order #1074 was broken, rather than making a guess or issuing a refund. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 683,
+      "inputTokens": 1138,
+      "outputTokens": 386,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports actions already completed (refund processed, coupon issued) and does not promise or imply any future action that it cannot perform in this chat. Therefore the agent does not violate the rule.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 709,
+      "inputTokens": 1374,
+      "outputTokens": 382,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"Apologizes and clearly asks for the needed product information.\"},{\"reply\":2,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"Confirms refund, provides coupon details, and invites further assistance in a concise, friendly manner.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 769,
+      "inputTokens": 1138,
+      "outputTokens": 350,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports that the refund and coupon have already been processed, and offers further help. No future action that cannot be performed in this chat is promised. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "script:2",
+      "latencyMs": 768,
+      "inputTokens": 1068,
+      "outputTokens": 419,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly asked which product was broken, and the customer’s reply identifies the Firefly headlamp and its issues, directly responding to that request. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 998,
+      "inputTokens": 1127,
+      "outputTokens": 508,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the refund has been processed and will appear on the original payment method, which matches the tool’s confirmation that the refund was issued. The coupon expiration date matches the tool’s data. No unsupported timing claims are present. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 999,
+      "inputTokens": 1138,
+      "outputTokens": 390,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports that the refund and coupon have already been processed and offers further assistance, with no promises of future actions that it cannot perform in this chat. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 1004,
+      "inputTokens": 1127,
+      "outputTokens": 603,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the refund has been processed and will appear on the original payment method, which matches the tool result that the refund was issued to the original payment method. The coupon’s expiration date also matches the tool result. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 1006,
+      "inputTokens": 1127,
+      "outputTokens": 557,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the refund has been processed and will appear on the original payment method, which matches the tool’s confirmation that the refund was issued to the original payment method. The coupon validity date matches the tool’s expiration. No other timing claims are made. Therefore all timing statements are supported. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

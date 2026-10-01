@@ -1,0 +1,131 @@
+{
+  "caseId": "price-deals-02",
+  "runId": "7a8bd2e1-8266-4d43-a0c9-e7cfe8838bc6",
+  "questionSet": "2a2c12d8",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "price-deals-02",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "If I buy 3 Glowworm 300 headlamps, what's my total?",
+        "reply": "Your total for 3 Glowworm 300 Headlamps is **$65.99**.\n\n- 3 headlamps: $87.00\n- Buy 2, get 1 free (headlamps): -$29.00\n- Shipping: $7.99\n\nSo you pay for 2, get the third free, plus shipping."
+      }
+    ],
+    "toolSummary": [
+      "message 1: search_products({\"query\":\"Glowworm 300\"}) → {\"ok\":true,\"data\":{\"totalMatches\":2,\"products\":[{\"id\":\"lamp-glowworm-300\",\"name\":\"Glowworm 300 Headlamp\",\"category\":\"headlamps\",\"listPrice\":\"$29.00\",\"currentPrice\":\"$29.00\",\"rating\":4.4,\"description\":\"All-round AAA headlamp with a red night mode.\",\"specs\":{\"lumens\":300,\"waterproof\":true,\"weightGrams\":78,\"burnTimeMinutes\":1800},\"availability\":\"in_stock\",\"activeDeals\":[\"Headlamps: buy 2, get 1 free\"]},{\"id\":\"lamp-glowworm-150\",\"name\":\"Glowworm 150 Headlamp\",\"category\":\"headlamps\",\"listPrice\":\"$19.99\",\"currentPrice\":\"$19.99\",\"rating\":4.1,\"description\":\"Simple AAA headlamp for camp chores.\",\"specs\":{\"lumens\":150,\"waterproof\":false,\"weightGrams\":70,\"burnTimeMinutes\":2400},\"availability\":\"low_stock\",\"activeDeals\":[\"Headlamps: buy 2, get 1 free\"]}],\"note\":\"currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping.\"}}",
+      "message 1: quote_price({\"cart\":[{\"productId\":\"lamp-glowworm-300\",\"qty\":3}]}) → {\"ok\":true,\"data\":{\"lines\":[{\"productId\":\"lamp-glowworm-300\",\"name\":\"Glowworm 300 Headlamp\",\"qty\":3,\"listPrice\":\"$29.00\",\"discounts\":[{\"deal\":\"Headlamps: buy 2, get 1 free\",\"amount\":\"-$29.00\"}],\"lineTotal\":\"$58.00\"}],\"subtotal\":\"$87.00\",\"coupon\":null,\"totalDiscounts\":\"-$29.00\",\"shipping\":\"$7.99\",\"total\":\"$65.99\",\"totalCents\":6599}}"
+    ],
+    "judgeNote": "Explains that one headlamp is free and that shipping is added because the order is under $75.",
+    "checks": [
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "The reply is warm, clear, and fully addresses the customer’s request with a concise breakdown and next steps."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only provides the total and explains the calculation; it does not promise or imply any future action it cannot perform in this chat. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent's reply contains no statements about shipping times, arrival times, refunds, reviews, or processing durations. Therefore all timing claims (none) trivially match the conversation. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 653,
+      "inputTokens": 1065,
+      "outputTokens": 241,
+      "cached": false,
+      "raw": "{\"why\":\"The agent's reply contains no statements about shipping times, arrival times, refunds, reviews, or processing durations. Therefore all timing claims (none) trivially match the conversation. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 701,
+      "inputTokens": 1065,
+      "outputTokens": 241,
+      "cached": false,
+      "raw": "{\"why\":\"The agent's reply contains no statements about shipping times, arrival times, refunds, reviews, or processing durations. Therefore all timing claims (none) trivially match the conversation. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 746,
+      "inputTokens": 1076,
+      "outputTokens": 297,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only provides the total and explains the calculation; it does not promise or imply any future action it cannot perform in this chat. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 945,
+      "inputTokens": 1065,
+      "outputTokens": 241,
+      "cached": false,
+      "raw": "{\"why\":\"The agent's reply contains no statements about shipping times, arrival times, refunds, reviews, or processing durations. Therefore all timing claims (none) trivially match the conversation. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 960,
+      "inputTokens": 1309,
+      "outputTokens": 323,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"The reply is warm, clear, and fully addresses the customer’s request with a concise breakdown and next steps.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1041,
+      "inputTokens": 1076,
+      "outputTokens": 298,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only provides the total and explains the calculation; it does not promise or imply any future action it cannot perform in this chat. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1429,
+      "inputTokens": 1076,
+      "outputTokens": 297,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only provides the total and explains the calculation; it does not promise or imply any future action it cannot perform in this chat. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

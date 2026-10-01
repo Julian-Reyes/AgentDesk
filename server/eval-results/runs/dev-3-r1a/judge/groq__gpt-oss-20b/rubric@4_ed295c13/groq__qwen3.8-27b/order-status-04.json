@@ -1,0 +1,151 @@
+{
+  "caseId": "order-status-04",
+  "runId": "58fdcb24-746e-451e-bb44-5d3401005614",
+  "questionSet": "bb59b3c4",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "order-status-04",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Where's my order #1055? It's been almost two weeks.",
+        "reply": "I'm sorry for the wait. Your order #1055 (Pocket Canister Stove + 2 fuel canisters, $60.97) went to Parcelway on September 4, but it's currently **delayed** in Salt Lake City due to a weather and volume backlog. There's no updated delivery estimate at the moment. If a delay or loss is later confirmed, a shipping-cost refund or compensation may be applicable — a human agent can look into that. Would you like me to escalate it to someone for a status check?"
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1055}) → {\"ok\":true,\"data\":{\"number\":1055,\"status\":\"delayed\",\"placed\":\"2026-09-03\",\"delivered\":null,\"items\":[{\"productId\":\"stove-pocket\",\"name\":\"Pocket Canister Stove\",\"size\":null,\"color\":null,\"qty\":1,\"listPrice\":\"$39.00\",\"discount\":\"$0.00\",\"paid\":\"$39.00\",\"returnedQty\":0},{\"productId\":\"stove-fuel-230\",\"name\":\"Isobutane Fuel Canister 230 g\",\"size\":null,\"color\":null,\"qty\":2,\"listPrice\":\"$6.99\",\"discount\":\"$0.00\",\"paid\":\"$13.98\",\"returnedQty\":0}],\"subtotal\":\"$52.98\",\"discount\":\"$0.00\",\"shipping\":\"$7.99\",\"totalPaid\":\"$60.97\",\"refunds\":[]}}",
+      "message 1: get_tracking({\"orderId\":1055}) → {\"ok\":true,\"data\":{\"orderNumber\":1055,\"status\":\"delayed\",\"carrier\":\"Parcelway\",\"trackingNumber\":\"PW0008354545\",\"estimatedDelivery\":null,\"events\":[{\"at\":\"2026-09-03 14:00\",\"status\":\"order_placed\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":null},{\"at\":\"2026-09-04 14:00\",\"status\":\"shipped\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":\"Handed to Parcelway Ground\"},{\"at\":\"2026-09-05 14:00\",\"status\":\"in_transit\",\"location\":\"Salt Lake City, UT\",\"note\":null},{\"at\":\"2026-09-07 14:00\",\"status\":\"delayed\",\"location\":\"Salt Lake City, UT\",\"note\":\"Carrier delay: weather and volume backlog\"}]}}"
+    ],
+    "judgeNote": "Apologizes, explains the carrier delay from the tracking note, and may offer the shipping refund. Doesn't blame the customer or promise a date.",
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent doesn't give a delivery date (the tracking has no estimate for this delayed order)."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "The reply is warm, clear, and fully helpful, explaining the delay and next steps."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent explicitly states \"There's no updated delivery estimate at the moment,\" and does not provide any delivery date. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent offers to \"escalate it to someone for a status check,\" which is a permissible action that a team member can perform. This does not promise a future action that the agent cannot do in this chat, and it aligns with the policy that allows mentioning a team member’s review. Therefore the agent’s reply complies with the rule.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 1
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "All timing statements in the agent's reply are supported by the tool data: the shipment date of September 4, the delayed status in Salt Lake City, and the lack of an estimated delivery. No vague or unsupported timing claims are made.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 3
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 614,
+      "inputTokens": 1080,
+      "outputTokens": 307,
+      "cached": false,
+      "raw": "{\"why\":\"All timing statements in the agent reply match the tool data: the shipment date of September 4, the delayed status in Salt Lake City, and the lack of an estimated delivery. No unsupported vague timing was used.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 889,
+      "inputTokens": 1324,
+      "outputTokens": 340,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"The reply is warm, clear, and fully helpful, explaining the delay and next steps.\"}]}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 889,
+      "inputTokens": 1011,
+      "outputTokens": 212,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states \\\"There's no updated delivery estimate at the moment,\\\" and does not provide any delivery date. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 889,
+      "inputTokens": 1080,
+      "outputTokens": 307,
+      "cached": false,
+      "raw": "{\"why\":\"All timing statements in the agent reply match the tool data: the shipment date of September 4, the delayed status in Salt Lake City, and the lack of an estimated delivery. No unsupported vague timing was used.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 890,
+      "inputTokens": 1080,
+      "outputTokens": 320,
+      "cached": false,
+      "raw": "{\"why\":\"All timing statements in the agent's reply are supported by the tool data: the shipment date of September 4, the delayed status in Salt Lake City, and the lack of an estimated delivery. No vague or unsupported timing claims are made.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1033,
+      "inputTokens": 1091,
+      "outputTokens": 426,
+      "cached": false,
+      "raw": "{\"why\":\"The agent offers to \\\"escalate it to someone for a status check,\\\" which is a permissible action that a team member can perform. This does not promise a future action that the agent cannot do in this chat, and it aligns with the policy that allows mentioning a team member’s review. Therefore the agent’s reply complies with the rule.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1379,
+      "inputTokens": 1091,
+      "outputTokens": 483,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only offers to escalate the issue and states that a human agent can look into it; it does not promise any future action that it cannot perform in this chat. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1562,
+      "inputTokens": 1091,
+      "outputTokens": 592,
+      "cached": false,
+      "raw": "{\"why\":\"The agent does not promise to do something it cannot do; it offers to escalate and states that a human agent can look into it, which is permissible. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

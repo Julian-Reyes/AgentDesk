@@ -76,11 +76,11 @@
     }
   },
   "observation": {
-    "runId": "2d1cced8-66b3-49e5-b37b-4efcefec2968",
+    "runId": "d04556ae-26c4-4dc6-b5d4-260cc22648c9",
     "turns": [
       {
         "customer": "Is the stove sale still on? How much would a Pocket Pro stove be, shipped?",
-        "reply": "There isn’t a sale on the Pocket Pro Canister Stove right now; its price is $55.00. With standard shipping of $7.99, the total comes to $62.99.",
+        "reply": "The Pocket Pro Canister Stove is currently priced at $55.00 (no sale is active for stoves). With shipping, the total comes to $62.99.\nThanks for checking!",
         "answeredBy": "shopping",
         "outcome": "resolved"
       }
@@ -111,10 +111,10 @@
           "fallback": false
         },
         "inputTokens": 426,
-        "outputTokens": 234,
-        "latencyMs": 1017,
+        "outputTokens": 185,
+        "latencyMs": 1432,
         "cached": false,
-        "costMicros": 204,
+        "costMicros": 175,
         "turn": 1
       },
       {
@@ -131,27 +131,27 @@
             "content": null,
             "toolCalls": [
               {
-                "id": "fc_989c172a-be0a-4578-8097-6abe9c742d64",
+                "id": "fc_a61725ec-8a1a-408c-9be6-4339b17ce42e",
                 "name": "search_products",
                 "arguments": "{\"filters\":{\"category\":\"stoves\",\"inStockOnly\":true},\"limit\":5,\"query\":\"Pocket Pro stove\"}"
               }
             ]
           },
-          "reasoning": "We need to check stove sale and price, shipping cost. Need product details for Pocket Pro stove. Use search or get_product. Probably product ID known? Let's search for \"Pocket Pro stove\".",
+          "reasoning": "We need to answer: Is the stove sale still on? How much would a Pocket Pro stove be, shipped?\n\nWe need to find product Pocket Pro stove. Use search_products with query \"Pocket Pro stove\". Then get details including currentPrice. Then we need shipping cost; we need to quote_price for cart with that product qty 1. No coupon mentioned. We'll quote total. Use quote_price.\n\nProceed.",
           "finishReason": "tool_calls"
         },
         "inputTokens": 1847,
-        "outputTokens": 99,
-        "latencyMs": 1595,
+        "outputTokens": 143,
+        "latencyMs": 1256,
         "cached": false,
-        "costMicros": 336,
+        "costMicros": 363,
         "turn": 1
       },
       {
         "kind": "tool_call",
         "agent": "shopping",
         "data": {
-          "callId": "fc_989c172a-be0a-4578-8097-6abe9c742d64",
+          "callId": "fc_a61725ec-8a1a-408c-9be6-4339b17ce42e",
           "name": "search_products",
           "arguments": "{\"filters\":{\"category\":\"stoves\",\"inStockOnly\":true},\"limit\":5,\"query\":\"Pocket Pro stove\"}",
           "result": {
@@ -257,27 +257,98 @@
             "content": null,
             "toolCalls": [
               {
-                "id": "fc_9783cb3d-b412-41d7-b94e-217be1521ab4",
-                "name": "quote_price",
-                "arguments": "{\"cart\":[{\"productId\":\"stove-pocket-pro\",\"qty\":1}]}"
+                "id": "fc_c890d956-24db-49d8-87dc-94dcc2873355",
+                "name": "get_active_promotions",
+                "arguments": "{}"
               }
             ]
           },
-          "reasoning": "We need to answer: \"Is the stove sale still on? How much would a Pocket Pro stove be, shipped?\" We need to check if any sale active for that product. The product listing shows currentPrice equals listPrice $55.00, no activeDeals. So no sale. Need shipping cost: use quote_price with cart containing that product qty 1. No coupon.",
+          "reasoning": "We need to answer: Is the stove sale still on? How much would a Pocket Pro stove be, shipped? Need to check active promotions for stoves or sales. Use get_active_promotions.",
           "finishReason": "tool_calls"
         },
         "inputTokens": 2375,
-        "outputTokens": 126,
-        "latencyMs": 1026,
+        "outputTokens": 62,
+        "latencyMs": 880,
         "cached": false,
-        "costMicros": 432,
+        "costMicros": 393,
         "turn": 1
       },
       {
         "kind": "tool_call",
         "agent": "shopping",
         "data": {
-          "callId": "fc_9783cb3d-b412-41d7-b94e-217be1521ab4",
+          "callId": "fc_c890d956-24db-49d8-87dc-94dcc2873355",
+          "name": "get_active_promotions",
+          "arguments": "{}",
+          "result": {
+            "ok": true,
+            "data": {
+              "promotions": [
+                {
+                  "name": "Tent Sale: 20% off all tents",
+                  "endsOn": "2026-10-05"
+                },
+                {
+                  "name": "Headlamps: buy 2, get 1 free",
+                  "endsOn": "2026-10-15"
+                }
+              ],
+              "freeShipping": "Free shipping on orders of $75.00 or more; otherwise $7.99.",
+              "couponCodes": [
+                {
+                  "code": "SUMMER10",
+                  "terms": "10% off; expires 2026-09-30"
+                },
+                {
+                  "code": "TRAIL25",
+                  "terms": "$25.00 off; minimum spend $150.00; expires 2026-12-31"
+                },
+                {
+                  "code": "GEAR20",
+                  "terms": "20% off; minimum spend $50.00; not valid on tents, sleeping bags; expires 2026-10-30"
+                }
+              ],
+              "rules": "One coupon per order. Sales apply first, then buy-2-get-1, then the coupon."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@2#3e94b8f1",
+        "data": {
+          "step": 3,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_0e025b8c-d44f-41b2-8c21-a80217f9562d",
+                "name": "quote_price",
+                "arguments": "{\"cart\":[{\"productId\":\"stove-pocket-pro\",\"qty\":1}]}"
+              }
+            ]
+          },
+          "reasoning": "We need to answer: Is the stove sale still on? How much would a Pocket Pro stove be, shipped?\n\nWe have product info: Pocket Pro Canister Stove currentPrice $55.00, no active deals listed. No sale indicated. The active promotions list does not include stove sale. So answer: No stove sale currently. Price is $55.00; shipping depends on order total. We need to quote price including shipping. Use quote_price tool with cart containing product id, qty 1. No coupon. Let's do that.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2595,
+        "outputTokens": 158,
+        "latencyMs": 660,
+        "cached": false,
+        "costMicros": 484,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_0e025b8c-d44f-41b2-8c21-a80217f9562d",
           "name": "quote_price",
           "arguments": "{\"cart\":[{\"productId\":\"stove-pocket-pro\",\"qty\":1}]}",
           "result": {
@@ -311,41 +382,41 @@
         "provider": "groq",
         "promptVersion": "shopping@2#3e94b8f1",
         "data": {
-          "step": 3,
+          "step": 4,
           "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
           "message": {
             "role": "assistant",
             "content": null,
             "toolCalls": [
               {
-                "id": "fc_498c5ec9-8bee-42c2-a5ae-76b3c0087265",
+                "id": "fc_0950287d-7e96-43ab-886b-80c07e11dac6",
                 "name": "reply",
-                "arguments": "{\"message\":\"There isn’t a sale on the Pocket Pro Canister Stove right now; its price is $55.00. With standard shipping of $7.99, the total comes to $62.99.\"}"
+                "arguments": "{\"message\":\"The Pocket Pro Canister Stove is currently priced at $55.00 (no sale is active for stoves). With shipping, the total comes to $62.99.\\nThanks for checking!\"}"
               }
             ]
           },
-          "reasoning": "We need to answer: Is the stove sale still on? How much would a Pocket Pro stove be, shipped?\n\nFrom data: listPrice = $55.00, currentPrice = $55.00, no active deals. So no sale. The quote gives total $62.99 including $7.99 shipping.\n\nWe must respond with facts only. Must not do math. Use numbers exactly as returned.\n\nWe should mention that there's no sale currently; price is $55.00, shipping $7.99, total $62.99.\n\nWe need to use reply tool.",
+          "reasoning": "We need to answer: \"Is the stove sale still on? How much would a Pocket Pro stove be, shipped?\" We have info: No active sale on stoves; currentPrice $55, no active deals. So sale is not on. Quote shows total $62.99 including shipping $7.99. We should respond with that info. Must use reply tool.",
           "finishReason": "tool_calls"
         },
-        "inputTokens": 2504,
-        "outputTokens": 181,
-        "latencyMs": 1221,
+        "inputTokens": 2724,
+        "outputTokens": 138,
+        "latencyMs": 698,
         "cached": false,
-        "costMicros": 484,
+        "costMicros": 491,
         "turn": 1
       },
       {
         "kind": "tool_call",
         "agent": "shopping",
         "data": {
-          "callId": "fc_498c5ec9-8bee-42c2-a5ae-76b3c0087265",
+          "callId": "fc_0950287d-7e96-43ab-886b-80c07e11dac6",
           "name": "reply",
-          "arguments": "{\"message\":\"There isn’t a sale on the Pocket Pro Canister Stove right now; its price is $55.00. With standard shipping of $7.99, the total comes to $62.99.\"}",
+          "arguments": "{\"message\":\"The Pocket Pro Canister Stove is currently priced at $55.00 (no sale is active for stoves). With shipping, the total comes to $62.99.\\nThanks for checking!\"}",
           "result": {
             "ok": true,
             "data": {
               "delivered": true,
-              "message": "There isn’t a sale on the Pocket Pro Canister Stove right now; its price is $55.00. With standard shipping of $7.99, the total comes to $62.99."
+              "message": "The Pocket Pro Canister Stove is currently priced at $55.00 (no sale is active for stoves). With shipping, the total comes to $62.99.\nThanks for checking!"
             }
           }
         },
@@ -355,7 +426,7 @@
         "kind": "reply",
         "agent": "shopping",
         "data": {
-          "message": "There isn’t a sale on the Pocket Pro Canister Stove right now; its price is $55.00. With standard shipping of $7.99, the total comes to $62.99."
+          "message": "The Pocket Pro Canister Stove is currently priced at $55.00 (no sale is active for stoves). With shipping, the total comes to $62.99.\nThanks for checking!"
         },
         "turn": 1
       }
@@ -415,7 +486,7 @@
         "label": "reply 1 states $62.99",
         "pass": true,
         "severity": "task",
-        "detail": "amounts in reply: $55.00, $7.99, $62.99"
+        "detail": "amounts in reply: $55.00, $62.99"
       },
       {
         "id": "reply1:mentions:0",
@@ -469,17 +540,17 @@
     "codeStatus": "fail"
   },
   "stats": {
-    "modelCalls": 4,
+    "modelCalls": 5,
     "cachedCalls": 0,
-    "toolCalls": 2,
-    "inputTokens": 7152,
-    "outputTokens": 640,
-    "latencyMs": 4859,
+    "toolCalls": 3,
+    "inputTokens": 9967,
+    "outputTokens": 686,
+    "latencyMs": 4926,
     "turnLatencyMs": [
-      4859
+      4926
     ],
-    "costMicros": 1456,
-    "wallMs": 4914
+    "costMicros": 1906,
+    "wallMs": 4987
   },
-  "finishedAt": "2026-10-01T16:49:01.335Z"
+  "finishedAt": "2026-10-01T16:53:42.531Z"
 }

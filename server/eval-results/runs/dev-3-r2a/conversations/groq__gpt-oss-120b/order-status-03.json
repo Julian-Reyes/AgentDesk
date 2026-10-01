@@ -84,11 +84,11 @@
     }
   },
   "observation": {
-    "runId": "626b2dd3-4401-43cf-b01d-11cdfaef6cb3",
+    "runId": "1c3b9d3a-18e3-40a9-9028-27b7896f0130",
     "turns": [
       {
         "customer": "When will my order #1056 ship?",
-        "reply": "Your order #1056 is currently processing and will ship within 1–2 business days. Thanks for your patience!\"",
+        "reply": "Your order #1056 is currently processing and has not shipped yet. You’ll receive a shipping confirmation with tracking information once it ships. Thanks for your patience.",
         "answeredBy": "support",
         "outcome": "resolved"
       }
@@ -119,10 +119,10 @@
           "fallback": false
         },
         "inputTokens": 417,
-        "outputTokens": 107,
-        "latencyMs": 2166,
+        "outputTokens": 101,
+        "latencyMs": 844,
         "cached": false,
-        "costMicros": 127,
+        "costMicros": 123,
         "turn": 1
       },
       {
@@ -139,27 +139,27 @@
             "content": null,
             "toolCalls": [
               {
-                "id": "fc_6dc32d52-9a93-4054-b566-8c07292033e0",
+                "id": "fc_715e0f2b-f2d4-40a8-a827-c6ddb770ea59",
                 "name": "get_order",
                 "arguments": "{\"orderId\":1056}"
               }
             ]
           },
-          "reasoning": "We need to get order details. Use find_customer? But we have orderId directly. Use get_order to see status, maybe shipping date. Then reply.",
+          "reasoning": "We need to get order details for order #1056. Use get_order.",
           "finishReason": "tool_calls"
         },
         "inputTokens": 1728,
-        "outputTokens": 62,
-        "latencyMs": 541,
+        "outputTokens": 46,
+        "latencyMs": 2553,
         "cached": false,
-        "costMicros": 296,
+        "costMicros": 287,
         "turn": 1
       },
       {
         "kind": "tool_call",
         "agent": "support",
         "data": {
-          "callId": "fc_6dc32d52-9a93-4054-b566-8c07292033e0",
+          "callId": "fc_715e0f2b-f2d4-40a8-a827-c6ddb770ea59",
           "name": "get_order",
           "arguments": "{\"orderId\":1056}",
           "result": {
@@ -206,57 +206,9 @@
             "content": null,
             "toolCalls": [
               {
-                "id": "fc_2b2c5bfa-e010-477a-b524-3df6002dface",
-                "name": "get_policy",
-                "arguments": "{\"topic\":\"shipping\"}"
-              }
-            ]
-          },
-          "reasoning": "We have order status processing, not yet shipped. Need to answer when it will ship. No specific shipping date in order. Policy? Let's get shipping policy.",
-          "finishReason": "tool_calls"
-        },
-        "inputTokens": 1879,
-        "outputTokens": 51,
-        "latencyMs": 526,
-        "cached": false,
-        "costMicros": 312,
-        "turn": 1
-      },
-      {
-        "kind": "tool_call",
-        "agent": "support",
-        "data": {
-          "callId": "fc_2b2c5bfa-e010-477a-b524-3df6002dface",
-          "name": "get_policy",
-          "arguments": "{\"topic\":\"shipping\"}",
-          "result": {
-            "ok": true,
-            "data": {
-              "topic": "shipping",
-              "title": "Shipping",
-              "text": "Standard shipping costs $7.99 and is free on orders of $75.00 or more (after discounts).\nOrders ship from our warehouse within 1–2 business days and arrive 3–6 business days after shipping.\nWe ship within the United States only.\nTracking is available once an order has shipped.\nIf an order is delayed, we refund the shipping cost on request."
-            }
-          }
-        },
-        "turn": 1
-      },
-      {
-        "kind": "model_call",
-        "agent": "support",
-        "modelConfigId": "groq/gpt-oss-120b",
-        "provider": "groq",
-        "promptVersion": "support@4#b0bc1025",
-        "data": {
-          "step": 3,
-          "context": "The customer is signed in as Sofia Alvarez (sofia.alvarez@example.com).",
-          "message": {
-            "role": "assistant",
-            "content": null,
-            "toolCalls": [
-              {
                 "id": "repaired_0",
                 "name": "reply",
-                "arguments": "{\"message\":\"Your order #1056 is currently processing and will ship within 1–2 business days. Thanks for your patience!\\\"\"}"
+                "arguments": "{\"message\":\"Your order #1056 is currently processing and has not shipped yet. You’ll receive a shipping confirmation with tracking information once it ships. Thanks for your patience.\"}"
               }
             ]
           },
@@ -264,8 +216,8 @@
             {
               "status": 400,
               "code": "tool_use_failed",
-              "message": "{\"error\":{\"message\":\"Failed to parse tool call arguments as JSON\",\"type\":\"invalid_request_error\",\"code\":\"tool_use_failed\",\"failed_generation\":\"{\\\"name\\\": \\\"reply\\\", \\\"arguments\\\": Your order #1056 is currently processing and will ship within 1–2 business days. Thanks for your patience!\\\"}\"}}\n",
-              "failedGeneration": "{\"name\": \"reply\", \"arguments\": Your order #1056 is currently processing and will ship within 1–2 business days. Thanks for your patience!\"}"
+              "message": "{\"error\":{\"message\":\"Failed to parse tool call arguments as JSON\",\"type\":\"invalid_request_error\",\"code\":\"tool_use_failed\",\"failed_generation\":\"{\\\"name\\\": \\\"reply\\\", \\\"arguments\\\": Your order #1056 is currently processing and has not shipped yet. You’ll receive a shipping confirmation with tracking i",
+              "failedGeneration": "{\"name\": \"reply\", \"arguments\": Your order #1056 is currently processing and has not shipped yet. You’ll receive a shipping confirmation with tracking information once it ships. Thanks for your patience.\"}"
             }
           ],
           "repaired": true,
@@ -273,7 +225,7 @@
         },
         "inputTokens": 0,
         "outputTokens": 0,
-        "latencyMs": 799,
+        "latencyMs": 1046,
         "cached": false,
         "costMicros": 0,
         "turn": 1
@@ -284,12 +236,12 @@
         "data": {
           "callId": "repaired_0",
           "name": "reply",
-          "arguments": "{\"message\":\"Your order #1056 is currently processing and will ship within 1–2 business days. Thanks for your patience!\\\"\"}",
+          "arguments": "{\"message\":\"Your order #1056 is currently processing and has not shipped yet. You’ll receive a shipping confirmation with tracking information once it ships. Thanks for your patience.\"}",
           "result": {
             "ok": true,
             "data": {
               "delivered": true,
-              "message": "Your order #1056 is currently processing and will ship within 1–2 business days. Thanks for your patience!\""
+              "message": "Your order #1056 is currently processing and has not shipped yet. You’ll receive a shipping confirmation with tracking information once it ships. Thanks for your patience."
             }
           }
         },
@@ -299,7 +251,7 @@
         "kind": "reply",
         "agent": "support",
         "data": {
-          "message": "Your order #1056 is currently processing and will ship within 1–2 business days. Thanks for your patience!\""
+          "message": "Your order #1056 is currently processing and has not shipped yet. You’ll receive a shipping confirmation with tracking information once it ships. Thanks for your patience."
         },
         "turn": 1
       }
@@ -406,17 +358,17 @@
     "codeStatus": "pass"
   },
   "stats": {
-    "modelCalls": 4,
+    "modelCalls": 3,
     "cachedCalls": 0,
-    "toolCalls": 2,
-    "inputTokens": 4024,
-    "outputTokens": 220,
-    "latencyMs": 4032,
+    "toolCalls": 1,
+    "inputTokens": 2145,
+    "outputTokens": 147,
+    "latencyMs": 4443,
     "turnLatencyMs": [
-      4032
+      4443
     ],
-    "costMicros": 735,
-    "wallMs": 4083
+    "costMicros": 410,
+    "wallMs": 4471
   },
-  "finishedAt": "2026-10-01T16:49:48.307Z"
+  "finishedAt": "2026-10-01T16:57:13.949Z"
 }

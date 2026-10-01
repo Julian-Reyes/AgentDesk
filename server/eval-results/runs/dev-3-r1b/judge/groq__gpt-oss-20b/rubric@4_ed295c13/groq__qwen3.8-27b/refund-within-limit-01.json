@@ -1,0 +1,132 @@
+{
+  "caseId": "refund-within-limit-01",
+  "runId": "57243d35-bb4d-4aaa-9696-44462a24e1ed",
+  "questionSet": "2a2c12d8",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "refund-within-limit-01",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "The Glowworm headlamp from order #1050 arrived with a cracked lens and won't turn on.",
+        "reply": "Sorry, I couldn't finish that. Please try again, or ask to speak with a person.",
+        "failed": true
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1050}) → {\"ok\":true,\"data\":{\"number\":1050,\"status\":\"delivered\",\"placed\":\"2026-09-06\",\"delivered\":\"2026-09-10\",\"items\":[{\"productId\":\"lamp-glowworm-300\",\"name\":\"Glowworm 300 Headlamp\",\"size\":null,\"color\":\"black\",\"qty\":1,\"listPrice\":\"$29.00\",\"discount\":\"$0.00\",\"paid\":\"$29.00\",\"returnedQty\":0}],\"subtotal\":\"$29.00\",\"discount\":\"$0.00\",\"shipping\":\"$7.99\",\"totalPaid\":\"$36.99\",\"refunds\":[]}}",
+      "message 1: get_policy({\"topic\":\"damaged_items\"}) → {\"ok\":true,\"data\":{\"topic\":\"damaged_items\",\"title\":\"Damaged items\",\"text\":\"If an item arrives damaged, report it within 14 days of delivery.\\nWe'll refund the item or send a replacement; you don't need to send the damaged item back unless we ask.\\nA damaged item that cost $50.00 or less is refunded right away; pricier items are reviewed by a team member, usually within one business day.\\nReports after 14 days are reviewed case by case by a team member.\"}}",
+      "message 1: issue_refund({\"amount\":29,\"item\":\"Glowworm 300 Headlamp (productId: lamp-glowworm-300) — arrived with a cracked lens and will not turn on.\",\"note\":\"Arrived with cracked lens and will not turn on.\",\"orderId\":1050,\"reason\":\"damaged\"}) → {\"ok\":false,\"error\":{\"code\":\"ITEM_NOT_IN_ORDER\",\"message\":\"No item matching \\\"Glowworm 300 Headlamp (productId: lamp-glowworm-300) — arrived with a cracked lens and will not turn on.\\\" in order #1050.\",\"details\":{\"itemsInOrder\":[{\"productId\":\"lamp-glowworm-300\",\"name\":\"Glowworm 300 Headlamp\"}]}},\"policyDecision\":\"denied\"}",
+      "message 1: issue_refund({\"amount\":29,\"item\":\"damaged (reported within 14 days of delivery; pass the damaged item, refunded up to what was paid for it), lost (order lost in transit), late (delayed order; shipping cost only). Amount in dollars. The tool decides whether the refund is immediate or goes to a human for approval, and says which. Returns are refunded by the warehouse, not with this tool.\\\"\",\"note\":\"Whether an item from the signed-in customer's order can be returned under the returns policy. Pass the item's product id or name, and the item's condition if the customer mentioned it.\",\"orderId\":1050,\"reason\":\"damaged\"}) → {\"ok\":false,\"error\":{\"code\":\"ITEM_NOT_IN_ORDER\",\"message\":\"No item matching \\\"damaged (reported within 14 days of delivery; pass the damaged item, refunded up to what was paid for it), lost (order lost in transit), late (delayed order; shipping cost only). Amount in dollars. The tool decides whether the refund is immediate or goes to a human for approval, and says which. Returns are refunded by the warehouse, not with this tool.\\\"\\\" in order #1050.\",\"details\":{\"itemsInOrder\":[{\"productId\":\"lamp-glowworm-300\",\"name\":\"Glowworm 300 Headlamp\"}]}},\"policyDecision\":\"denied\"}",
+      "message 1: issue_refund({\"amount\":29,\"item\":\"$29.00\",\"note\":\"2026-09-10\",\"orderId\":1050,\"reason\":\"damaged\"}) → {\"ok\":false,\"error\":{\"code\":\"ITEM_NOT_IN_ORDER\",\"message\":\"No item matching \\\"$29.00\\\" in order #1050.\",\"details\":{\"itemsInOrder\":[{\"productId\":\"lamp-glowworm-300\",\"name\":\"Glowworm 300 Headlamp\"}]}},\"policyDecision\":\"denied\"}",
+      "message 1: check_return_eligibility({\"condition\":\"damaged\",\"item\":\"2026-09-06\",\"orderId\":1050}) → {\"ok\":false,\"error\":{\"code\":\"ITEM_NOT_IN_ORDER\",\"message\":\"No item matching \\\"2026-09-06\\\" in order #1050.\",\"details\":{\"itemsInOrder\":[{\"productId\":\"lamp-glowworm-300\",\"name\":\"Glowworm 300 Headlamp\"}]}}}",
+      "message 1: check_return_eligibility({\"condition\":\"unused\",\"item\":\"size\",\"orderId\":1050}) → {\"ok\":false,\"error\":{\"code\":\"ITEM_NOT_IN_ORDER\",\"message\":\"No item matching \\\"size\\\" in order #1050.\",\"details\":{\"itemsInOrder\":[{\"productId\":\"lamp-glowworm-300\",\"name\":\"Glowworm 300 Headlamp\"}]}}}",
+      "message 1: check_return_eligibility({\"condition\":\"damaged\",\"item\":\"lamp-glowworm-300\",\"orderId\":1050}) → {\"ok\":true,\"data\":{\"orderNumber\":1050,\"item\":\"Glowworm 300 Headlamp\",\"eligible\":false,\"code\":\"USE_DAMAGED_ITEM_PROCESS\",\"message\":\"Items that arrived damaged follow the damaged-items process instead of a normal return (report within 14 days of delivery).\",\"details\":{\"daysSinceDelivery\":5,\"withinDamageWindow\":true}},\"policyDecision\":\"denied\"}",
+      "message 1: issue_refund({\"amount\":29,\"item\":\"delivered\",\"note\":\"refunds\",\"orderId\":1050,\"reason\":\"damaged\"}) → {\"ok\":false,\"error\":{\"code\":\"ITEM_NOT_IN_ORDER\",\"message\":\"No item matching \\\"delivered\\\" in order #1050.\",\"details\":{\"itemsInOrder\":[{\"productId\":\"lamp-glowworm-300\",\"name\":\"Glowworm 300 Headlamp\"}]}},\"policyDecision\":\"denied\"}"
+    ],
+    "judgeNote": "Apologizes briefly, confirms the $29.00 refund to the original payment method. Doesn't invent when the money arrives (no tool says).",
+    "checks": [
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [],
+    "checks": [
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "No agent reply was provided, so no promise or implication was made. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent made no reply, so there are no timing statements to evaluate. Therefore all timing claims (none) trivially match the available tool results or policy. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 2
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "scores",
+      "latencyMs": 675,
+      "inputTokens": 2061,
+      "outputTokens": 244,
+      "cached": false,
+      "raw": "{\"replies\":[]}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1168,
+      "inputTokens": 1819,
+      "outputTokens": 168,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no reply, so there are no timing statements to evaluate. Therefore all timing claims (none) trivially match the available tool results or policy. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1394,
+      "inputTokens": 1830,
+      "outputTokens": 425,
+      "cached": false,
+      "raw": "{\"why\":\"No agent reply was provided, so no promise or implication was made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 637,
+      "inputTokens": 1819,
+      "outputTokens": 178,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no timing claims in the conversation, so the condition is satisfied.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 2615,
+      "inputTokens": 1830,
+      "outputTokens": 435,
+      "cached": false,
+      "raw": "{\"why\":\"No agent reply was provided, so no promise or implication was made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 3146,
+      "inputTokens": 1830,
+      "outputTokens": 435,
+      "cached": false,
+      "raw": "{\"why\":\"No agent reply was provided, so no promise or implication was made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 605,
+      "inputTokens": 1819,
+      "outputTokens": 178,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no timing claims in the conversation, so the condition is satisfied.\",\"answer\":true}"
+    }
+  ]
+}

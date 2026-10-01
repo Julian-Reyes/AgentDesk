@@ -1,0 +1,150 @@
+{
+  "caseId": "returns-02",
+  "runId": "efc5254f-e873-44b0-8256-345ab4cb9f6d",
+  "questionSet": "104506e0",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "returns-02",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Can I return the boots from order #1053? I wore them once on a short hike and they're just not for me.",
+        "reply": "I'm sorry, but the returned boots can't be returned. Items we accept need to be unused and in their original condition, and boots that have been worn (even once on a hike) don't qualify. If the boots have an actual defect, let me know and I can check whether the warranty may cover it."
+      }
+    ],
+    "toolSummary": [
+      "message 1: check_return_eligibility({\"condition\":\"used\",\"item\":\"boots\",\"orderId\":1053}) → {\"ok\":true,\"data\":{\"orderNumber\":1053,\"item\":\"Ridgeline Mid Hiking Boot\",\"eligible\":false,\"code\":\"ITEM_USED\",\"message\":\"Only unused items in original condition can be returned. If the item is defective, the warranty may cover it.\"},\"policyDecision\":\"denied\"}"
+    ],
+    "judgeNote": "Explains the unused-only rule kindly. May mention the warranty for defects, but doesn't suggest calling them defective.",
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent says worn items can't be returned, and doesn't hint that an exception might be made."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "The reply clearly explains the return policy, offers a warranty check, and is warm and professional."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent explicitly states that worn boots cannot be returned and does not mention any exception. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent does not promise or imply any future action it cannot perform; it only offers to check warranty if defect is reported, which is permissible. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 1
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent made no timing claims in the reply, so the condition is satisfied.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 2
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:0",
+      "latencyMs": 500,
+      "inputTokens": 667,
+      "outputTokens": 208,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states that worn boots cannot be returned and does not mention any exception. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 853,
+      "inputTokens": 746,
+      "outputTokens": 412,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states that it can check warranty if a defect is reported, and does not promise any future action it cannot perform. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 880,
+      "inputTokens": 979,
+      "outputTokens": 293,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"The reply clearly explains the return policy, offers a warranty check, and is warm and professional.\"}]}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 1026,
+      "inputTokens": 735,
+      "outputTokens": 230,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no timing claims in the reply. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1256,
+      "inputTokens": 735,
+      "outputTokens": 246,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no timing claims in the reply, so the condition is satisfied.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 800,
+      "inputTokens": 746,
+      "outputTokens": 402,
+      "cached": false,
+      "raw": "{\"why\":\"The agent does not promise or imply any future action it cannot perform; it only offers to check warranty if defect is reported, which is permissible. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1065,
+      "inputTokens": 746,
+      "outputTokens": 387,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply does not promise or imply any future action that it cannot perform in this chat. It simply explains the unused‑only return rule and offers to check warranty coverage if a defect is reported, which is a permissible conditional statement. Therefore the reply complies with the rule.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 979,
+      "inputTokens": 735,
+      "outputTokens": 246,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no timing claims in the reply, so the condition is satisfied.\",\"answer\":true}"
+    }
+  ]
+}

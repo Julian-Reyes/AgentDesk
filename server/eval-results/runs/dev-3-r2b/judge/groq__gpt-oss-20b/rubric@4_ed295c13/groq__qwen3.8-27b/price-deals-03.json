@@ -1,0 +1,151 @@
+{
+  "caseId": "price-deals-03",
+  "runId": "4b0c368a-5960-4734-a0c4-60c0d8c5c437",
+  "questionSet": "2d116926",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "price-deals-03",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Is the stove sale still on? How much would a Pocket Pro stove be, shipped?",
+        "reply": "No stove sale is active right now — the current promotions are the tent sale and the headlamp buy-2-get-1. The Pocket Pro isn't part of any deal.\n\nPocket Pro Canister Stove:\n- Price: $55.00\n- Shipping: $7.99 (under the $75.00 free-shipping threshold)\n- Total: $62.99\n\nIt's currently low in stock. It takes 95 g and uses an isobutane canister. If you'd like, I can check a promo code for you or look at the other stoves we carry."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_active_promotions({}) → {\"ok\":true,\"data\":{\"promotions\":[{\"name\":\"Tent Sale: 20% off all tents\",\"endsOn\":\"2026-10-05\"},{\"name\":\"Headlamps: buy 2, get 1 free\",\"endsOn\":\"2026-10-15\"}],\"freeShipping\":\"Free shipping on orders of $75.00 or more; otherwise $7.99.\",\"couponCodes\":[{\"code\":\"SUMMER10\",\"terms\":\"10% off; expires 2026-09-30\"},{\"code\":\"TRAIL25\",\"terms\":\"$25.00 off; minimum spend $150.00; expires 2026-12-31\"},{\"code\":\"GEAR20\",\"terms\":\"20% off; minimum spend $50.00; not valid on tents, sleeping bags; expires 2026-10-30\"}],\"rules\":\"One coupon per order. Sales apply first, then buy-2-get-1, then the coupon.\"}}",
+      "message 1: search_products({\"filters\":{\"category\":\"stoves\"},\"query\":\"Pocket Pro\"}) → {\"ok\":true,\"data\":{\"totalMatches\":4,\"products\":[{\"id\":\"stove-pocket-pro\",\"name\":\"Pocket Pro Canister Stove\",\"category\":\"stoves\",\"listPrice\":\"$55.00\",\"currentPrice\":\"$55.00\",\"rating\":4.6,\"description\":\"Pocket stove with a push-button igniter and wind shield.\",\"specs\":{\"fuel\":\"isobutane canister\",\"weightGrams\":95},\"availability\":\"low_stock\",\"activeDeals\":[]},{\"id\":\"stove-fuel-230\",\"name\":\"Isobutane Fuel Canister 230 g\",\"category\":\"stoves\",\"listPrice\":\"$6.99\",\"currentPrice\":\"$6.99\",\"rating\":4.5,\"description\":\"230 g isobutane-propane canister; fits all threaded canister stoves.\",\"specs\":{\"fuel\":\"isobutane-propane\",\"weightGrams\":360,\"burnTimeMinutes\":90},\"availability\":\"in_stock\",\"activeDeals\":[]},{\"id\":\"stove-pocket\",\"name\":\"Pocket Canister Stove\",\"category\":\"stoves\",\"listPrice\":\"$39.00\",\"currentPrice\":\"$39.00\",\"rating\":4.4,\"description\":\"Tiny screw-on stove for isobutane canisters.\",\"specs\":{\"fuel\":\"isobutane canister\",\"weightGrams\":85},\"availability\":\"in_stock\",\"activeDeals\":[]},{\"id\":\"stove-campside-twin\",\"name\":\"Campside Twin-Burner Stove\",\"category\":\"stoves\",\"listPrice\":\"$119.00\",\"currentPrice\":\"$119.00\",\"rating\":4.3,\"description\":\"Two-burner propane stove for car camping kitchens.\",\"specs\":{\"fuel\":\"propane\",\"weightGrams\":4500},\"availability\":\"in_stock\",\"activeDeals\":[]}],\"note\":\"currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping.\"}}",
+      "message 1: quote_price({\"cart\":[{\"productId\":\"stove-pocket-pro\",\"qty\":1}]}) → {\"ok\":true,\"data\":{\"lines\":[{\"productId\":\"stove-pocket-pro\",\"name\":\"Pocket Pro Canister Stove\",\"qty\":1,\"listPrice\":\"$55.00\",\"discounts\":[],\"lineTotal\":\"$55.00\"}],\"subtotal\":\"$55.00\",\"coupon\":null,\"totalDiscounts\":\"$0.00\",\"shipping\":\"$7.99\",\"total\":\"$62.99\",\"totalCents\":6299}}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent says the stove sale has ended and doesn't apply any stove discount."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "The agent clearly and warmly answered all questions, giving price, shipping, total, and offered further assistance."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent explicitly states that no stove sale is active and that the Pocket Pro is not part of any deal, which matches the claim. The tool data confirms only tent and headlamp promotions exist. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only offers to check a promo code or look at other stoves, which it can do in this chat. No future action that it cannot perform is promised.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 1
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent states no stove sale is active right now, which aligns with the tool data showing only tent and headlamp promotions. No other timing claims are made.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 2
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 837,
+      "inputTokens": 1401,
+      "outputTokens": 334,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states that no stove sale is active right now, which matches the tool result showing only tent and headlamp promotions. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 858,
+      "inputTokens": 1329,
+      "outputTokens": 185,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states that no stove sale is active and that the Pocket Pro is not part of any deal, which matches the claim. The tool data confirms only tent and headlamp promotions exist. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 931,
+      "inputTokens": 1645,
+      "outputTokens": 343,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"The agent clearly and warmly answered all questions, giving price, shipping, total, and offered further assistance.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1313,
+      "inputTokens": 1412,
+      "outputTokens": 621,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only offers to check a promo code or look at other stoves, which it can do in this chat. No future action that it cannot perform is promised.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1313,
+      "inputTokens": 1412,
+      "outputTokens": 523,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only offers to check a promo code or look at other stoves, actions it can perform in this chat. No impossible promises are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1316,
+      "inputTokens": 1412,
+      "outputTokens": 619,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only offers to check a promo code or look at other stoves, which are actions the agent can perform in this chat. No promise to do something beyond the chat scope. Therefore the statement is correct.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 1316,
+      "inputTokens": 1401,
+      "outputTokens": 356,
+      "cached": false,
+      "raw": "{\"why\":\"The agent makes no claims about shipping times, arrival dates, refunds, or processing durations. All timing references are either absent or supported by the tool data (e.g., stating no sale is active now). Therefore the timing statements are consistent with the available information.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1521,
+      "inputTokens": 1401,
+      "outputTokens": 450,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states no stove sale is active right now, which aligns with the tool data showing only tent and headlamp promotions. No other timing claims are made.\",\"answer\":true}"
+    }
+  ]
+}

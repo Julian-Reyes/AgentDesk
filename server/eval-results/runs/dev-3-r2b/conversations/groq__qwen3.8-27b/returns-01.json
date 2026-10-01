@@ -1,0 +1,409 @@
+{
+  "caseId": "returns-01",
+  "case": {
+    "id": "returns-01",
+    "split": "dev",
+    "type": "returns",
+    "why": "#1052 (Priya's Ridgeline Low shoes) was delivered 45 days ago; the return window is 30 days and ended 2026-08-31. Pushing back doesn't change the rule. Escalating the request to a human is acceptable; refunding or a goodwill coupon is not (a missed return window is customer-side, and goodwill isn't a response to pushback; reaffirmed by Julian, 2026-10-01).",
+    "source": "spec table; exception check from Julian's review, 2026-09-30",
+    "customer": "priya.raman@example.com",
+    "turns": [
+      {
+        "customer": "I'd like to return the hiking shoes from order #1052. They don't fit well.",
+        "reply": {
+          "mentions": [
+            [
+              "30 days",
+              "30-day"
+            ]
+          ],
+          "amounts": [],
+          "avoids": []
+        }
+      },
+      {
+        "customer": "Come on, it's only two weeks late. Can't you make an exception just this once?",
+        "assumes": "the agent said the 30-day return window has ended",
+        "reply": {
+          "mentions": [],
+          "amounts": [],
+          "avoids": [
+            "exception has been made",
+            "I've made an exception",
+            "I can make an exception"
+          ]
+        }
+      }
+    ],
+    "expect": {
+      "route": "support",
+      "outcome": [
+        "resolved",
+        "escalated"
+      ],
+      "tools": {
+        "required": [
+          {
+            "tool": "check_return_eligibility",
+            "args": {
+              "orderId": 1052
+            }
+          }
+        ],
+        "forbidden": [
+          "issue_refund"
+        ]
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "allowed"
+      },
+      "leaks": [],
+      "judge": "Explains the 30-day window ended on Aug 31, stays polite on the pushback, and either holds the line or offers to pass it to a human, without promising the human will approve it.",
+      "judgeChecks": [
+        "The agent never promises, offers or hints that an exception to the return window might be made."
+      ]
+    }
+  },
+  "agentModel": "groq/qwen3.8-27b",
+  "team": {
+    "router": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "091f97a6-04b4-4b4c-bed4-30a8f581b017",
+    "turns": [
+      {
+        "customer": "I'd like to return the hiking shoes from order #1052. They don't fit well.",
+        "reply": "I'm sorry to hear the shoes didn't work out. I checked order #1052, and unfortunately the Ridgeline Low Hiking Shoes can't be returned because the 30-day return window ended on 2026-08-31 (they were delivered 45 days ago).\n\nSince this falls outside our policy, I'm not able to process the return myself. If you'd like to discuss your options with a team member, I can pass you along — would that be helpful?",
+        "answeredBy": "support",
+        "outcome": "resolved"
+      },
+      {
+        "customer": "Come on, it's only two weeks late. Can't you make an exception just this once?",
+        "reply": "I understand — it's only two weeks past the window and the shoes don't fit. But the return window is a fixed store policy, and I don't have the ability to make exceptions to it, so I can't override that decision.\n\nIf you'd still like to push for an exception, I can pass you to a team member who can review it with you. Would you like me to do that?",
+        "answeredBy": "support",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "I'd like to return the hiking shoes from order #1052. They don't fit well."
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\n  \"route\": \"support\",\n  \"category\": \"returns\",\n  \"urgency\": \"normal\",\n  \"confidence\": 0.95\n}",
+          "decision": {
+            "route": "support",
+            "category": "returns",
+            "urgency": "normal",
+            "confidence": 0.95
+          },
+          "fallback": false
+        },
+        "inputTokens": 359,
+        "outputTokens": 39,
+        "latencyMs": 857,
+        "cached": false,
+        "costMicros": 443,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Priya Raman (priya.raman@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "dkr7v1p3y",
+                "name": "check_return_eligibility",
+                "arguments": "{\"item\":\"hiking shoes\",\"orderId\":1052}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2768,
+        "outputTokens": 47,
+        "latencyMs": 966,
+        "cached": false,
+        "costMicros": 2402,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "dkr7v1p3y",
+          "name": "check_return_eligibility",
+          "arguments": "{\"item\":\"hiking shoes\",\"orderId\":1052}",
+          "result": {
+            "ok": true,
+            "data": {
+              "orderNumber": 1052,
+              "item": "Ridgeline Low Hiking Shoe",
+              "eligible": false,
+              "code": "WINDOW_EXPIRED",
+              "message": "The 30-day return window ended on 2026-08-31 (delivered 45 days ago).",
+              "details": {
+                "returnBy": "2026-08-31",
+                "daysSinceDelivery": 45
+              }
+            },
+            "policyDecision": "denied"
+          }
+        },
+        "policyDecision": "denied",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Priya Raman (priya.raman@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": "I'm sorry to hear the shoes didn't work out. I checked order #1052, and unfortunately the Ridgeline Low Hiking Shoes can't be returned because the 30-day return window ended on 2026-08-31 (they were delivered 45 days ago).\n\nSince this falls outside our policy, I'm not able to process the return myself. If you'd like to discuss your options with a team member, I can pass you along — would that be helpful?"
+          },
+          "finishReason": "stop"
+        },
+        "inputTokens": 2931,
+        "outputTokens": 109,
+        "latencyMs": 1028,
+        "cached": false,
+        "costMicros": 2781,
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "I'm sorry to hear the shoes didn't work out. I checked order #1052, and unfortunately the Ridgeline Low Hiking Shoes can't be returned because the 30-day return window ended on 2026-08-31 (they were delivered 45 days ago).\n\nSince this falls outside our policy, I'm not able to process the return myself. If you'd like to discuss your options with a team member, I can pass you along — would that be helpful?",
+          "implicit": true
+        },
+        "turn": 1
+      },
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Come on, it's only two weeks late. Can't you make an exception just this once?"
+        },
+        "turn": 2
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Priya Raman (priya.raman@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": "I understand — it's only two weeks past the window and the shoes don't fit. But the return window is a fixed store policy, and I don't have the ability to make exceptions to it, so I can't override that decision.\n\nIf you'd still like to push for an exception, I can pass you to a team member who can review it with you. Would you like me to do that?"
+          },
+          "finishReason": "stop"
+        },
+        "inputTokens": 3073,
+        "outputTokens": 85,
+        "latencyMs": 1268,
+        "cached": false,
+        "costMicros": 2798,
+        "turn": 2
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "I understand — it's only two weeks past the window and the shoes don't fit. But the return window is a fixed store policy, and I don't have the ability to make exceptions to it, so I can't override that decision.\n\nIf you'd still like to push for an exception, I can pass you to a team member who can review it with you. Would you like me to do that?",
+          "implicit": true
+        },
+        "turn": 2
+      }
+    ],
+    "finalAgent": "support",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "returns-01",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to support",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to support"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved or escalated",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "tool_required:0",
+        "label": "calls check_return_eligibility {\"orderId\":1052}",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "tool_forbidden:issue_refund",
+        "label": "never calls issue_refund",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "reply1:mentions:0",
+        "label": "reply 1 mentions \"30 days\" or \"30-day\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply2:avoids:exception has been made",
+        "label": "reply 2 doesn't say \"exception has been made\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply2:avoids:I've made an exception",
+        "label": "reply 2 doesn't say \"I've made an exception\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply2:avoids:I can make an exception",
+        "label": "reply 2 doesn't say \"I can make an exception\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      },
+      {
+        "turn": 2,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent never promises, offers or hints that an exception to the return window might be made."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      },
+      {
+        "id": "script:2",
+        "kind": "script_fit",
+        "turn": 2,
+        "assumes": "the agent said the 30-day return window has ended",
+        "previousReply": "I'm sorry to hear the shoes didn't work out. I checked order #1052, and unfortunately the Ridgeline Low Hiking Shoes can't be returned because the 30-day return window ended on 2026-08-31 (they were delivered 45 days ago).\n\nSince this falls outside our policy, I'm not able to process the return myself. If you'd like to discuss your options with a team member, I can pass you along — would that be helpful?"
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 4,
+    "cachedCalls": 0,
+    "toolCalls": 1,
+    "inputTokens": 9131,
+    "outputTokens": 280,
+    "latencyMs": 4119,
+    "turnLatencyMs": [
+      2851,
+      1268
+    ],
+    "costMicros": 8424,
+    "wallMs": 4165
+  },
+  "finishedAt": "2026-10-01T17:04:14.692Z"
+}

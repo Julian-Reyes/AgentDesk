@@ -21,6 +21,15 @@ describe("order ownership", () => {
       expect(JSON.stringify(other).replace("1043", "N")).toBe(JSON.stringify(missing).replace("9999", "N"));
     }));
 
+  it("an order number beyond the column's range is invalid arguments, not a database error (dev-3-r2b)", () =>
+    inTx(async (tx) => {
+      for (const orderId of [1056005231261617, "1056005231261617", 0]) {
+        expect(await call(tx, "check_return_eligibility", { orderId, item: "pack" }, as(MAYA))).toMatchObject({ ok: false, error: { code: "INVALID_ARGS" } });
+      }
+      // The transaction is still usable afterwards.
+      expect(await call(tx, "get_order", { orderId: 1042 }, as(MAYA))).toMatchObject({ ok: true });
+    }));
+
   it("every order tool requires a signed-in customer", () =>
     inTx(async (tx) => {
       for (const [name, args] of [

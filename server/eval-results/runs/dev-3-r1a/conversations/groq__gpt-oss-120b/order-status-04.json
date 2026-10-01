@@ -97,11 +97,11 @@
     }
   },
   "observation": {
-    "runId": "11f54deb-ee1d-4911-a128-f9a6f570d58c",
+    "runId": "64ae3107-e7a9-4b1d-a5c5-9b22f12398f5",
     "turns": [
       {
         "customer": "Where's my order #1055? It's been almost two weeks.",
-        "reply": "Your order #1055 is currently **delayed**. It was placed on September 3 and has not yet been delivered.\n\nI’ve requested a 10 % goodwill coupon for this order because of the delay. The request is pending approval, and you’ll be notified via email once the coupon is approved.\n\nI’m sorry for the inconvenience. If you have any other questions, please let me know.\"",
+        "reply": "Your order #1055 is currently delayed. It was shipped on September 4 and is now at Salt Lake City, UT, where Parcelway reported a weather‑related backlog. The tracking number is PW0008354545.\n\nWe’ve submitted a request for a 10 % goodwill coupon to compensate for the delay; it is pending approval by our team. Thanks for your patience.",
         "answeredBy": "support",
         "outcome": "approval_needed"
       }
@@ -122,20 +122,20 @@
         "promptVersion": "router@1#f10fc861",
         "data": {
           "attempt": 1,
-          "raw": "{\"route\":\"support\",\"category\":\"order_status\",\"urgency\":\"normal\",\"confidence\":0.99}",
+          "raw": "{\"route\":\"support\",\"category\":\"order_status\",\"urgency\":\"high\",\"confidence\":0.99}",
           "decision": {
             "route": "support",
             "category": "order_status",
-            "urgency": "normal",
+            "urgency": "high",
             "confidence": 0.99
           },
           "fallback": false
         },
         "inputTokens": 422,
-        "outputTokens": 106,
-        "latencyMs": 3403,
+        "outputTokens": 107,
+        "latencyMs": 2484,
         "cached": false,
-        "costMicros": 127,
+        "costMicros": 128,
         "turn": 1
       },
       {
@@ -152,27 +152,27 @@
             "content": null,
             "toolCalls": [
               {
-                "id": "fc_16054bb4-2a54-4666-98ac-351fe042370b",
+                "id": "fc_4c29e639-5e87-474d-b738-4c80c9dd579f",
                 "name": "get_order",
                 "arguments": "{\"orderId\":1055}"
               }
             ]
           },
-          "reasoning": "We need to look up order #1055 for the signed-in customer Sofia Alvarez. Use get_order.",
+          "reasoning": "We need to look up order details. Customer signed in as Sofia Alvarez. Use find_customer? Actually we can directly get_order with orderId 1055. Let's do get_order.",
           "finishReason": "tool_calls"
         },
         "inputTokens": 1721,
-        "outputTokens": 51,
-        "latencyMs": 766,
+        "outputTokens": 67,
+        "latencyMs": 1057,
         "cached": false,
-        "costMicros": 289,
+        "costMicros": 298,
         "turn": 1
       },
       {
         "kind": "tool_call",
         "agent": "support",
         "data": {
-          "callId": "fc_16054bb4-2a54-4666-98ac-351fe042370b",
+          "callId": "fc_4c29e639-5e87-474d-b738-4c80c9dd579f",
           "name": "get_order",
           "arguments": "{\"orderId\":1055}",
           "result": {
@@ -230,40 +230,66 @@
             "content": null,
             "toolCalls": [
               {
-                "id": "fc_0cc31318-6f19-42f6-a5d3-c156832f06d9",
-                "name": "issue_goodwill_coupon",
-                "arguments": "{\"customer\":\"sofia.alvarez@example.com\",\"orderId\":1055,\"percent\":10,\"reason\":\"order delayed\"}"
+                "id": "fc_feae304d-7d94-40fb-b736-3a6d4672aca4",
+                "name": "get_tracking",
+                "arguments": "{\"orderId\":1055}"
               }
             ]
           },
-          "reasoning": "We need to respond. Order #1055 is delayed, placed 2026-09-03, now almost two weeks later (today 2026-10-01, so about 28 days). We should give status, mention delay, maybe offer goodwill coupon? According to policies: For delayed order, we can issue a goodwill coupon up to 10% for a problem the store or carrier caused. We can issue it. Let's see policy for goodwill? Might not need. We can issue coupon. Let's do issue_goodwill_coupon with percent maybe 10% as apology. Use orderId 1055, reason \"order delayed\".",
+          "reasoning": "We have order #1055, status delayed, placed 2026-09-03, almost two weeks (today 2026-10-01). Need to inform the customer. We could also check tracking? Not asked but maybe helpful. Could get tracking info. Let's fetch tracking.",
           "finishReason": "tool_calls"
         },
         "inputTokens": 1929,
-        "outputTokens": 189,
-        "latencyMs": 1059,
+        "outputTokens": 80,
+        "latencyMs": 1117,
         "cached": false,
-        "costMicros": 403,
+        "costMicros": 337,
         "turn": 1
       },
       {
         "kind": "tool_call",
         "agent": "support",
         "data": {
-          "callId": "fc_0cc31318-6f19-42f6-a5d3-c156832f06d9",
-          "name": "issue_goodwill_coupon",
-          "arguments": "{\"customer\":\"sofia.alvarez@example.com\",\"orderId\":1055,\"percent\":10,\"reason\":\"order delayed\"}",
+          "callId": "fc_feae304d-7d94-40fb-b736-3a6d4672aca4",
+          "name": "get_tracking",
+          "arguments": "{\"orderId\":1055}",
           "result": {
             "ok": true,
             "data": {
-              "status": "pending_approval",
-              "approvalId": 25,
-              "message": "No coupon has been issued yet. A 10% goodwill coupon request was sent to a team member for approval."
-            },
-            "policyDecision": "queued_for_approval"
+              "orderNumber": 1055,
+              "status": "delayed",
+              "carrier": "Parcelway",
+              "trackingNumber": "PW0008354545",
+              "estimatedDelivery": null,
+              "events": [
+                {
+                  "at": "2026-09-03 14:00",
+                  "status": "order_placed",
+                  "location": "Larchgrove Warehouse, Reno, NV",
+                  "note": null
+                },
+                {
+                  "at": "2026-09-04 14:00",
+                  "status": "shipped",
+                  "location": "Larchgrove Warehouse, Reno, NV",
+                  "note": "Handed to Parcelway Ground"
+                },
+                {
+                  "at": "2026-09-05 14:00",
+                  "status": "in_transit",
+                  "location": "Salt Lake City, UT",
+                  "note": null
+                },
+                {
+                  "at": "2026-09-07 14:00",
+                  "status": "delayed",
+                  "location": "Salt Lake City, UT",
+                  "note": "Carrier delay: weather and volume backlog"
+                }
+              ]
+            }
           }
         },
-        "policyDecision": "queued_for_approval",
         "turn": 1
       },
       {
@@ -280,9 +306,59 @@
             "content": null,
             "toolCalls": [
               {
+                "id": "fc_bb71b74c-af72-4460-8ff8-0cf9b943dbf3",
+                "name": "issue_goodwill_coupon",
+                "arguments": "{\"customer\":\"sofia.alvarez@example.com\",\"orderId\":1055,\"percent\":10,\"reason\":\"order delay\"}"
+              }
+            ]
+          },
+          "reasoning": "We have order status delayed, carrier delay noted. Customer asks \"Where's my order #1055? It's been almost two weeks.\" We need to reply with info: order delayed, last event, maybe no estimated delivery. We can also offer goodwill coupon? The policy maybe allows for delayed orders. We could issue a goodwill coupon up to 10% as apology. Let's issue coupon 10% for delay. Use issue_goodwill_coupon.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2138,
+        "outputTokens": 134,
+        "latencyMs": 628,
+        "cached": false,
+        "costMicros": 401,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "fc_bb71b74c-af72-4460-8ff8-0cf9b943dbf3",
+          "name": "issue_goodwill_coupon",
+          "arguments": "{\"customer\":\"sofia.alvarez@example.com\",\"orderId\":1055,\"percent\":10,\"reason\":\"order delay\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "status": "pending_approval",
+              "approvalId": 36,
+              "message": "No coupon has been issued yet. A 10% goodwill coupon request was sent to a team member for approval."
+            },
+            "policyDecision": "queued_for_approval"
+          }
+        },
+        "policyDecision": "queued_for_approval",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@3#d7518dde",
+        "data": {
+          "step": 4,
+          "context": "The customer is signed in as Sofia Alvarez (sofia.alvarez@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
                 "id": "repaired_0",
                 "name": "reply",
-                "arguments": "{\"message\":\"Your order #1055 is currently **delayed**. It was placed on September 3 and has not yet been delivered.\\n\\nI’ve requested a 10 % goodwill coupon for this order because of the delay. The request is pending approval, and you’ll be notified via email once the coupon is approved.\\n\\nI’m sorry for the inconvenience. If you have any other questions, please let me know.\\\"\"}"
+                "arguments": "{\"message\":\"Your order #1055 is currently delayed. It was shipped on September 4 and is now at Salt Lake City, UT, where Parcelway reported a weather‑related backlog. The tracking number is PW0008354545.\\n\\nWe’ve submitted a request for a 10 % goodwill coupon to compensate for the delay; it is pending approval by our team. Thanks for your patience.\"}"
               }
             ]
           },
@@ -290,8 +366,8 @@
             {
               "status": 400,
               "code": "tool_use_failed",
-              "message": "{\"error\":{\"message\":\"Failed to parse tool call arguments as JSON\",\"type\":\"invalid_request_error\",\"code\":\"tool_use_failed\",\"failed_generation\":\"{\\\"name\\\": \\\"reply\\\", \\\"arguments\\\": Your order #1055 is currently **delayed**. It was placed on September 3 and has not yet been delivered.\\n\\nI’ve requeste",
-              "failedGeneration": "{\"name\": \"reply\", \"arguments\": Your order #1055 is currently **delayed**. It was placed on September 3 and has not yet been delivered.\n\nI’ve requested a 10 % goodwill coupon for this order because of the delay. The request is pending approval, and you’ll be notified via email once the coupon is approved.\n\nI’m sorry for the inconvenience. If you have any other questions, please let me know.\"}"
+              "message": "{\"error\":{\"message\":\"Failed to parse tool call arguments as JSON\",\"type\":\"invalid_request_error\",\"code\":\"tool_use_failed\",\"failed_generation\":\"{\\\"name\\\": \\\"reply\\\", \\\"arguments\\\": Your order #1055 is currently delayed. It was shipped on September 4 and is now at Salt Lake City, UT, where Parcelway r",
+              "failedGeneration": "{\"name\": \"reply\", \"arguments\": Your order #1055 is currently delayed. It was shipped on September 4 and is now at Salt Lake City, UT, where Parcelway reported a weather‑related backlog. The tracking number is PW0008354545.\n\nWe’ve submitted a request for a 10 % goodwill coupon to compensate for the delay; it is pending approval by our team. Thanks for your patience.\"}"
             }
           ],
           "repaired": true,
@@ -299,7 +375,7 @@
         },
         "inputTokens": 0,
         "outputTokens": 0,
-        "latencyMs": 719,
+        "latencyMs": 1269,
         "cached": false,
         "costMicros": 0,
         "turn": 1
@@ -310,12 +386,12 @@
         "data": {
           "callId": "repaired_0",
           "name": "reply",
-          "arguments": "{\"message\":\"Your order #1055 is currently **delayed**. It was placed on September 3 and has not yet been delivered.\\n\\nI’ve requested a 10 % goodwill coupon for this order because of the delay. The request is pending approval, and you’ll be notified via email once the coupon is approved.\\n\\nI’m sorry for the inconvenience. If you have any other questions, please let me know.\\\"\"}",
+          "arguments": "{\"message\":\"Your order #1055 is currently delayed. It was shipped on September 4 and is now at Salt Lake City, UT, where Parcelway reported a weather‑related backlog. The tracking number is PW0008354545.\\n\\nWe’ve submitted a request for a 10 % goodwill coupon to compensate for the delay; it is pending approval by our team. Thanks for your patience.\"}",
           "result": {
             "ok": true,
             "data": {
               "delivered": true,
-              "message": "Your order #1055 is currently **delayed**. It was placed on September 3 and has not yet been delivered.\n\nI’ve requested a 10 % goodwill coupon for this order because of the delay. The request is pending approval, and you’ll be notified via email once the coupon is approved.\n\nI’m sorry for the inconvenience. If you have any other questions, please let me know.\""
+              "message": "Your order #1055 is currently delayed. It was shipped on September 4 and is now at Salt Lake City, UT, where Parcelway reported a weather‑related backlog. The tracking number is PW0008354545.\n\nWe’ve submitted a request for a 10 % goodwill coupon to compensate for the delay; it is pending approval by our team. Thanks for your patience."
             }
           }
         },
@@ -325,7 +401,7 @@
         "kind": "reply",
         "agent": "support",
         "data": {
-          "message": "Your order #1055 is currently **delayed**. It was placed on September 3 and has not yet been delivered.\n\nI’ve requested a 10 % goodwill coupon for this order because of the delay. The request is pending approval, and you’ll be notified via email once the coupon is approved.\n\nI’m sorry for the inconvenience. If you have any other questions, please let me know.\""
+          "message": "Your order #1055 is currently delayed. It was shipped on September 4 and is now at Salt Lake City, UT, where Parcelway reported a weather‑related backlog. The tracking number is PW0008354545.\n\nWe’ve submitted a request for a 10 % goodwill coupon to compensate for the delay; it is pending approval by our team. Thanks for your patience."
         },
         "turn": 1
       }
@@ -436,17 +512,17 @@
     "codeStatus": "pass"
   },
   "stats": {
-    "modelCalls": 4,
+    "modelCalls": 5,
     "cachedCalls": 0,
-    "toolCalls": 2,
-    "inputTokens": 4072,
-    "outputTokens": 346,
-    "latencyMs": 5947,
+    "toolCalls": 3,
+    "inputTokens": 6210,
+    "outputTokens": 388,
+    "latencyMs": 6555,
     "turnLatencyMs": [
-      5947
+      6555
     ],
-    "costMicros": 819,
-    "wallMs": 6002
+    "costMicros": 1164,
+    "wallMs": 6623
   },
-  "finishedAt": "2026-10-01T16:49:58.510Z"
+  "finishedAt": "2026-10-01T16:54:30.379Z"
 }

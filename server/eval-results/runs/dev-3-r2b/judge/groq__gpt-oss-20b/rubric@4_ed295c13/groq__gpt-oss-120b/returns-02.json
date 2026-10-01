@@ -1,0 +1,150 @@
+{
+  "caseId": "returns-02",
+  "runId": "891447cf-3181-4ad9-9da9-2d56f0715f50",
+  "questionSet": "104506e0",
+  "agentModel": "groq/gpt-oss-120b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "returns-02",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Can I return the boots from order #1053? I wore them once on a short hike and they're just not for me.",
+        "reply": "I’m sorry, but the Ridgeline Mid Hiking Boot is not eligible for a return because it has been used. Our policy allows returns only for unused items in their original condition. If the boots are defective, the warranty may cover them. Let us know if you’d like to explore that option. Thanks for understanding."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1053}) → {\"ok\":true,\"data\":{\"number\":1053,\"status\":\"delivered\",\"placed\":\"2026-08-30\",\"delivered\":\"2026-09-03\",\"items\":[{\"productId\":\"boot-ridgeline-mid\",\"name\":\"Ridgeline Mid Hiking Boot\",\"size\":\"10\",\"color\":\"brown\",\"qty\":1,\"listPrice\":\"$179.00\",\"discount\":\"$0.00\",\"paid\":\"$179.00\",\"returnedQty\":0}],\"subtotal\":\"$179.00\",\"discount\":\"$0.00\",\"shipping\":\"$0.00\",\"totalPaid\":\"$179.00\",\"refunds\":[]}}",
+      "message 1: check_return_eligibility({\"condition\":\"used\",\"item\":\"Ridgeline Mid Hiking Boot\",\"orderId\":1053}) → {\"ok\":true,\"data\":{\"orderNumber\":1053,\"item\":\"Ridgeline Mid Hiking Boot\",\"eligible\":false,\"code\":\"ITEM_USED\",\"message\":\"Only unused items in original condition can be returned. If the item is defective, the warranty may cover it.\"},\"policyDecision\":\"denied\"}"
+    ],
+    "judgeNote": "Explains the unused-only rule kindly. May mention the warranty for defects, but doesn't suggest calling them defective.",
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent says worn items can't be returned, and doesn't hint that an exception might be made."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "The reply clearly explains the return policy and offers the warranty option, meeting all criteria."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": false,
+        "why": "The agent explicitly states that if the boots are defective, the warranty may cover them, indicating an exception to the return rule. Therefore the statement that the agent does not hint at an exception is false.",
+        "noConclusion": 1
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only explains the return policy and offers warranty exploration, without promising future actions it cannot perform. This complies with the rule. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent made no statements about shipping, arrival, refunds, reviews, or processing times, so all timing claims (none) trivially match policy or tool results. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": false,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 575,
+      "inputTokens": 886,
+      "outputTokens": 230,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refunds, reviews, or processing times. Therefore all timing claims (none) match the conversation. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 932,
+      "inputTokens": 886,
+      "outputTokens": 230,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refunds, reviews, or processing times. Therefore all timing claims (none) match the conversation. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 935,
+      "inputTokens": 1130,
+      "outputTokens": 270,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"The reply clearly explains the return policy and offers the warranty option, meeting all criteria.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 934,
+      "inputTokens": 897,
+      "outputTokens": 380,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only explains the return policy and offers warranty exploration, without promising future actions it cannot perform. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 934,
+      "inputTokens": 886,
+      "outputTokens": 234,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refunds, reviews, or processing times, so all timing claims (none) trivially match policy or tool results. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1020,
+      "inputTokens": 897,
+      "outputTokens": 382,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only explains the return policy and offers warranty exploration, without promising future actions it cannot perform. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1504,
+      "inputTokens": 897,
+      "outputTokens": 364,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only explains the return policy and offers warranty exploration, without promising future actions it cannot perform. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 2756,
+      "inputTokens": 818,
+      "outputTokens": 264,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states that if the boots are defective, the warranty may cover them, indicating an exception to the return rule. Therefore the statement that the agent does not hint at an exception is false.\",\"answer\":false}"
+    }
+  ]
+}

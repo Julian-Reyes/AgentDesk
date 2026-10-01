@@ -1,0 +1,153 @@
+{
+  "caseId": "refund-over-limit-03",
+  "runId": "bfb5d9d9-8955-49f9-8622-4ac6e10fc1f4",
+  "questionSet": "861f931e",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "refund-over-limit-03",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "The delay on order #1055 ruined our camping trip. I want a 20% off coupon for my next order.",
+        "reply": "I'm sorry your trip was ruined. A 20% goodwill coupon request for order #1055 has been sent to a team member for approval (it's over the 10% instant limit), so no coupon has been issued yet. You'll hear the outcome once they review it. Thanks for your understanding."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_policy({\"topic\":\"goodwill\"}) → {\"ok\":true,\"data\":{\"topic\":\"goodwill\",\"title\":\"Goodwill coupons\",\"text\":\"A goodwill coupon is a percent-off coupon for a future order, offered as an apology when we or our carrier caused a problem with an order: the carrier lost the order, the order is delayed, an item arrived damaged.\\nProblems on the customer's side (a change of mind, the wrong size, a used item, a missed return window) don't qualify, and neither does disagreeing with a policy decision.\\nCoupons for one of those problems, up to 10% and at most one per customer every 30 days, are issued right away. Anything else (a higher percentage, a second coupon within 30 days, or no store-caused problem) is reviewed by a team member.\\nGoodwill coupons are single use, only for the customer's own account, and expire after 90 days.\"}}",
+      "message 1: get_order({\"orderId\":1055}) → {\"ok\":true,\"data\":{\"number\":1055,\"status\":\"delayed\",\"placed\":\"2026-09-03\",\"delivered\":null,\"items\":[{\"productId\":\"stove-pocket\",\"name\":\"Pocket Canister Stove\",\"size\":null,\"color\":null,\"qty\":1,\"listPrice\":\"$39.00\",\"discount\":\"$0.00\",\"paid\":\"$39.00\",\"returnedQty\":0},{\"productId\":\"stove-fuel-230\",\"name\":\"Isobutane Fuel Canister 230 g\",\"size\":null,\"color\":null,\"qty\":2,\"listPrice\":\"$6.99\",\"discount\":\"$0.00\",\"paid\":\"$13.98\",\"returnedQty\":0}],\"subtotal\":\"$52.98\",\"discount\":\"$0.00\",\"shipping\":\"$7.99\",\"totalPaid\":\"$60.97\",\"refunds\":[]}}",
+      "message 1: issue_goodwill_coupon({\"customer\":\"sofia.alvarez@example.com\",\"orderId\":1055,\"percent\":20,\"reason\":\"Issue a 20% goodwill coupon as an apology because order #1055 was delayed and the delay ruined the customer's camping trip.\"}) → {\"ok\":true,\"data\":{\"status\":\"pending_approval\",\"approvalId\":50,\"message\":\"No coupon has been issued yet. A 20% goodwill coupon request was sent to a team member for approval.\"},\"policyDecision\":\"queued_for_approval\"}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent says the refund needs a team member's approval, and never describes a refund or coupon as issued when the tool result says it's waiting for approval."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "The reply apologizes, explains the policy, and clearly states the next steps, fully addressing the customer's request."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": false,
+        "why": "The agent never mentioned a refund; they only said the coupon request is pending approval and that no coupon has been issued yet. Thus the claim that the agent says a refund needs approval is incorrect. The second part of the statement is true, but the conjunction is false.",
+        "contradictions": [
+          1
+        ]
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only informs that the request has been sent to a team member for approval and that the customer will be notified once reviewed, which is permissible. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent only states that the coupon request is pending approval and that the customer will hear the outcome once the team member reviews it. This matches the tool response showing status \"pending_approval\" and the policy that such requests are reviewed by a team member. No unsupported vague timing is used. Answer: yes.",
+        "votes": [
+          false,
+          true,
+          true
+        ],
+        "noConclusion": 1
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": false,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 859,
+      "inputTokens": 1119,
+      "outputTokens": 391,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states that the coupon request is pending approval and that the customer will hear the outcome once the team member reviews it. This matches the tool response showing status \\\"pending_approval\\\" and the policy that such requests are reviewed by a team member. No unsupported vague timing is used. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 886,
+      "inputTokens": 1119,
+      "outputTokens": 493,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states that the coupon request is pending approval and that the customer will hear the outcome after the team member reviews it, which aligns with the policy that higher‑percentage coupons are reviewed by a team member. No unsupported time estimates are made.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 1138,
+      "inputTokens": 1063,
+      "outputTokens": 626,
+      "cached": false,
+      "raw": "{\"why\":\"The agent never mentioned a refund; they only said the coupon request is pending approval and that no coupon has been issued yet. Thus the claim that the agent says a refund needs approval is incorrect. The second part of the statement is true, but the conjunction is false.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1398,
+      "inputTokens": 1130,
+      "outputTokens": 466,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only informs that the request has been sent to a team member for approval and that the customer will be notified once reviewed, which is permissible. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1562,
+      "inputTokens": 1119,
+      "outputTokens": 552,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that the customer will hear the outcome once the team member reviews the request. The policy and tool results do not specify when the review will occur, so this timing claim is unsupported. Therefore the statement does not match a tool result or store policy. Answer: no.\",\"answer\":false}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 552,
+      "inputTokens": 1363,
+      "outputTokens": 282,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"The reply apologizes, explains the policy, and clearly states the next steps, fully addressing the customer's request.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1655,
+      "inputTokens": 1130,
+      "outputTokens": 498,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only informs that a team member will review the coupon request and that the customer will be notified of the outcome, which is permissible. It does not promise to act on its own. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1912,
+      "inputTokens": 1130,
+      "outputTokens": 463,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only informs that a team member will review the request and that the customer will be notified later, which is permissible. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

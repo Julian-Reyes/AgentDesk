@@ -1,0 +1,153 @@
+{
+  "caseId": "product-facts-03",
+  "runId": "5c2cbb46-0dbc-43f9-8dd3-d97bf9b85b80",
+  "questionSet": "23176d36",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "product-facts-03",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Does the Willow 1 tent come with a footprint?",
+        "reply": "Do I say anything"
+      }
+    ],
+    "toolSummary": [
+      "message 1: search_products({\"limit\":3,\"query\":\"Willow 1 tent\"}) → {\"ok\":true,\"data\":{\"totalMatches\":11,\"products\":[{\"id\":\"tent-willow-1\",\"name\":\"Willow 1 Solo Tent\",\"category\":\"tents\",\"listPrice\":\"$179.00\",\"currentPrice\":\"$143.20\",\"rating\":4.3,\"description\":\"Compact one-person tent that packs down to the size of a water bottle.\",\"specs\":{\"seasons\":3,\"material\":\"15D ripstop nylon\",\"waterproof\":true,\"weightGrams\":1100,\"capacityPersons\":1,\"waterproofRatingMm\":2000},\"availability\":\"out_of_stock\",\"activeDeals\":[\"Tent Sale: 20% off all tents\"]},{\"id\":\"tent-tundra-2\",\"name\":\"Tundra 2 Four-Season Tent\",\"category\":\"tents\",\"listPrice\":\"$549.00\",\"currentPrice\":\"$439.20\",\"rating\":4.8,\"description\":\"Two-person mountaineering tent built for snow load and high winds.\",\"specs\":{\"seasons\":4,\"material\":\"40D ripstop nylon\",\"waterproof\":true,\"weightGrams\":3300,\"capacityPersons\":2,\"waterproofRatingMm\":5000},\"availability\":\"in_stock\",\"activeDeals\":[\"Tent Sale: 20% off all tents\"]},{\"id\":\"tent-ridge-2\",\"name\":\"Ridge 2 Backpacking Tent\",\"category\":\"tents\",\"listPrice\":\"$249.00\",\"currentPrice\":\"$199.20\",\"rating\":4.6,\"description\":\"Freestanding two-person backpacking tent with two doors and two vestibules.\",\"specs\":{\"seasons\":3,\"material\":\"20D ripstop nylon\",\"waterproof\":true,\"weightGrams\":1900,\"capacityPersons\":2,\"waterproofRatingMm\":3000},\"availability\":\"in_stock\",\"activeDeals\":[\"Tent Sale: 20% off all tents\"]}],\"note\":\"currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping.\"}}",
+      "message 1: get_product({\"id\":\"tent-willow-1\"}) → {\"ok\":true,\"data\":{\"id\":\"tent-willow-1\",\"name\":\"Willow 1 Solo Tent\",\"category\":\"tents\",\"listPrice\":\"$179.00\",\"currentPrice\":\"$143.20\",\"rating\":4.3,\"description\":\"Compact one-person tent that packs down to the size of a water bottle.\",\"specs\":{\"seasons\":3,\"material\":\"15D ripstop nylon\",\"waterproof\":true,\"weightGrams\":1100,\"capacityPersons\":1,\"waterproofRatingMm\":2000},\"availability\":\"out_of_stock\",\"activeDeals\":[\"Tent Sale: 20% off all tents\"],\"variants\":[{\"size\":null,\"color\":\"green\",\"availability\":\"out_of_stock\"}]}}",
+      "message 1: get_policy({\"topic\":\"warranty\"}) → {\"ok\":true,\"data\":{\"topic\":\"warranty\",\"title\":\"Warranty\",\"text\":\"Larchgrove Supply Co. products carry a 1-year warranty against manufacturing defects (seams, zippers, buckles, poles, electronics).\\nThe warranty doesn't cover normal wear, misuse, or accidental damage.\\nWarranty claims are handled by a team member: we repair, replace, or refund at our discretion.\"}}"
+    ],
+    "judgeNote": "Says the product details don't mention a footprint, and may share what it does know (1 person, 1.1 kg, waterproof).",
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent does not state as a fact whether the Willow 1 includes a footprint (the catalog doesn't say); it says it doesn't have that information."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 1,
+        "clarity": 1,
+        "helpfulness": 1,
+        "why": "The reply does not address the customer's question."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": false,
+        "why": "The agent replied with the nonsensical message \"Do I say anything\", which does not convey that it lacks information about a footprint. Therefore the claim that the agent states it does not have that information is false.",
+        "noConclusion": 1
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent's reply \"Do I say anything\" contains no promise or implication of future action that it cannot perform in this chat. Therefore the statement that the agent never promises or implies such future actions is true.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 2
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent's reply contains no timing statements, so the condition is satisfied. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 1
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": false,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "scores",
+      "latencyMs": 443,
+      "inputTokens": 1521,
+      "outputTokens": 127,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":1,\"clarity\":1,\"helpfulness\":1,\"why\":\"The reply does not address the customer's question.\"}]}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 566,
+      "inputTokens": 1277,
+      "outputTokens": 176,
+      "cached": false,
+      "raw": "{\"why\":\"The agent's reply contains no statements about shipping, arrival, refunds, reviews, or processing times, so there are no timing claims to evaluate. Therefore the condition is satisfied.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 590,
+      "inputTokens": 1220,
+      "outputTokens": 216,
+      "cached": false,
+      "raw": "{\"why\":\"The agent replied with the nonsensical message \\\"Do I say anything\\\", which does not convey that it lacks information about a footprint. Therefore the claim that the agent states it does not have that information is false.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 881,
+      "inputTokens": 1277,
+      "outputTokens": 194,
+      "cached": false,
+      "raw": "{\"why\":\"The agent's reply contains no timing statements, so the condition is satisfied. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 885,
+      "inputTokens": 1288,
+      "outputTokens": 383,
+      "cached": false,
+      "raw": "{\"why\":\"The agent's reply \\\"Do I say anything\\\" contains no promise or implication of future action that it cannot perform in this chat. Therefore the statement that the agent never promises or implies such future actions is true.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 885,
+      "inputTokens": 1288,
+      "outputTokens": 338,
+      "cached": false,
+      "raw": "{\"why\":\"The agent's reply \\\"Do I say anything\\\" contains no promise or implication of future action beyond the chat. Therefore it complies with the rule.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 900,
+      "inputTokens": 1288,
+      "outputTokens": 349,
+      "cached": false,
+      "raw": "{\"why\":\"The agent's reply \\\"Do I say anything\\\" does not promise or imply any future action that it cannot perform in this chat. It simply states uncertainty, so the rule is satisfied. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 846,
+      "inputTokens": 1277,
+      "outputTokens": 303,
+      "cached": false,
+      "raw": "{\"why\":\"The agent's reply contains no timing statements, so the condition is satisfied. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

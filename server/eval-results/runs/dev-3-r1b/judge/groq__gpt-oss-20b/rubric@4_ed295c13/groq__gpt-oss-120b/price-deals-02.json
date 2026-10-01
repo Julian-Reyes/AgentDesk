@@ -1,0 +1,132 @@
+{
+  "caseId": "price-deals-02",
+  "runId": "4cea0c05-5807-42c4-8817-9c1538d347a2",
+  "questionSet": "2a2c12d8",
+  "agentModel": "groq/gpt-oss-120b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "price-deals-02",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "If I buy 3 Glowworm 300 headlamps, what's my total?",
+        "reply": "The total for 3 Glowworm 300 Headlamps is $65.99, which includes the buy‑2‑get‑1‑free deal and $7.99 shipping."
+      }
+    ],
+    "toolSummary": [
+      "message 1: search_products({\"filters\":{\"category\":\"headlamps\",\"inStockOnly\":true},\"limit\":5,\"query\":\"Glowworm 300 headlamp\"}) → {\"ok\":true,\"data\":{\"totalMatches\":8,\"products\":[{\"id\":\"lamp-glowworm-300\",\"name\":\"Glowworm 300 Headlamp\",\"category\":\"headlamps\",\"listPrice\":\"$29.00\",\"currentPrice\":\"$29.00\",\"rating\":4.4,\"description\":\"All-round AAA headlamp with a red night mode.\",\"specs\":{\"lumens\":300,\"waterproof\":true,\"weightGrams\":78,\"burnTimeMinutes\":1800},\"availability\":\"in_stock\",\"activeDeals\":[\"Headlamps: buy 2, get 1 free\"]},{\"id\":\"lamp-glowworm-150\",\"name\":\"Glowworm 150 Headlamp\",\"category\":\"headlamps\",\"listPrice\":\"$19.99\",\"currentPrice\":\"$19.99\",\"rating\":4.1,\"description\":\"Simple AAA headlamp for camp chores.\",\"specs\":{\"lumens\":150,\"waterproof\":false,\"weightGrams\":70,\"burnTimeMinutes\":2400},\"availability\":\"low_stock\",\"activeDeals\":[\"Headlamps: buy 2, get 1 free\"]},{\"id\":\"lamp-beacon-900\",\"name\":\"Beacon 900 Rechargeable Headlamp\",\"category\":\"headlamps\",\"listPrice\":\"$79.00\",\"currentPrice\":\"$79.00\",\"rating\":4.7,\"description\":\"High-output rechargeable headlamp with a rear battery pack.\",\"specs\":{\"lumens\":900,\"waterproof\":true,\"weightGrams\":140,\"burnTimeMinutes\":900},\"availability\":\"in_stock\",\"activeDeals\":[\"Headlamps: buy 2, get 1 free\"]},{\"id\":\"lamp-beacon-500\",\"name\":\"Beacon 500 Rechargeable Headlamp\",\"category\":\"headlamps\",\"listPrice\":\"$49.00\",\"currentPrice\":\"$49.00\",\"rating\":4.6,\"description\":\"USB-C rechargeable headlamp with a lock mode.\",\"specs\":{\"lumens\":500,\"waterproof\":true,\"weightGrams\":86,\"burnTimeMinutes\":1200},\"availability\":\"in_stock\",\"activeDeals\":[\"Headlamps: buy 2, get 1 free\"]},{\"id\":\"… (trimmed)",
+      "message 1: quote_price({\"cart\":[{\"productId\":\"lamp-glowworm-300\",\"qty\":3}]}) → {\"ok\":true,\"data\":{\"lines\":[{\"productId\":\"lamp-glowworm-300\",\"name\":\"Glowworm 300 Headlamp\",\"qty\":3,\"listPrice\":\"$29.00\",\"discounts\":[{\"deal\":\"Headlamps: buy 2, get 1 free\",\"amount\":\"-$29.00\"}],\"lineTotal\":\"$58.00\"}],\"subtotal\":\"$87.00\",\"coupon\":null,\"totalDiscounts\":\"-$29.00\",\"shipping\":\"$7.99\",\"total\":\"$65.99\",\"totalCents\":6599}}"
+    ],
+    "judgeNote": "Explains that one headlamp is free and that shipping is added because the order is under $75.",
+    "checks": [
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "Clear, friendly, fully answers the customer's request."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only provided the total and did not promise any future action that it cannot perform in this chat. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 2
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent's reply only states the total price and shipping cost; it contains no timing claims about shipping, arrival, refunds, or processing. Therefore all timing statements (none) match the conversation. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1115,
+      "inputTokens": 1247,
+      "outputTokens": 242,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply only states the total cost and does not promise or imply any future action that it cannot perform in this chat. Therefore it complies with the rule.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 1197,
+      "inputTokens": 1236,
+      "outputTokens": 270,
+      "cached": false,
+      "raw": "{\"why\":\"The agent's reply only states the total price and shipping cost; it contains no statements about when shipping will occur, when an item will arrive, or any other timing. Therefore all timing claims (none) are consistent with the conversation. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 1268,
+      "inputTokens": 1236,
+      "outputTokens": 270,
+      "cached": false,
+      "raw": "{\"why\":\"The agent's reply only states the total price and shipping cost; it contains no statements about when shipping will occur, when an item will arrive, or any other timing. Therefore all timing claims (none) are consistent with the conversation. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1640,
+      "inputTokens": 1236,
+      "outputTokens": 262,
+      "cached": false,
+      "raw": "{\"why\":\"The agent's reply only states the total price and shipping cost; it contains no timing claims about shipping, arrival, refunds, or processing. Therefore all timing statements (none) match the conversation. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1644,
+      "inputTokens": 1247,
+      "outputTokens": 241,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply only states the total cost and does not promise or imply any future action that it cannot perform in this chat. Therefore it complies with the rule.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 1647,
+      "inputTokens": 1480,
+      "outputTokens": 224,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"Clear, friendly, fully answers the customer's request.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1647,
+      "inputTokens": 1247,
+      "outputTokens": 299,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only provided the total and did not promise any future action that it cannot perform in this chat. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

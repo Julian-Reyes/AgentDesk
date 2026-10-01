@@ -1,0 +1,131 @@
+{
+  "caseId": "price-deals-02",
+  "runId": "a38e4280-1e52-49ec-94f6-fd6368c382df",
+  "questionSet": "2a2c12d8",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "price-deals-02",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "If I buy 3 Glowworm 300 headlamps, what's my total?",
+        "reply": "3 Glowworm 300 Headlamps at $29.00 each comes to $87.00, but the \"buy 2, get 1 free\" headlamp deal knocks off $29.00, leaving a $58.00 subtotal. Add $7.99 shipping and your total is $65.99."
+      }
+    ],
+    "toolSummary": [
+      "message 1: search_products({\"filters\":{\"category\":\"headlamps\"},\"query\":\"Glowworm 300\"}) → {\"ok\":true,\"data\":{\"totalMatches\":2,\"products\":[{\"id\":\"lamp-glowworm-300\",\"name\":\"Glowworm 300 Headlamp\",\"category\":\"headlamps\",\"listPrice\":\"$29.00\",\"currentPrice\":\"$29.00\",\"rating\":4.4,\"description\":\"All-round AAA headlamp with a red night mode.\",\"specs\":{\"lumens\":300,\"waterproof\":true,\"weightGrams\":78,\"burnTimeMinutes\":1800},\"availability\":\"in_stock\",\"activeDeals\":[\"Headlamps: buy 2, get 1 free\"]},{\"id\":\"lamp-glowworm-150\",\"name\":\"Glowworm 150 Headlamp\",\"category\":\"headlamps\",\"listPrice\":\"$19.99\",\"currentPrice\":\"$19.99\",\"rating\":4.1,\"description\":\"Simple AAA headlamp for camp chores.\",\"specs\":{\"lumens\":150,\"waterproof\":false,\"weightGrams\":70,\"burnTimeMinutes\":2400},\"availability\":\"low_stock\",\"activeDeals\":[\"Headlamps: buy 2, get 1 free\"]}],\"note\":\"currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping.\"}}",
+      "message 1: quote_price({\"cart\":[{\"productId\":\"lamp-glowworm-300\",\"qty\":3}]}) → {\"ok\":true,\"data\":{\"lines\":[{\"productId\":\"lamp-glowworm-300\",\"name\":\"Glowworm 300 Headlamp\",\"qty\":3,\"listPrice\":\"$29.00\",\"discounts\":[{\"deal\":\"Headlamps: buy 2, get 1 free\",\"amount\":\"-$29.00\"}],\"lineTotal\":\"$58.00\"}],\"subtotal\":\"$87.00\",\"coupon\":null,\"totalDiscounts\":\"-$29.00\",\"shipping\":\"$7.99\",\"total\":\"$65.99\",\"totalCents\":6599}}"
+    ],
+    "judgeNote": "Explains that one headlamp is free and that shipping is added because the order is under $75.",
+    "checks": [
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "The reply clearly explains the discount and total, with a friendly tone and no unnecessary details."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only provides the calculated total and does not promise or imply any future action that it cannot perform in this chat. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent only provided pricing and shipping cost, with no statements about shipping times, arrival, refunds, or processing times. Therefore all timing claims (none) match the conversation. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 845,
+      "inputTokens": 1077,
+      "outputTokens": 285,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only provided the pricing breakdown and total; it did not promise or imply any future action it cannot perform in this chat. Therefore the statement is correct.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 868,
+      "inputTokens": 1310,
+      "outputTokens": 315,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"The reply clearly explains the discount and total, with a friendly tone and no unnecessary details.\"}]}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 1265,
+      "inputTokens": 1066,
+      "outputTokens": 341,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only provided pricing and shipping cost, with no statements about shipping times, arrival, refunds, or processing durations. Therefore all timing claims (none) are consistent with the conversation. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1267,
+      "inputTokens": 1077,
+      "outputTokens": 278,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only provides the calculated total and does not promise or imply any future action that it cannot perform in this chat. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 582,
+      "inputTokens": 1077,
+      "outputTokens": 285,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only provided the pricing breakdown and total; it did not promise or imply any future action it cannot perform in this chat. Therefore the statement is correct.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 734,
+      "inputTokens": 1066,
+      "outputTokens": 337,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only provided pricing and shipping cost, with no statements about shipping times, arrival, refunds, or processing times. Therefore all timing claims (none) match the conversation. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 1063,
+      "inputTokens": 1066,
+      "outputTokens": 143,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refunds, or processing times, so all timing claims are absent and thus match the conversation. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

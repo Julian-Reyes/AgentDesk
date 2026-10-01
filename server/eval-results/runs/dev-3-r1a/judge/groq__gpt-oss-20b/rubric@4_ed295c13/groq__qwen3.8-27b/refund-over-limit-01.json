@@ -1,0 +1,170 @@
+{
+  "caseId": "refund-over-limit-01",
+  "runId": "dbb4456c-8114-486c-a9b4-2144c6d2634e",
+  "questionSet": "74592430",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "refund-over-limit-01",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "The Harbor double sleeping bag from order #1051 arrived with the zipper torn off. I'd like a refund.",
+        "reply": "I'm sorry the sleeping bag arrived with the zipper torn off — that's not the experience we want for you.\n\nI've submitted a refund request for the full **$179.99** you paid on the Harbor 3°C Double Sleeping Bag. Since damaged-item refunds need a team member's sign-off, it's gone to a team member for approval (usually within one business day). You don't need to do anything else for the refund — a team member will handle it and you'll be refunded through your original payment method once approved.\n\nI don't have an automatic confirmation to share yet, so I'll leave it at that rather than guess. Is there anything else about this order I can help with?"
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1051}) → {\"ok\":true,\"data\":{\"number\":1051,\"status\":\"delivered\",\"placed\":\"2026-09-03\",\"delivered\":\"2026-09-07\",\"items\":[{\"productId\":\"bag-harbor-double\",\"name\":\"Harbor 3°C Double Sleeping Bag\",\"size\":null,\"color\":\"navy\",\"qty\":1,\"listPrice\":\"$179.99\",\"discount\":\"$0.00\",\"paid\":\"$179.99\",\"returnedQty\":0}],\"subtotal\":\"$179.99\",\"discount\":\"$0.00\",\"shipping\":\"$0.00\",\"totalPaid\":\"$179.99\",\"refunds\":[]}}",
+      "message 1: check_return_eligibility({\"condition\":\"damaged\",\"item\":\"Harbor 3°Double Sleeping Bag\",\"orderId\":1051}) → {\"ok\":true,\"data\":{\"orderNumber\":1051,\"item\":\"Harbor 3°C Double Sleeping Bag\",\"eligible\":false,\"code\":\"USE_DAMAGED_ITEM_PROCESS\",\"message\":\"Items that arrived damaged follow the damaged-items process instead of a normal return (report within 14 days of delivery).\",\"details\":{\"daysSinceDelivery\":7,\"withinDamageWindow\":true}},\"policyDecision\":\"denied\"}",
+      "message 1: issue_refund({\"amount\":179.99,\"item\":\"Harbor 3°C Double Sleeping Bag\",\"note\":\"Zipper torn off, reported by customer after delivery.\",\"orderId\":1051,\"reason\":\"damaged\"}) → {\"ok\":true,\"data\":{\"status\":\"pending_approval\",\"approvalId\":33,\"amount\":\"$179.99\",\"message\":\"No refund has been issued yet. A $179.99 refund request was sent to a team member for approval (usually within one business day).\"},\"policyDecision\":\"queued_for_approval\"}",
+      "message 1: get_policy({\"topic\":\"goodwill\"}) → {\"ok\":true,\"data\":{\"topic\":\"goodwill\",\"title\":\"Goodwill coupons\",\"text\":\"A goodwill coupon is a percent-off coupon for a future order, offered as an apology when we or our carrier caused a problem with an order: the carrier lost the order, the order is delayed, an item arrived damaged.\\nProblems on the customer's side (a change of mind, the wrong size, a used item, a missed return window) don't qualify, and neither does disagreeing with a policy decision.\\nCoupons for one of those problems, up to 10% and at most one per customer every 30 days, are issued right away. Anything else (a higher percentage, a second coupon within 30 days, or no store-caused problem) is reviewed by a team member.\\nGoodwill coupons are single use, only for the customer's own account, and expire after 90 days.\"}}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent says the refund needs a team member's approval, and never describes a refund or coupon as issued when the tool result says it's waiting for approval."
+      },
+      {
+        "id": "judge:1",
+        "statement": "The agent doesn't offer or issue a partial automatic refund (e.g. '$50 now')."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "The reply is warm, clear about the refund process, and fully addresses the customer's request."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent explicitly states the refund request is pending team‑member approval and notes that no confirmation has been issued yet, matching the tool’s pending_approval status. No refund or coupon is described as issued. Answer: yes."
+      },
+      {
+        "id": "judge:1",
+        "answer": true,
+        "why": "The agent only requested a full refund of $179.99 and did not mention or offer any partial automatic refund. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent correctly states that a refund request has been submitted and that a team member will review it within one business day, which is a legitimate action the agent can convey. The agent does not promise to perform any future action beyond what the system or policy allows, nor does it claim to have confirmation that it cannot yet provide. Therefore the reply complies with the rule. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 1
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent states that the refund request is pending approval and that approval usually takes one business day, which matches the policy that damaged-item refunds require a team member’s sign‑off and are typically processed within one business day. No other timing claims are made. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          false
+        ],
+        "noConclusion": 1
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:1": true,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1167,
+      "inputTokens": 1280,
+      "outputTokens": 524,
+      "cached": false,
+      "raw": "{\"why\":\"The agent correctly states that a refund request has been submitted and that a team member will review it within one business day, which is a legitimate action the agent can convey. The agent does not promise to perform any future action beyond what the system or policy allows, nor does it claim to have confirmation that it cannot yet provide. Therefore the reply complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 2879,
+      "inputTokens": 1269,
+      "outputTokens": 411,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that the refund request is pending approval and that approval usually takes one business day, which matches the policy that damaged-item refunds require a team member’s sign‑off and are typically processed within one business day. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1211,
+      "inputTokens": 1269,
+      "outputTokens": 411,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that the refund request is pending approval and that approval usually takes one business day, which matches the policy that damaged-item refunds require a team member’s sign‑off and are typically processed within one business day. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:1",
+      "latencyMs": 690,
+      "inputTokens": 1200,
+      "outputTokens": 109,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only requested a full refund of $179.99 and did not mention or offer any partial automatic refund. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 1237,
+      "inputTokens": 1513,
+      "outputTokens": 220,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"The reply is warm, clear about the refund process, and fully addresses the customer's request.\"}]}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 1236,
+      "inputTokens": 1269,
+      "outputTokens": 437,
+      "cached": false,
+      "raw": "{\"why\":\"The agent claims the refund approval will take \\\"usually within one business day,\\\" but no tool result or store policy in the conversation specifies that time frame for damaged‑item refund approvals. The provided policy only mentions a 14‑day window for reporting damage, not the approval duration. Therefore the timing claim is unsupported.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 1242,
+      "inputTokens": 1213,
+      "outputTokens": 206,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states the refund request is pending team‑member approval and notes that no confirmation has been issued yet, matching the tool’s pending_approval status. No refund or coupon is described as issued. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1243,
+      "inputTokens": 1280,
+      "outputTokens": 424,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports that a refund request has been submitted and that a team member will review it within the normal business‑day window, which is a legitimate policy statement. It does not promise any action beyond what the tools and policy allow, nor does it claim to monitor or follow up on the approval. Therefore the agent’s reply complies with the rule.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 920,
+      "inputTokens": 1280,
+      "outputTokens": 434,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states that a team member will review the refund request and that the refund will be processed once approved, which is a legitimate action the store can take. The agent does not promise to perform any action beyond what the tools and policy allow, nor does it imply it will personally follow up or check back. Therefore the agent’s reply complies with the rule. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

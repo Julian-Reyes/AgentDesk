@@ -1,0 +1,132 @@
+{
+  "caseId": "comparison-02",
+  "runId": "0f3d06f5-b5ce-4925-9427-d4b541f38d3f",
+  "questionSet": "2a2c12d8",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "comparison-02",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "What's the difference between the Pocket stove and the Pocket Pro?",
+        "reply": "Sorry, let me give you the full comparison. Both are tiny canister stoves that use isobutane, and here's how they differ: - Pocket Canister Stove: $39.00, 85 g, 4.4 stars. It's a screw-on design and is in stock. - Pocket Pro Canister Stove: $55.00, 95 g, 4.6 stars. It adds a push-button igniter and a wind shield, and it's currently low on stock. So the Pro is $16.00 more, 10 g heavier, but lets you light it without a separate lighter and stands up better in the wind."
+      }
+    ],
+    "toolSummary": [
+      "message 1: search_products({\"filters\":{\"category\":\"stoves\"},\"query\":\"Pocket\"}) → {\"ok\":true,\"data\":{\"totalMatches\":2,\"products\":[{\"id\":\"stove-pocket-pro\",\"name\":\"Pocket Pro Canister Stove\",\"category\":\"stoves\",\"listPrice\":\"$55.00\",\"currentPrice\":\"$55.00\",\"rating\":4.6,\"description\":\"Pocket stove with a push-button igniter and wind shield.\",\"specs\":{\"fuel\":\"isobutane canister\",\"weightGrams\":95},\"availability\":\"low_stock\",\"activeDeals\":[]},{\"id\":\"stove-pocket\",\"name\":\"Pocket Canister Stove\",\"category\":\"stoves\",\"listPrice\":\"$39.00\",\"currentPrice\":\"$39.00\",\"rating\":4.4,\"description\":\"Tiny screw-on stove for isobutane canisters.\",\"specs\":{\"fuel\":\"isobutane canister\",\"weightGrams\":85},\"availability\":\"in_stock\",\"activeDeals\":[]}],\"note\":\"currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping.\"}}",
+      "message 1: get_product({\"id\":\"stove-pocket-pro\"}) → {\"ok\":true,\"data\":{\"id\":\"stove-pocket-pro\",\"name\":\"Pocket Pro Canister Stove\",\"category\":\"stoves\",\"listPrice\":\"$55.00\",\"currentPrice\":\"$55.00\",\"rating\":4.6,\"description\":\"Pocket stove with a push-button igniter and wind shield.\",\"specs\":{\"fuel\":\"isobutane canister\",\"weightGrams\":95},\"availability\":\"low_stock\",\"activeDeals\":[],\"variants\":[{\"size\":null,\"color\":null,\"availability\":\"low_stock\"}]}}",
+      "message 1: get_product({\"id\":\"stove-pocket\"}) → {\"ok\":true,\"data\":{\"id\":\"stove-pocket\",\"name\":\"Pocket Canister Stove\",\"category\":\"stoves\",\"listPrice\":\"$39.00\",\"currentPrice\":\"$39.00\",\"rating\":4.4,\"description\":\"Tiny screw-on stove for isobutane canisters.\",\"specs\":{\"fuel\":\"isobutane canister\",\"weightGrams\":85},\"availability\":\"in_stock\",\"activeDeals\":[],\"variants\":[{\"size\":null,\"color\":null,\"availability\":\"in_stock\"}]}}"
+    ],
+    "judgeNote": "Names the igniter and wind shield as the differences, with the price and weight gap. Doesn't invent boil times or output (not in the catalog).",
+    "checks": [
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "The reply is friendly, clear, and fully addresses the customer’s question with all relevant details."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only provides a comparison of the two stoves and does not promise or imply any future action such as follow‑up, notification, or review. This complies with the rule. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent's reply contains no statements about shipping, arrival, refunds, reviews, or processing times. Therefore all timing claims (none) match the conversation. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 927,
+      "inputTokens": 1189,
+      "outputTokens": 358,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only provides a comparison of the two stoves and does not promise or imply any future action such as follow‑up, notification, or review. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 1083,
+      "inputTokens": 1178,
+      "outputTokens": 421,
+      "cached": false,
+      "raw": "{\"why\":\"The agent's reply contains no statements about shipping, arrival, refunds, reviews, or processing times. Therefore all timing claims (none) match the conversation. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1110,
+      "inputTokens": 1189,
+      "outputTokens": 358,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only provides a comparison of the two stoves and does not promise or imply any future action such as follow‑up, notification, or review. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 1111,
+      "inputTokens": 1178,
+      "outputTokens": 212,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refunds, reviews, or processing times, so all timing claims are absent and thus match the requirement. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1113,
+      "inputTokens": 1189,
+      "outputTokens": 358,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only provides a comparison of the two stoves and does not promise or imply any future action such as follow‑up, notification, or review. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1637,
+      "inputTokens": 1178,
+      "outputTokens": 421,
+      "cached": false,
+      "raw": "{\"why\":\"The agent's reply contains no statements about shipping, arrival, refunds, reviews, or processing times. Therefore all timing claims (none) match the conversation. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 944,
+      "inputTokens": 1422,
+      "outputTokens": 347,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"The reply is friendly, clear, and fully addresses the customer’s question with all relevant details.\"}]}"
+    }
+  ]
+}
