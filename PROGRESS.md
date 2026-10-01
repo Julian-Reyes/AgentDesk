@@ -865,25 +865,33 @@ Across dev-1, dev-1b and dev-2:
   - 13 invented tool names (`response`, `replay`, `json`, `replies`, `commentary`); 2 were unparseable.
 - **So the tool names aren't the cause:** `reply` is already as simple as it gets, and the invented names wouldn't change with renaming.
 
-
-### Round 2 plan (proposed 2026-10-01, awaiting Julian's approval; nothing run)
-1. **Fix gpt-oss's malformed replies** (code; applies to every model):
-   - **(a) Repair, the main fix.** When the provider rejects a call as `tool_use_failed` and its `failed_generation` is `reply` with plain-text arguments, use that text as the reply. It still goes through the garbled-reply check, and it's counted per model as "repaired". This targets 107 of the 122 failures.
-   - **(b) A different retry.** For the rest (invented names), retry with a short corrective message ("call `reply` with `{\"message\": …}`") instead of the identical request; identical retries recovered 39 calls, but 18 failed all 4.
-   - **(c) Not proposed:** renaming tools (the data doesn't point there), or simply more retries (the 18 failures repeated the same mistake 4 times).
-2. **A cache mode that doesn't replay:** `LLM_CACHE=refresh` always calls the model and records the new response. Repeats then sample fresh answers, the router included.
-3. **Four runs, all on the same commit (code above), all with `refresh`:**
+### Next: round 2 (plan saved 2026-10-01; not approved or run yet, no code written)
+1. **gpt-oss reply repair** (code; applies to every model):
+   - **Main fix:** when Groq rejects a call as `tool_use_failed` and its `failed_generation` is `reply` with plain-text arguments, deliver that text as the reply. It still goes through the garbled-reply check, and it's counted per model as "repaired". This targets 107 of the 122 `tool_use_failed` attempts in dev-1/1b/2.
+   - **For the rest** (invented tool names), retry with a short corrective message instead of the identical request. Identical retries recovered 39 calls, but 18 failed all 4 attempts.
+   - **Not proposed:** renaming tools, or simply more retries.
+2. **An always-call cache setting:** `LLM_CACHE=refresh` always calls the model and records the new response. Without it, identical requests replay: dev-1b and dev-2 reused dev-1's 120 router calls, and a repeat run would just reproduce the earlier one.
+3. **Four runs, all three cloud models, same commit, `refresh` mode:**
    - `dev-3-r1a`, `dev-3-r1b`: round-1 prompts (dev-2's)
    - `dev-3-r2a`, `dev-3-r2b`: round-2 prompts (round 1 plus the full-name line)
-4. **Comparison by configuration:** `eval:compare` gains grouping, e.g. `r1=dev-3-r1a,dev-3-r1b r2=dev-3-r2a,dev-3-r2b`.
-   - It shows each configuration pooled over its two repeats (80 conversations per model), plus how far the two repeats differ.
+4. **Pooled comparison:** `eval:compare` grouped by configuration (`r1=dev-3-r1a,dev-3-r1b r2=dev-3-r2a,dev-3-r2b`).
+   - Each configuration is pooled over its two repeats (80 conversations per model), with how far the two repeats differ.
    - A configuration difference smaller than the repeat-to-repeat difference reads as noise.
    - It also reports gpt-oss's crashes and repairs, against dev-1b/dev-2 for context.
-5. **Cost and time:**
-   - About **$0.60 per run** (agents $0.41 + judge $0.17, plus router calls that are no longer cached), so **about $2.40**. The month would reach about **$5.10 of the $8 cap**.
-   - Flash-Lite is the bottleneck (~41 min a run, sharing 15 requests/min). Two runs at a time is about 1.5 h in total.
+5. **Cost:** about **$0.60 per run** (agents ~$0.40 measured on dev-1b/dev-2, judge `rubric@4` ~$0.17, uncached router calls a few cents), so **about $2.40** for the four. **Time:** about 1.5 h, two runs at a time; Flash-Lite is the bottleneck.
+
+**Projected cost of one full test run** (the 110 test cases aren't written yet; 0 exist, 40 dev). 110 cases × 3 models = 330 conversations, scaled from measured dev costs:
+- agents: about **$1.10** (~$0.40 per 40 cases)
+- judge (`rubric@4`): about **$0.47** (~$0.17 per 120 conversations)
+- uncached router calls: about **$0.05**
+- **Total about $1.60**; with a margin for retries, plan on **≤ $1.90**.
+
+**Does it fit the $8 Groq cap this month?** Yes.
+- Spent so far: **about $2.70** (dev-1 agents $0.41; judging and re-judging dev-1/1b/2 ≈ $1.49; dev-1b and dev-2 agents $0.79).
+- Plus round 2 (~$2.40) and one test run (~$1.60–1.90): **about $6.70–7.00**, leaving **about $1.00–1.30** of headroom.
+- That leaves room for roughly one more dev run, not a second test run. Any extra re-judges (~$0.17 per dev run) come out of the same headroom.
 
 **Next session:**
-1. Julian's approval of the round-2 plan above, then build items 1, 2 and 4 with tests, and run.
+1. Julian's approval of round 2, then build items 1, 2 and 4 with tests, and run.
 2. Judge score calibration on weak replies (from the agreement check).
 
