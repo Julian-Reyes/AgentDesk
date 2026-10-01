@@ -525,7 +525,7 @@ Julian asked for a pilot before `dev-1`: 5 dev cases (`price-deals-01`, `refund-
 **Next session:**
 1. ~~Judge switch and re-judge of `dev-1`~~ done (above).
 2. ~~Review gpt-oss's 5 policy violations and the failures in the report.~~ Done; decisions below.
-3. Julian's 30-reply blind grading: sample drawn (below); grading next.
+3. ~~Julian's 30-reply blind grading~~ done; agreement below (Gemma's rows: 1 of 30, rerun to finish).
 4. Prompt tuning on the dev set.
 
 ### Dev-set changes after `dev-1` (2026-10-01): the goodwill rule, and the invalid-coupon grader fix
@@ -664,4 +664,116 @@ Verdicts weren't hand-edited; the numbers are what the pipeline gives. The likel
 - the per-model counts for delivered garbled replies (the router's own replies aren't counted)
 
 Sanity check: turning the checker off makes 9 tests fail; allowing unlimited retries makes 1 fail.
+
+### Judge fix `rubric@2`, final `dev-1`, and agreement with Julian's 30 grades (2026-10-01)
+**Julian's fix:** each yes/no check gets its own call, and the follow-up and timing checks take the majority of 3 calls. Details, and why, are in `docs/JUDGE_RUBRIC.md` ("`rubric@2`"). The scoring criteria and check wording are unchanged.
+- **Votes are distinct requests.** Each vote's prompt ends "(Independent vote n of 3.)". Otherwise the replay cache would return the first answer three times, and at temperature 0 the votes need some difference to be independent at all.
+- **My mistake in the first version, fixed before any result was used:** the case's note went only to the scoring call. The judge then failed Flash-Lite's `returns-02` for mentioning the warranty, which the note allows. Question calls now get the note (`rubric@2#611913e3`). The bad version's verdicts were deleted; for the record, it gave 34/4/2, 25/14/1 and 21/18/1.
+- **Code:**
+  - `runJudge` makes all of a conversation's calls in parallel, each with one retry on invalid output. The verdict records every call's purpose and every vote.
+  - The preflight estimate now assumes about 8 calls per conversation.
+  - `judge:agreement` has `--judge` / `--second-judge`. They fetch each judge's current-rubric verdict for every sampled conversation (reused from a saved run when the run id and input are byte-identical, else judged now, resumable). The report shows the "before" verdicts, each judge vs Julian, and judge vs judge, each per agent model and per question group (follow-up, timing, case checks, script fit).
+- **Tests:** 361 passing.
+  - The judge tests were rewritten for one question per call: each call sees only its own question, 3 distinct votes with the majority taken, retries, failure, provider errors.
+  - The runner tests use a fake judge that answers any rubric@2 request.
+  - New: agreement per question group.
+
+**Re-judge of `dev-1`** (gpt-oss-20b): 120 conversations, **924 calls, 0 invalid outputs, $0.165** (rubric@1: 122 calls, $0.04). The 3 votes split on 4/120 follow-up and 6/120 timing checks; the majority decided those.
+
+**Final `dev-1`** (dev set, for tuning only; judge `groq/gpt-oss-20b`, `rubric@2#611913e3`):
+
+| | Flash-Lite | gpt-oss-120b | qwen3.8-27b |
+| --- | --- | --- | --- |
+| Pass / fail / script mismatch | 33 / 6 / 1 | 26 / 13 / 1 | 20 / 20 / 0 |
+| Task success | **85%** (70–93%) | **67%** (51–79%) | **50%** (35–65%) |
+| Code checks pass (no judge) | 95% | 88% | 78% |
+| Policy violations | 0 | 2 | 0 |
+| Grounding violations | 0 | 0 | 1 |
+| Garbled replies delivered | 0 | 0 | 2 |
+
+With rubric@1 the task success was 93%, 77% and 64%.
+- **Stricter, mostly rightly.** I read the conversations that flipped from pass to fail. Most are real follow-up promises or invented timing that rubric@1 missed: "I'll let you know as soon as it's approved" (gpt-oss, `refund-over-limit-01`), "I'll keep an eye out for updates" (Qwen, `refund-within-limit-02`), and Qwen's `refund-over-limit-01/02`.
+- **But some are judge errors.** gpt-oss `refund-over-limit-02` and `returns-03` got a "no" whose own one-line reason argues "yes". `adversarial-04` counted mentioning that coupon codes exist as offering a discount. These numbers are a judge's, and its error rate is measured below.
+
+**Agreement with Julian** (30 replies, 10 per agent model; `server/eval-results/judge-check/dev-1/agreement.md`):
+
+| gpt-oss-20b vs Julian | rubric@1 | rubric@2 |
+| --- | --- | --- |
+| Yes/no answers agree | 96% (78/81, 90–99%) | 95% (77/81, 88–98%) |
+| follow-up check | 100% (30/30) | 100% (30/30) |
+| timing check | 93% (28/30) | 97% (29/30) |
+| case checks | 94% (16/17) | 88% (15/17) |
+| script fit | 100% (4/4) | 75% (3/4) |
+| Tone: exact / within ±1 | 80% / 97% | 87% / 97% |
+| Clarity: exact / within ±1 | 60% / 93% | 57% / 93% |
+| Helpfulness: exact / within ±1 | 77% / 93% | 70% / 93% |
+
+Per agent model (rubric@2):
+
+| Replies by | Yes/no agree | Tone exact | Clarity exact | Helpfulness exact | Helpfulness, judge − Julian |
+| --- | --- | --- | --- | --- | --- |
+| Flash-Lite | 97% (28/29) | 100% | 70% | 80% | −0.20 |
+| gpt-oss-120b | 88% (23/26) | 100% | 60% | 80% | +0.30 |
+| qwen3.8-27b | 100% (26/26) | 60% | 40% | 50% | **+0.60** |
+
+- **rubric@2 is not measurably better on this sample.** It got 4 answers wrong against rubric@1's 3, and the intervals overlap completely.
+  - It fixed two of rubric@1's errors: Qwen's "within a few business days" and a case check on gpt-oss `order-status-03`.
+  - It still misses gpt-oss's "shortly" (`returns-04`).
+  - It added three new errors: script fit on `adversarial-02`, and case checks on gpt-oss `adversarial-04` and `returns-02`.
+  - What rubric@2 targets, answers flipping when the same conversation is re-judged, is consistency, which a single 30-reply sample can't measure. The follow-up and timing checks agree with Julian 93–100% under both rubrics.
+- **Family bias:** none seen in the direction that would matter. On gpt-oss-120b's replies, yes/no agreement is the lowest (88%), but 2 of its 3 errors there were the judge being *stricter* than Julian. Helpfulness on gpt-oss's replies is +0.30 above Julian, with n = 10.
+- **The clearest weakness is scores on bad replies.** The judge is too generous where Julian scored low. The Qwen reply that leaked its "earlier attempts" got 5/4/5 from the judge and 3/2/4 from Julian; the "two tents but names one" reply got 5/4/4 against 5/2/2. That's why Qwen's helpfulness is +0.60 above Julian and its exact agreement is lowest. Read quality scores for weak replies with that in mind.
+
+**Second judge (Gemma 4 31B): 1 of 30 done.**
+- Its free endpoint failed the first 4 items, each after the client's retries: two HTTP 503 "model is currently experiencing high demand", one HTTP 500, and one no response. At that rate the run would have taken about 2 hours for few verdicts, so I stopped it.
+- **A mistake of mine:** while writing this section, an unquoted shell heredoc ran the agreement command quoted above. It started a second Gemma run, which I killed; it had saved one valid verdict through the normal code path, and I kept it. Nothing else ran or changed (no costs: Gemma is free).
+- **To finish:** from `server/`, run `npm run judge:agreement -- eval-results/judge-check/dev-1 --judge groq/gpt-oss-20b --second-judge gemini/gemma-4-31b`. It resumes with the remaining 29 and adds Gemma's rows.
+
+**The grading folder is committed** (`server/eval-results/judge-check/dev-1/`: sample, key, Julian's grades, agreement.md).
+
+### Prompt-tuning findings from Julian's blind grading (2026-10-01), not acted on yet
+From Julian's 30-reply blind grading of `dev-1`. Prompts are unchanged; these are inputs for the next tuning round. Each item names the graded case (from the key, read after grading).
+- **Invented refund timing** in several replies: "should appear shortly" (gpt-oss, `refund-within-limit-01`), "within a few business days" (Qwen, `refund-within-limit-03`), a human will follow up "shortly" (gpt-oss, `returns-04`; the tool says about one business day). The judge's timing check catches most of these (it still missed gpt-oss's "shortly"); the prompt should say to give timing only from a tool result or policy.
+- **Internal steps leaked to the customer:** "I got the item name mixed up in my earlier attempts" (Qwen, `refund-within-limit-01`). Same reply: no apology for the damage, and it offered a replacement it can't send.
+- **Announces more than it delivers:** "two tents" but names only the Meadow 6, never the Basecamp 4, and gives no prices although it had them (Qwen, `recommendation-03`).
+- **A garbled reply** (Qwen, `comparison-02`: cut off, junk `←SKILL1←`, invented "Kettle Pro"). Done in code: the reply sanity check (above). Its invented product is the grounding check's job.
+- **Invalid coupon: suggest a valid one with its real terms.** GEAR20 would have applied to the Swift 20 (Qwen, `invalid-coupon-01`). Flash-Lite's `invalid-coupon-03` also didn't suggest one, which Julian marked as fine.
+- **Wrong turn-1 claim on an automatic refund:** "a team member must confirm the damage", for a refund the tool issues automatically (Qwen, `refund-within-limit-03`).
+- **Also in Julian's grading notes:**
+  - say "you", not the customer's full name ("assist Maya Chen", gpt-oss, `adversarial-05`)
+  - no emojis (Qwen, `adversarial-04`)
+  - a refusal that's too cold should end warmly, e.g. "Thanks for your understanding" (Qwen, `returns-04`)
+  - "Funnily enough" is flippant for an expired coupon (Qwen, `invalid-coupon-01`)
+  - `returns-04` (gpt-oss) hints at a cancellation and gives no ticket number
+
+### Tool fix: order-item matching was too lenient (2026-10-01)
+**Julian's report:** in `refund-within-limit-01`, `issue_refund` accepted the item `"Glowworm 300 Headlamp" OR "lamp-glowworm-300" (arrived damaged: cracked lens, will not turn on)` (Qwen) and refunded $29.00.
+
+**Cause** (`findOrderItem`, `server/src/tools/common.ts`, shared by `issue_refund` and `check_return_eligibility`):
+- An item matched if the query **contained** the product name anywhere, so any garbled string with the name in it was accepted.
+- An item also matched if the name contained the query as **any substring**, so in a one-item order a fragment like "lamp" (or "e") matched.
+- A refund moves money, so both are too loose.
+
+**Fix:**
+- The query must be the product id, the variant id or the full name (any case; surrounding quotes ignored).
+- Or it must be a short name: every word of the query is a whole word of the name, plurals allowed ("boots" for "Boot", "Firefly headlamp", "harbor double").
+- Anything else gets `ITEM_NOT_IN_ORDER` with the order's item list, so the model can retry with the id. A short name that fits two lines is still `ITEM_AMBIGUOUS`.
+
+**Effect on saved runs** (every `item` argument in `pilot-1` and `dev-1`, replayed through the new rule):
+- Only Qwen's garbled string changes for the worse; it's now refused.
+- "hiking shoes" and "boots", which used to fail on one-item orders, now match.
+- Lost-order refunds ignore `item`, so the descriptive string one model sent there is unaffected.
+
+**Tests:** 4 new on a real multi-item order, #1074 (Voyager 80 Expedition Pack, Squall Rain Jacket, Firefly Kids Headlamp):
+- the id, the full name in any case or quoted, and short names each refund the Firefly line
+- the garbled dev-1 string, "lamp", "headlamp that is broken" and "item" are refused, with no refund made
+- a short name that fits two lines is ambiguous
+- `check_return_eligibility` follows the same rules, plurals included
+
+Sanity check: putting the old rule back makes 3 tests fail.
+
+**Next session:**
+1. Finish Gemma's second-judge rows (rerun the agreement command above when its endpoint recovers).
+2. Prompt tuning on the dev set, starting from the findings above.
+3. Consider the judge's generosity on weak replies (score calibration), and the case-check errors listed above.
 
