@@ -5,7 +5,7 @@ import { createProvider, type ProviderOptions } from "../llm/factory.ts";
 import type { ChatProvider } from "../llm/types.ts";
 import type { AgentName } from "../tools/define.ts";
 import type { AgentMember } from "./conversation.ts";
-import { AGENT_PROMPTS, ROUTER_PROMPT, promptId } from "./prompts.ts";
+import { AGENT_PROMPTS, ROUTER_PROMPT, promptId, type Prompt } from "./prompts.ts";
 import { LlmRouter, type Router } from "./router.ts";
 
 /**
@@ -36,6 +36,8 @@ export type BuildTeamOptions = ProviderOptions & {
   /** Tests: one scripted provider per role (they can share one). */
   fakes?: Partial<Record<"router" | AgentName, ChatProvider>>;
   env?: Record<string, string | undefined>;
+  /** The agents' prompts (default: the current set). eval:run --prompts uses an earlier set. */
+  prompts?: Record<AgentName, Prompt>;
 };
 
 export function buildTeam(spec: TeamSpec, opts: BuildTeamOptions = {}): Team {
@@ -53,7 +55,7 @@ export function buildTeam(spec: TeamSpec, opts: BuildTeamOptions = {}): Team {
   const meta: Team["meta"] = { router: { model: r.config.id, provider: r.config.provider, prompt: routerVersion } };
   for (const name of ["shopping", "support"] as const) {
     const m = member(name);
-    const prompt = AGENT_PROMPTS[name];
+    const prompt = (opts.prompts ?? AGENT_PROMPTS)[name];
     agents[name] = { ...m, prompt, promptVersion: promptId(prompt) };
     meta[name] = { model: m.config.id, provider: m.config.provider, prompt: promptId(prompt) };
   }

@@ -78,6 +78,8 @@ export type Manifest = {
   caseIds: string[];
   createdAt: string;
   notes?: string;
+  /** The agents' prompt set (agents/prompts.ts PROMPT_SETS). Missing on runs saved before prompt sets existed, which used round-0. */
+  promptSet?: string;
   /** Approved case changes applied to this run after it ran (no agent calls replayed). */
   caseUpdates?: { at: string; reason: string; caseIds: string[] }[];
 };
