@@ -246,6 +246,7 @@ async function judgeOne(o: JudgeStageOptions, r: ConversationRecord): Promise<Ju
     ok: result.ok,
     ...(result.ok ? { output: result.output, answers: result.answers } : { error: result.error }),
     calls: result.calls.map((c) => ({
+      purpose: c.purpose,
       latencyMs: c.response.latencyMs,
       inputTokens: c.response.usage.inputTokens,
       outputTokens: c.response.usage.outputTokens,

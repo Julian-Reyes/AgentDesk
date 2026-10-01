@@ -48,9 +48,17 @@ const MEASURED: Record<string, Partial<Profile>> = {
 };
 
 /** One judge call per conversation (measured once on Gemma 4 31B: 1,115 in / 248 out, 62.6 s; real tool summaries run longer). */
-export const JUDGE_CALL: ConversationCost = { calls: 1, inputTokens: 1500, outputTokens: 300, latencyMs: 62600 };
+/**
+ * Per judged conversation, rubric@2: 1 scoring call + one call per question, with
+ * the follow-up and timing checks asked 3 times. On dev-1 a conversation has 2.7
+ * questions on average (2 of them voted), so ~7.7 calls. Tokens are scaled from
+ * gpt-oss-20b's rubric@1 calls on dev-1 (1,733 in / 714 out per call, reasoning
+ * included); question calls carry a shorter system prompt and a one-line answer.
+ * The calls run in parallel, so latency stays about one call's (Gemma: 62.6 s).
+ */
+export const JUDGE_CALL: ConversationCost = { calls: 8, inputTokens: 9300, outputTokens: 1900, latencyMs: 62600 };
 const JUDGE_MEASURED: Record<string, Partial<ConversationCost>> = {
-  "groq/gpt-oss-20b": { latencyMs: 1000 },
+  "groq/gpt-oss-20b": { latencyMs: 2500 },
 };
 
 export const MIN_MEASURED = 5;

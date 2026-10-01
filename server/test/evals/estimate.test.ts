@@ -65,9 +65,10 @@ describe("time and the bottleneck, per model", () => {
     expect(estimateAgents(cfg("groq/gpt-oss-120b"), [], [])).toMatchObject({ calls: 0, activeMinutes: 0, daysNeeded: 1 });
   });
 
-  it("the judge: one call per conversation at Gemma's measured speed", () => {
+  it("the judge (rubric@2): ~8 parallel calls per conversation, at about one call's latency (Gemma's measured speed)", () => {
     const e = estimateJudge(cfg("gemini/gemma-4-31b"), 120);
-    expect(e).toMatchObject({ role: "judge", calls: 120, inputTokens: 180000 });
+    expect(e).toMatchObject({ role: "judge", calls: 960, inputTokens: 1_116_000 });
+    expect(e.minutes.tokens).toBeCloseTo((1_116_000 + 228_000) / 16_000); // in + out at 16K tokens/min: 84 min
     expect(e.minutes.latency).toBeCloseTo((120 * 62.6) / 60);
     expect(e.bottleneck).toBe("model speed (latency)");
   });

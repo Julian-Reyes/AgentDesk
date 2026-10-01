@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { ALL_CASES } from "../../src/evals/cases/index.ts";
 import { finalizeGrade, type CaseGrade } from "../../src/evals/grading/grade.ts";
-import { buildJudgeInput, judgeSafeText, renderJudgeInput, runJudge, stripThoughts, summarizeTools, type JudgeInput } from "../../src/evals/judge/judge.ts";
-import { JUDGE_RUBRIC } from "../../src/evals/judge/rubric.ts";
+import { buildJudgeInput, judgeSafeText, questionsOf, renderQuestionRequest, renderScoreRequest, runJudge, stripThoughts, summarizeTools, type JudgeInput } from "../../src/evals/judge/judge.ts";
+import { QUESTION_PROMPT, SCORE_PROMPT } from "../../src/evals/judge/rubric.ts";
+import type { ChatRequest } from "../../src/llm/types.ts";
 import type { Observation } from "../../src/evals/run-case.ts";
 import { FakeProvider, fake } from "../../src/llm/fake.ts";
 
@@ -28,77 +29,121 @@ const questions: CaseGrade["judgeQuestions"] = [
 ];
 const input = buildJudgeInput(c, obs, questions);
 
-const good = {
-  replies: [
-    { reply: 1, tone: 4, clarity: 5, helpfulness: 5, why: "Asks the right question." },
-    { reply: 2, tone: 5, clarity: 5, helpfulness: 5, why: "Confirms the refund." },
-  ],
-  checks: [{ id: "judge:0", answer: true, why: "It asked which item." }],
-  scriptFit: [{ id: "script:2", answer: true, why: "The customer answers the question." }],
+const scores = [
+  { reply: 1, tone: 4, clarity: 5, helpfulness: 5, why: "Asks the right question." },
+  { reply: 2, tone: 5, clarity: 5, helpfulness: 5, why: "Confirms the refund." },
+];
+const withGlobals: CaseGrade["judgeQuestions"] = [
+  ...questions,
+  { id: "judge:followup", kind: "judge_check", statement: "No follow-up promises." },
+  { id: "judge:timing", kind: "judge_check", statement: "No unsupported timing." },
+];
+
+/**
+ * A scripted judge that answers whatever it's asked: scores for the scoring call,
+ * and for a question call the answer given for that question's id (a list =
+ * one answer per vote). Requests are recorded by the FakeProvider.
+ */
+function responder(answers: Record<string, boolean | boolean[]>, opts: { scores?: unknown } = {}) {
+  return (req: ChatRequest) => {
+    const user = String(req.messages[1]!.content);
+    if (req.messages[0]!.content === SCORE_PROMPT) return fake.text(JSON.stringify(opts.scores ?? { replies: scores }));
+    const q = /^(Judge check|Script-fit question): (.*)$/m.exec(user)![2]!;
+    const id = Object.keys(answers).find((k) => q.includes(statementOf[k]!))!;
+    const vote = Number(/vote (\d) of/.exec(user)?.[1] ?? 1);
+    const a = answers[id]!;
+    return fake.text(JSON.stringify({ answer: Array.isArray(a) ? a[vote - 1] : a, why: `${id} vote ${vote}` }));
+  };
+}
+const statementOf: Record<string, string> = {
+  "judge:0": c.expect.judgeChecks[0]!,
+  "script:2": "assumes that the agent asked which item is broken",
+  "judge:followup": "No follow-up promises.",
+  "judge:timing": "No unsupported timing.",
 };
+const judgeWith = (n: number, r: ReturnType<typeof responder>) => new FakeProvider(Array.from({ length: n }, () => r));
+const userOf = (req: ChatRequest) => String(req.messages[1]!.content);
 
-describe("the judge's input", () => {
-  it("has the conversation, a trimmed tool summary without the reply tool, the case's note, and the questions", () => {
-    expect(input.turns.map((t) => t.turn)).toEqual([1, 2]);
-    expect(input.toolSummary).toHaveLength(2);
-    expect(input.toolSummary[0]).toMatch(/^message 1: get_order\(\{"orderId":1074\}\) → .*… \(trimmed\)$/);
-    expect(input.toolSummary[1]).toMatch(/^message 2: issue_refund/);
-    expect(summarizeTools(obs).some((l) => l.includes("reply("))).toBe(false);
-    expect(input.checks).toEqual([{ id: "judge:0", statement: c.expect.judgeChecks[0] }]);
-    expect(input.scriptFit).toEqual([{ id: "script:2", turn: 2, assumes: "the agent asked which item is broken or what's wrong with it" }]);
-    const text = renderJudgeInput(input);
-    expect(text).toContain("Agent reply 2: Refunded $14.99");
-    expect(text).toContain("script:2: customer message 2 assumes that the agent asked which item is broken or what's wrong with it. Does it fit agent reply 1?");
-  });
-
-  it("never names the model that wrote the replies", () => {
-    expect(JSON.stringify(input)).not.toMatch(/groq|gemini|ollama|gpt|qwen|fake/i);
-  });
-});
-
-describe("runJudge", () => {
+describe("runJudge (rubric@2): scores in one call, each question in its own", () => {
   it("returns scores and yes/no answers that finalizeGrade can use", async () => {
-    const judge = new FakeProvider([fake.text(JSON.stringify(good))]);
+    const judge = judgeWith(3, responder({ "judge:0": true, "script:2": true }));
     const r = await runJudge(judge, input);
     expect(r.ok && r.answers).toEqual({ "judge:0": true, "script:2": true });
-    expect(r.rubric).toMatch(/^rubric@1#[0-9a-f]{8}$/);
-    // The rubric is the system prompt, and JSON output is requested.
-    expect(judge.requests[0]!.messages[0]).toEqual({ role: "system", content: JUDGE_RUBRIC.text });
-    expect(judge.requests[0]!.responseFormat).toBe("json");
+    expect(r.ok && r.output.replies).toEqual(scores);
+    expect(r.rubric).toMatch(/^rubric@2#[0-9a-f]{8}$/);
+    expect(judge.requests.map((q) => q.messages[0]!.content)).toEqual([SCORE_PROMPT, QUESTION_PROMPT, QUESTION_PROMPT]);
+    expect(judge.requests.every((q) => q.responseFormat === "json")).toBe(true);
+    expect(r.calls.map((x) => x.purpose).sort()).toEqual(["judge:0", "scores", "script:2"]);
     const grade = { caseId: c.id, checks: [], grounding: [], judgeQuestions: questions, counts: { policyViolations: 0, groundingViolations: 0, forbiddenAttempts: 0, failedChecks: 0 }, codeStatus: "pass" as const };
     expect(finalizeGrade(grade, r.ok ? r.answers : {}).status).toBe("pass");
   });
 
+  it("each question call sees the conversation, the case's note, and only its own question", async () => {
+    const judge = judgeWith(3, responder({ "judge:0": true, "script:2": true }));
+    await runJudge(judge, { ...input, judgeNote: "Asks which item first." });
+    const [score, check, script] = judge.requests.map(userOf);
+    expect(score).toContain("Agent reply 2: Refunded $14.99");
+    expect(score).toContain("Asks which item first.");
+    expect(score).toContain("Score agent replies 1, 2.");
+    expect(check).toContain("Agent reply 2: Refunded $14.99");
+    expect(check).toContain(`Judge check: ${c.expect.judgeChecks[0]}`);
+    expect(check).not.toContain("Script-fit");
+    expect(check).toContain("## What a good answer does\nAsks which item first.");
+    expect(script).toContain("Script-fit question: customer message 2 assumes that the agent asked which item is broken or what's wrong with it. Does it fit agent reply 1?");
+    expect(script).not.toContain("Judge check");
+  });
+
+  it("asks the follow-up and timing checks 3 times each and takes the majority; each vote is a distinct request", async () => {
+    const all = buildJudgeInput(c, obs, withGlobals);
+    const judge = judgeWith(9, responder({ "judge:0": true, "script:2": true, "judge:followup": [true, false, false], "judge:timing": [true, true, false] }));
+    const r = await runJudge(judge, all);
+    expect(judge.requests).toHaveLength(1 + 1 + 3 + 3 + 1);
+    expect(r.ok && r.answers).toEqual({ "judge:0": true, "judge:followup": false, "judge:timing": true, "script:2": true });
+    expect(r.ok && r.output.checks.find((x) => x.id === "judge:followup")).toEqual({ id: "judge:followup", answer: false, why: "judge:followup vote 2", votes: [true, false, false] });
+    expect(r.ok && r.output.checks.find((x) => x.id === "judge:0")!.votes).toBeUndefined();
+    const followups = judge.requests.map(userOf).filter((u) => u.includes("No follow-up promises."));
+    expect(followups.map((u) => /\(Independent vote (\d) of 3\.\)/.exec(u)?.[1])).toEqual(["1", "2", "3"]);
+    expect(new Set(followups).size).toBe(3); // so the replay cache keeps three answers, not one
+  });
+
   it("reads JSON after a <thought> block, even one containing braces (seen from Gemma 4)", async () => {
-    const raw = `<thought>The customer said {something}. Reply 1 asks…</thought>\n${JSON.stringify(good)}`;
-    expect(JSON.parse(stripThoughts(raw))).toEqual(good);
-    const r = await runJudge(new FakeProvider([fake.text(raw)]), input);
-    expect(r.ok).toBe(true);
+    const raw = `<thought>The customer said {something}. Reply 1 asks…</thought>\n${JSON.stringify({ answer: true, why: "x" })}`;
+    expect(JSON.parse(stripThoughts(raw))).toEqual({ answer: true, why: "x" });
+    const one: JudgeInput = { ...input, scriptFit: [] };
+    const r = await runJudge(new FakeProvider([fake.text(JSON.stringify({ replies: scores })), fake.text(raw)]), one);
+    expect(r.ok && r.answers).toEqual({ "judge:0": true });
   });
 
-  it("retries once with the problem when a reply or question is missing, then succeeds", async () => {
-    const missing = { ...good, scriptFit: [] };
-    const judge = new FakeProvider([fake.text(JSON.stringify(missing)), fake.text(JSON.stringify(good))]);
-    const r = await runJudge(judge, input);
+  it("retries a call once with the problem stated, then succeeds", async () => {
+    const one: JudgeInput = { ...input, checks: [], scriptFit: [] };
+    const judge = new FakeProvider([fake.text(JSON.stringify({ replies: [scores[0]] })), fake.text(JSON.stringify({ replies: scores }))]);
+    const r = await runJudge(judge, one);
     expect(r.ok).toBe(true);
-    expect(r.calls.map((x) => x.error ?? "ok")).toEqual(["answer exactly these script-fit ids: script:2", "ok"]);
-    expect(judge.requests[1]!.messages.at(-1)!.content).toMatch(/invalid: answer exactly these script-fit ids: script:2/);
+    expect(r.calls.map((x) => x.error ?? "ok")).toEqual(["score each agent reply exactly once: replies 1, 2", "ok"]);
+    expect(judge.requests[1]!.messages.at(-1)!.content).toMatch(/invalid: score each agent reply exactly once: replies 1, 2/);
   });
 
-  it("rejects out-of-range scores and extra ids, and gives up after two bad answers", async () => {
-    const bad = { ...good, replies: [{ ...good.replies[0]!, tone: 7 }, good.replies[1]!] };
-    const extra = { ...good, checks: [...good.checks, { id: "judge:9", answer: true, why: "x" }] };
-    const r = await runJudge(new FakeProvider([fake.text(JSON.stringify(bad)), fake.text(JSON.stringify(extra))]), input);
+  it("rejects out-of-range scores and a non-boolean answer, and fails the verdict after two bad answers to one call", async () => {
+    const one: JudgeInput = { ...input, scriptFit: [] };
+    const bad = { replies: [{ ...scores[0]!, tone: 7 }, scores[1]!] };
+    let r = await runJudge(new FakeProvider([fake.text(JSON.stringify(bad)), fake.text(JSON.stringify({ answer: true, why: "x" })), fake.text(JSON.stringify(bad))]), one);
     expect(r.ok).toBe(false);
-    expect(r.calls).toHaveLength(2);
-    expect(r.calls[0]!.error).toMatch(/tone/);
-    expect(!r.ok && r.error).toBe("answer exactly these checks: judge:0");
+    expect(!r.ok && r.error).toMatch(/^scores: .*tone/s);
+    r = await runJudge(new FakeProvider([fake.text(JSON.stringify({ replies: scores })), fake.text('{"answer":"maybe","why":"x"}'), fake.text('{"answer":"yes","why":"x"}')]), one);
+    expect(!r.ok && r.error).toMatch(/^judge:0: /);
   });
 
-  it("accepts a case with no questions and a single reply", async () => {
+  it("a provider error on any call is thrown (the runner retries the conversation later)", async () => {
+    const one: JudgeInput = { ...input, scriptFit: [] };
+    await expect(runJudge(new FakeProvider([fake.text(JSON.stringify({ replies: scores })), new Error("HTTP 500")]), one)).rejects.toThrow("HTTP 500");
+  });
+
+  it("accepts a case with no questions and a single reply: one call", async () => {
     const one: JudgeInput = { ...input, turns: [input.turns[0]!], checks: [], scriptFit: [] };
-    const r = await runJudge(new FakeProvider([fake.text(JSON.stringify({ replies: [good.replies[0]] }))]), one);
+    const judge = new FakeProvider([fake.text(JSON.stringify({ replies: [scores[0]] }))]);
+    const r = await runJudge(judge, one);
     expect(r.ok && r.answers).toEqual({});
+    expect(judge.requests).toHaveLength(1);
   });
 });
 
@@ -109,8 +154,10 @@ describe("judge-safe text (Gemma 4 returned HTTP 500 for input containing °)", 
   });
 
   it("is applied to everything the judge sees, including tool results", () => {
-    const text = renderJudgeInput({ ...input, toolSummary: ['message 1: get_order → {"name":"Harbor 3°C Double Sleeping Bag"}'] });
-    expect(text).toContain('get_order -> {"name":"Harbor 3 degrees C Double Sleeping Bag"}');
-    expect(text).not.toMatch(/[^\x00-\x7F]/);
+    const odd: JudgeInput = { ...input, toolSummary: ['message 1: get_order → {"name":"Harbor 3°C Double Sleeping Bag"}'] };
+    for (const text of [renderScoreRequest(odd), renderQuestionRequest(odd, questionsOf(odd)[0]!, { n: 1, of: 3 })]) {
+      expect(text).toContain('get_order -> {"name":"Harbor 3 degrees C Double Sleeping Bag"}');
+      expect(text).not.toMatch(/[^\x00-\x7F]/);
+    }
   });
 });

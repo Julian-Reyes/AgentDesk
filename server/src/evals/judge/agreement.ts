@@ -52,27 +52,61 @@ export function agreementOf(pairs: Pair[]): Agreement {
   return { n: pairs.length, dimensions, answers: rate(agree, n) };
 }
 
-export type AgreementReport = { overall: Agreement; byModel: Record<string, Agreement> };
+export type AgreementReport = { overall: Agreement; byModel: Record<string, Agreement>; byQuestion: Record<string, Rate> };
 
 export function report(pairs: Pair[]): AgreementReport {
   const models = [...new Set(pairs.map((p) => p.agentModel))].sort();
-  return { overall: agreementOf(pairs), byModel: Object.fromEntries(models.map((m) => [m, agreementOf(pairs.filter((p) => p.agentModel === m))])) };
+  return {
+    overall: agreementOf(pairs),
+    byModel: Object.fromEntries(models.map((m) => [m, agreementOf(pairs.filter((p) => p.agentModel === m))])),
+    byQuestion: answersByGroup(pairs),
+  };
 }
 
 const asSide = (v: JudgeVerdict) => ({ ...v.scores, answers: v.answers });
 
-/** Pairs a judge (first or second) with Julian's grades. Items Julian hasn't graded are left out. */
-export function pairsWithHuman(key: KeyEntry[], grades: Record<string, HumanGrade>, which: "judge" | "second"): Pair[] {
+/** Which verdict of a key entry to use: the drawn one, or one added later by verdictKey. */
+export type VerdictPick = (k: KeyEntry) => JudgeVerdict | null | undefined;
+export const drawn: VerdictPick = (k) => k.judge;
+export const added = (key: string): VerdictPick => (k) => k.verdicts?.[key];
+
+/** Pairs a judge's verdicts with Julian's grades. Items without both are left out. */
+export function pairsWithHuman(key: KeyEntry[], grades: Record<string, HumanGrade>, pick: VerdictPick): Pair[] {
   return key.flatMap((k) => {
-    const v = which === "judge" ? k.judge : k.second;
+    const v = pick(k);
     const g = grades[k.itemId];
     return v && g ? [{ agentModel: k.agentModel, a: asSide(v), b: { tone: g.tone, clarity: g.clarity, helpfulness: g.helpfulness, answers: g.answers } }] : [];
   });
 }
 
-/** Pairs the two judges with each other. */
-export function pairsBetweenJudges(key: KeyEntry[]): Pair[] {
-  return key.flatMap((k) => (k.second ? [{ agentModel: k.agentModel, a: asSide(k.judge), b: asSide(k.second) }] : []));
+/** Pairs two judges' verdicts with each other. */
+export function pairsBetweenJudges(key: KeyEntry[], a: VerdictPick, b: VerdictPick): Pair[] {
+  return key.flatMap((k) => {
+    const va = a(k);
+    const vb = b(k);
+    return va && vb ? [{ agentModel: k.agentModel, a: asSide(va), b: asSide(vb) }] : [];
+  });
+}
+
+/** The question groups the yes/no agreement is broken down by: the two voted global checks, the case checks, script fit. */
+export function questionGroup(id: string): string {
+  if (id === "judge:followup" || id === "judge:timing") return id;
+  return id.startsWith("script:") ? "script fit" : "case checks";
+}
+
+/** Yes/no agreement per question group, across all pairs. */
+export function answersByGroup(pairs: Pair[]): Record<string, Rate> {
+  const counts = new Map<string, { agree: number; n: number }>();
+  for (const p of pairs) {
+    for (const [id, answer] of Object.entries(p.b.answers)) {
+      if (!(id in p.a.answers)) continue;
+      const g = counts.get(questionGroup(id)) ?? { agree: 0, n: 0 };
+      g.n += 1;
+      if (p.a.answers[id] === answer) g.agree += 1;
+      counts.set(questionGroup(id), g);
+    }
+  }
+  return Object.fromEntries([...counts.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([g, c]) => [g, rate(c.agree, c.n)]));
 }
 
 /**
@@ -107,6 +141,10 @@ export function renderReport(title: string, r: AgreementReport): string {
     "| Dimension | Exact | Within ±1 | Mean difference (first − second) |",
     "| --- | --- | --- | --- |",
     ...rows(r.overall),
+    "",
+    "| Yes/no question | Agree |",
+    "| --- | --- |",
+    ...Object.entries(r.byQuestion).map(([g, rt]) => `| ${g} | ${fmtRate(rt)} |`),
     "",
   ];
   for (const [model, a] of Object.entries(r.byModel)) {

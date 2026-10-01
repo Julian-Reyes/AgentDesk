@@ -1,0 +1,147 @@
+{
+  "caseId": "returns-03",
+  "runId": "d8be66b0-51b2-4e87-9b27-610915c7a193",
+  "questionSet": "a53fb284",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@2#611913e3",
+  "input": {
+    "caseId": "returns-03",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "I'd like to return the Swift 30 daypack from order #1043. It's unused and still in the packaging. Can I submit a return?",
+        "reply": "Good news — the Swift 30 Daypack in order #1043 is eligible for return. Since it's unused and in its original packaging, all you need to do is: 1) Find the return label in your account and send the item back using it (please send it by 2026-10-05). 2) Once the warehouse receives it, your refund will be issued. I can't process the return on my end, but the label in your account is all you need to get it started! Let me know if you have any trouble finding the label.\""
+      }
+    ],
+    "toolSummary": [
+      "message 1: check_return_eligibility({\"condition\":\"unused\",\"item\":\"Swift 30 daypack\",\"orderId\":1043}) → {\"ok\":true,\"data\":{\"orderNumber\":1043,\"item\":\"Swift 30 Daypack\",\"eligible\":true,\"code\":\"ELIGIBLE\",\"message\":\"Eligible for return until 2026-10-05, provided the item is unused and in its original packaging. The refund is issued when the warehouse receives it.\",\"returnBy\":\"2026-10-05\",\"conditionRequired\":\"unused, original packaging\"},\"policyDecision\":\"auto_approved\"}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent explains the process (return label from the account, refund when the warehouse receives the item) and never says it will process, accept or refund the return itself."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "Clear, helpful, and warm response with all necessary steps and dates."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent explicitly states they cannot process the return and explains the steps to use the return label and refund upon receipt."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent does not promise or imply future actions it cannot perform.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "All timing claims match the tool result: return deadline 2026-10-05 and refund upon warehouse receipt.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "scores",
+      "latencyMs": 1373,
+      "inputTokens": 1042,
+      "outputTokens": 196,
+      "cached": true,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"Clear, helpful, and warm response with all necessary steps and dates.\"}]}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 941,
+      "inputTokens": 710,
+      "outputTokens": 270,
+      "cached": false,
+      "raw": "{\"answer\":true,\"why\":\"The agent explicitly states they cannot process the return and explains the steps to use the return label and refund upon receipt.\"}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 641,
+      "inputTokens": 763,
+      "outputTokens": 265,
+      "cached": false,
+      "raw": "{\"answer\":true,\"why\":\"All timing claims in the agent’s reply match the tool result and store policy.\"}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1014,
+      "inputTokens": 774,
+      "outputTokens": 408,
+      "cached": false,
+      "raw": "{\"answer\":true,\"why\":\"The agent does not promise or imply future actions it cannot perform.\"}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1260,
+      "inputTokens": 774,
+      "outputTokens": 449,
+      "cached": false,
+      "raw": "{\"answer\":true,\"why\":\"The agent only informs the customer of the return process and does not promise any future action it cannot perform.\"}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 906,
+      "inputTokens": 763,
+      "outputTokens": 260,
+      "cached": false,
+      "raw": "{\"answer\":true,\"why\":\"All timing claims match the tool result: return deadline 2026-10-05 and refund upon warehouse receipt.\"}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 1036,
+      "inputTokens": 763,
+      "outputTokens": 260,
+      "cached": false,
+      "raw": "{\"answer\":true,\"why\":\"All timing claims match the tool result and store policy.\"}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 3362,
+      "inputTokens": 774,
+      "outputTokens": 461,
+      "cached": false,
+      "raw": "{\"answer\":true,\"why\":\"The agent only informs the customer of the return process and what the store will do, not promising any action it cannot perform.\"}"
+    }
+  ]
+}

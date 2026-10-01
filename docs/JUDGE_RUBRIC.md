@@ -1,4 +1,4 @@
-# LLM judge rubric: `rubric@1`
+# LLM judge rubric: `rubric@2` (criteria unchanged from `rubric@1`)
 
 **Status:** approved by Julian (2026-09-30) and in code (`server/src/evals/judge/rubric.ts`). It's versioned like the prompts: every judged result records `rubric@<version>#<hash>`. An edit without a version bump still shows up in the hash.
 
@@ -117,3 +117,17 @@ Settings: temperature 0, and "reason first, then score" inside each `why`, kept 
 1. **Score each reply, not each conversation.**
 2. **The judge sees what the tools returned** (trimmed to 1,500 characters per call since the global checks were added).
 3. **"Ambiguous → no" on judge checks.** The agreement check will show if it's too strict.
+
+## `rubric@2` (2026-10-01, Julian's fix): one question per call, majority of 3 for two checks
+The scoring criteria and the check/script-fit instructions above are unchanged, word for word. What changed is how the judge is asked:
+- **One call scores every reply** (tone, clarity, helpfulness).
+- **Each yes/no question gets its own call:** each case check, each global check and each script-fit question. The call sees the conversation, the tool results and the case's note on a good answer, but not the other questions.
+- **The follow-up-promise and timing checks are asked 3 times; the majority wins.** Each vote's prompt ends "(Independent vote n of 3.)". That makes the three requests different, so the replay cache stores three answers instead of replaying one, and the votes aren't identical at temperature 0. Every vote is saved in the verdict (`votes`).
+- The calls for one conversation run in parallel. Each call retries once on invalid output. If any call is still invalid, the verdict is `judge_failed`; a provider error on any call leaves the conversation for a later pass.
+
+**Why:** re-judging `dev-1` after one case check was reworded flipped 6 answers on the unchanged follow-up and timing checks, at temperature 0. Asked together in one call, one question's wording moved the others' answers.
+
+**A mistake in the first version, fixed before any result was used:** that version (`rubric@2#c1b04d7e`) gave the case's note to the scoring call only. The judge then failed Flash-Lite's `returns-02` for mentioning the warranty, which the note explicitly allows. The question calls now get the note too (`rubric@2#611913e3`, the version in use); its verdicts were deleted.
+
+**Cost and reliability on `dev-1`** (gpt-oss-20b, 120 conversations): 924 calls, 0 invalid outputs, **$0.165** (rubric@1: 122 calls, $0.04). The 3 votes split on 4 of 120 follow-up checks and 6 of 120 timing checks; in those, the majority decided.
+

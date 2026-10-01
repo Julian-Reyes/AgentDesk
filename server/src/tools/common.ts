@@ -119,10 +119,33 @@ export function presentProduct(p: typeof s.products.$inferSelect, totalStock: nu
 
 export const day = (d: Date | null) => (d ? d.toISOString().slice(0, 10) : null);
 
+const words = (text: string) => text.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+
 /**
- * Finds one item in an order from what the model passed: a product id, a
- * variant id, or (part of) the product name. Shared by check_return_eligibility
- * and issue_refund so both tools identify items the same way.
+ * A short name for the item: every word of the query is a whole word of the
+ * product name, allowing a plural ("boots" for "Boot"). So "Glowworm",
+ * "Firefly headlamp" and "harbor double" match, but "lamp" doesn't match
+ * "Headlamp", and a query with any word that isn't in the name doesn't match.
+ *
+ * Stricter than before (Julian's grading, 2026-10-01): the old rule also
+ * accepted any query that merely CONTAINED the name, so issue_refund took
+ * '"Glowworm 300 Headlamp" OR "lamp-glowworm-300" (arrived damaged: cracked
+ * lens, will not turn on)' as an item, and in a one-item order any fragment
+ * of the name ("lamp", "e") matched. A refund moves money, so a garbled item
+ * is refused with the order's item list and the model can retry with the id.
+ */
+function wordsMatch(query: string, name: string): boolean {
+  const q = words(query);
+  const n = new Set(words(name));
+  return q.length > 0 && q.every((w) => n.has(w) || (w.endsWith("s") && n.has(w.slice(0, -1))) || (w.endsWith("es") && n.has(w.slice(0, -2))));
+}
+
+/**
+ * Finds one item in an order from what the model passed: its product id,
+ * variant id or full name (any case, quotes ignored), else a short name
+ * (wordsMatch). None or several matches is an error listing the order's items.
+ * Shared by check_return_eligibility and issue_refund so both tools identify
+ * items the same way.
  */
 export async function findOrderItem(db: DbOrTx, orderNumber: number, query: string) {
   const items = await db
@@ -131,9 +154,9 @@ export async function findOrderItem(db: DbOrTx, orderNumber: number, query: stri
     .innerJoin(s.products, eq(s.products.id, s.orderItems.productId))
     .where(eq(s.orderItems.orderNumber, orderNumber));
 
-  const q = query.trim().toLowerCase();
+  const q = query.trim().replace(/^["'`]+|["'`]+$/g, "").trim().toLowerCase();
   const exact = items.filter((i) => i.item.productId === q || i.item.variantId === q || i.name.toLowerCase() === q);
-  const matches = exact.length ? exact : items.filter((i) => i.name.toLowerCase().includes(q) || q.includes(i.name.toLowerCase()));
+  const matches = exact.length ? exact : items.filter((i) => wordsMatch(q, i.name));
   if (matches.length !== 1) {
     return fail(
       matches.length ? "ITEM_AMBIGUOUS" : "ITEM_NOT_IN_ORDER",

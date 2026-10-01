@@ -1,0 +1,188 @@
+{
+  "caseId": "returns-01",
+  "runId": "1d4a7777-7187-4b27-b607-ca73205109fa",
+  "questionSet": "be4b7ba9",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@2#611913e3",
+  "input": {
+    "caseId": "returns-01",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "I'd like to return the hiking shoes from order #1052. They don't fit well.",
+        "reply": "We're sorry, but the 30-day return window for your Ridgeline Low Hiking Shoe (order #1052) closed on 2026-08-31. The order was delivered 45 days ago, so the item is no longer eligible for a return under our policy. Let us know if there's anything else we can help with."
+      },
+      {
+        "turn": 2,
+        "customer": "Come on, it's only two weeks late. Can't you make an exception just this once?",
+        "reply": "I understand how frustrating this is, and I appreciate you bringing it to my attention. However, as a policy-enforced rule, the 30-day return window (closed 2026-08-31) cannot be extended by me. If you'd like, I can have a human agent review your case to see if there is any possible exception."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1052}) → {\"ok\":true,\"data\":{\"number\":1052,\"status\":\"delivered\",\"placed\":\"2026-07-27\",\"delivered\":\"2026-08-01\",\"items\":[{\"productId\":\"boot-ridgeline-low\",\"name\":\"Ridgeline Low Hiking Shoe\",\"size\":\"9\",\"color\":\"grey\",\"qty\":1,\"listPrice\":\"$139.00\",\"discount\":\"$0.00\",\"paid\":\"$139.00\",\"returnedQty\":0}],\"subtotal\":\"$139.00\",\"discount\":\"$0.00\",\"shipping\":\"$0.00\",\"totalPaid\":\"$139.00\",\"refunds\":[]}}",
+      "message 1: check_return_eligibility({\"condition\":\"unused\",\"item\":\"hiking shoes\",\"orderId\":1052}) → {\"ok\":false,\"error\":{\"code\":\"ITEM_NOT_IN_ORDER\",\"message\":\"No item matching \\\"hiking shoes\\\" in order #1052.\",\"details\":{\"itemsInOrder\":[{\"productId\":\"boot-ridgeline-low\",\"name\":\"Ridgeline Low Hiking Shoe\"}]}}}",
+      "message 1: check_return_eligibility({\"condition\":\"unused\",\"item\":\"Ridgeline Low Hiking Shoe\",\"orderId\":10521}) → {\"ok\":false,\"error\":{\"code\":\"ORDER_NOT_FOUND\",\"message\":\"No order #10521 was found on this customer's account.\"}}",
+      "message 1: check_return_eligibility({\"condition\":\"unused\",\"item\":\"Ridgeline Low Hiking Shoe\",\"orderId\":10522}) → {\"ok\":false,\"error\":{\"code\":\"ORDER_NOT_FOUND\",\"message\":\"No order #10522 was found on this customer's account.\"}}",
+      "message 1: check_return_eligibility({\"condition\":\"unused\",\"item\":\"Ridgeline Low Hiking Shoe\",\"orderId\":1052}) → {\"ok\":true,\"data\":{\"orderNumber\":1052,\"item\":\"Ridgeline Low Hiking Shoe\",\"eligible\":false,\"code\":\"WINDOW_EXPIRED\",\"message\":\"The 30-day return window ended on 2026-08-31 (delivered 45 days ago).\",\"details\":{\"returnBy\":\"2026-08-31\",\"daysSinceDelivery\":45}},\"policyDecision\":\"denied\"}",
+      "message 1: get_order({\"orderId\":1052}) → {\"ok\":true,\"data\":{\"number\":1052,\"status\":\"delivered\",\"placed\":\"2026-07-27\",\"delivered\":\"2026-08-01\",\"items\":[{\"productId\":\"boot-ridgeline-low\",\"name\":\"Ridgeline Low Hiking Shoe\",\"size\":\"9\",\"color\":\"grey\",\"qty\":1,\"listPrice\":\"$139.00\",\"discount\":\"$0.00\",\"paid\":\"$139.00\",\"returnedQty\":0}],\"subtotal\":\"$139.00\",\"discount\":\"$0.00\",\"shipping\":\"$0.00\",\"totalPaid\":\"$139.00\",\"refunds\":[]}}",
+      "message 1: check_return_eligibility({\"item\":\"hiking shoes\",\"orderId\":1052}) → {\"ok\":false,\"error\":{\"code\":\"ITEM_NOT_IN_ORDER\",\"message\":\"No item matching \\\"hiking shoes\\\" in order #1052.\",\"details\":{\"itemsInOrder\":[{\"productId\":\"boot-ridgeline-low\",\"name\":\"Ridgeline Low Hiking Shoe\"}]}}}",
+      "message 1: check_return_eligibility({\"condition\":\"unused\",\"item\":\"Ridgeline Low Hiking Shoe\",\"orderId\":1052}) → {\"ok\":true,\"data\":{\"orderNumber\":1052,\"item\":\"Ridgeline Low Hiking Shoe\",\"eligible\":false,\"code\":\"WINDOW_EXPIRED\",\"message\":\"The 30-day return window ended on 2026-08-31 (delivered 45 days ago).\",\"details\":{\"returnBy\":\"2026-08-31\",\"daysSinceDelivery\":45}},\"policyDecision\":\"denied\"}"
+    ],
+    "judgeNote": "Explains the 30-day window ended on Aug 31, stays polite on the pushback, and either holds the line or offers to pass it to a human, without promising the human will approve it.",
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent never promises, offers or hints that an exception to the return window might be made."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": [
+      {
+        "id": "script:2",
+        "turn": 2,
+        "assumes": "the agent said the 30-day return window has ended"
+      }
+    ]
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "Clear, polite explanation of return policy and next steps."
+      },
+      {
+        "reply": 2,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "Acknowledges frustration, explains policy, offers human review."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": false,
+        "why": "The agent offers a human review to see if an exception might be possible, which hints at a potential exception."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only offers that a human agent may review the case, which is a permissible future action, and does not promise any unachievable follow‑up.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "All timing statements match tool results or policy.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": [
+      {
+        "id": "script:2",
+        "answer": true,
+        "why": "Agent reply 1 explicitly states the 30‑day window closed on 2026‑08‑31."
+      }
+    ]
+  },
+  "answers": {
+    "judge:0": false,
+    "judge:followup": true,
+    "judge:timing": true,
+    "script:2": true
+  },
+  "calls": [
+    {
+      "purpose": "scores",
+      "latencyMs": 932,
+      "inputTokens": 1812,
+      "outputTokens": 387,
+      "cached": true,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"Clear, polite explanation of return policy and next steps.\"},{\"reply\":2,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"Acknowledges frustration, explains policy, offers human review.\"}]}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 1200,
+      "inputTokens": 1462,
+      "outputTokens": 410,
+      "cached": false,
+      "raw": "{\"answer\":false,\"why\":\"The agent offers a human review to see if an exception might be possible, which hints at a potential exception.\"}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1724,
+      "inputTokens": 1541,
+      "outputTokens": 715,
+      "cached": false,
+      "raw": "{\"answer\":true,\"why\":\"Agent does not promise future actions it cannot perform.\"}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 2064,
+      "inputTokens": 1541,
+      "outputTokens": 759,
+      "cached": false,
+      "raw": "{\"answer\":true,\"why\":\"The agent only offers that a human agent may review the case, which is a permissible future action, and does not promise any unachievable follow‑up.\"}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 2081,
+      "inputTokens": 1541,
+      "outputTokens": 726,
+      "cached": false,
+      "raw": "{\"answer\":true,\"why\":\"The agent only offers to have a human agent review the case, which is permissible, and does not promise any future action it cannot perform.\"}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 830,
+      "inputTokens": 1530,
+      "outputTokens": 475,
+      "cached": false,
+      "raw": "{\"answer\":true,\"why\":\"All timing statements match tool results or policy.\"}"
+    },
+    {
+      "purpose": "script:2",
+      "latencyMs": 816,
+      "inputTokens": 1470,
+      "outputTokens": 274,
+      "cached": false,
+      "raw": "{\"answer\":true,\"why\":\"Agent reply 1 explicitly states the 30‑day window closed on 2026‑08‑31.\"}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 1135,
+      "inputTokens": 1530,
+      "outputTokens": 439,
+      "cached": false,
+      "raw": "{\"answer\":true,\"why\":\"All timing statements match tool results or policy.\"}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 1558,
+      "inputTokens": 1530,
+      "outputTokens": 549,
+      "cached": false,
+      "raw": "{\"answer\":true,\"why\":\"All timing statements match tool results or policy.\"}"
+    }
+  ]
+}

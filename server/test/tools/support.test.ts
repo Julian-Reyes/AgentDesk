@@ -1,6 +1,7 @@
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { describe, expect, it } from "vitest";
 import * as s from "../../src/db/schema.ts";
+import type { Tx } from "../../src/db/client.ts";
 import { addDays } from "../../src/domain/clock.ts";
 import { as, call, DANIEL, inTx, MAYA, PRIYA, SOFIA, TEST_NOW, TOM } from "../helpers.ts";
 
@@ -279,6 +280,50 @@ describe("issue_refund", () => {
       ]) {
         expect(await call(tx, "issue_refund", args, as(MAYA)), JSON.stringify(args)).toMatchObject({ ok: false, error: { code: "INVALID_ARGS" } });
       }
+    }));
+});
+
+describe("finding the item in a multi-item order (#1074: Voyager 80 pack, Squall jacket, Firefly Kids Headlamp)", () => {
+  /** Rowan Brennan's id, from the seed. */
+  const owner = async (tx: Tx) => (await tx.select({ id: s.orders.customerId }).from(s.orders).where(eq(s.orders.number, 1074)))[0]!.id;
+  const refundFor = async (tx: Tx, item: string) => call(tx, "issue_refund", { orderId: 1074, amount: 14.99, reason: "damaged", item }, as(await owner(tx)));
+  const refundedItem = async (tx: Tx) => {
+    const rows = await tx.select({ product: s.orderItems.productId }).from(s.refunds).innerJoin(s.orderItems, eq(s.orderItems.id, s.refunds.orderItemId)).where(eq(s.refunds.orderNumber, 1074));
+    return rows.map((r) => r.product);
+  };
+
+  it("accepts the product id, the full name in any case or quoted, and a short name; each picks the Firefly line", async () => {
+    for (const item of ["lamp-firefly-kids", "Firefly Kids Headlamp", "firefly kids headlamp", '"Firefly Kids Headlamp"', "Firefly", "firefly headlamp", "kids headlamps"]) {
+      await inTx(async (tx) => {
+        expect(await refundFor(tx, item), item).toMatchObject({ ok: true, data: { status: "refunded", amount: "$14.99" } });
+        expect(await refundedItem(tx)).toEqual(["lamp-firefly-kids"]);
+      });
+    }
+  });
+
+  it("refuses a garbled item string (the dev-1 refund-within-limit-01 call) and a fragment of a word, listing the items, with no refund made", () =>
+    inTx(async (tx) => {
+      for (const item of ['"Firefly Kids Headlamp" OR "lamp-firefly-kids" (arrived damaged: cracked lens, will not turn on)', "lamp", "headlamp that is broken", "item"]) {
+        const r = (await refundFor(tx, item)) as any;
+        expect(r, item).toMatchObject({ ok: false, policyDecision: "denied", error: { code: "ITEM_NOT_IN_ORDER" } });
+        expect(r.error.details.itemsInOrder.map((i: { productId: string }) => i.productId).sort()).toEqual(["jacket-squall", "lamp-firefly-kids", "pack-voyager-80"]);
+      }
+      expect(await refundedItem(tx)).toEqual([]);
+    }));
+
+  it("a short name that fits two lines is ambiguous", () =>
+    inTx(async (tx) => {
+      // Add a second headlamp line to #1074, so "headlamp" fits two items.
+      const [line] = await tx.select().from(s.orderItems).where(and(eq(s.orderItems.orderNumber, 1074), eq(s.orderItems.productId, "lamp-firefly-kids")));
+      await tx.insert(s.orderItems).values({ ...line!, id: 999_999, productId: "lamp-glowworm-300", variantId: "lamp-glowworm-300/black" });
+      expect(await refundFor(tx, "headlamp")).toMatchObject({ ok: false, error: { code: "ITEM_AMBIGUOUS" } });
+      expect(await refundFor(tx, "Firefly")).toMatchObject({ ok: true });
+    }));
+
+  it("check_return_eligibility uses the same matching, plurals included", () =>
+    inTx(async (tx) => {
+      expect(await call(tx, "check_return_eligibility", { orderId: 1053, item: "boots" }, as(TOM))).toMatchObject({ ok: true });
+      expect(await call(tx, "check_return_eligibility", { orderId: 1053, item: "Ridgeline Mid Hiking Boot (worn once)" }, as(TOM))).toMatchObject({ ok: false, error: { code: "ITEM_NOT_IN_ORDER" } });
     }));
 });
 

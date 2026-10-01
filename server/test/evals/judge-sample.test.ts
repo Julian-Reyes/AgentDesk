@@ -4,9 +4,9 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { agreementOf, pairsBetweenJudges, pairsFromOutputs, pairsWithHuman, report, wilson, type Pair } from "../../src/evals/judge/agreement.ts";
+import { added, agreementOf, drawn, pairsBetweenJudges, pairsFromOutputs, pairsWithHuman, questionGroup, report, wilson, type Pair } from "../../src/evals/judge/agreement.ts";
 import type { JudgeInput } from "../../src/evals/judge/judge.ts";
-import { gradingQuestions, parseScore, parseYesNo, renderGradingItem, sampleForGrading, type JudgedConversation, type KeyEntry } from "../../src/evals/judge/sample.ts";
+import { gradingQuestions, parseScore, parseYesNo, renderGradingItem, sampleForGrading, verdictKey, type JudgedConversation, type KeyEntry } from "../../src/evals/judge/sample.ts";
 
 const MODELS = ["gemini/gemini-3.5-flash-lite", "groq/gpt-oss-120b", "groq/qwen3.8-27b", "modal/small"];
 
@@ -116,13 +116,30 @@ describe("agreement", () => {
   it("pairs judges with Julian and with each other, leaving out what's missing", () => {
     const v = (tone: number) => ({ model: "j", rubric: "r", scores: { tone, clarity: 3, helpfulness: 3 }, answers: {} });
     const key: KeyEntry[] = [
-      { itemId: "G01", runId: "a", caseId: "c", agentModel: "m1", reply: 1, judge: v(4), second: v(5) },
-      { itemId: "G02", runId: "b", caseId: "c", agentModel: "m2", reply: 1, judge: v(3), second: null },
+      { itemId: "G01", runId: "a", caseId: "c", agentModel: "m1", reply: 1, judge: v(4), verdicts: { "j2 r2": v(5) } },
+      { itemId: "G02", runId: "b", caseId: "c", agentModel: "m2", reply: 1, judge: v(3), verdicts: { "j2 r2": null } },
     ];
     const grades = { G01: { tone: 4, clarity: 3, helpfulness: 3, answers: {} } };
-    expect(pairsWithHuman(key, grades, "judge")).toHaveLength(1);
-    expect(pairsWithHuman(key, grades, "second")).toHaveLength(1);
-    expect(pairsBetweenJudges(key)).toEqual([{ agentModel: "m1", a: expect.objectContaining({ tone: 4 }), b: expect.objectContaining({ tone: 5 }) }]);
+    expect(pairsWithHuman(key, grades, drawn)).toHaveLength(1);
+    expect(pairsWithHuman(key, grades, added(verdictKey("j2", "r2")))).toHaveLength(1);
+    expect(pairsWithHuman(key, grades, added("j3 r3"))).toHaveLength(0);
+    expect(pairsBetweenJudges(key, drawn, added("j2 r2"))).toEqual([{ agentModel: "m1", a: expect.objectContaining({ tone: 4 }), b: expect.objectContaining({ tone: 5 }) }]);
+  });
+
+  it("breaks yes/no agreement down by question group: the two voted checks, case checks, script fit", () => {
+    const side = (answers: Record<string, boolean>) => ({ tone: 3, clarity: 3, helpfulness: 3, answers });
+    const pairs: Pair[] = [
+      { agentModel: "m1", a: side({ "judge:0": true, "judge:followup": true, "judge:timing": false, "script:2": true }), b: side({ "judge:0": true, "judge:followup": false, "judge:timing": false, "script:2": true }) },
+      { agentModel: "m2", a: side({ "judge:1": false, "judge:followup": true }), b: side({ "judge:1": true, "judge:followup": true }) },
+    ];
+    const g = report(pairs).byQuestion;
+    expect(Object.fromEntries(Object.entries(g).map(([k, r]) => [k, `${r.agree}/${r.n}`]))).toEqual({
+      "case checks": "1/2",
+      "judge:followup": "1/2",
+      "judge:timing": "1/1",
+      "script fit": "1/1",
+    });
+    expect(questionGroup("judge:3")).toBe("case checks");
   });
 });
 
@@ -176,6 +193,9 @@ describe("the grading and agreement commands, end to end", () => {
     expect(agreement.status).toBe(0);
     // The fake judge scored 4/4/3 and said yes, exactly like the piped grades.
     expect(agreement.stdout).toContain("| tone | 100% (3/3");
-    expect(readFileSync(join(out, "agreement.md"), "utf8")).toContain("First judge (gemini/gemma-4-31b) vs Julian");
+    // The fixture's verdicts are from an older rubric, so they're the "before" row; no judge flags, so no model calls.
+    const md = readFileSync(join(out, "agreement.md"), "utf8");
+    expect(md).toContain("### Before: gemini/gemma-4-31b, rubric@1#abcd1234 vs Julian");
+    expect(md).toContain("| Yes/no question | Agree |");
   });
 });

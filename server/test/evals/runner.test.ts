@@ -16,7 +16,9 @@ import { RunStore } from "../../src/evals/runner/store.ts";
 import { applyCaseSnapshotUpdate, planCaseSnapshotUpdate } from "../../src/evals/runner/update-cases.ts";
 import type { Observation } from "../../src/evals/run-case.ts";
 import { FakeProvider, fake, type FakeStep } from "../../src/llm/fake.ts";
-import type { ChatRequest } from "../../src/llm/types.ts";
+import type { ChatProvider, ChatRequest, ChatResponse } from "../../src/llm/types.ts";
+import { SCORE_PROMPT } from "../../src/evals/judge/rubric.ts";
+import { GLOBAL_JUDGE_CHECKS } from "../../src/evals/grading/global-checks.ts";
 import { MemoryTracer } from "../../src/tracing/tracer.ts";
 import { promptId } from "../../src/agents/prompts.ts";
 import { JUDGE_RUBRIC } from "../../src/evals/judge/rubric.ts";
@@ -58,13 +60,43 @@ const newStore = () => new RunStore("t", mkdtempSync(join(tmpdir(), "evalrun-"))
 const stage = (store: RunStore, teams: Record<string, ReturnType<typeof teamWith>>, cs = cases) =>
   runAgentsStage({ store, cases: cs, models: Object.keys(teams), teamFor: (m) => teams[m]!, db, tracer: new MemoryTracer(), clock: fixedClock("2026-09-15"), catalog, runName: "t" });
 
-/** A judge that answers any input validly: every reply scored 4, every question "yes". */
-function autoJudge(req: ChatRequest) {
-  const user = String(req.messages[1]!.content);
-  const replies = [...user.matchAll(/^Agent reply (\d+):/gm)].map((m) => ({ reply: Number(m[1]), tone: 4, clarity: 4, helpfulness: 4, why: "fine" }));
-  const ids = (prefix: string) => [...user.matchAll(new RegExp(`^(${prefix}:[\\w-]+):`, "gm"))].map((m) => ({ id: m[1]!, answer: true, why: "yes" }));
-  return fake.text(JSON.stringify({ replies, checks: ids("judge"), scriptFit: ids("script") }));
+/**
+ * A fake judge that answers any rubric@2 request validly: every reply scored 4,
+ * every question "yes". `strict` (a phrase in the conversation) makes it score
+ * tone 2 and answer the timing check "no" there. `fail` makes the first N
+ * scoring calls of a matching conversation throw a provider error (an HTTP 500),
+ * so that conversation's verdict fails as a whole.
+ */
+class AutoJudge implements ChatProvider {
+  readonly requests: ChatRequest[] = [];
+  private readonly failsLeft: Map<string, number>;
+  private readonly opts: { strict?: string; fail?: Record<string, number> };
+  constructor(opts: { strict?: string; fail?: Record<string, number> } = {}) {
+    this.opts = opts;
+    this.failsLeft = new Map(Object.entries(opts.fail ?? {}));
+  }
+  /** How many conversations were judged (one scoring call each, retries excluded). */
+  get conversations() {
+    return this.requests.filter((r) => r.messages[0]!.content === SCORE_PROMPT && r.messages.length === 2).length;
+  }
+  async chat(req: ChatRequest): Promise<ChatResponse> {
+    this.requests.push(structuredClone(req));
+    const user = String(req.messages[1]!.content);
+    const isScore = req.messages[0]!.content === SCORE_PROMPT;
+    for (const [phrase, left] of this.failsLeft) {
+      if (isScore && left > 0 && user.includes(phrase)) {
+        this.failsLeft.set(phrase, left - 1);
+        throw Object.assign(new Error("gemini/gemma-4-31b: HTTP 500 Internal error encountered."), { name: "ProviderError" });
+      }
+    }
+    const strict = this.opts.strict !== undefined && user.includes(this.opts.strict);
+    const content = isScore
+      ? { replies: [...user.matchAll(/^Agent reply (\d+):/gm)].map((m) => ({ reply: Number(m[1]), tone: strict ? 2 : 4, clarity: 4, helpfulness: 4, why: "fine" })) }
+      : { answer: !(strict && user.includes(TIMING_STATEMENT)), why: "ok" };
+    return { message: { role: "assistant", content: JSON.stringify(content) }, finishReason: "stop", usage: { inputTokens: 100, outputTokens: 20 }, latencyMs: 5 };
+  }
 }
+const TIMING_STATEMENT = GLOBAL_JUDGE_CHECKS.find((g) => g.id === "judge:timing")!.statement.slice(0, 40);
 
 describe("the agents stage", () => {
   it("saves each conversation, runs models side by side, stops a model cleanly on a daily quota, and resumes", async () => {
@@ -108,15 +140,15 @@ describe("the judge stage", () => {
   it("judges saved conversations once, caches the verdicts, and re-judges only with --force", async () => {
     const store = newStore();
     await stage(store, { "fake/a": teamWith(goodScript(cases.map((c) => c.id))) });
-    const judge = new FakeProvider(Array.from({ length: 10 }, () => autoJudge));
+    const judge = new AutoJudge();
     await runJudgeStage({ store, judgeModel: "judge/x", rubric: RUBRIC, provider: judge });
-    expect(judge.requests).toHaveLength(3);
+    expect(judge.conversations).toBe(3);
     expect(unjudged(store, "judge/x", RUBRIC)).toHaveLength(0);
 
     await runJudgeStage({ store, judgeModel: "judge/x", rubric: RUBRIC, provider: judge });
-    expect(judge.requests).toHaveLength(3); // cached: no new calls
+    expect(judge.conversations).toBe(3); // cached: no new calls
     await runJudgeStage({ store, judgeModel: "judge/x", rubric: RUBRIC, provider: judge, force: true });
-    expect(judge.requests).toHaveLength(6);
+    expect(judge.conversations).toBe(6);
     // A different judge or rubric version has its own verdicts.
     expect(unjudged(store, "judge/y", RUBRIC)).toHaveLength(3);
     expect(unjudged(store, "judge/x", "rubric@2#other")).toHaveLength(3);
@@ -137,7 +169,7 @@ describe("the judge stage", () => {
     expect(noJudge.quality).toBeNull();
     expect(writeRunReport(store, null)).toContain("Judge: not run (`--no-judge`)");
 
-    await runJudgeStage({ store, judgeModel: "judge/x", rubric: RUBRIC, provider: new FakeProvider(Array.from({ length: 3 }, () => autoJudge)) });
+    await runJudgeStage({ store, judgeModel: "judge/x", rubric: RUBRIC, provider: new AutoJudge() });
     results = buildResults(regrade(store.conversations()), (r) => judgeFor(store, "judge/x", RUBRIC, r));
     expect(results.every((r) => r.status === "pass")).toBe(true);
     const judged = modelReport("fake/a", results);
@@ -153,22 +185,12 @@ describe("the judge stage", () => {
 });
 
 describe("comparing two judges on the same run", () => {
-  /** Like autoJudge, but stricter on order #1056: tone 2 and "no" on the timing check. */
-  function strictJudge(req: ChatRequest) {
-    const user = String(req.messages[1]!.content);
-    if (!user.includes("#1056")) return autoJudge(req);
-    const out = JSON.parse(String(autoJudge(req).message.content)) as { replies: { tone: number }[]; checks: { id: string; answer: boolean }[] };
-    out.replies.forEach((r) => (r.tone = 2));
-    out.checks.forEach((c) => (c.answer = c.id !== "judge:timing"));
-    return fake.text(JSON.stringify(out));
-  }
-
   it("the report shows status flips, who says no more often, and score agreement, on conversations both judged", async () => {
     const store = newStore();
     await stage(store, { "fake/a": teamWith(goodScript(cases.map((c) => c.id))) });
-    await runJudgeStage({ store, judgeModel: "judge/x", rubric: RUBRIC, provider: new FakeProvider(Array.from({ length: 3 }, () => autoJudge)) });
-    // The other judge only got to two of the three conversations.
-    const two = new FakeProvider([autoJudge, strictJudge]);
+    await runJudgeStage({ store, judgeModel: "judge/x", rubric: RUBRIC, provider: new AutoJudge() });
+    // The other judge is stricter on order #1056 (order-status-03), and its verdict on out-of-scope-01 is a provider error.
+    const two = new AutoJudge({ strict: "#1056" });
     await runJudgeStage({ store, judgeModel: "judge/y", rubric: RUBRIC, provider: two, retryDelaysMs: [], sleep: async () => {} });
     store.saveJudge({ ...store.judgeRecord("judge/y", RUBRIC, "fake/a", "out-of-scope-01")!, ok: false, error: "provider error: HTTP 500" });
 
@@ -186,13 +208,11 @@ describe("comparing two judges on the same run", () => {
 });
 
 describe("judge reliability: slower retry passes, and question sets", () => {
-  const http500 = () => Object.assign(new Error("gemini/gemma-4-31b: HTTP 500 Internal error encountered."), { name: "ProviderError" });
-
   it("a conversation that got a 500 is judged on a later, slower pass", async () => {
     const store = newStore();
     await stage(store, { "fake/a": teamWith(goodScript(cases.map((c) => c.id))) });
-    // Pass 1: the second conversation fails; pass 2 (after the wait) succeeds.
-    const judge = new FakeProvider([autoJudge, http500(), autoJudge, autoJudge]);
+    // Pass 1: the second conversation (order-status-03, #1056) fails; pass 2 (after the wait) succeeds.
+    const judge = new AutoJudge({ fail: { "#1056": 1 } });
     const waits: number[] = [];
     const events: string[] = [];
     await runJudgeStage({ store, judgeModel: "judge/x", rubric: RUBRIC, provider: judge, retryDelaysMs: [60_000, 180_000], sleep: async (ms) => void waits.push(ms), onEvent: (e) => events.push(e.kind === "judged" ? `${e.caseId}:${e.result}` : e.kind) });
@@ -204,7 +224,7 @@ describe("judge reliability: slower retry passes, and question sets", () => {
   it("after every pass fails, what's left is counted, with a warning above 10%", async () => {
     const store = newStore();
     await stage(store, { "fake/a": teamWith(goodScript(cases.map((c) => c.id))) });
-    const judge = new FakeProvider([autoJudge, http500(), autoJudge, http500(), http500()]);
+    const judge = new AutoJudge({ fail: { "#1056": 3 } });
     await runJudgeStage({ store, judgeModel: "judge/x", rubric: RUBRIC, provider: judge, retryDelaysMs: [1, 1], sleep: async () => {} });
     const coverage = judgeCoverage(store, "judge/x", RUBRIC);
     expect(coverage).toEqual({ unjudged: 1, total: 3 });
@@ -216,7 +236,7 @@ describe("judge reliability: slower retry passes, and question sets", () => {
   it("a verdict only counts for the questions it answered", async () => {
     const store = newStore();
     await stage(store, { "fake/a": teamWith(goodScript(["order-status-01"])) }, [cases[0]!]);
-    await runJudgeStage({ store, judgeModel: "judge/x", rubric: RUBRIC, provider: new FakeProvider([autoJudge]) });
+    await runJudgeStage({ store, judgeModel: "judge/x", rubric: RUBRIC, provider: new AutoJudge() });
     const [rec] = regrade(store.conversations());
     const verdict = judgeFor(store, "judge/x", RUBRIC, rec!)!;
     expect(verdict.questionSet).toBe(questionSetOf(rec!.grade.judgeQuestions));
@@ -256,7 +276,7 @@ describe("applying approved case changes to a saved run", () => {
     const store = newStore();
     store.saveManifest({ name: "t", split: "dev", models: ["fake/a"], caseIds: [old.id], createdAt: "2026-09-30T00:00:00Z" });
     await stage(store, { "fake/a": teamWith(couponScript) }, [old]);
-    await runJudgeStage({ store, judgeModel: "judge/x", rubric: RUBRIC, provider: new FakeProvider([autoJudge]) });
+    await runJudgeStage({ store, judgeModel: "judge/x", rubric: RUBRIC, provider: new AutoJudge() });
     return store;
   };
 

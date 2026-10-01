@@ -1,0 +1,150 @@
+{
+  "caseId": "order-status-03",
+  "runId": "ffc1ae58-6544-427f-85d4-fcc91530b8bc",
+  "questionSet": "378b9f94",
+  "agentModel": "groq/gpt-oss-120b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@2#611913e3",
+  "input": {
+    "caseId": "order-status-03",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "When will my order #1056 ship?",
+        "reply": "Hi Sofia! Your order #1056 is currently processing and should ship within the next 1–2 business days. Once it ships, you’ll receive a tracking link so you can follow its progress. Let me know if you need anything else!"
+      }
+    ],
+    "toolSummary": [
+      "message 1: find_customer({\"email\":\"sofia.alvarez@example.com\"}) → {\"ok\":true,\"data\":{\"name\":\"Sofia Alvarez\",\"email\":\"sofia.alvarez@example.com\",\"orders\":[{\"number\":1056,\"status\":\"processing\",\"placed\":\"2026-09-14\",\"total\":\"$259.00\"},{\"number\":1055,\"status\":\"delayed\",\"placed\":\"2026-09-03\",\"total\":\"$60.97\"},{\"number\":1322,\"status\":\"lost\",\"placed\":\"2026-08-24\",\"total\":\"$329.00\"}]}}",
+      "message 1: get_policy({\"topic\":\"shipping\"}) → {\"ok\":true,\"data\":{\"topic\":\"shipping\",\"title\":\"Shipping\",\"text\":\"Standard shipping costs $7.99 and is free on orders of $75.00 or more (after discounts).\\nOrders ship from our warehouse within 1–2 business days and arrive 3–6 business days after shipping.\\nWe ship within the United States only.\\nTracking is available once an order has shipped.\\nIf an order is delayed, we refund the shipping cost on request.\"}}",
+      "message 1: get_order({\"orderId\":1056}) → {\"ok\":true,\"data\":{\"number\":1056,\"status\":\"processing\",\"placed\":\"2026-09-14\",\"delivered\":null,\"items\":[{\"productId\":\"pack-traverse-65\",\"name\":\"Traverse 65 Trekking Pack\",\"size\":\"M/L\",\"color\":\"green\",\"qty\":1,\"listPrice\":\"$259.00\",\"discount\":\"$0.00\",\"paid\":\"$259.00\",\"returnedQty\":0}],\"subtotal\":\"$259.00\",\"discount\":\"$0.00\",\"shipping\":\"$0.00\",\"totalPaid\":\"$259.00\",\"refunds\":[]}}"
+    ],
+    "judgeNote": "Says it's still being processed. May quote general shipping times from the shipping policy, clearly as general policy.",
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent doesn't give a specific ship date or delivery date (no tool provides one for a processing order)."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "Clear, friendly response that directly addresses shipping status and next steps."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent only provides a general 1-2 business day shipping window, not a specific ship or delivery date."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only informs the customer of the current status and standard shipping policy, without promising any future action it cannot perform.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent’s claim that the order will ship within 1‑2 business days matches the shipping policy, and the note about receiving a tracking link after shipping aligns with the policy’s statement that tracking is available once an order has shipped.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "scores",
+      "latencyMs": 946,
+      "inputTokens": 1232,
+      "outputTokens": 276,
+      "cached": true,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"Clear, friendly response that directly addresses shipping status and next steps.\"}]}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 526,
+      "inputTokens": 887,
+      "outputTokens": 192,
+      "cached": false,
+      "raw": "{\"answer\":true,\"why\":\"The agent only provides a general 1-2 business day shipping window, not a specific ship or delivery date.\"}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 624,
+      "inputTokens": 953,
+      "outputTokens": 287,
+      "cached": false,
+      "raw": "{\"answer\":true,\"why\":\"The agent’s claim that the order will ship within 1‑2 business days matches the shipping policy, and the note about receiving a tracking link after shipping aligns with the policy’s statement that tracking is available once an order has shipped.\"}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 721,
+      "inputTokens": 964,
+      "outputTokens": 358,
+      "cached": false,
+      "raw": "{\"answer\":true,\"why\":\"The reply only states the current status and standard shipping policy, with no unfulfilled promise.\"}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 722,
+      "inputTokens": 964,
+      "outputTokens": 326,
+      "cached": false,
+      "raw": "{\"answer\":true,\"why\":\"The agent only reports the current status and shipping policy, with no promise of future action beyond normal shipping procedures.\"}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 721,
+      "inputTokens": 953,
+      "outputTokens": 343,
+      "cached": false,
+      "raw": "{\"answer\":true,\"why\":\"The agent’s claim that the order will ship within 1‑2 business days matches the shipping policy, and the statement that a tracking link will be provided once it ships aligns with the policy’s note that tracking is available after shipping.\"}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 737,
+      "inputTokens": 953,
+      "outputTokens": 343,
+      "cached": false,
+      "raw": "{\"answer\":true,\"why\":\"The agent’s claim that the order will ship within 1‑2 business days matches the shipping policy, and the statement that a tracking link will be provided once it ships aligns with the policy’s note that tracking is available after shipping.\"}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1095,
+      "inputTokens": 964,
+      "outputTokens": 325,
+      "cached": false,
+      "raw": "{\"answer\":true,\"why\":\"The agent only informs the customer of the current status and standard shipping policy, without promising any future action it cannot perform.\"}"
+    }
+  ]
+}

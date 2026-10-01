@@ -1,0 +1,149 @@
+{
+  "caseId": "order-status-03",
+  "runId": "0a0877ae-7817-4c8c-9a46-1fa8f52841fe",
+  "questionSet": "378b9f94",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@2#611913e3",
+  "input": {
+    "caseId": "order-status-03",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "When will my order #1056 ship?",
+        "reply": "Your order #1056 (Traverse 65 Trekking Pack) is currently processing at our Reno warehouse and hasn't shipped yet, so there's no tracking number or delivery estimate to share just yet. As soon as it ships, you'll see the carrier and estimated delivery date in your account."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1056}) → {\"ok\":true,\"data\":{\"number\":1056,\"status\":\"processing\",\"placed\":\"2026-09-14\",\"delivered\":null,\"items\":[{\"productId\":\"pack-traverse-65\",\"name\":\"Traverse 65 Trekking Pack\",\"size\":\"M/L\",\"color\":\"green\",\"qty\":1,\"listPrice\":\"$259.00\",\"discount\":\"$0.00\",\"paid\":\"$259.00\",\"returnedQty\":0}],\"subtotal\":\"$259.00\",\"discount\":\"$0.00\",\"shipping\":\"$0.00\",\"totalPaid\":\"$259.00\",\"refunds\":[]}}",
+      "message 1: get_tracking({\"orderId\":1056}) → {\"ok\":true,\"data\":{\"orderNumber\":1056,\"status\":\"processing\",\"carrier\":null,\"trackingNumber\":null,\"estimatedDelivery\":null,\"events\":[{\"at\":\"2026-09-14 16:00\",\"status\":\"order_placed\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":null}]}}"
+    ],
+    "judgeNote": "Says it's still being processed. May quote general shipping times from the shipping policy, clearly as general policy.",
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent doesn't give a specific ship date or delivery date (no tool provides one for a processing order)."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "The reply clearly informs the customer that the order is still processing and explains what to expect next, making it helpful and polite."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "Agent correctly states no specific ship or delivery date is available."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only informs the customer of the current status and what will automatically appear in their account once the order ships, without promising any future action that it cannot perform.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": false,
+        "why": "The agent claims the order will ship soon, but no tool result or policy in the conversation supports that timing.",
+        "votes": [
+          false,
+          false,
+          false
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": false
+  },
+  "calls": [
+    {
+      "purpose": "scores",
+      "latencyMs": 818,
+      "inputTokens": 1093,
+      "outputTokens": 199,
+      "cached": true,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"The reply clearly informs the customer that the order is still processing and explains what to expect next, making it helpful and polite.\"}]}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 707,
+      "inputTokens": 748,
+      "outputTokens": 186,
+      "cached": false,
+      "raw": "{\"answer\":true,\"why\":\"Agent correctly states no specific ship or delivery date is available.\"}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 787,
+      "inputTokens": 814,
+      "outputTokens": 342,
+      "cached": false,
+      "raw": "{\"answer\":false,\"why\":\"The agent claims the order will ship soon, but no tool result or policy in the conversation supports that timing.\"}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1035,
+      "inputTokens": 825,
+      "outputTokens": 339,
+      "cached": false,
+      "raw": "{\"answer\":true,\"why\":\"The agent only informs the customer of the current status and what will automatically appear in their account once the order ships, without promising any future action that it cannot perform.\"}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1035,
+      "inputTokens": 825,
+      "outputTokens": 346,
+      "cached": false,
+      "raw": "{\"answer\":true,\"why\":\"The agent only informs the customer of the current status and notes that the system will automatically update the account when the order ships, without promising any additional action.\"}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 1555,
+      "inputTokens": 814,
+      "outputTokens": 509,
+      "cached": false,
+      "raw": "{\"answer\":false,\"why\":\"The agent claims shipping will happen soon, but no tool or policy indicates a shipping date.\"}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 2608,
+      "inputTokens": 825,
+      "outputTokens": 350,
+      "cached": false,
+      "raw": "{\"answer\":true,\"why\":\"Agent only states current status and that the system will update the account when the order ships, not promising any action beyond that.\"}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 2651,
+      "inputTokens": 814,
+      "outputTokens": 510,
+      "cached": false,
+      "raw": "{\"answer\":false,\"why\":\"Agent claims shipping will happen soon, but no tool or policy supports that.\"}"
+    }
+  ]
+}

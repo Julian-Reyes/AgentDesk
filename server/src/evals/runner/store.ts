@@ -67,7 +67,8 @@ export type JudgeRecord = {
   output?: JudgeOutput;
   answers?: Record<string, boolean>;
   error?: string;
-  calls: { latencyMs: number; inputTokens: number; outputTokens: number; cached: boolean; raw: string | null; error?: string }[];
+  /** purpose (rubric@2+): "scores", a question id, or "<id> vote <n>". */
+  calls: { purpose?: string; latencyMs: number; inputTokens: number; outputTokens: number; cached: boolean; raw: string | null; error?: string }[];
 };
 
 export type Manifest = {

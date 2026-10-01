@@ -32,10 +32,16 @@ export type KeyEntry = {
   caseId: string;
   agentModel: string;
   reply: number;
+  /** The verdict the sample was drawn from (frozen at draw time). */
   judge: JudgeVerdict;
-  /** The second judge's verdict on the same conversation, once it has run. */
-  second?: JudgeVerdict | null;
+  /**
+   * Verdicts added by judge:agreement, keyed by verdictKey(model, rubric), e.g.
+   * a later rubric or the second judge. null = that judge failed on it.
+   */
+  verdicts?: Record<string, JudgeVerdict | null>;
 };
+
+export const verdictKey = (model: string, rubric: string) => `${model} ${rubric}`;
 
 export type HumanGrade = Scores & { answers: Record<string, boolean>; note?: string };
 
