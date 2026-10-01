@@ -250,6 +250,7 @@ export class Conversation {
           message: response.message,
           ...(response.reasoning ? { reasoning: response.reasoning } : {}),
           ...(response.failedAttempts ? { failedAttempts: response.failedAttempts } : {}),
+          ...(response.repaired ? { repaired: true } : {}),
           finishReason: response.finishReason,
         },
         inputTokens: response.usage.inputTokens,

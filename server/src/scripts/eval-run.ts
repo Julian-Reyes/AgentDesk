@@ -11,6 +11,8 @@
  * Each finished conversation is saved at once, so rerunning the same --name
  * resumes where it stopped (after a daily quota, Ctrl-C, a crash).
  * Replies are recorded in the LLM cache: rerunning finished work costs nothing.
+ * For a repeat that must re-sample every model call, run with LLM_CACHE=refresh
+ * (the manifest records the mode).
  */
 import { parseArgs } from "node:util";
 import { promptId } from "../agents/prompts.ts";
@@ -29,7 +31,7 @@ import { judgeCoverage, runAgentsStage, runJudgeStage, unjudged } from "../evals
 import { RunStore } from "../evals/runner/store.ts";
 import { validateCases } from "../evals/validate-cases.ts";
 import { getJudgeIds, getModelConfig, otherJudge } from "../llm/config.ts";
-import { createProvider } from "../llm/factory.ts";
+import { cacheModeFromEnv, createProvider } from "../llm/factory.ts";
 import { DbTracer } from "../tracing/tracer.ts";
 
 const CLOUD_MODELS = ["gemini/gemini-3.5-flash-lite", "groq/gpt-oss-120b", "groq/qwen3.8-27b"];
@@ -109,6 +111,7 @@ store.saveManifest({
   caseIds: [...new Set([...(existing?.caseIds ?? []), ...cases.map((c) => c.id)])],
   createdAt: existing?.createdAt ?? new Date().toISOString(),
   promptSet,
+  cacheMode: cacheModeFromEnv(),
 });
 for (const r of errored) store.removeConversation(r.agentModel, r.caseId);
 

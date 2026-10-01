@@ -16,6 +16,8 @@ export type ToolCallHealth = {
   modelCalls: number;
   /** Attempts the provider rejected because the model's own output was unparseable (tool_use_failed, output_parse_failed, json_validate_failed). */
   rejectedByProvider: number;
+  /** Reply calls the provider rejected as malformed JSON, rebuilt from the model's text and delivered (round 2). Their rejected attempt is also in rejectedByProvider. */
+  repairedReplies: number;
   /** Tool calls our Zod check rejected (bad JSON or wrong argument shape), including handoffs. */
   invalidArgs: number;
   /** Calls to a tool that doesn't exist or belongs to another agent. */
@@ -40,6 +42,7 @@ export type ToolCallHealth = {
 export const emptyHealth = (): ToolCallHealth => ({
   modelCalls: 0,
   rejectedByProvider: 0,
+  repairedReplies: 0,
   invalidArgs: 0,
   unknownTool: 0,
   invalidRouterOutput: 0,
@@ -80,6 +83,7 @@ export function toolCallHealth(steps: TraceStep[]): Record<string, ToolCallHealt
         h.modelCalls += 1;
         h.rejectedByProvider += rejected(d.failedAttempts);
         if (step.kind === "router" && d.error) h.invalidRouterOutput += 1;
+        if (d.repaired) h.repairedReplies += 1;
         break;
       }
       case "error": {

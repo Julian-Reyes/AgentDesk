@@ -84,6 +84,18 @@ describe("withCache", () => {
     expect(inner.requests).toHaveLength(2);
   });
 
+  it("refresh: always calls the provider, and the newest response replaces the stored one", async () => {
+    const dir = tmp();
+    const inner = new FakeProvider([fake.reply("first"), fake.reply("second")]);
+    const p = withCache(inner, groq, { mode: "refresh", dir });
+    await p.chat(req);
+    const r = await p.chat(req);
+    expect(inner.requests).toHaveLength(2);
+    expect(r.cached).toBeUndefined();
+    const replayed = await withCache(new FakeProvider(), groq, { mode: "replay", dir }).chat(req);
+    expect(JSON.parse(replayed.message.toolCalls![0]!.arguments)).toEqual({ message: "second" });
+  });
+
   it("provider errors are not cached", async () => {
     const dir = tmp();
     const inner = new FakeProvider([new Error("503"), fake.reply("ok")]);

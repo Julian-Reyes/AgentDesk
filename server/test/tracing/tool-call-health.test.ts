@@ -37,6 +37,7 @@ describe("toolCallHealth: garbled and rejected tool calls, per model", () => {
         fake: {
           modelCalls: 5, // 2 router + 3 agent
           rejectedByProvider: 1,
+          repairedReplies: 0,
           invalidArgs: 2, // broken JSON for check_stock + handoff to a nonexistent agent
           unknownTool: 2, // get_order (support's tool) + "hand-off"
           invalidRouterOutput: 1,

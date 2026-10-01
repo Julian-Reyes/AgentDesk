@@ -5,8 +5,10 @@ import {
   createOpenAICompatibleProvider,
   describeNetworkError,
   isDailyQuota,
+  repairReplyCall,
   retryDelayMs,
   toWireRequest,
+  withCorrection,
 } from "../../src/llm/openai-compatible.ts";
 
 const groq: ModelConfig = {
@@ -167,7 +169,7 @@ describe("model-output failures (Groq returns 400 when the model's own output ca
       const r = await p.chat({ messages: [{ role: "user", content: "hi" }] });
       expect(calls).toHaveLength(2);
       expect(sleeps).toEqual([500]);
-      expect(r.failedAttempts).toEqual([{ status: 400, code, message: expect.stringContaining(code) }]);
+      expect(r.failedAttempts).toEqual([{ status: 400, code, message: expect.stringContaining(code), failedGeneration: '{"name": "reply", "arguments": Our top pick…' }]);
     }
   });
 
@@ -186,6 +188,63 @@ describe("model-output failures (Groq returns 400 when the model's own output ca
   it("a clean first attempt has no failedAttempts field", async () => {
     const { p } = provider([json(okBody)]);
     expect((await p.chat({ messages: [{ role: "user", content: "hi" }] })).failedAttempts).toBeUndefined();
+  });
+});
+
+describe("round 2: repairing plain-text reply calls, and corrective retries", () => {
+  const REPLY = { name: "reply", description: "Send your message to the customer.", parameters: { type: "object" } };
+  const GET_ORDER = { name: "get_order", description: "d", parameters: { type: "object" } };
+  const agentReq = { messages: [{ role: "user" as const, content: "Can I return the boots?" }], tools: [GET_ORDER, REPLY] };
+  const rejected = (code: string, generation: string) =>
+    json({ error: { message: "Failed to parse tool call arguments as JSON", type: "invalid_request_error", code, failed_generation: generation } }, 400);
+  const TEXT = "I’m sorry, but the Ridgeline Mid Hiking Boot can’t be returned because it’s been used.";
+
+  it("rebuilds gpt-oss's plain-text reply call (dev-1/1b/2: 107 of 122 rejections)", () => {
+    expect(repairReplyCall(agentReq, "tool_use_failed", `{"name": "reply", "arguments": ${TEXT}}`)).toEqual({ id: "repaired_0", name: "reply", arguments: JSON.stringify({ message: TEXT }) });
+    // Multi-line text, no closing brace, and a brace inside the text are all kept as written.
+    expect(JSON.parse(repairReplyCall(agentReq, "tool_use_failed", '{"name":"reply","arguments": Two options:\n- {A}\n- B')!.arguments)).toEqual({ message: "Two options:\n- {A}\n- B" });
+    // Valid JSON the provider choked on anyway: a JSON string or a {"message"} object.
+    expect(JSON.parse(repairReplyCall(agentReq, "tool_use_failed", `{"name": "reply", "arguments": ${JSON.stringify(TEXT)}}`)!.arguments)).toEqual({ message: TEXT });
+    expect(JSON.parse(repairReplyCall(agentReq, "tool_use_failed", `{"name": "reply", "arguments": {"message": "Hi"}}`)!.arguments)).toEqual({ message: "Hi" });
+  });
+
+  it("repairs nothing else: other tools, invented names, other codes, broken JSON, or no reply tool offered", () => {
+    expect(repairReplyCall(agentReq, "tool_use_failed", `{"name": "response", "arguments": ${TEXT}}`)).toBeNull();
+    expect(repairReplyCall(agentReq, "tool_use_failed", `{"name": "get_order", "arguments": 1042}`)).toBeNull();
+    expect(repairReplyCall(agentReq, "output_parse_failed", `{"name": "reply", "arguments": ${TEXT}}`)).toBeNull();
+    expect(repairReplyCall(agentReq, "tool_use_failed", `{"name": "reply", "arguments": {"message": "Hi`)).toBeNull();
+    expect(repairReplyCall(agentReq, "tool_use_failed", `{"name": "reply", "arguments": }`)).toBeNull();
+    expect(repairReplyCall(agentReq, "tool_use_failed", "We need to answer the customer.")).toBeNull();
+    expect(repairReplyCall({ messages: agentReq.messages, tools: [GET_ORDER] }, "tool_use_failed", `{"name": "reply", "arguments": ${TEXT}}`)).toBeNull();
+  });
+
+  it("the client returns the repaired call at once, marked and with the rejected attempt kept", async () => {
+    const generation = `{"name": "reply", "arguments": ${TEXT}}`;
+    const { p, calls } = provider([rejected("tool_use_failed", generation)]);
+    const r = await p.chat(agentReq);
+    expect(calls).toHaveLength(1);
+    expect(r).toMatchObject({ repaired: true, finishReason: "repaired", usage: { inputTokens: 0, outputTokens: 0 } });
+    expect(r.message).toEqual({ role: "assistant", content: null, toolCalls: [{ id: "repaired_0", name: "reply", arguments: JSON.stringify({ message: TEXT }) }] });
+    expect(r.failedAttempts).toEqual([{ status: 400, code: "tool_use_failed", message: expect.any(String), failedGeneration: generation }]);
+  });
+
+  it("anything it can't repair is retried with a short note on what was wrong (the original request is unchanged)", async () => {
+    const { p, calls } = provider([rejected("tool_use_failed", `{"name": "commentary", "arguments": ${TEXT}}`), json(okBody)]);
+    const r = await p.chat(agentReq);
+    expect(r.repaired).toBeUndefined();
+    const sent = calls.map((c) => JSON.parse(c.init.body as string).messages);
+    expect(sent[0]).toHaveLength(1);
+    expect(sent[1].at(-1)).toEqual({ role: "user", content: '(Your last response called "commentary", which is not one of your tools. Use only the listed tools. To answer the customer, call reply with {"message": "…"}.)' });
+    expect(agentReq.messages).toHaveLength(1);
+  });
+
+  it("the note fits the failure", () => {
+    const note = (r: Parameters<typeof withCorrection>[0], code: string, g: string | null) => (withCorrection(r, code, g).messages.at(-1) as { content: string }).content;
+    expect(note(agentReq, "tool_use_failed", '{"name": "get_order", "arguments": order 1042}')).toBe(
+      '(Your last tool call\'s arguments were not valid JSON. Send the call again with a JSON object as its arguments. To answer the customer, call reply with {"message": "…"}.)',
+    );
+    expect(note(agentReq, "output_parse_failed", "We need to answer: is the tent waterproof?")).toMatch(/^\(Your last response could not be read\. .*don't write your reasoning/);
+    expect(note({ messages: [], responseFormat: "json" }, "json_validate_failed", null)).toBe("(Your last answer was not valid JSON. Answer with one JSON object only.)");
   });
 });
 

@@ -55,7 +55,7 @@ export function createOpenAICompatibleProvider(config: ModelConfig, deps: Client
 
   return {
     async chat(req: ChatRequest): Promise<ChatResponse> {
-      const body = JSON.stringify(toWireRequest(config, req));
+      let body = JSON.stringify(toWireRequest(config, req));
       const headers: Record<string, string> = { "content-type": "application/json" };
       if (apiKey) headers.authorization = `Bearer ${apiKey}`;
 
@@ -74,7 +74,27 @@ export function createOpenAICompatibleProvider(config: ModelConfig, deps: Client
             const daily = res.status === 429 && isDailyQuota(text);
             const modelOutput = res.status === 400 && modelOutputErrorCode(text) !== null;
             const retryable = !daily && (res.status === 429 || res.status >= 500 || modelOutput);
-            failedAttempts.push({ status: res.status, ...(errorCode(text) ? { code: errorCode(text)! } : {}), message: text.slice(0, 300) });
+            const generation = modelOutput ? failedGeneration(text) : null;
+            failedAttempts.push({
+              status: res.status,
+              ...(errorCode(text) ? { code: errorCode(text)! } : {}),
+              message: text.slice(0, 300),
+              // The whole thing, not just the first 300 characters: it's what the model actually wrote.
+              ...(generation ? { failedGeneration: generation.slice(0, 4000) } : {}),
+            });
+            // The model wrote the reply, just not as JSON: deliver it instead of throwing it away (round 2).
+            const repaired = modelOutput && generation !== null ? repairReplyCall(req, modelOutputErrorCode(text)!, generation) : null;
+            if (repaired) {
+              return {
+                message: { role: "assistant", content: null, toolCalls: [repaired] },
+                finishReason: "repaired",
+                // A rejected call reports no token counts.
+                usage: { inputTokens: 0, outputTokens: 0 },
+                latencyMs: Math.round(now() - started),
+                repaired: true,
+                failedAttempts,
+              };
+            }
             const err = new ProviderError(
               daily
                 ? `${config.id}: daily free-tier quota used up (HTTP 429). Try again tomorrow, or use the replay cache. ${text.slice(0, 300)}`
@@ -83,7 +103,10 @@ export function createOpenAICompatibleProvider(config: ModelConfig, deps: Client
               retryable,
             );
             if (!retryable || attempt >= maxAttempts) throw Object.assign(err, { failedAttempts });
-            // A model-output glitch needs a new sample, not a cool-down.
+            // A model-output glitch needs a new sample, not a cool-down. The new sample
+            // also gets a short note saying what went wrong: identical retries still
+            // failed all 4 times in 18 of 57 such calls on dev-1/1b/2.
+            if (modelOutput) body = JSON.stringify(toWireRequest(config, withCorrection(req, modelOutputErrorCode(text)!, generation)));
             await sleep(modelOutput ? 500 : retryDelayMs(res.headers.get("retry-after"), attempt, text));
             continue;
           }
@@ -162,6 +185,77 @@ export const MODEL_OUTPUT_ERROR_CODES: ReadonlySet<string> = new Set(["tool_use_
 export function modelOutputErrorCode(body: string): string | null {
   const code = errorCode(body);
   return code && MODEL_OUTPUT_ERROR_CODES.has(code) ? code : null;
+}
+
+/** What the model generated when the provider couldn't parse it (Groq's `failed_generation`). */
+export function failedGeneration(body: string): string | null {
+  try {
+    const json = JSON.parse(body);
+    const g = (Array.isArray(json) ? json[0] : json)?.error?.failed_generation;
+    return typeof g === "string" ? g : null;
+  } catch {
+    return null;
+  }
+}
+
+/** `{"name": "x", "arguments": …}` as the model wrote it. `args` is the raw text after "arguments": (null if the shape doesn't match). */
+function splitGeneration(generation: string): { name: string; args: string | null } | null {
+  const m = /^\s*\{\s*"name"\s*:\s*"([^"]*)"\s*(?:,\s*"arguments"\s*:\s*([\s\S]*))?$/.exec(generation);
+  return m ? { name: m[1]!, args: m[2] ?? null } : null;
+}
+
+/**
+ * gpt-oss-120b's most common broken call (107 of 122 rejected attempts on
+ * dev-1/1b/2): it calls `reply` with the message as plain text, not JSON:
+ *   {"name": "reply", "arguments": I'm sorry, but the boot can't be returned…}
+ * Groq rejects it (tool_use_failed), but the reply is all there. This turns it
+ * back into the call the model meant, `reply({"message": "…"})`, so the loop
+ * validates it and runs the garbled-reply check like any other reply.
+ *
+ * Only for `reply`, only when the request offers a `reply` tool, and only when
+ * the arguments are plain text (or a JSON string / {"message"} object). An
+ * invented tool name, or anything else, returns null and is retried instead.
+ */
+export function repairReplyCall(req: ChatRequest, code: string, generation: string): ToolCall | null {
+  if (code !== "tool_use_failed" || !req.tools?.some((t) => t.name === "reply")) return null;
+  const call = splitGeneration(generation);
+  if (!call || call.name !== "reply" || call.args === null) return null;
+  const text = call.args.trim();
+  // The generation usually closes the object it opened: drop that one brace.
+  const inner = text.endsWith("}") ? text.slice(0, -1).trimEnd() : text;
+  if (text.startsWith("{") || text.startsWith('"')) {
+    // JSON after all (the provider choked on something else): use it only if it's clearly the message.
+    for (const candidate of [inner, text]) {
+      try {
+        const parsed: unknown = JSON.parse(candidate);
+        const message = typeof parsed === "string" ? parsed : (parsed as { message?: unknown } | null)?.message;
+        return typeof message === "string" && message.trim() ? replyCall(message.trim()) : null;
+      } catch {
+        // try the next reading
+      }
+    }
+    return null;
+  }
+  return inner ? replyCall(inner) : null;
+}
+
+const replyCall = (message: string): ToolCall => ({ id: "repaired_0", name: "reply", arguments: JSON.stringify({ message }) });
+
+/**
+ * The request for the next attempt after the model's output was rejected: the
+ * original messages plus one short note on what was wrong. Never cached under
+ * this shape: the cache key is the original request.
+ */
+export function withCorrection(req: ChatRequest, code: string, generation: string | null): ChatRequest {
+  const offered = (req.tools ?? []).map((t) => t.name);
+  const name = generation ? splitGeneration(generation)?.name : undefined;
+  let note: string;
+  if (code === "json_validate_failed") note = "Your last answer was not valid JSON. Answer with one JSON object only.";
+  else if (name && !offered.includes(name)) note = `Your last response called "${name}", which is not one of your tools. Use only the listed tools.`;
+  else if (code === "tool_use_failed") note = "Your last tool call's arguments were not valid JSON. Send the call again with a JSON object as its arguments.";
+  else note = "Your last response could not be read. Call one of your tools; don't write your reasoning as the answer.";
+  if (offered.includes("reply")) note += ' To answer the customer, call reply with {"message": "…"}.';
+  return { ...req, messages: [...req.messages, { role: "user", content: `(${note})` }] };
 }
 
 /**

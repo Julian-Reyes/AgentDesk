@@ -14,7 +14,7 @@ import { coverageNote } from "../../src/evals/runner/cli.ts";
 import { judgeCoverage, judgeFor, providerErrorOf, questionSetOf, regrade, runAgentsStage, runJudgeStage, unjudged } from "../../src/evals/runner/stages.ts";
 import { RunStore, type ConversationRecord, type JudgeRecord } from "../../src/evals/runner/store.ts";
 import { applyCaseSnapshotUpdate, planCaseSnapshotUpdate } from "../../src/evals/runner/update-cases.ts";
-import { renderComparison, summarizeRun } from "../../src/evals/runner/compare.ts";
+import { poolSummaries, renderComparison, renderGroupedComparison, repeatGap, summarizeRun, type RunModelSummary } from "../../src/evals/runner/compare.ts";
 import type { Observation } from "../../src/evals/run-case.ts";
 import { FakeProvider, fake, type FakeStep } from "../../src/llm/fake.ts";
 import type { ChatProvider, ChatRequest, ChatResponse } from "../../src/llm/types.ts";
@@ -388,3 +388,82 @@ describe("comparing runs (eval:compare)", () => {
     expect(md).toContain("**r1 → r2, cases that changed:** order-status-01 pass → fail");
   });
 });
+
+describe("grouped comparison of repeated runs (round 2)", () => {
+  it("counts provider-rejected calls, repaired replies, and conversations ended by a rejected call", async () => {
+    const store = newStore();
+    const rejected = Object.assign(new Error("groq: HTTP 400 tool_use_failed"), {
+      failedAttempts: [1, 2, 3, 4].map(() => ({ status: 400, code: "tool_use_failed", message: "bad" })),
+    });
+    const script = {
+      router: [route("support"), route("support")],
+      agent: [
+        { ...fake.reply("Your order #1042 has shipped."), repaired: true, finishReason: "repaired", failedAttempts: [{ status: 400, code: "tool_use_failed", message: "bad" }] },
+        rejected,
+      ],
+    };
+    await stage(store, { "fake/a": teamWith(script) }, [cases[0]!, cases[1]!]);
+    const sum = summarizeRun(store, { model: "judge/x", rubric: RUBRIC })["fake/a"]!;
+    expect(sum.providerRejections).toEqual({ rejected: 5, repaired: 1, ended: ["order-status-03"] });
+  });
+
+  const summary = (byCase: Record<string, "pass" | "fail">): RunModelSummary => {
+    const pass = Object.values(byCase).filter((x) => x === "pass").length;
+    const fail = Object.values(byCase).length - pass;
+    return {
+      statuses: { pass, fail, script_mismatch: 0, judge_pending: 0, judge_failed: 0, provider_error: 0 },
+      taskSuccess: { k: pass, n: pass + fail, ci: [0, 1] },
+      policyViolations: 0,
+      judged: pass + fail,
+      timing: fail ? ["c1"] : [],
+      followup: [],
+      leaks: [],
+      garbled: { heldBack: 0, fallbacks: 0, delivered: 0 },
+      emojiReplies: [],
+      fullNameReplies: [],
+      contradictions: { flagged: 0, questions: 3, uncheckable: 1, where: [] },
+      providerRejections: { rejected: 2, repaired: 1, ended: [] },
+      byCase,
+    };
+  };
+
+  it("pools repeats, measures the repeat gap, and reads a difference within it as noise", () => {
+    const a1 = summary({ c1: "pass", c2: "pass", c3: "pass", c4: "fail" }); // 75%
+    const a2 = summary({ c1: "fail", c2: "pass", c3: "pass", c4: "fail" }); // 50%
+    const b1 = summary({ c1: "pass", c2: "pass", c3: "pass", c4: "pass" }); // 100%
+    const b2 = summary({ c1: "fail", c2: "pass", c3: "pass", c4: "pass" }); // 75%
+
+    const pooled = poolSummaries([a1, a2]);
+    expect(pooled.taskSuccess).toMatchObject({ k: 5, n: 8 });
+    expect(pooled.statuses).toMatchObject({ pass: 5, fail: 3 });
+    expect(pooled.timing).toEqual(["c1", "c1"]);
+    expect(pooled.providerRejections).toEqual({ rejected: 4, repaired: 2, ended: [] });
+    expect(repeatGap([a1, a2])).toBeCloseTo(0.25);
+    expect(repeatGap([a1])).toBe(0);
+
+    const md = renderGroupedComparison(
+      [
+        { label: "r1", runs: [{ name: "x-r1a", summary: { "fake/a": a1 } }, { name: "x-r1b", summary: { "fake/a": a2 } }] },
+        { label: "r2", runs: [{ name: "x-r2a", summary: { "fake/a": b1 } }, { name: "x-r2b", summary: { "fake/a": b2 } }] },
+      ],
+      "judge/x",
+    );
+    expect(md).toContain("| Repeats | x-r1a: 75% (3/4)<br>x-r1b: 50% (2/4) | x-r2a: 100% (4/4)<br>x-r2b: 75% (3/4) |");
+    expect(md).toContain("| Repeat gap | 25 pts | 25 pts |");
+    expect(md).toMatch(/\| \*\*Task success, pooled\*\* \| \*\*63%\*\* \(5\/8, .*\) \| \*\*88%\*\* \(7\/8, /);
+    expect(md).toContain("| Provider-rejected calls / repaired replies / conversations ended by one | 4 / 2 / 0 | 4 / 2 / 0 |");
+    expect(md).toContain("**r1 → r2:** +25 pts task success, pooled; no larger than the repeat gaps (25 and 25 pts), so it reads as noise.");
+    expect(md).toContain("Cases passed by a different share of repeats: c4 0/2 → 2/2");
+
+    // A bigger difference than any repeat gap is reported as such.
+    const md2 = renderGroupedComparison(
+      [
+        { label: "r1", runs: [{ name: "a", summary: { "fake/a": a2 } }, { name: "b", summary: { "fake/a": a2 } }] },
+        { label: "r2", runs: [{ name: "c", summary: { "fake/a": b1 } }, { name: "d", summary: { "fake/a": b1 } }] },
+      ],
+      "judge/x",
+    );
+    expect(md2).toContain("**r1 → r2:** +50 pts task success, pooled; larger than the repeat gaps (0 and 0 pts).");
+  });
+});
+

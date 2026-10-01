@@ -54,7 +54,13 @@ export type ChatResponse = {
    * that often emits broken tool calls shows up in the metrics instead of
    * being hidden by retries.
    */
-  failedAttempts?: Array<{ status?: number; code?: string; message: string }>;
+  failedAttempts?: Array<{ status?: number; code?: string; message: string; failedGeneration?: string }>;
+  /**
+   * True when the provider rejected the model's reply call as malformed JSON
+   * and the client rebuilt it from the text the model wrote (see
+   * repairReplyCall). Traced, and counted per model.
+   */
+  repaired?: boolean;
 };
 
 export interface ChatProvider {

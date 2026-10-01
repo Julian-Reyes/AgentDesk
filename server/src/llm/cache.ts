@@ -11,6 +11,10 @@ import type { ChatProvider, ChatRequest, ChatResponse } from "./types.ts";
  *   off     no cache: always call the provider
  *   record  replay hits, call the provider on a miss and store the result
  *   replay  hits only: a miss throws, which guarantees a run costs $0
+ *   refresh always call the provider and store the new response (overwriting
+ *           any entry). For repeat runs that must re-sample the model: in
+ *           record mode, a repeat replays nearly everything (dev-1b and dev-2
+ *           reused dev-1's 120 router calls) and just reproduces the earlier run.
  *
  * The key covers everything that changes the answer: the config id and the
  * provider (so gpt-oss-120b on Groq and on Cerebras never share entries), the
@@ -19,7 +23,7 @@ import type { ChatProvider, ChatRequest, ChatResponse } from "./types.ts";
  * Ollama from localhost to the Mac mini doesn't change the model's answers,
  * and keys must never end up in cache files.
  */
-export const CACHE_MODES = ["off", "record", "replay"] as const;
+export const CACHE_MODES = ["off", "record", "replay", "refresh"] as const;
 export type CacheMode = (typeof CACHE_MODES)[number];
 
 /**
@@ -87,10 +91,12 @@ export function withCache(inner: ChatProvider, config: ModelConfig, opts: CacheO
       const path = pathFor(key);
 
       let hit: Entry | null = null;
-      try {
-        hit = JSON.parse(readFileSync(path, "utf8")) as Entry;
-      } catch (e) {
-        if ((e as NodeJS.ErrnoException).code !== "ENOENT") throw e;
+      if (opts.mode !== "refresh") {
+        try {
+          hit = JSON.parse(readFileSync(path, "utf8")) as Entry;
+        } catch (e) {
+          if ((e as NodeJS.ErrnoException).code !== "ENOENT") throw e;
+        }
       }
       // The original latency is kept: it's what the model actually took, and
       // eval metrics should report that, not the ~0ms of reading a file.

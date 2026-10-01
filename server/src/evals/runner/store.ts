@@ -80,6 +80,8 @@ export type Manifest = {
   notes?: string;
   /** The agents' prompt set (agents/prompts.ts PROMPT_SETS). Missing on runs saved before prompt sets existed, which used round-0. */
   promptSet?: string;
+  /** LLM_CACHE mode the agents ran with. "refresh" means every model call was made fresh (repeat runs); missing on runs from before round 2. */
+  cacheMode?: string;
   /** Approved case changes applied to this run after it ran (no agent calls replayed). */
   caseUpdates?: { at: string; reason: string; caseIds: string[] }[];
 };

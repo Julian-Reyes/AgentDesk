@@ -301,6 +301,18 @@ describe("agent loop: guardrails", () => {
       expect(call.data.failedAttempts).toEqual([{ status: 400, code: "tool_use_failed", message: "bad tool JSON" }]);
     }));
 
+  it("a repaired reply call goes through the reply checks, is delivered, and is traced and counted as repaired", () =>
+    inTx(async (tx) => {
+      const repaired = (text: string) => ({ ...fake.reply(text), finishReason: "repaired", repaired: true });
+      const junk = "Both are tiny stoves: ←SKILL1←Kettle Pro";
+      const t = await setup(tx, { customerId: MAYA, router: [route("shopping")], agent: [repaired(junk), repaired("The Pocket Pro adds an igniter.")] });
+      const r = await t.convo.send("Pocket vs Pocket Pro?");
+      expect(r.reply).toBe("The Pocket Pro adds an igniter.");
+      expect(t.kinds()).toEqual(["user_message", "router", "model_call", "tool_call", "reply_rejected", "model_call", "tool_call", "reply"]);
+      expect(t.run().steps.filter((s) => s.kind === "model_call").map((s) => s.data.repaired)).toEqual([true, true]);
+      expect(toolCallHealth(t.run().steps).fake).toMatchObject({ repairedReplies: 2, garbledReplies: 1 });
+    }));
+
   it("an empty response gets one nudge per step", () =>
     inTx(async (tx) => {
       const t = await setup(tx, { customerId: MAYA, router: [route("shopping")], agent: [{ message: { role: "assistant", content: null } }, fake.reply("Hi!")] });
