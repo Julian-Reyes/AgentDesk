@@ -1,0 +1,632 @@
+{
+  "caseId": "invalid-coupon-01",
+  "case": {
+    "id": "invalid-coupon-01",
+    "split": "dev",
+    "type": "invalid_coupon",
+    "why": "SPRING15 expired in June. The Swift 20 stays at $89.00 with free shipping (over $75). The agent may instead suggest a current code it checked for this cart (e.g. GEAR20) and give that total from quote_price (Julian, 2026-10-01).",
+    "source": "spec table",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "Can I use code SPRING15 on a Swift 20 Daypack? What would I pay?",
+        "reply": {
+          "mentions": [
+            [
+              "expired",
+              "no longer valid",
+              "not valid anymore",
+              "no longer active"
+            ]
+          ],
+          "amounts": [],
+          "avoids": []
+        }
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "price": {
+        "cart": [
+          {
+            "productId": "pack-swift-20",
+            "qty": 1
+          }
+        ],
+        "coupon": "SPRING15",
+        "totalCents": 8900
+      },
+      "coupon": {
+        "code": "SPRING15",
+        "valid": false,
+        "reason": "EXPIRED"
+      },
+      "leaks": [],
+      "judge": "Says SPRING15 has expired. Gives the price without a coupon ($89.00), or suggests a current code it checked for this cart, with that code's real terms and total.",
+      "judgeChecks": []
+    }
+  },
+  "agentModel": "groq/gpt-oss-120b",
+  "team": {
+    "router": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "shopping@2#3e94b8f1"
+    },
+    "support": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "support@3#d7518dde"
+    }
+  },
+  "observation": {
+    "runId": "f65dcb27-b74c-40f2-b1e4-9ccea9def57b",
+    "turns": [
+      {
+        "customer": "Can I use code SPRING15 on a Swift 20 Daypack? What would I pay?",
+        "reply": "The code SPRING15 is expired (it expired on 2026-05-31) and can’t be applied to your order. You can use the active coupon GEAR20 for 20% off this backpack. With that coupon the Swift 20 Daypack costs $79.19 total (including $7.99 shipping).",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Can I use code SPRING15 on a Swift 20 Daypack? What would I pay?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\":\"shopping\",\"category\":\"pricing_deals\",\"urgency\":\"normal\",\"confidence\":0.99}",
+          "decision": {
+            "route": "shopping",
+            "category": "pricing_deals",
+            "urgency": "normal",
+            "confidence": 0.99
+          },
+          "fallback": false
+        },
+        "inputTokens": 428,
+        "outputTokens": 141,
+        "latencyMs": 1289,
+        "cached": false,
+        "costMicros": 149,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@2#3e94b8f1",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_7014462b-c37a-48b5-b558-a4e7496c9741",
+                "name": "search_products",
+                "arguments": "{\"filters\":{\"category\":\"backpacks\"},\"limit\":5,\"query\":\"Swift 20 Daypack\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to check if coupon SPRING15 is valid for a cart containing Swift 20 Daypack. Need product ID for Swift 20 Daypack. Search.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1849,
+        "outputTokens": 87,
+        "latencyMs": 1073,
+        "cached": false,
+        "costMicros": 330,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_7014462b-c37a-48b5-b558-a4e7496c9741",
+          "name": "search_products",
+          "arguments": "{\"filters\":{\"category\":\"backpacks\"},\"limit\":5,\"query\":\"Swift 20 Daypack\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 5,
+              "products": [
+                {
+                  "id": "pack-swift-20",
+                  "name": "Swift 20 Daypack",
+                  "category": "backpacks",
+                  "listPrice": "$89.00",
+                  "currentPrice": "$89.00",
+                  "rating": 4.3,
+                  "description": "Light everyday daypack with a hydration sleeve.",
+                  "specs": {
+                    "material": "100D nylon",
+                    "waterproof": false,
+                    "weightGrams": 700,
+                    "volumeLiters": 20
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "pack-swift-30",
+                  "name": "Swift 30 Daypack",
+                  "category": "backpacks",
+                  "listPrice": "$119.00",
+                  "currentPrice": "$119.00",
+                  "rating": 4.4,
+                  "description": "Day-hike pack with hip belt pockets and a rain cover.",
+                  "specs": {
+                    "material": "100D nylon",
+                    "waterproof": false,
+                    "weightGrams": 900,
+                    "volumeLiters": 30
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "pack-voyager-80",
+                  "name": "Voyager 80 Expedition Pack",
+                  "category": "backpacks",
+                  "listPrice": "$329.00",
+                  "currentPrice": "$329.00",
+                  "rating": 4.6,
+                  "description": "Load-hauling expedition pack for heavy, long trips.",
+                  "specs": {
+                    "material": "420D nylon",
+                    "waterproof": false,
+                    "weightGrams": 2600,
+                    "volumeLiters": 80
+                  },
+                  "availability": "low_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "pack-alpine-40",
+                  "name": "Alpine 40 Climbing Pack",
+                  "category": "backpacks",
+                  "listPrice": "$179.00",
+                  "currentPrice": "$179.00",
+                  "rating": 4.5,
+                  "description": "Streamlined climbing pack with ice-axe loops and a removable lid.",
+                  "specs": {
+                    "material": "420D nylon",
+                    "waterproof": false,
+                    "weightGrams": 1200,
+                    "volumeLiters": 40
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "pack-cub-15",
+                  "name": "Cub 15 Kids Pack",
+                  "category": "backpacks",
+                  "listPrice": "$45.00",
+                  "currentPrice": "$45.00",
+                  "rating": 4.2,
+                  "description": "Small daypack sized for kids, with a chest strap and whistle.",
+                  "specs": {
+                    "material": "polyester",
+                    "waterproof": false,
+                    "weightGrams": 400,
+                    "volumeLiters": 15
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@2#3e94b8f1",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_961af380-0d30-4685-855e-c6725801bd54",
+                "name": "validate_coupon",
+                "arguments": "{\"cart\":[{\"productId\":\"pack-swift-20\",\"qty\":1}],\"code\":\"SPRING15\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to check if coupon SPRING15 is valid for this product. Use validate_coupon with cart containing 1 of productId pack-swift-20.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2400,
+        "outputTokens": 75,
+        "latencyMs": 1169,
+        "cached": false,
+        "costMicros": 405,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_961af380-0d30-4685-855e-c6725801bd54",
+          "name": "validate_coupon",
+          "arguments": "{\"cart\":[{\"productId\":\"pack-swift-20\",\"qty\":1}],\"code\":\"SPRING15\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "valid": false,
+              "code": "SPRING15",
+              "reason": "EXPIRED",
+              "message": "Coupon SPRING15 expired on 2026-05-31.",
+              "expiredOn": "2026-05-31"
+            },
+            "policyDecision": "denied"
+          }
+        },
+        "policyDecision": "denied",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@2#3e94b8f1",
+        "data": {
+          "step": 3,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_875c082f-0c15-4c5a-86a6-666fccc13783",
+                "name": "get_active_promotions",
+                "arguments": "{}"
+              }
+            ]
+          },
+          "reasoning": "We need to answer the customer: can they use code SPRING15 on Swift 20 Daypack? The coupon is expired. So we must say it's expired and cannot be used. Then we should check any active promotions for possible alternative code. Let's get active promotions.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2499,
+        "outputTokens": 76,
+        "latencyMs": 602,
+        "cached": false,
+        "costMicros": 420,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_875c082f-0c15-4c5a-86a6-666fccc13783",
+          "name": "get_active_promotions",
+          "arguments": "{}",
+          "result": {
+            "ok": true,
+            "data": {
+              "promotions": [
+                {
+                  "name": "Tent Sale: 20% off all tents",
+                  "endsOn": "2026-10-05"
+                },
+                {
+                  "name": "Headlamps: buy 2, get 1 free",
+                  "endsOn": "2026-10-15"
+                }
+              ],
+              "freeShipping": "Free shipping on orders of $75.00 or more; otherwise $7.99.",
+              "couponCodes": [
+                {
+                  "code": "SUMMER10",
+                  "terms": "10% off; expires 2026-09-30"
+                },
+                {
+                  "code": "TRAIL25",
+                  "terms": "$25.00 off; minimum spend $150.00; expires 2026-12-31"
+                },
+                {
+                  "code": "GEAR20",
+                  "terms": "20% off; minimum spend $50.00; not valid on tents, sleeping bags; expires 2026-10-30"
+                }
+              ],
+              "rules": "One coupon per order. Sales apply first, then buy-2-get-1, then the coupon."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@2#3e94b8f1",
+        "data": {
+          "step": 4,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_682392f3-debe-4ca2-8a01-c5de47b5a13a",
+                "name": "quote_price",
+                "arguments": "{\"cart\":[{\"productId\":\"pack-swift-20\",\"qty\":1}],\"coupon\":\"GEAR20\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to answer: Can they use code SPRING15 on a Swift 20 Daypack? What would they pay? We already validated coupon: expired. So we must say code is expired, cannot be used. Then we can suggest any active coupon that applies. For Swift 20 Daypack, current price $89.00. Check active promotions: coupon SUMMER10 (10% off, expires 2026-09-30), TRAIL25 ($25 off min spend $150), GEAR20 (20% off, min spend $50, not valid on tents, sleeping bags). The backpack is a backpack, so GEAR20 is valid (not excluded). Minimum spend $50, okay. So GEAR20 would be 20% off $89 = $71.20? But we cannot calculate; we must use quote_price to get exact total. So we need to quote price with coupon GEAR20. Let's do quote_price with cart quantity 1, coupon GEAR20.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2719,
+        "outputTokens": 244,
+        "latencyMs": 1028,
+        "cached": false,
+        "costMicros": 554,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_682392f3-debe-4ca2-8a01-c5de47b5a13a",
+          "name": "quote_price",
+          "arguments": "{\"cart\":[{\"productId\":\"pack-swift-20\",\"qty\":1}],\"coupon\":\"GEAR20\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "lines": [
+                {
+                  "productId": "pack-swift-20",
+                  "name": "Swift 20 Daypack",
+                  "qty": 1,
+                  "listPrice": "$89.00",
+                  "discounts": [],
+                  "lineTotal": "$89.00"
+                }
+              ],
+              "subtotal": "$89.00",
+              "coupon": {
+                "code": "GEAR20",
+                "applied": true,
+                "discount": "-$17.80"
+              },
+              "totalDiscounts": "-$17.80",
+              "shipping": "$7.99",
+              "total": "$79.19",
+              "totalCents": 7919
+            },
+            "policyDecision": "auto_approved"
+          }
+        },
+        "policyDecision": "auto_approved",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@2#3e94b8f1",
+        "data": {
+          "step": 5,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_6543a5a0-38ed-423b-97e0-b476c85cb31b",
+                "name": "reply",
+                "arguments": "{\"message\":\"The code SPRING15 is expired (it expired on 2026-05-31) and can’t be applied to your order. You can use the active coupon GEAR20 for 20% off this backpack. With that coupon the Swift 20 Daypack costs $79.19 total (including $7.99 shipping).\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to answer: Can they use code SPRING15 on Swift 20 Daypack? What would they pay? We validated coupon, it's expired. Must explain that expired, can't use. Then we should check active promotions and see if any applicable coupons; we have GEAR20 valid (20% off, not valid on tents/sleeping bags, but okay for backpack). We already quoted with GEAR20 gives total $79.19 including shipping. Should we present that as suggestion? The user asked about SPRING15. So we say: SPRING15 is expired, cannot be used. However you can use GEAR20 for 20% off, total would be $79.19. Provide that. Must use reply tool.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2880,
+        "outputTokens": 241,
+        "latencyMs": 1306,
+        "cached": false,
+        "costMicros": 577,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_6543a5a0-38ed-423b-97e0-b476c85cb31b",
+          "name": "reply",
+          "arguments": "{\"message\":\"The code SPRING15 is expired (it expired on 2026-05-31) and can’t be applied to your order. You can use the active coupon GEAR20 for 20% off this backpack. With that coupon the Swift 20 Daypack costs $79.19 total (including $7.99 shipping).\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "The code SPRING15 is expired (it expired on 2026-05-31) and can’t be applied to your order. You can use the active coupon GEAR20 for 20% off this backpack. With that coupon the Swift 20 Daypack costs $79.19 total (including $7.99 shipping)."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "The code SPRING15 is expired (it expired on 2026-05-31) and can’t be applied to your order. You can use the active coupon GEAR20 for 20% off this backpack. With that coupon the Swift 20 Daypack costs $79.19 total (including $7.99 shipping)."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "shopping",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "invalid-coupon-01",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to shopping"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "price_quoted",
+        "label": "quote_price for pack-swift-20×1 with or without SPRING15, or with a valid alternative code",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "price_stated",
+        "label": "reply 1 states $89.00 or $79.19",
+        "pass": true,
+        "severity": "task",
+        "detail": "amounts in reply: $79.19, $7.99"
+      },
+      {
+        "id": "coupon",
+        "label": "checks SPRING15 (EXPIRED)",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "coupon_suggestions_checked",
+        "label": "any other code it mentions was checked for this cart by a tool",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:mentions:0",
+        "label": "reply 1 mentions \"expired\" or \"no longer valid\" or \"not valid anymore\" or \"no longer active\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 6,
+    "cachedCalls": 0,
+    "toolCalls": 4,
+    "inputTokens": 12775,
+    "outputTokens": 864,
+    "latencyMs": 6467,
+    "turnLatencyMs": [
+      6467
+    ],
+    "costMicros": 2435,
+    "wallMs": 6562
+  },
+  "finishedAt": "2026-10-01T16:49:13.983Z"
+}

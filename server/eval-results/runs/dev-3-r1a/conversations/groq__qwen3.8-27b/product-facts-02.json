@@ -1,0 +1,408 @@
+{
+  "caseId": "product-facts-02",
+  "case": {
+    "id": "product-facts-02",
+    "split": "dev",
+    "type": "product_facts",
+    "why": "Beacon 900 Rechargeable Headlamp: 900 lumens, 900 minutes (15 hours) of burn time. Tests that the agent converts or quotes the burn time correctly.",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "How bright is the Beacon 900 headlamp, and how long does the battery last?",
+        "reply": {
+          "mentions": [
+            [
+              "900 lumens",
+              "900 lm",
+              "900-lumen"
+            ],
+            [
+              "15 hours",
+              "15 h",
+              "15-hour",
+              "900 minutes"
+            ]
+          ],
+          "amounts": [],
+          "avoids": []
+        }
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "leaks": [],
+      "judge": "Gives 900 lumens and 15 hours (900 minutes). Doesn't invent a charge time or battery capacity; the catalog has neither.",
+      "judgeChecks": []
+    }
+  },
+  "agentModel": "groq/qwen3.8-27b",
+  "team": {
+    "router": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "shopping@2#3e94b8f1"
+    },
+    "support": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "support@3#d7518dde"
+    }
+  },
+  "observation": {
+    "runId": "7d891853-d8a9-4406-8e6e-348ba62bf48e",
+    "turns": [
+      {
+        "customer": "How bright is the Beacon 900 headlamp, and how long does the battery last?",
+        "reply": "The Beacon 900 Rechargeable Headlamp puts out 900 lumens, and its battery lasts up to 900 minutes (about 15 hours). It's $79.00 and in stock.",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "How bright is the Beacon 900 headlamp, and how long does the battery last?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\n\"route\": \"shopping\",\n\"category\": \"product_info\",\n\"urgency\": \"low\",\n\"confidence\": 0.95\n}",
+          "decision": {
+            "route": "shopping",
+            "category": "product_info",
+            "urgency": "low",
+            "confidence": 0.95
+          },
+          "fallback": false
+        },
+        "inputTokens": 357,
+        "outputTokens": 36,
+        "latencyMs": 372,
+        "cached": false,
+        "costMicros": 430,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "shopping@2#3e94b8f1",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "97v1dnzr4",
+                "name": "search_products",
+                "arguments": "{\"limit\":5,\"query\":\"Beacon 900\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2461,
+        "outputTokens": 44,
+        "latencyMs": 710,
+        "cached": false,
+        "costMicros": 2145,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "97v1dnzr4",
+          "name": "search_products",
+          "arguments": "{\"limit\":5,\"query\":\"Beacon 900\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 2,
+              "products": [
+                {
+                  "id": "lamp-beacon-900",
+                  "name": "Beacon 900 Rechargeable Headlamp",
+                  "category": "headlamps",
+                  "listPrice": "$79.00",
+                  "currentPrice": "$79.00",
+                  "rating": 4.7,
+                  "description": "High-output rechargeable headlamp with a rear battery pack.",
+                  "specs": {
+                    "lumens": 900,
+                    "waterproof": true,
+                    "weightGrams": 140,
+                    "burnTimeMinutes": 900
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Headlamps: buy 2, get 1 free"
+                  ]
+                },
+                {
+                  "id": "lamp-beacon-500",
+                  "name": "Beacon 500 Rechargeable Headlamp",
+                  "category": "headlamps",
+                  "listPrice": "$49.00",
+                  "currentPrice": "$49.00",
+                  "rating": 4.6,
+                  "description": "USB-C rechargeable headlamp with a lock mode.",
+                  "specs": {
+                    "lumens": 500,
+                    "waterproof": true,
+                    "weightGrams": 86,
+                    "burnTimeMinutes": 1200
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Headlamps: buy 2, get 1 free"
+                  ]
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "shopping@2#3e94b8f1",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "8we7ym6n9",
+                "name": "get_product",
+                "arguments": "{\"id\":\"lamp-beacon-900\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2810,
+        "outputTokens": 33,
+        "latencyMs": 525,
+        "cached": false,
+        "costMicros": 2380,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "8we7ym6n9",
+          "name": "get_product",
+          "arguments": "{\"id\":\"lamp-beacon-900\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "id": "lamp-beacon-900",
+              "name": "Beacon 900 Rechargeable Headlamp",
+              "category": "headlamps",
+              "listPrice": "$79.00",
+              "currentPrice": "$79.00",
+              "rating": 4.7,
+              "description": "High-output rechargeable headlamp with a rear battery pack.",
+              "specs": {
+                "lumens": 900,
+                "waterproof": true,
+                "weightGrams": 140,
+                "burnTimeMinutes": 900
+              },
+              "availability": "in_stock",
+              "activeDeals": [
+                "Headlamps: buy 2, get 1 free"
+              ],
+              "variants": [
+                {
+                  "size": null,
+                  "color": "black",
+                  "availability": "in_stock"
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "shopping@2#3e94b8f1",
+        "data": {
+          "step": 3,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": "The Beacon 900 Rechargeable Headlamp puts out 900 lumens, and its battery lasts up to 900 minutes (about 15 hours). It's $79.00 and in stock."
+          },
+          "finishReason": "stop"
+        },
+        "inputTokens": 3004,
+        "outputTokens": 51,
+        "latencyMs": 939,
+        "cached": false,
+        "costMicros": 2607,
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "The Beacon 900 Rechargeable Headlamp puts out 900 lumens, and its battery lasts up to 900 minutes (about 15 hours). It's $79.00 and in stock.",
+          "implicit": true
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "shopping",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "product-facts-02",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to shopping"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "reply1:mentions:0",
+        "label": "reply 1 mentions \"900 lumens\" or \"900 lm\" or \"900-lumen\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:mentions:1",
+        "label": "reply 1 mentions \"15 hours\" or \"15 h\" or \"15-hour\" or \"900 minutes\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 4,
+    "cachedCalls": 0,
+    "toolCalls": 2,
+    "inputTokens": 8632,
+    "outputTokens": 164,
+    "latencyMs": 2546,
+    "turnLatencyMs": [
+      2546
+    ],
+    "costMicros": 7562,
+    "wallMs": 2608
+  },
+  "finishedAt": "2026-10-01T16:48:20.772Z"
+}

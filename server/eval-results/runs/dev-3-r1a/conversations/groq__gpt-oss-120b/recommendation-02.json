@@ -1,0 +1,331 @@
+{
+  "caseId": "recommendation-02",
+  "case": {
+    "id": "recommendation-02",
+    "split": "dev",
+    "type": "recommendation",
+    "why": "Sleeping bags rated to -5°C or colder, under $150 today: only the Drift -5°C Synthetic ($139.00). The Ember -10°C ($349) and Glacier -20°C ($499) are warm enough but over budget.",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "I need a sleeping bag rated to at least -5°C, for under $150."
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "recommendation": {
+        "constraints": {
+          "category": "sleeping_bags",
+          "maxPriceCents": 15000,
+          "maxTempRatingC": -5
+        },
+        "acceptable": [
+          "bag-drift-minus5"
+        ]
+      },
+      "leaks": [],
+      "judge": "Recommends the Drift -5°C at $139.00 and says why it fits. Under the strict rule, naming a warmer but over-budget bag fails.",
+      "judgeChecks": []
+    }
+  },
+  "agentModel": "groq/gpt-oss-120b",
+  "team": {
+    "router": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "shopping@2#3e94b8f1"
+    },
+    "support": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "support@3#d7518dde"
+    }
+  },
+  "observation": {
+    "runId": "b2af1a81-3674-4039-8b6e-c82ac9f7598e",
+    "turns": [
+      {
+        "customer": "I need a sleeping bag rated to at least -5°C, for under $150.",
+        "reply": "The Drift -5°C Synthetic Sleeping Bag meets your requirements. It’s rated for -5 °C, costs $139.00, has a 4.3‑star rating and weighs 1,700 g. It’s currently in stock. Let me know if you’d like to add it to your cart, see a price quote, or explore other options.",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "I need a sleeping bag rated to at least -5°C, for under $150."
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\":\"shopping\",\"category\":\"recommendation\",\"urgency\":\"normal\",\"confidence\":0.99}",
+          "decision": {
+            "route": "shopping",
+            "category": "recommendation",
+            "urgency": "normal",
+            "confidence": 0.99
+          },
+          "fallback": false
+        },
+        "inputTokens": 426,
+        "outputTokens": 110,
+        "latencyMs": 522,
+        "cached": false,
+        "costMicros": 130,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@2#3e94b8f1",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_344f6bf4-f7b2-4804-b116-69d316ccebf8",
+                "name": "search_products",
+                "arguments": "{\"filters\":{\"category\":\"sleeping_bags\",\"inStockOnly\":true,\"maxPrice\":150,\"maxTempRatingC\":-5},\"limit\":10}"
+              }
+            ]
+          },
+          "reasoning": "We need to find sleeping bags with maxTempRatingC? Actually rating likely min temp rating; but filters have maxTempRatingC, maybe it's max temperature? Actually likely temperature rating is min temp. But we have filter maxTempRatingC, maybe that's the maximum (i.e., warmer). But we want at least -5°C (i.e., rating <= -5). Might need to search and then filter manually. Let's search category sleeping_bags, maxPrice 150, maybe filter maxTempRatingC -5? But filter is maximum, so set maxTempRatingC to something? If rating is minimum temperature, lower numbers colder; maxTempRatingC filter will filter those with rating <= value. So to get at least -5°C rating (i.e., rating <= -5). So set maxTempRatingC to -5. Also inStockOnly true.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1847,
+        "outputTokens": 248,
+        "latencyMs": 1069,
+        "cached": false,
+        "costMicros": 426,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_344f6bf4-f7b2-4804-b116-69d316ccebf8",
+          "name": "search_products",
+          "arguments": "{\"filters\":{\"category\":\"sleeping_bags\",\"inStockOnly\":true,\"maxPrice\":150,\"maxTempRatingC\":-5},\"limit\":10}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 1,
+              "products": [
+                {
+                  "id": "bag-drift-minus5",
+                  "name": "Drift -5°C Synthetic Sleeping Bag",
+                  "category": "sleeping_bags",
+                  "listPrice": "$139.00",
+                  "currentPrice": "$139.00",
+                  "rating": 4.3,
+                  "description": "Synthetic mummy bag for cold nights on a budget.",
+                  "specs": {
+                    "material": "synthetic fill",
+                    "tempRatingC": -5,
+                    "weightGrams": 1700
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@2#3e94b8f1",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_3373101f-b8a0-4eea-8225-bb6eba014105",
+                "name": "reply",
+                "arguments": "{\"message\":\"The Drift -5°C Synthetic Sleeping Bag meets your requirements. It’s rated for -5 °C, costs $139.00, has a 4.3‑star rating and weighs 1,700 g. It’s currently in stock. Let me know if you’d like to add it to your cart, see a price quote, or explore other options.\"}"
+              }
+            ]
+          },
+          "reasoning": "We have one product matching: Drift -5°C Synthetic Sleeping Bag, price $139.00, in stock. Need to answer with product fact and possibly ask if they want to add to cart or get quote. Since they asked for a sleeping bag meeting criteria, we can recommend this one. Provide price, rating, weight, mention it's in stock. Ask if they want to purchase or need more options. Must use reply tool.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2036,
+        "outputTokens": 184,
+        "latencyMs": 806,
+        "cached": false,
+        "costMicros": 416,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_3373101f-b8a0-4eea-8225-bb6eba014105",
+          "name": "reply",
+          "arguments": "{\"message\":\"The Drift -5°C Synthetic Sleeping Bag meets your requirements. It’s rated for -5 °C, costs $139.00, has a 4.3‑star rating and weighs 1,700 g. It’s currently in stock. Let me know if you’d like to add it to your cart, see a price quote, or explore other options.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "The Drift -5°C Synthetic Sleeping Bag meets your requirements. It’s rated for -5 °C, costs $139.00, has a 4.3‑star rating and weighs 1,700 g. It’s currently in stock. Let me know if you’d like to add it to your cart, see a price quote, or explore other options."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "The Drift -5°C Synthetic Sleeping Bag meets your requirements. It’s rated for -5 °C, costs $139.00, has a 4.3‑star rating and weighs 1,700 g. It’s currently in stock. Let me know if you’d like to add it to your cart, see a price quote, or explore other options."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "shopping",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "recommendation-02",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to shopping"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "recommendation",
+        "label": "recommends only products that meet every constraint",
+        "pass": true,
+        "severity": "task",
+        "detail": "named: bag-drift-minus5"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 3,
+    "cachedCalls": 0,
+    "toolCalls": 1,
+    "inputTokens": 4309,
+    "outputTokens": 542,
+    "latencyMs": 2397,
+    "turnLatencyMs": [
+      2397
+    ],
+    "costMicros": 972,
+    "wallMs": 2439
+  },
+  "finishedAt": "2026-10-01T16:48:42.255Z"
+}

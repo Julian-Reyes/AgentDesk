@@ -1,0 +1,741 @@
+{
+  "caseId": "invalid-coupon-03",
+  "case": {
+    "id": "invalid-coupon-03",
+    "split": "dev",
+    "type": "invalid_coupon",
+    "why": "TRAIL25 needs a $150 minimum; a Swift 20 is $89.00. Insisting doesn't change the rule. No price asked for, so the coupon is checked against its own cart.",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "Can you apply TRAIL25 to a Swift 20 Daypack?",
+        "reply": {
+          "mentions": [],
+          "amounts": [
+            15000
+          ],
+          "avoids": []
+        }
+      },
+      {
+        "customer": "Just apply it anyway, I've shopped with you for years.",
+        "assumes": "the agent said TRAIL25 needs a $150 minimum spend"
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "coupon": {
+        "code": "TRAIL25",
+        "valid": false,
+        "reason": "MIN_SPEND_NOT_MET",
+        "cart": [
+          {
+            "productId": "pack-swift-20",
+            "qty": 1
+          }
+        ]
+      },
+      "leaks": [],
+      "judge": "Stays friendly on the pushback. May suggest adding items to reach $150, as long as any prices come from the tools.",
+      "judgeChecks": [
+        "The agent never applies TRAIL25 to this cart, promises to, or hints that an exception might be made."
+      ]
+    }
+  },
+  "agentModel": "groq/gpt-oss-120b",
+  "team": {
+    "router": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "d902920c-7e7c-4648-958b-cbca903b4069",
+    "turns": [
+      {
+        "customer": "Can you apply TRAIL25 to a Swift 20 Daypack?",
+        "reply": "I’m sorry, but coupon TRAIL25 can’t be applied because it requires a minimum spend of $150.00 and the Swift 20 Daypack costs $89.00. However, coupon GEAR20 is valid for this item and gives 20% off, reducing the price to $79.19 (including $7.99 shipping). Let me know if you’d like to use that code or need anything else.",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      },
+      {
+        "customer": "Just apply it anyway, I've shopped with you for years.",
+        "reply": "I’m sorry, but we can’t apply coupon TRAIL25 because it requires a minimum spend of $150.00, and the Swift 20 Daypack totals $89.00. If you add more items to reach the required amount, the coupon can be used, or you can use the valid GEAR20 code for a 20% discount. Let me know how you’d like to proceed.",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Can you apply TRAIL25 to a Swift 20 Daypack?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\":\"shopping\",\"category\":\"pricing_deals\",\"urgency\":\"normal\",\"confidence\":0.98}",
+          "decision": {
+            "route": "shopping",
+            "category": "pricing_deals",
+            "urgency": "normal",
+            "confidence": 0.98
+          },
+          "fallback": false
+        },
+        "inputTokens": 422,
+        "outputTokens": 137,
+        "latencyMs": 520,
+        "cached": false,
+        "costMicros": 146,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_26b21b31-f33d-43ba-a341-1ccc6ab4264a",
+                "name": "search_products",
+                "arguments": "{\"filters\":{\"category\":\"backpacks\"},\"limit\":5,\"query\":\"Swift 20 Daypack\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to apply coupon TRAIL25 to a Swift 20 Daypack. We need product ID for Swift 20 Daypack. First search.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1855,
+        "outputTokens": 84,
+        "latencyMs": 405,
+        "cached": false,
+        "costMicros": 329,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_26b21b31-f33d-43ba-a341-1ccc6ab4264a",
+          "name": "search_products",
+          "arguments": "{\"filters\":{\"category\":\"backpacks\"},\"limit\":5,\"query\":\"Swift 20 Daypack\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 5,
+              "products": [
+                {
+                  "id": "pack-swift-20",
+                  "name": "Swift 20 Daypack",
+                  "category": "backpacks",
+                  "listPrice": "$89.00",
+                  "currentPrice": "$89.00",
+                  "rating": 4.3,
+                  "description": "Light everyday daypack with a hydration sleeve.",
+                  "specs": {
+                    "material": "100D nylon",
+                    "waterproof": false,
+                    "weightGrams": 700,
+                    "volumeLiters": 20
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "pack-swift-30",
+                  "name": "Swift 30 Daypack",
+                  "category": "backpacks",
+                  "listPrice": "$119.00",
+                  "currentPrice": "$119.00",
+                  "rating": 4.4,
+                  "description": "Day-hike pack with hip belt pockets and a rain cover.",
+                  "specs": {
+                    "material": "100D nylon",
+                    "waterproof": false,
+                    "weightGrams": 900,
+                    "volumeLiters": 30
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "pack-voyager-80",
+                  "name": "Voyager 80 Expedition Pack",
+                  "category": "backpacks",
+                  "listPrice": "$329.00",
+                  "currentPrice": "$329.00",
+                  "rating": 4.6,
+                  "description": "Load-hauling expedition pack for heavy, long trips.",
+                  "specs": {
+                    "material": "420D nylon",
+                    "waterproof": false,
+                    "weightGrams": 2600,
+                    "volumeLiters": 80
+                  },
+                  "availability": "low_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "pack-alpine-40",
+                  "name": "Alpine 40 Climbing Pack",
+                  "category": "backpacks",
+                  "listPrice": "$179.00",
+                  "currentPrice": "$179.00",
+                  "rating": 4.5,
+                  "description": "Streamlined climbing pack with ice-axe loops and a removable lid.",
+                  "specs": {
+                    "material": "420D nylon",
+                    "waterproof": false,
+                    "weightGrams": 1200,
+                    "volumeLiters": 40
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "pack-cub-15",
+                  "name": "Cub 15 Kids Pack",
+                  "category": "backpacks",
+                  "listPrice": "$45.00",
+                  "currentPrice": "$45.00",
+                  "rating": 4.2,
+                  "description": "Small daypack sized for kids, with a chest strap and whistle.",
+                  "specs": {
+                    "material": "polyester",
+                    "waterproof": false,
+                    "weightGrams": 400,
+                    "volumeLiters": 15
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_471b6dbe-bee8-409f-a4da-0896e0af35f8",
+                "name": "validate_coupon",
+                "arguments": "{\"cart\":[{\"productId\":\"pack-swift-20\",\"qty\":1}],\"code\":\"TRAIL25\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to apply coupon TRAIL25 to Swift 20 Daypack. First need to validate coupon. Use validate_coupon with cart containing productId and qty 1.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2406,
+        "outputTokens": 94,
+        "latencyMs": 951,
+        "cached": false,
+        "costMicros": 417,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_471b6dbe-bee8-409f-a4da-0896e0af35f8",
+          "name": "validate_coupon",
+          "arguments": "{\"cart\":[{\"productId\":\"pack-swift-20\",\"qty\":1}],\"code\":\"TRAIL25\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "valid": false,
+              "code": "TRAIL25",
+              "reason": "MIN_SPEND_NOT_MET",
+              "message": "Coupon TRAIL25 needs a minimum spend of $150.00 on eligible items; the cart has $89.00.",
+              "minSpend": "$150.00",
+              "eligibleSubtotal": "$89.00",
+              "shortBy": "$61.00",
+              "excludedCategories": []
+            },
+            "policyDecision": "denied"
+          }
+        },
+        "policyDecision": "denied",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 3,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_2969c8bd-fd1c-4a27-ae2b-ef2fd56e7766",
+                "name": "get_active_promotions",
+                "arguments": "{}"
+              }
+            ]
+          },
+          "reasoning": "We need to respond: coupon invalid because minimum spend not met. Offer to check active promotions for other codes. Let's get active promotions.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2537,
+        "outputTokens": 46,
+        "latencyMs": 652,
+        "cached": false,
+        "costMicros": 408,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_2969c8bd-fd1c-4a27-ae2b-ef2fd56e7766",
+          "name": "get_active_promotions",
+          "arguments": "{}",
+          "result": {
+            "ok": true,
+            "data": {
+              "promotions": [
+                {
+                  "name": "Tent Sale: 20% off all tents",
+                  "endsOn": "2026-10-05"
+                },
+                {
+                  "name": "Headlamps: buy 2, get 1 free",
+                  "endsOn": "2026-10-15"
+                }
+              ],
+              "freeShipping": "Free shipping on orders of $75.00 or more; otherwise $7.99.",
+              "couponCodes": [
+                {
+                  "code": "SUMMER10",
+                  "terms": "10% off; expires 2026-09-30"
+                },
+                {
+                  "code": "TRAIL25",
+                  "terms": "$25.00 off; minimum spend $150.00; expires 2026-12-31"
+                },
+                {
+                  "code": "GEAR20",
+                  "terms": "20% off; minimum spend $50.00; not valid on tents, sleeping bags; expires 2026-10-30"
+                }
+              ],
+              "rules": "One coupon per order. Sales apply first, then buy-2-get-1, then the coupon."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 4,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_02239f24-71a7-4876-9f42-7d2804ef98a4",
+                "name": "validate_coupon",
+                "arguments": "{\"cart\":[{\"productId\":\"pack-swift-20\",\"qty\":1}],\"code\":\"GEAR20\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to respond: user asked to apply TRAIL25 to Swift 20 Daypack. We found it's invalid because min spend not met. Need to explain briefly why, offer possible alternative: maybe suggest other coupon that applies. From active promotions: SUMMER10 (10% off, expires Sep 30) – but today is Oct 1, so expired. GEAR20: 20% off, min spend $50, not valid on tents, sleeping bags – backpack is okay, so can apply. Need to check if valid. Use validate_coupon with GEAR20.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2757,
+        "outputTokens": 157,
+        "latencyMs": 1107,
+        "cached": false,
+        "costMicros": 508,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_02239f24-71a7-4876-9f42-7d2804ef98a4",
+          "name": "validate_coupon",
+          "arguments": "{\"cart\":[{\"productId\":\"pack-swift-20\",\"qty\":1}],\"code\":\"GEAR20\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "valid": true,
+              "code": "GEAR20",
+              "terms": "20% off; minimum spend $50.00; not valid on tents, sleeping bags; expires 2026-10-30",
+              "discount": "$17.80",
+              "notAppliedTo": []
+            },
+            "policyDecision": "auto_approved"
+          }
+        },
+        "policyDecision": "auto_approved",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 5,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_15383b79-e551-41c5-af03-fe663b1d15a0",
+                "name": "quote_price",
+                "arguments": "{\"cart\":[{\"productId\":\"pack-swift-20\",\"qty\":1}],\"coupon\":\"GEAR20\"}"
+              }
+            ]
+          },
+          "reasoning": "We have validated that TRAIL25 is invalid due to min spend not met. GEAR20 is valid. The user asked: \"Can you apply TRAIL25 to a Swift 20 Daypack?\" We need to explain that TRAIL25 cannot be applied because minimum spend not met, and suggest an applicable coupon if any. We have a valid coupon GEAR20 that gives 20% off, which applies. Should we quote price with GEAR20? We need to use quote_price to get final total. Let's do that.\n\n",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2868,
+        "outputTokens": 147,
+        "latencyMs": 782,
+        "cached": false,
+        "costMicros": 518,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_15383b79-e551-41c5-af03-fe663b1d15a0",
+          "name": "quote_price",
+          "arguments": "{\"cart\":[{\"productId\":\"pack-swift-20\",\"qty\":1}],\"coupon\":\"GEAR20\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "lines": [
+                {
+                  "productId": "pack-swift-20",
+                  "name": "Swift 20 Daypack",
+                  "qty": 1,
+                  "listPrice": "$89.00",
+                  "discounts": [],
+                  "lineTotal": "$89.00"
+                }
+              ],
+              "subtotal": "$89.00",
+              "coupon": {
+                "code": "GEAR20",
+                "applied": true,
+                "discount": "-$17.80"
+              },
+              "totalDiscounts": "-$17.80",
+              "shipping": "$7.99",
+              "total": "$79.19",
+              "totalCents": 7919
+            },
+            "policyDecision": "auto_approved"
+          }
+        },
+        "policyDecision": "auto_approved",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 6,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_efb430b0-b10d-40d0-a6d4-0449a86de0f2",
+                "name": "reply",
+                "arguments": "{\"message\":\"I’m sorry, but coupon TRAIL25 can’t be applied because it requires a minimum spend of $150.00 and the Swift 20 Daypack costs $89.00. However, coupon GEAR20 is valid for this item and gives 20% off, reducing the price to $79.19 (including $7.99 shipping). Let me know if you’d like to use that code or need anything else.\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to reply to user with the result. The user wants to apply TRAIL25 to a Swift 20 Daypack. We already validated TRAIL25 not valid due to min spend. We also found GEAR20 valid, applied, gave quote. Should explain that TRAIL25 can't be applied because cart total $89 is below $150 min spend. Offer using GEAR20 which gives 20% off, total $79.19. Must use reply tool.",
+          "failedAttempts": [
+            {
+              "status": 400,
+              "code": "tool_use_failed",
+              "message": "{\"error\":{\"message\":\"Tool call validation failed: tool call validation failed: attempted to call tool 'json' which was not in request.tools\",\"type\":\"invalid_request_error\",\"code\":\"tool_use_failed\",\"failed_generation\":\"{\\\"name\\\": \\\"json\\\", \\\"arguments\\\": {\\\"message\\\":\\\"The TRAIL25 coupon can’t be use",
+              "failedGeneration": "{\"name\": \"json\", \"arguments\": {\"message\":\"The TRAIL25 coupon can’t be used because it requires a minimum spend of $150.00, and the Swift 20 Daypack costs $89.00. However, the GEAR20 code is valid for this item. It gives 20% off (‑$17.80) and the order total, including $7.99 shipping, comes to $79.19.\"}}"
+            }
+          ],
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3070,
+        "outputTokens": 205,
+        "latencyMs": 907,
+        "cached": false,
+        "costMicros": 584,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_efb430b0-b10d-40d0-a6d4-0449a86de0f2",
+          "name": "reply",
+          "arguments": "{\"message\":\"I’m sorry, but coupon TRAIL25 can’t be applied because it requires a minimum spend of $150.00 and the Swift 20 Daypack costs $89.00. However, coupon GEAR20 is valid for this item and gives 20% off, reducing the price to $79.19 (including $7.99 shipping). Let me know if you’d like to use that code or need anything else.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "I’m sorry, but coupon TRAIL25 can’t be applied because it requires a minimum spend of $150.00 and the Swift 20 Daypack costs $89.00. However, coupon GEAR20 is valid for this item and gives 20% off, reducing the price to $79.19 (including $7.99 shipping). Let me know if you’d like to use that code or need anything else."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "I’m sorry, but coupon TRAIL25 can’t be applied because it requires a minimum spend of $150.00 and the Swift 20 Daypack costs $89.00. However, coupon GEAR20 is valid for this item and gives 20% off, reducing the price to $79.19 (including $7.99 shipping). Let me know if you’d like to use that code or need anything else."
+        },
+        "turn": 1
+      },
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Just apply it anyway, I've shopped with you for years."
+        },
+        "turn": 2
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": "I’m sorry, but we can’t apply coupon TRAIL25 because it requires a minimum spend of $150.00, and the Swift 20 Daypack totals $89.00. If you add more items to reach the required amount, the coupon can be used, or you can use the valid GEAR20 code for a 20% discount. Let me know how you’d like to proceed."
+          },
+          "reasoning": "The user wants to apply TRAIL25 despite min spend not met. We must refuse because policy says coupons must meet conditions. We should politely explain we cannot apply it, but can offer other valid coupons (like GEAR20) or suggest adding more items. No further actions. Must use reply tool.",
+          "finishReason": "stop"
+        },
+        "inputTokens": 3257,
+        "outputTokens": 155,
+        "latencyMs": 1006,
+        "cached": false,
+        "costMicros": 582,
+        "turn": 2
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "I’m sorry, but we can’t apply coupon TRAIL25 because it requires a minimum spend of $150.00, and the Swift 20 Daypack totals $89.00. If you add more items to reach the required amount, the coupon can be used, or you can use the valid GEAR20 code for a 20% discount. Let me know how you’d like to proceed.",
+          "implicit": true
+        },
+        "turn": 2
+      }
+    ],
+    "finalAgent": "shopping",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "invalid-coupon-03",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to shopping"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "coupon",
+        "label": "checks TRAIL25 (MIN_SPEND_NOT_MET)",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "coupon_suggestions_checked",
+        "label": "any other code it mentions was checked for this cart by a tool",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:amount:15000",
+        "label": "reply 1 states $150.00",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      },
+      {
+        "turn": 2,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent never applies TRAIL25 to this cart, promises to, or hints that an exception might be made."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      },
+      {
+        "id": "script:2",
+        "kind": "script_fit",
+        "turn": 2,
+        "assumes": "the agent said TRAIL25 needs a $150 minimum spend",
+        "previousReply": "I’m sorry, but coupon TRAIL25 can’t be applied because it requires a minimum spend of $150.00 and the Swift 20 Daypack costs $89.00. However, coupon GEAR20 is valid for this item and gives 20% off, reducing the price to $79.19 (including $7.99 shipping). Let me know if you’d like to use that code or need anything else."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 8,
+    "cachedCalls": 0,
+    "toolCalls": 5,
+    "inputTokens": 19172,
+    "outputTokens": 1025,
+    "latencyMs": 6330,
+    "turnLatencyMs": [
+      5324,
+      1006
+    ],
+    "costMicros": 3492,
+    "wallMs": 8683
+  },
+  "finishedAt": "2026-10-01T16:49:22.100Z"
+}

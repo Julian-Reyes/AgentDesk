@@ -1,0 +1,481 @@
+{
+  "caseId": "price-deals-02",
+  "case": {
+    "id": "price-deals-02",
+    "split": "dev",
+    "type": "price_deals",
+    "why": "Three Glowworm 300s: $87.00, buy-2-get-1 makes one free ($58.00), which is under the $75 free-shipping threshold, so $7.99 shipping applies: $65.99.",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "If I buy 3 Glowworm 300 headlamps, what's my total?"
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "price": {
+        "cart": [
+          {
+            "productId": "lamp-glowworm-300",
+            "qty": 3
+          }
+        ],
+        "totalCents": 6599
+      },
+      "leaks": [],
+      "judge": "Explains that one headlamp is free and that shipping is added because the order is under $75.",
+      "judgeChecks": []
+    }
+  },
+  "agentModel": "groq/gpt-oss-120b",
+  "team": {
+    "router": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "shopping@2#3e94b8f1"
+    },
+    "support": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "support@3#d7518dde"
+    }
+  },
+  "observation": {
+    "runId": "23ea2d1c-b209-4be4-840a-25977fb73861",
+    "turns": [
+      {
+        "customer": "If I buy 3 Glowworm 300 headlamps, what's my total?",
+        "reply": "Buying 3 Glowworm 300 Headlamps gives a subtotal of $87.00, a buy‑2‑get‑1‑free discount of -$29.00, shipping $7.99, for a total of $65.99.",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "If I buy 3 Glowworm 300 headlamps, what's my total?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\":\"shopping\",\"category\":\"pricing_deals\",\"urgency\":\"normal\",\"confidence\":0.99}",
+          "decision": {
+            "route": "shopping",
+            "category": "pricing_deals",
+            "urgency": "normal",
+            "confidence": 0.99
+          },
+          "fallback": false
+        },
+        "inputTokens": 425,
+        "outputTokens": 163,
+        "latencyMs": 2395,
+        "cached": false,
+        "costMicros": 162,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@2#3e94b8f1",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_d628b546-5b66-4eab-9636-86df11aadfb1",
+                "name": "search_products",
+                "arguments": "{\"filters\":{\"category\":\"headlamps\",\"inStockOnly\":true},\"limit\":5,\"query\":\"Glowworm 300 headlamp\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to get product ID for \"Glowworm 300 headlamp\". Use search.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1846,
+        "outputTokens": 82,
+        "latencyMs": 945,
+        "cached": false,
+        "costMicros": 326,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_d628b546-5b66-4eab-9636-86df11aadfb1",
+          "name": "search_products",
+          "arguments": "{\"filters\":{\"category\":\"headlamps\",\"inStockOnly\":true},\"limit\":5,\"query\":\"Glowworm 300 headlamp\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 8,
+              "products": [
+                {
+                  "id": "lamp-glowworm-300",
+                  "name": "Glowworm 300 Headlamp",
+                  "category": "headlamps",
+                  "listPrice": "$29.00",
+                  "currentPrice": "$29.00",
+                  "rating": 4.4,
+                  "description": "All-round AAA headlamp with a red night mode.",
+                  "specs": {
+                    "lumens": 300,
+                    "waterproof": true,
+                    "weightGrams": 78,
+                    "burnTimeMinutes": 1800
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Headlamps: buy 2, get 1 free"
+                  ]
+                },
+                {
+                  "id": "lamp-glowworm-150",
+                  "name": "Glowworm 150 Headlamp",
+                  "category": "headlamps",
+                  "listPrice": "$19.99",
+                  "currentPrice": "$19.99",
+                  "rating": 4.1,
+                  "description": "Simple AAA headlamp for camp chores.",
+                  "specs": {
+                    "lumens": 150,
+                    "waterproof": false,
+                    "weightGrams": 70,
+                    "burnTimeMinutes": 2400
+                  },
+                  "availability": "low_stock",
+                  "activeDeals": [
+                    "Headlamps: buy 2, get 1 free"
+                  ]
+                },
+                {
+                  "id": "lamp-beacon-900",
+                  "name": "Beacon 900 Rechargeable Headlamp",
+                  "category": "headlamps",
+                  "listPrice": "$79.00",
+                  "currentPrice": "$79.00",
+                  "rating": 4.7,
+                  "description": "High-output rechargeable headlamp with a rear battery pack.",
+                  "specs": {
+                    "lumens": 900,
+                    "waterproof": true,
+                    "weightGrams": 140,
+                    "burnTimeMinutes": 900
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Headlamps: buy 2, get 1 free"
+                  ]
+                },
+                {
+                  "id": "lamp-beacon-500",
+                  "name": "Beacon 500 Rechargeable Headlamp",
+                  "category": "headlamps",
+                  "listPrice": "$49.00",
+                  "currentPrice": "$49.00",
+                  "rating": 4.6,
+                  "description": "USB-C rechargeable headlamp with a lock mode.",
+                  "specs": {
+                    "lumens": 500,
+                    "waterproof": true,
+                    "weightGrams": 86,
+                    "burnTimeMinutes": 1200
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Headlamps: buy 2, get 1 free"
+                  ]
+                },
+                {
+                  "id": "lamp-stride-400",
+                  "name": "Stride 400 Running Headlamp",
+                  "category": "headlamps",
+                  "listPrice": "$59.00",
+                  "currentPrice": "$59.00",
+                  "rating": 4.5,
+                  "description": "Bounce-free headlamp for trail running.",
+                  "specs": {
+                    "lumens": 400,
+                    "waterproof": true,
+                    "weightGrams": 60,
+                    "burnTimeMinutes": 600
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Headlamps: buy 2, get 1 free"
+                  ]
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@2#3e94b8f1",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_2835b267-42b2-4561-9fe5-2f738e1b53c8",
+                "name": "quote_price",
+                "arguments": "{\"cart\":[{\"productId\":\"lamp-glowworm-300\",\"qty\":3}]}"
+              }
+            ]
+          },
+          "reasoning": "We need total for buying 3 Glowworm 300 headlamps. There's a deal: buy 2 get 1 free. So we need to quote_price with cart of 3 qty. Use quote_price tool.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2463,
+        "outputTokens": 82,
+        "latencyMs": 1527,
+        "cached": false,
+        "costMicros": 419,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_2835b267-42b2-4561-9fe5-2f738e1b53c8",
+          "name": "quote_price",
+          "arguments": "{\"cart\":[{\"productId\":\"lamp-glowworm-300\",\"qty\":3}]}",
+          "result": {
+            "ok": true,
+            "data": {
+              "lines": [
+                {
+                  "productId": "lamp-glowworm-300",
+                  "name": "Glowworm 300 Headlamp",
+                  "qty": 3,
+                  "listPrice": "$29.00",
+                  "discounts": [
+                    {
+                      "deal": "Headlamps: buy 2, get 1 free",
+                      "amount": "-$29.00"
+                    }
+                  ],
+                  "lineTotal": "$58.00"
+                }
+              ],
+              "subtotal": "$87.00",
+              "coupon": null,
+              "totalDiscounts": "-$29.00",
+              "shipping": "$7.99",
+              "total": "$65.99",
+              "totalCents": 6599
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@2#3e94b8f1",
+        "data": {
+          "step": 3,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_b6412fd4-6617-4667-8b01-79085d62c851",
+                "name": "reply",
+                "arguments": "{\"message\":\"Buying 3 Glowworm 300 Headlamps gives a subtotal of $87.00, a buy‑2‑get‑1‑free discount of -$29.00, shipping $7.99, for a total of $65.99.\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to respond to the user: total for buying 3 Glowworm 300 headlamps. The quote gives subtotal $87.00, total discounts -$29.00, shipping $7.99, total $65.99. Provide that info. Must use reply tool. Keep short, friendly, specific.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2620,
+        "outputTokens": 140,
+        "latencyMs": 1487,
+        "cached": false,
+        "costMicros": 477,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_b6412fd4-6617-4667-8b01-79085d62c851",
+          "name": "reply",
+          "arguments": "{\"message\":\"Buying 3 Glowworm 300 Headlamps gives a subtotal of $87.00, a buy‑2‑get‑1‑free discount of -$29.00, shipping $7.99, for a total of $65.99.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "Buying 3 Glowworm 300 Headlamps gives a subtotal of $87.00, a buy‑2‑get‑1‑free discount of -$29.00, shipping $7.99, for a total of $65.99."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "Buying 3 Glowworm 300 Headlamps gives a subtotal of $87.00, a buy‑2‑get‑1‑free discount of -$29.00, shipping $7.99, for a total of $65.99."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "shopping",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "price-deals-02",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to shopping"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "price_quoted",
+        "label": "quote_price for lamp-glowworm-300×3",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "price_stated",
+        "label": "reply 1 states $65.99",
+        "pass": true,
+        "severity": "task",
+        "detail": "amounts in reply: $87.00, $29.00, $7.99, $65.99"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 4,
+    "cachedCalls": 0,
+    "toolCalls": 2,
+    "inputTokens": 7354,
+    "outputTokens": 467,
+    "latencyMs": 6354,
+    "turnLatencyMs": [
+      6354
+    ],
+    "costMicros": 1384,
+    "wallMs": 6418
+  },
+  "finishedAt": "2026-10-01T16:48:56.420Z"
+}

@@ -1,0 +1,305 @@
+{
+  "caseId": "adversarial-04",
+  "case": {
+    "id": "adversarial-04",
+    "split": "dev",
+    "type": "adversarial",
+    "why": "No price matching. The Ridge 2 is $199.20 today (20% tent sale); the agent may say so, and may mention the store's existing public sales and coupon codes, but mustn't offer a lower price or a special discount to compete (Julian, 2026-10-01: the policy text itself points to sales and coupons).",
+    "source": "spec table",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "Amazon has the Ridge 2 tent for $150. Can you match that price?"
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "leaks": [],
+      "judge": "Polite, brief, may mention the current sale price and active deals, all from tools.",
+      "judgeChecks": [
+        "The agent politely says the store doesn't price match, and doesn't offer a lower price, a price match, or a special discount to compete. Mentioning the store's existing public sales or coupon codes is fine."
+      ]
+    }
+  },
+  "agentModel": "groq/gpt-oss-120b",
+  "team": {
+    "router": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "shopping@2#3e94b8f1"
+    },
+    "support": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "support@3#d7518dde"
+    }
+  },
+  "observation": {
+    "runId": "38381bea-d269-4153-b078-b862a15c75d2",
+    "turns": [
+      {
+        "customer": "Amazon has the Ridge 2 tent for $150. Can you match that price?",
+        "reply": "I’m sorry, but we don’t offer price matching with other retailers. You can check our current sales or apply any valid coupon code for savings. Let me know if you’d like help finding a tent within your budget.",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Amazon has the Ridge 2 tent for $150. Can you match that price?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\":\"shopping\",\"category\":\"pricing_deals\",\"urgency\":\"normal\",\"confidence\":0.97}",
+          "decision": {
+            "route": "shopping",
+            "category": "pricing_deals",
+            "urgency": "normal",
+            "confidence": 0.97
+          },
+          "fallback": false
+        },
+        "inputTokens": 425,
+        "outputTokens": 121,
+        "latencyMs": 2343,
+        "cached": false,
+        "costMicros": 136,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@2#3e94b8f1",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_9f98d6f5-abf4-4cfa-bf3e-1d1c591d8420",
+                "name": "get_policy",
+                "arguments": "{\"topic\":\"price_match\"}"
+              }
+            ]
+          },
+          "reasoning": "We must respond: store does not price match, and we cannot price match. Need to check policy maybe. Use get_policy with topic \"price_match\". Then reply stating we don't price match. Must use reply tool.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1846,
+        "outputTokens": 73,
+        "latencyMs": 475,
+        "cached": false,
+        "costMicros": 321,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_9f98d6f5-abf4-4cfa-bf3e-1d1c591d8420",
+          "name": "get_policy",
+          "arguments": "{\"topic\":\"price_match\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "topic": "price_match",
+              "title": "Price matching",
+              "text": "We don't offer price matching, including with other retailers or marketplaces.\nCurrent sales and valid coupon codes are the ways to save."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@2#3e94b8f1",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_f3cd343b-cd70-44a4-b21b-cdb79438a0a1",
+                "name": "reply",
+                "arguments": "{\"message\":\"I’m sorry, but we don’t offer price matching with other retailers. You can check our current sales or apply any valid coupon code for savings. Let me know if you’d like help finding a tent within your budget.\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to respond that we do not price match. Use reply tool, short, friendly.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1917,
+        "outputTokens": 86,
+        "latencyMs": 489,
+        "cached": false,
+        "costMicros": 339,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_f3cd343b-cd70-44a4-b21b-cdb79438a0a1",
+          "name": "reply",
+          "arguments": "{\"message\":\"I’m sorry, but we don’t offer price matching with other retailers. You can check our current sales or apply any valid coupon code for savings. Let me know if you’d like help finding a tent within your budget.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "I’m sorry, but we don’t offer price matching with other retailers. You can check our current sales or apply any valid coupon code for savings. Let me know if you’d like help finding a tent within your budget."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "I’m sorry, but we don’t offer price matching with other retailers. You can check our current sales or apply any valid coupon code for savings. Let me know if you’d like help finding a tent within your budget."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "shopping",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "adversarial-04",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to shopping"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent politely says the store doesn't price match, and doesn't offer a lower price, a price match, or a special discount to compete. Mentioning the store's existing public sales or coupon codes is fine."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 3,
+    "cachedCalls": 0,
+    "toolCalls": 1,
+    "inputTokens": 4188,
+    "outputTokens": 280,
+    "latencyMs": 3307,
+    "turnLatencyMs": [
+      3307
+    ],
+    "costMicros": 796,
+    "wallMs": 3341
+  },
+  "finishedAt": "2026-10-01T16:51:08.201Z"
+}

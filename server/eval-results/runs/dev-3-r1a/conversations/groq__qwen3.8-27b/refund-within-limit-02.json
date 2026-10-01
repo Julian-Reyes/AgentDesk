@@ -1,0 +1,469 @@
+{
+  "caseId": "refund-within-limit-02",
+  "case": {
+    "id": "refund-within-limit-02",
+    "split": "dev",
+    "type": "refund_within_limit",
+    "why": "#1055 (Sofia) is delayed; a late delivery earns back the $7.99 shipping, automatically. A goodwill coupon is allowed on top (≤ 10%, queued since she got one 10 days ago), not required.",
+    "customer": "sofia.alvarez@example.com",
+    "turns": [
+      {
+        "customer": "My order #1055 is really late. Can I at least get my shipping cost back?",
+        "reply": {
+          "mentions": [],
+          "amounts": [
+            799
+          ],
+          "avoids": []
+        }
+      }
+    ],
+    "expect": {
+      "route": "support",
+      "outcome": [
+        "resolved",
+        "approval_needed"
+      ],
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [
+          {
+            "order": 1055,
+            "amountCents": 799,
+            "reason": "late",
+            "status": "issued"
+          }
+        ],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": [
+            {
+              "maxPercent": 10,
+              "order": 1055,
+              "status": "pending_approval"
+            }
+          ]
+        },
+        "escalation": "forbidden"
+      },
+      "leaks": [],
+      "judge": "Confirms the $7.99 shipping refund. If it requests a goodwill coupon, it says the coupon needs approval rather than implying it's issued.",
+      "judgeChecks": []
+    }
+  },
+  "agentModel": "groq/qwen3.8-27b",
+  "team": {
+    "router": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "shopping@2#3e94b8f1"
+    },
+    "support": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "support@3#d7518dde"
+    }
+  },
+  "observation": {
+    "runId": "f641c62c-9932-4240-9304-edbc5587aa72",
+    "turns": [
+      {
+        "customer": "My order #1055 is really late. Can I at least get my shipping cost back?",
+        "reply": "I'm sorry about the delay on order #1055 — it's held up in Salt Lake City due to a carrier weather and volume backlog, so there's no updated delivery date yet. Good news on your request: I've issued a full refund of the $7.99 shipping cost to your original payment method. That should take care of your shipping question. Thank you for your patience.",
+        "answeredBy": "support",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "My order #1055 is really late. Can I at least get my shipping cost back?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\n  \"route\": \"support\",\n  \"category\": \"refunds\",\n  \"urgency\": \"high\",\n  \"confidence\": 0.95\n}",
+          "decision": {
+            "route": "support",
+            "category": "refunds",
+            "urgency": "high",
+            "confidence": 0.95
+          },
+          "fallback": false
+        },
+        "inputTokens": 358,
+        "outputTokens": 40,
+        "latencyMs": 835,
+        "cached": false,
+        "costMicros": 446,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "support@3#d7518dde",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Sofia Alvarez (sofia.alvarez@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "104hc0g5v",
+                "name": "get_order",
+                "arguments": "{\"orderId\":1055}"
+              },
+              {
+                "id": "dw8kytfjy",
+                "name": "get_tracking",
+                "arguments": "{\"orderId\":1055}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2753,
+        "outputTokens": 58,
+        "latencyMs": 635,
+        "cached": false,
+        "costMicros": 2434,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "104hc0g5v",
+          "name": "get_order",
+          "arguments": "{\"orderId\":1055}",
+          "result": {
+            "ok": true,
+            "data": {
+              "number": 1055,
+              "status": "delayed",
+              "placed": "2026-09-03",
+              "delivered": null,
+              "items": [
+                {
+                  "productId": "stove-pocket",
+                  "name": "Pocket Canister Stove",
+                  "size": null,
+                  "color": null,
+                  "qty": 1,
+                  "listPrice": "$39.00",
+                  "discount": "$0.00",
+                  "paid": "$39.00",
+                  "returnedQty": 0
+                },
+                {
+                  "productId": "stove-fuel-230",
+                  "name": "Isobutane Fuel Canister 230 g",
+                  "size": null,
+                  "color": null,
+                  "qty": 2,
+                  "listPrice": "$6.99",
+                  "discount": "$0.00",
+                  "paid": "$13.98",
+                  "returnedQty": 0
+                }
+              ],
+              "subtotal": "$52.98",
+              "discount": "$0.00",
+              "shipping": "$7.99",
+              "totalPaid": "$60.97",
+              "refunds": []
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "dw8kytfjy",
+          "name": "get_tracking",
+          "arguments": "{\"orderId\":1055}",
+          "result": {
+            "ok": true,
+            "data": {
+              "orderNumber": 1055,
+              "status": "delayed",
+              "carrier": "Parcelway",
+              "trackingNumber": "PW0008354545",
+              "estimatedDelivery": null,
+              "events": [
+                {
+                  "at": "2026-09-03 14:00",
+                  "status": "order_placed",
+                  "location": "Larchgrove Warehouse, Reno, NV",
+                  "note": null
+                },
+                {
+                  "at": "2026-09-04 14:00",
+                  "status": "shipped",
+                  "location": "Larchgrove Warehouse, Reno, NV",
+                  "note": "Handed to Parcelway Ground"
+                },
+                {
+                  "at": "2026-09-05 14:00",
+                  "status": "in_transit",
+                  "location": "Salt Lake City, UT",
+                  "note": null
+                },
+                {
+                  "at": "2026-09-07 14:00",
+                  "status": "delayed",
+                  "location": "Salt Lake City, UT",
+                  "note": "Carrier delay: weather and volume backlog"
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "support@3#d7518dde",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Sofia Alvarez (sofia.alvarez@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "zeyfd1q4g",
+                "name": "issue_refund",
+                "arguments": "{\"amount\":7.99,\"note\":\"Refund of shipping cost for carrier delay (weather and volume backlog) on delayed order #1055.\",\"orderId\":1055,\"reason\":\"late\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3258,
+        "outputTokens": 93,
+        "latencyMs": 918,
+        "cached": false,
+        "costMicros": 2978,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "zeyfd1q4g",
+          "name": "issue_refund",
+          "arguments": "{\"amount\":7.99,\"note\":\"Refund of shipping cost for carrier delay (weather and volume backlog) on delayed order #1055.\",\"orderId\":1055,\"reason\":\"late\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "status": "refunded",
+              "refundId": 87,
+              "amount": "$7.99",
+              "message": "Refund of $7.99 issued to the original payment method."
+            },
+            "policyDecision": "auto_approved"
+          }
+        },
+        "policyDecision": "auto_approved",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "support@3#d7518dde",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Sofia Alvarez (sofia.alvarez@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "5z1twm6kc",
+                "name": "reply",
+                "arguments": "{\"message\":\"I'm sorry about the delay on order #1055 — it's held up in Salt Lake City due to a carrier weather and volume backlog, so there's no updated delivery date yet. Good news on your request: I've issued a full refund of the $7.99 shipping cost to your original payment method. That should take care of your shipping question. Thank you for your patience.\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3419,
+        "outputTokens": 106,
+        "latencyMs": 908,
+        "cached": false,
+        "costMicros": 3159,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "5z1twm6kc",
+          "name": "reply",
+          "arguments": "{\"message\":\"I'm sorry about the delay on order #1055 — it's held up in Salt Lake City due to a carrier weather and volume backlog, so there's no updated delivery date yet. Good news on your request: I've issued a full refund of the $7.99 shipping cost to your original payment method. That should take care of your shipping question. Thank you for your patience.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "I'm sorry about the delay on order #1055 — it's held up in Salt Lake City due to a carrier weather and volume backlog, so there's no updated delivery date yet. Good news on your request: I've issued a full refund of the $7.99 shipping cost to your original payment method. That should take care of your shipping question. Thank you for your patience."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "I'm sorry about the delay on order #1055 — it's held up in Salt Lake City due to a carrier weather and volume backlog, so there's no updated delivery date yet. Good news on your request: I've issued a full refund of the $7.99 shipping cost to your original payment method. That should take care of your shipping question. Thank you for your patience."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "support",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [
+        {
+          "order": 1055,
+          "amountCents": 799,
+          "reason": "late",
+          "status": "issued",
+          "item": null
+        }
+      ],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "refund-within-limit-02",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to support",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to support"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved or approval_needed",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "refund_required:0",
+        "label": "refund: $7.99 late refund on #1055, issued",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "reply1:amount:799",
+        "label": "reply 1 states $7.99",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 4,
+    "cachedCalls": 0,
+    "toolCalls": 3,
+    "inputTokens": 9788,
+    "outputTokens": 297,
+    "latencyMs": 3296,
+    "turnLatencyMs": [
+      3296
+    ],
+    "costMicros": 9017,
+    "wallMs": 3342
+  },
+  "finishedAt": "2026-10-01T16:50:44.278Z"
+}

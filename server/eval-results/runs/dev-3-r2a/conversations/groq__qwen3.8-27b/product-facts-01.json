@@ -1,0 +1,365 @@
+{
+  "caseId": "product-facts-01",
+  "case": {
+    "id": "product-facts-01",
+    "split": "dev",
+    "type": "product_facts",
+    "why": "Ridge 2 Backpacking Tent: waterproof, 3000 mm rating, 1900 g. Both facts come straight from the catalog.",
+    "source": "spec table",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "Is the Ridge 2 tent waterproof? And how much does it weigh?",
+        "reply": {
+          "mentions": [
+            "waterproof",
+            [
+              "1.9 kg",
+              "1.9kg",
+              "1900 g",
+              "1900g",
+              "1,900 g",
+              "4.2 lb"
+            ]
+          ],
+          "amounts": [],
+          "avoids": []
+        }
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "outcome": "resolved",
+      "tools": {
+        "required": [
+          {
+            "anyOf": [
+              {
+                "tool": "get_product",
+                "args": {
+                  "id": "tent-ridge-2"
+                }
+              },
+              {
+                "tool": "search_products"
+              }
+            ]
+          }
+        ],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "leaks": [],
+      "judge": "Answers both questions directly: yes, waterproof (3000 mm), and 1.9 kg. May add the sale price. Short.",
+      "judgeChecks": []
+    }
+  },
+  "agentModel": "groq/qwen3.8-27b",
+  "team": {
+    "router": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "370d4167-3943-4e33-a8f2-24391bc2cea4",
+    "turns": [
+      {
+        "customer": "Is the Ridge 2 tent waterproof? And how much does it weigh?",
+        "reply": "Yes, the Ridge 2 Backpacking Tent is waterproof, rated at 3000 mm. It weighs about 1900 grams (roughly 4.2 lb). It's a 3-season, two-person freestanding tent, currently $199.20 (down from $249.00 with the tent sale).",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Is the Ridge 2 tent waterproof? And how much does it weigh?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"shopping\", \"category\": \"product_info\", \"urgency\": \"low\", \"confidence\": 0.95}",
+          "decision": {
+            "route": "shopping",
+            "category": "product_info",
+            "urgency": "low",
+            "confidence": 0.95
+          },
+          "fallback": false
+        },
+        "inputTokens": 352,
+        "outputTokens": 30,
+        "latencyMs": 1007,
+        "cached": false,
+        "costMicros": 402,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "hyyx3bh1x",
+                "name": "search_products",
+                "arguments": "{\"filters\":{\"category\":\"tents\"},\"query\":\"Ridge 2\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2468,
+        "outputTokens": 48,
+        "latencyMs": 907,
+        "cached": false,
+        "costMicros": 2166,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "hyyx3bh1x",
+          "name": "search_products",
+          "arguments": "{\"filters\":{\"category\":\"tents\"},\"query\":\"Ridge 2\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 1,
+              "products": [
+                {
+                  "id": "tent-ridge-2",
+                  "name": "Ridge 2 Backpacking Tent",
+                  "category": "tents",
+                  "listPrice": "$249.00",
+                  "currentPrice": "$199.20",
+                  "rating": 4.6,
+                  "description": "Freestanding two-person backpacking tent with two doors and two vestibules.",
+                  "specs": {
+                    "seasons": 3,
+                    "material": "20D ripstop nylon",
+                    "waterproof": true,
+                    "weightGrams": 1900,
+                    "capacityPersons": 2,
+                    "waterproofRatingMm": 3000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Tent Sale: 20% off all tents"
+                  ]
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "jcp4838n7",
+                "name": "reply",
+                "arguments": "{\"message\":\"Yes, the Ridge 2 Backpacking Tent is waterproof, rated at 3000 mm. It weighs about 1900 grams (roughly 4.2 lb). It's a 3-season, two-person freestanding tent, currently $199.20 (down from $249.00 with the tent sale).\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2711,
+        "outputTokens": 101,
+        "latencyMs": 823,
+        "cached": false,
+        "costMicros": 2573,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "jcp4838n7",
+          "name": "reply",
+          "arguments": "{\"message\":\"Yes, the Ridge 2 Backpacking Tent is waterproof, rated at 3000 mm. It weighs about 1900 grams (roughly 4.2 lb). It's a 3-season, two-person freestanding tent, currently $199.20 (down from $249.00 with the tent sale).\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "Yes, the Ridge 2 Backpacking Tent is waterproof, rated at 3000 mm. It weighs about 1900 grams (roughly 4.2 lb). It's a 3-season, two-person freestanding tent, currently $199.20 (down from $249.00 with the tent sale)."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "Yes, the Ridge 2 Backpacking Tent is waterproof, rated at 3000 mm. It weighs about 1900 grams (roughly 4.2 lb). It's a 3-season, two-person freestanding tent, currently $199.20 (down from $249.00 with the tent sale)."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "shopping",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "product-facts-01",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to shopping"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "tool_required:0",
+        "label": "calls get_product {\"id\":\"tent-ridge-2\"} or search_products",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "reply1:mentions:0",
+        "label": "reply 1 mentions \"waterproof\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:mentions:1",
+        "label": "reply 1 mentions \"1.9 kg\" or \"1.9kg\" or \"1900 g\" or \"1900g\" or \"1,900 g\" or \"4.2 lb\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 3,
+    "cachedCalls": 0,
+    "toolCalls": 1,
+    "inputTokens": 5531,
+    "outputTokens": 179,
+    "latencyMs": 2737,
+    "turnLatencyMs": [
+      2737
+    ],
+    "costMicros": 5141,
+    "wallMs": 2865
+  },
+  "finishedAt": "2026-10-01T16:48:20.415Z"
+}

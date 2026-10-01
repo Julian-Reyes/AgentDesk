@@ -201,6 +201,9 @@ describe("round 2: repairing plain-text reply calls, and corrective retries", ()
 
   it("rebuilds gpt-oss's plain-text reply call (dev-1/1b/2: 107 of 122 rejections)", () => {
     expect(repairReplyCall(agentReq, "tool_use_failed", `{"name": "reply", "arguments": ${TEXT}}`)).toEqual({ id: "repaired_0", name: "reply", arguments: JSON.stringify({ message: TEXT }) });
+    // The string it closes but never opened (dev-3-r1a/r2a): the stray quote goes; a paired one stays.
+    expect(JSON.parse(repairReplyCall(agentReq, "tool_use_failed", `{"name": "reply", "arguments": ${TEXT} Thanks for understanding."}`)!.arguments)).toEqual({ message: `${TEXT} Thanks for understanding.` });
+    expect(JSON.parse(repairReplyCall(agentReq, "tool_use_failed", '{"name": "reply", "arguments": It\'s called "Pocket Pro"}')!.arguments)).toEqual({ message: 'It\'s called "Pocket Pro"' });
     // Multi-line text, no closing brace, and a brace inside the text are all kept as written.
     expect(JSON.parse(repairReplyCall(agentReq, "tool_use_failed", '{"name":"reply","arguments": Two options:\n- {A}\n- B')!.arguments)).toEqual({ message: "Two options:\n- {A}\n- B" });
     // Valid JSON the provider choked on anyway: a JSON string or a {"message"} object.

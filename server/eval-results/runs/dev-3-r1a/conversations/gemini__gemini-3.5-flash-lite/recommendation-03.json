@@ -1,0 +1,371 @@
+{
+  "caseId": "recommendation-03",
+  "case": {
+    "id": "recommendation-03",
+    "split": "dev",
+    "type": "recommendation",
+    "why": "Waterproof tents for 4+ people with stock: Basecamp 4 ($223.20 on sale) and Meadow 6 ($319.20 on sale). Tests capacity, waterproofing and stock together.",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "We're a family of four. Which waterproof tents do you have in stock that sleep four or more?"
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "recommendation": {
+        "constraints": {
+          "category": "tents",
+          "minCapacityPersons": 4,
+          "waterproof": true,
+          "inStock": true
+        },
+        "acceptable": [
+          "tent-basecamp-4",
+          "tent-meadow-6"
+        ]
+      },
+      "leaks": [],
+      "judge": "Lists both with capacity and current price, and helps choose (the Basecamp 4 is lighter and cheaper; the Meadow 6 has more room and a divider).",
+      "judgeChecks": []
+    }
+  },
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "team": {
+    "router": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "shopping@2#3e94b8f1"
+    },
+    "support": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "support@3#d7518dde"
+    }
+  },
+  "observation": {
+    "runId": "b1ae35cf-3b33-4fe8-a066-451f80b7c502",
+    "turns": [
+      {
+        "customer": "We're a family of four. Which waterproof tents do you have in stock that sleep four or more?",
+        "reply": "We have two waterproof tents in stock that sleep four or more:\n\n1. Basecamp 4 Family Tent - sleeps 4, currently was $279.00, now $223.20.\n2. Meadow 6 Cabin Tent - sleeps 6, currently was $399.00, now $319.20.\n\nBoth are currently 20% off as part of our tent sale. Let me know if you would like to know more about either of them!",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "We're a family of four. Which waterproof tents do you have in stock that sleep four or more?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"shopping\", \"category\": \"recommendation\", \"urgency\": \"normal\", \"confidence\": 1.0}",
+          "decision": {
+            "route": "shopping",
+            "category": "recommendation",
+            "urgency": "normal",
+            "confidence": 1
+          },
+          "fallback": false
+        },
+        "inputTokens": 354,
+        "outputTokens": 28,
+        "latencyMs": 792,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@2#3e94b8f1",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_518000",
+                "name": "search_products",
+                "arguments": "{\"filters\":{\"waterproof\":true,\"inStockOnly\":true,\"category\":\"tents\",\"minCapacityPersons\":4}}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TVJ4xHBdlQuT56uP95474Nf/hcKm7MWxOlHcaQupNhrmneXFJkMKqr84FwnFGuxVlJScxkxd3TbrNWnoZ0Lmj9C2MK2AB/NmtPrv+fqPsa1sV0YwAW1PBScA="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1988,
+        "outputTokens": 36,
+        "latencyMs": 821,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_518000",
+          "name": "search_products",
+          "arguments": "{\"filters\":{\"waterproof\":true,\"inStockOnly\":true,\"category\":\"tents\",\"minCapacityPersons\":4}}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 2,
+              "products": [
+                {
+                  "id": "tent-basecamp-4",
+                  "name": "Basecamp 4 Family Tent",
+                  "category": "tents",
+                  "listPrice": "$279.00",
+                  "currentPrice": "$223.20",
+                  "rating": 4.2,
+                  "description": "Four-person dome tent for car camping, with a large front porch.",
+                  "specs": {
+                    "seasons": 3,
+                    "material": "polyester",
+                    "waterproof": true,
+                    "weightGrams": 5800,
+                    "capacityPersons": 4,
+                    "waterproofRatingMm": 2000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Tent Sale: 20% off all tents"
+                  ]
+                },
+                {
+                  "id": "tent-meadow-6",
+                  "name": "Meadow 6 Cabin Tent",
+                  "category": "tents",
+                  "listPrice": "$399.00",
+                  "currentPrice": "$319.20",
+                  "rating": 4.1,
+                  "description": "Six-person cabin tent with near-vertical walls and a room divider.",
+                  "specs": {
+                    "seasons": 3,
+                    "material": "polyester",
+                    "waterproof": true,
+                    "weightGrams": 9400,
+                    "capacityPersons": 6,
+                    "waterproofRatingMm": 1800
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Tent Sale: 20% off all tents"
+                  ]
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@2#3e94b8f1",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_247597",
+                "name": "reply",
+                "arguments": "{\"message\":\"We have two waterproof tents in stock that sleep four or more:\\n\\n1. Basecamp 4 Family Tent - sleeps 4, currently was $279.00, now $223.20.\\n2. Meadow 6 Cabin Tent - sleeps 6, currently was $399.00, now $319.20.\\n\\nBoth are currently 20% off as part of our tent sale. Let me know if you would like to know more about either of them!\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TNN5VaozfXPtSHTh0b1fnNCEH/+ZsJBCxRbOPK5ukWfba+wI2twd6SJHZf87jgK1rVMrTrXzB5rof3PS2OaTZFSaZvlV1cvhQDkLzA9hT8zuv6ldNfFim/Uo="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2346,
+        "outputTokens": 122,
+        "latencyMs": 1490,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_247597",
+          "name": "reply",
+          "arguments": "{\"message\":\"We have two waterproof tents in stock that sleep four or more:\\n\\n1. Basecamp 4 Family Tent - sleeps 4, currently was $279.00, now $223.20.\\n2. Meadow 6 Cabin Tent - sleeps 6, currently was $399.00, now $319.20.\\n\\nBoth are currently 20% off as part of our tent sale. Let me know if you would like to know more about either of them!\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "We have two waterproof tents in stock that sleep four or more:\n\n1. Basecamp 4 Family Tent - sleeps 4, currently was $279.00, now $223.20.\n2. Meadow 6 Cabin Tent - sleeps 6, currently was $399.00, now $319.20.\n\nBoth are currently 20% off as part of our tent sale. Let me know if you would like to know more about either of them!"
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "We have two waterproof tents in stock that sleep four or more:\n\n1. Basecamp 4 Family Tent - sleeps 4, currently was $279.00, now $223.20.\n2. Meadow 6 Cabin Tent - sleeps 6, currently was $399.00, now $319.20.\n\nBoth are currently 20% off as part of our tent sale. Let me know if you would like to know more about either of them!"
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "shopping",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "recommendation-03",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to shopping"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "recommendation",
+        "label": "recommends only products that meet every constraint",
+        "pass": true,
+        "severity": "task",
+        "detail": "named: tent-basecamp-4, tent-meadow-6"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 3,
+    "cachedCalls": 0,
+    "toolCalls": 1,
+    "inputTokens": 4688,
+    "outputTokens": 186,
+    "latencyMs": 3103,
+    "turnLatencyMs": [
+      3103
+    ],
+    "costMicros": 0,
+    "wallMs": 3144
+  },
+  "finishedAt": "2026-10-01T16:52:03.575Z"
+}

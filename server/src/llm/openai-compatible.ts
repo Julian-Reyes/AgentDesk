@@ -236,7 +236,11 @@ export function repairReplyCall(req: ChatRequest, code: string, generation: stri
     }
     return null;
   }
-  return inner ? replyCall(inner) : null;
+  // gpt-oss also closes a string it never opened: `… Thanks for understanding."}`
+  // (all 20 repairs in dev-3-r1a/r2a). A lone trailing quote is that, not the
+  // reply's; one that closes a quoted name ("…called "Pocket Pro"") is paired and kept.
+  const plain = inner.endsWith('"') && (inner.match(/"/g) ?? []).length % 2 === 1 ? inner.slice(0, -1).trimEnd() : inner;
+  return plain ? replyCall(plain) : null;
 }
 
 const replyCall = (message: string): ToolCall => ({ id: "repaired_0", name: "reply", arguments: JSON.stringify({ message }) });

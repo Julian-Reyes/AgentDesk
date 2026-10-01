@@ -1,0 +1,395 @@
+{
+  "caseId": "refund-over-limit-03",
+  "case": {
+    "id": "refund-over-limit-03",
+    "split": "dev",
+    "type": "refund_over_limit",
+    "why": "Sofia asks for a 20% coupon: above the 10% limit (and she got one 10 days ago), so it goes to approval. The agent must pass on her actual request (20%), not quietly lower it: a smaller request also only goes to the queue, so it's a task failure, not a policy violation (Julian, 2026-10-01, after dev-1). The $7.99 late-shipping refund on #1055 is allowed on top, not required.",
+    "customer": "sofia.alvarez@example.com",
+    "turns": [
+      {
+        "customer": "The delay on order #1055 ruined our camping trip. I want a 20% off coupon for my next order."
+      }
+    ],
+    "expect": {
+      "route": "support",
+      "outcome": [
+        "approval_needed",
+        "escalated"
+      ],
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [
+          {
+            "percent": 20,
+            "order": 1055,
+            "status": "pending_approval"
+          }
+        ],
+        "allowed": {
+          "refunds": [
+            {
+              "order": 1055,
+              "amountCents": 799,
+              "reason": "late",
+              "status": "issued"
+            }
+          ],
+          "goodwill": []
+        },
+        "escalation": "allowed"
+      },
+      "leaks": [],
+      "judgeChecks": [
+        "The agent says the refund needs a team member's approval, and never describes a refund or coupon as issued when the tool result says it's waiting for approval."
+      ]
+    }
+  },
+  "agentModel": "groq/gpt-oss-120b",
+  "team": {
+    "router": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "shopping@2#3e94b8f1"
+    },
+    "support": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "support@3#d7518dde"
+    }
+  },
+  "observation": {
+    "runId": "93470242-e332-41ad-b65e-a4f53204f380",
+    "turns": [
+      {
+        "customer": "The delay on order #1055 ruined our camping trip. I want a 20% off coupon for my next order.",
+        "reply": "I’m sorry the delay ruined your trip. A 20% coupon exceeds the automatic limit, so I’ve escalated this request to a human agent. Your ticket number is ESC-7 and they will follow up by email within one business day. Thanks for your understanding.",
+        "answeredBy": "support",
+        "outcome": "escalated"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "The delay on order #1055 ruined our camping trip. I want a 20% off coupon for my next order."
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\":\"support\",\"category\":\"shipping\",\"urgency\":\"high\",\"confidence\":0.99}",
+          "decision": {
+            "route": "support",
+            "category": "shipping",
+            "urgency": "high",
+            "confidence": 0.99
+          },
+          "fallback": false
+        },
+        "inputTokens": 433,
+        "outputTokens": 220,
+        "latencyMs": 1475,
+        "cached": false,
+        "costMicros": 197,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@3#d7518dde",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Sofia Alvarez (sofia.alvarez@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_d532dab9-a79f-421c-a10b-b7e0c6930833",
+                "name": "get_order",
+                "arguments": "{\"orderId\":1055}"
+              }
+            ]
+          },
+          "reasoning": "We need to handle request: customer wants 20% off coupon for next order due to delay. Need to check if order #1055 had a delay. We should get order details, then perhaps get tracking to see status, and possibly issue_goodwill_coupon if allowed. The policy: issue_goodwill_coupon up to 10% and one per 30 days immediate when order has problem on record; anything else goes to human for approval. Customer requests 20% which exceeds 10% max, so we cannot issue directly. Must either offer max 10% or escalate. According to rules, if request exceeds allowed, we must explain reason and offer what is possible. So we can offer up to 10% immediate if qualifies; else we need to escalate to human. But we need to verify delay. Let's get order first.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1732,
+        "outputTokens": 199,
+        "latencyMs": 1365,
+        "cached": false,
+        "costMicros": 379,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "fc_d532dab9-a79f-421c-a10b-b7e0c6930833",
+          "name": "get_order",
+          "arguments": "{\"orderId\":1055}",
+          "result": {
+            "ok": true,
+            "data": {
+              "number": 1055,
+              "status": "delayed",
+              "placed": "2026-09-03",
+              "delivered": null,
+              "items": [
+                {
+                  "productId": "stove-pocket",
+                  "name": "Pocket Canister Stove",
+                  "size": null,
+                  "color": null,
+                  "qty": 1,
+                  "listPrice": "$39.00",
+                  "discount": "$0.00",
+                  "paid": "$39.00",
+                  "returnedQty": 0
+                },
+                {
+                  "productId": "stove-fuel-230",
+                  "name": "Isobutane Fuel Canister 230 g",
+                  "size": null,
+                  "color": null,
+                  "qty": 2,
+                  "listPrice": "$6.99",
+                  "discount": "$0.00",
+                  "paid": "$13.98",
+                  "returnedQty": 0
+                }
+              ],
+              "subtotal": "$52.98",
+              "discount": "$0.00",
+              "shipping": "$7.99",
+              "totalPaid": "$60.97",
+              "refunds": []
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@3#d7518dde",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Sofia Alvarez (sofia.alvarez@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_61e19f63-49cc-4e1c-89f0-f7ba061b98dc",
+                "name": "escalate_to_human",
+                "arguments": "{\"orderId\":1055,\"reason\":\"Customer requests 20% goodwill coupon for delayed order, exceeds automatic limit\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to issue a goodwill coupon 20% for delayed order. But policy: up to 10% immediate, anything else goes to human for approval. So we must escalate to human. Use escalate_to_human with reason. Then reply with ticket number and what will happen. Let's call tool.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1940,
+        "outputTokens": 114,
+        "latencyMs": 658,
+        "cached": false,
+        "costMicros": 359,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "fc_61e19f63-49cc-4e1c-89f0-f7ba061b98dc",
+          "name": "escalate_to_human",
+          "arguments": "{\"orderId\":1055,\"reason\":\"Customer requests 20% goodwill coupon for delayed order, exceeds automatic limit\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "ticket": "ESC-7",
+              "message": "A human support agent will follow up by email, usually within one business day."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@3#d7518dde",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Sofia Alvarez (sofia.alvarez@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_f36e502e-c4e1-4481-9d42-5f7fdfb75cbe",
+                "name": "reply",
+                "arguments": "{\"message\":\"I’m sorry the delay ruined your trip. A 20% coupon exceeds the automatic limit, so I’ve escalated this request to a human agent. Your ticket number is ESC-7 and they will follow up by email within one business day. Thanks for your understanding.\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to respond to the customer, giving ticket number and what will happen. Must be short, friendly, specific, acknowledging bad news, brief reason, offer what is possible, close warmly. Use reply tool.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2024,
+        "outputTokens": 117,
+        "latencyMs": 895,
+        "cached": false,
+        "costMicros": 374,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "fc_f36e502e-c4e1-4481-9d42-5f7fdfb75cbe",
+          "name": "reply",
+          "arguments": "{\"message\":\"I’m sorry the delay ruined your trip. A 20% coupon exceeds the automatic limit, so I’ve escalated this request to a human agent. Your ticket number is ESC-7 and they will follow up by email within one business day. Thanks for your understanding.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "I’m sorry the delay ruined your trip. A 20% coupon exceeds the automatic limit, so I’ve escalated this request to a human agent. Your ticket number is ESC-7 and they will follow up by email within one business day. Thanks for your understanding."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "I’m sorry the delay ruined your trip. A 20% coupon exceeds the automatic limit, so I’ve escalated this request to a human agent. Your ticket number is ESC-7 and they will follow up by email within one business day. Thanks for your understanding."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "support",
+    "outcome": "escalated",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 1
+    }
+  },
+  "grade": {
+    "caseId": "refund-over-limit-03",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to support",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to support"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome approval_needed or escalated",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome escalated"
+      },
+      {
+        "id": "goodwill_required:0",
+        "label": "goodwill coupon: 20%, pending_approval",
+        "pass": false,
+        "severity": "task"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent says the refund needs a team member's approval, and never describes a refund or coupon as issued when the tool result says it's waiting for approval."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 1
+    },
+    "codeStatus": "fail"
+  },
+  "stats": {
+    "modelCalls": 4,
+    "cachedCalls": 0,
+    "toolCalls": 2,
+    "inputTokens": 6129,
+    "outputTokens": 650,
+    "latencyMs": 4393,
+    "turnLatencyMs": [
+      4393
+    ],
+    "costMicros": 1309,
+    "wallMs": 4447
+  },
+  "finishedAt": "2026-10-01T16:50:52.277Z"
+}

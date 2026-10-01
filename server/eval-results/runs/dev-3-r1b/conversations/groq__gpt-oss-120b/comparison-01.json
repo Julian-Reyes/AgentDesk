@@ -1,0 +1,454 @@
+{
+  "caseId": "comparison-01",
+  "case": {
+    "id": "comparison-01",
+    "split": "dev",
+    "type": "comparison",
+    "why": "Ridge 2 (2 people, 1900 g, $199.20 on sale) vs Summit 3 (3 people, 2600 g, $263.20 on sale). For backpacking, weight is the key difference.",
+    "source": "spec table",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "Ridge 2 vs Summit 3 for backpacking, which one should I get?",
+        "reply": {
+          "mentions": [
+            [
+              "1.9 kg",
+              "1.9kg",
+              "1900 g",
+              "1900g",
+              "1,900 g"
+            ],
+            [
+              "2.6 kg",
+              "2.6kg",
+              "2600 g",
+              "2600g",
+              "2,600 g"
+            ]
+          ],
+          "amounts": [],
+          "avoids": []
+        }
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "leaks": [],
+      "judge": "Correct specs for both (capacity, weight). Points out the Ridge 2 is lighter for two people and the Summit 3 roomier for three. Any prices quoted are the current sale prices.",
+      "judgeChecks": []
+    }
+  },
+  "agentModel": "groq/gpt-oss-120b",
+  "team": {
+    "router": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "shopping@2#3e94b8f1"
+    },
+    "support": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "support@3#d7518dde"
+    }
+  },
+  "observation": {
+    "runId": "6415c07b-235d-48a7-b729-a4624be76d2b",
+    "turns": [
+      {
+        "customer": "Ridge 2 vs Summit 3 for backpacking, which one should I get?",
+        "reply": "Here’s a quick side‑by‑side comparison:\n\n**Ridge 2 Backpacking Tent**\n- Capacity: 2 persons (two doors, two vestibules)\n- Weight: 1,900 g\n- Waterproof rating: 3,000 mm\n- Material: 20 D ripstop nylon\n- Current price: $199.20 (was $249.00)\n- Rating: 4.6 / 5\n- Stock: in‑stock\n\n**Summit 3 Trekking Tent**\n- Capacity: 3 persons (steep‑walled design)\n- Weight: 2,600 g\n- Waterproof rating: 3,000 mm\n- Material: 30 D ripstop nylon\n- Current price: $263.20 (was $329.00)\n- Rating: 4.5 / 5\n- Stock: low‑stock\n\n**Which to choose?**\n- If you value lighter weight and a lower price for a two‑person setup, the Ridge 2 is the better backpacking option.\n- If you need extra space for three people or a lot of gear and can handle the extra weight and cost, the Summit 3 gives that capacity.\n\nFor most solo or duo backpacking trips, the Ridge 2 offers the lighter, cheaper, and higher‑rated solution. Let me know if you’d like more details, to check stock for a specific size/color, or to add one to a cart.",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Ridge 2 vs Summit 3 for backpacking, which one should I get?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\":\"shopping\",\"category\":\"recommendation\",\"urgency\":\"normal\",\"confidence\":0.99}",
+          "decision": {
+            "route": "shopping",
+            "category": "recommendation",
+            "urgency": "normal",
+            "confidence": 0.99
+          },
+          "fallback": false
+        },
+        "inputTokens": 426,
+        "outputTokens": 115,
+        "latencyMs": 2577,
+        "cached": false,
+        "costMicros": 133,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@2#3e94b8f1",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_d11c0933-ba14-4020-942a-5602a20169cf",
+                "name": "search_products",
+                "arguments": "{\"limit\":5,\"query\":\"Ridge 2\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to compare Ridge 2 and Summit 3. Likely they are backpacks? Need to search catalog.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1847,
+        "outputTokens": 61,
+        "latencyMs": 367,
+        "cached": false,
+        "costMicros": 314,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_d11c0933-ba14-4020-942a-5602a20169cf",
+          "name": "search_products",
+          "arguments": "{\"limit\":5,\"query\":\"Ridge 2\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 3,
+              "products": [
+                {
+                  "id": "tent-ridge-2",
+                  "name": "Ridge 2 Backpacking Tent",
+                  "category": "tents",
+                  "listPrice": "$249.00",
+                  "currentPrice": "$199.20",
+                  "rating": 4.6,
+                  "description": "Freestanding two-person backpacking tent with two doors and two vestibules.",
+                  "specs": {
+                    "seasons": 3,
+                    "material": "20D ripstop nylon",
+                    "waterproof": true,
+                    "weightGrams": 1900,
+                    "capacityPersons": 2,
+                    "waterproofRatingMm": 3000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Tent Sale: 20% off all tents"
+                  ]
+                },
+                {
+                  "id": "boot-ridgeline-mid",
+                  "name": "Ridgeline Mid Hiking Boot",
+                  "category": "boots",
+                  "listPrice": "$179.00",
+                  "currentPrice": "$179.00",
+                  "rating": 4.5,
+                  "description": "Waterproof mid-cut hiking boot with a membrane liner.",
+                  "specs": {
+                    "material": "suede and mesh",
+                    "waterproof": true,
+                    "weightGrams": 1200
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "boot-ridgeline-low",
+                  "name": "Ridgeline Low Hiking Shoe",
+                  "category": "boots",
+                  "listPrice": "$139.00",
+                  "currentPrice": "$139.00",
+                  "rating": 4.4,
+                  "description": "Low-cut waterproof hiking shoe for day hikes.",
+                  "specs": {
+                    "material": "suede and mesh",
+                    "waterproof": true,
+                    "weightGrams": 900
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@2#3e94b8f1",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_67dd904f-bc6a-4017-a510-f603da87c6a5",
+                "name": "search_products",
+                "arguments": "{\"limit\":5,\"query\":\"Summit 3\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to compare Ridge 2 vs Summit 3. We have Ridge 2 tent. Need Summit 3 product. Search.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2218,
+        "outputTokens": 57,
+        "latencyMs": 439,
+        "cached": false,
+        "costMicros": 367,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_67dd904f-bc6a-4017-a510-f603da87c6a5",
+          "name": "search_products",
+          "arguments": "{\"limit\":5,\"query\":\"Summit 3\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 1,
+              "products": [
+                {
+                  "id": "tent-summit-3",
+                  "name": "Summit 3 Trekking Tent",
+                  "category": "tents",
+                  "listPrice": "$329.00",
+                  "currentPrice": "$263.20",
+                  "rating": 4.5,
+                  "description": "Roomy three-person trekking tent with a steep-walled design for long trips.",
+                  "specs": {
+                    "seasons": 3,
+                    "material": "30D ripstop nylon",
+                    "waterproof": true,
+                    "weightGrams": 2600,
+                    "capacityPersons": 3,
+                    "waterproofRatingMm": 3000
+                  },
+                  "availability": "low_stock",
+                  "activeDeals": [
+                    "Tent Sale: 20% off all tents"
+                  ]
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@2#3e94b8f1",
+        "data": {
+          "step": 3,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_3a50261e-b0ee-4689-9ad8-121a36c397f6",
+                "name": "reply",
+                "arguments": "{\"message\":\"Here’s a quick side‑by‑side comparison:\\n\\n**Ridge 2 Backpacking Tent**\\n- Capacity: 2 persons (two doors, two vestibules)\\n- Weight: 1,900 g\\n- Waterproof rating: 3,000 mm\\n- Material: 20 D ripstop nylon\\n- Current price: $199.20 (was $249.00)\\n- Rating: 4.6 / 5\\n- Stock: in‑stock\\n\\n**Summit 3 Trekking Tent**\\n- Capacity: 3 persons (steep‑walled design)\\n- Weight: 2,600 g\\n- Waterproof rating: 3,000 mm\\n- Material: 30 D ripstop nylon\\n- Current price: $263.20 (was $329.00)\\n- Rating: 4.5 / 5\\n- Stock: low‑stock\\n\\n**Which to choose?**\\n- If you value lighter weight and a lower price for a two‑person setup, the Ridge 2 is the better backpacking option.\\n- If you need extra space for three people or a lot of gear and can handle the extra weight and cost, the Summit 3 gives that capacity.\\n\\nFor most solo or duo backpacking trips, the Ridge 2 offers the lighter, cheaper, and higher‑rated solution. Let me know if you’d like more details, to check stock for a specific size/color, or to add one to a cart.\\n\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to compare Ridge 2 vs Summit 3 for backpacking, give recommendation. Need specs: weight, capacity, price, rating. Use info from search results. Provide recommendation based on backpacking: likely weight matters; Ridge 2 lighter, 2-person vs 3-person, cheaper. Provide pros/cons.\n\nWe must reply using reply tool, not mention tools. Ensure under 2000 chars.\n\n",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2418,
+        "outputTokens": 430,
+        "latencyMs": 2502,
+        "cached": false,
+        "costMicros": 621,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_3a50261e-b0ee-4689-9ad8-121a36c397f6",
+          "name": "reply",
+          "arguments": "{\"message\":\"Here’s a quick side‑by‑side comparison:\\n\\n**Ridge 2 Backpacking Tent**\\n- Capacity: 2 persons (two doors, two vestibules)\\n- Weight: 1,900 g\\n- Waterproof rating: 3,000 mm\\n- Material: 20 D ripstop nylon\\n- Current price: $199.20 (was $249.00)\\n- Rating: 4.6 / 5\\n- Stock: in‑stock\\n\\n**Summit 3 Trekking Tent**\\n- Capacity: 3 persons (steep‑walled design)\\n- Weight: 2,600 g\\n- Waterproof rating: 3,000 mm\\n- Material: 30 D ripstop nylon\\n- Current price: $263.20 (was $329.00)\\n- Rating: 4.5 / 5\\n- Stock: low‑stock\\n\\n**Which to choose?**\\n- If you value lighter weight and a lower price for a two‑person setup, the Ridge 2 is the better backpacking option.\\n- If you need extra space for three people or a lot of gear and can handle the extra weight and cost, the Summit 3 gives that capacity.\\n\\nFor most solo or duo backpacking trips, the Ridge 2 offers the lighter, cheaper, and higher‑rated solution. Let me know if you’d like more details, to check stock for a specific size/color, or to add one to a cart.\\n\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "Here’s a quick side‑by‑side comparison:\n\n**Ridge 2 Backpacking Tent**\n- Capacity: 2 persons (two doors, two vestibules)\n- Weight: 1,900 g\n- Waterproof rating: 3,000 mm\n- Material: 20 D ripstop nylon\n- Current price: $199.20 (was $249.00)\n- Rating: 4.6 / 5\n- Stock: in‑stock\n\n**Summit 3 Trekking Tent**\n- Capacity: 3 persons (steep‑walled design)\n- Weight: 2,600 g\n- Waterproof rating: 3,000 mm\n- Material: 30 D ripstop nylon\n- Current price: $263.20 (was $329.00)\n- Rating: 4.5 / 5\n- Stock: low‑stock\n\n**Which to choose?**\n- If you value lighter weight and a lower price for a two‑person setup, the Ridge 2 is the better backpacking option.\n- If you need extra space for three people or a lot of gear and can handle the extra weight and cost, the Summit 3 gives that capacity.\n\nFor most solo or duo backpacking trips, the Ridge 2 offers the lighter, cheaper, and higher‑rated solution. Let me know if you’d like more details, to check stock for a specific size/color, or to add one to a cart."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "Here’s a quick side‑by‑side comparison:\n\n**Ridge 2 Backpacking Tent**\n- Capacity: 2 persons (two doors, two vestibules)\n- Weight: 1,900 g\n- Waterproof rating: 3,000 mm\n- Material: 20 D ripstop nylon\n- Current price: $199.20 (was $249.00)\n- Rating: 4.6 / 5\n- Stock: in‑stock\n\n**Summit 3 Trekking Tent**\n- Capacity: 3 persons (steep‑walled design)\n- Weight: 2,600 g\n- Waterproof rating: 3,000 mm\n- Material: 30 D ripstop nylon\n- Current price: $263.20 (was $329.00)\n- Rating: 4.5 / 5\n- Stock: low‑stock\n\n**Which to choose?**\n- If you value lighter weight and a lower price for a two‑person setup, the Ridge 2 is the better backpacking option.\n- If you need extra space for three people or a lot of gear and can handle the extra weight and cost, the Summit 3 gives that capacity.\n\nFor most solo or duo backpacking trips, the Ridge 2 offers the lighter, cheaper, and higher‑rated solution. Let me know if you’d like more details, to check stock for a specific size/color, or to add one to a cart."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "shopping",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "comparison-01",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to shopping"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "reply1:mentions:0",
+        "label": "reply 1 mentions \"1.9 kg\" or \"1.9kg\" or \"1900 g\" or \"1900g\" or \"1,900 g\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:mentions:1",
+        "label": "reply 1 mentions \"2.6 kg\" or \"2.6kg\" or \"2600 g\" or \"2600g\" or \"2,600 g\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 4,
+    "cachedCalls": 0,
+    "toolCalls": 2,
+    "inputTokens": 6909,
+    "outputTokens": 663,
+    "latencyMs": 5885,
+    "turnLatencyMs": [
+      5885
+    ],
+    "costMicros": 1435,
+    "wallMs": 5947
+  },
+  "finishedAt": "2026-10-01T16:51:50.374Z"
+}
