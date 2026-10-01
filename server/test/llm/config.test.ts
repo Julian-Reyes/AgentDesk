@@ -55,11 +55,15 @@ describe("model config file", () => {
     expect(() => loadModelConfigs(configFile({ default: "a", models: [{ ...base, baseUrl: "not a url" }] }), {})).toThrow(/invalid baseUrl/);
   });
 
-  it("the judges live in config: gpt-oss-20b judges every conversation, Gemma is the second judge", () => {
-    expect(getJudgeIds(undefined, {})).toEqual({ main: "groq/gpt-oss-20b", second: "gemini/gemma-4-31b" });
-    expect(otherJudge("groq/gpt-oss-20b")).toBe("gemini/gemma-4-31b");
-    expect(otherJudge("gemini/gemma-4-31b")).toBe("groq/gpt-oss-20b");
+  it("the judges live in config: gpt-oss-20b judges every conversation; no second judge since 2026-10-01", () => {
+    expect(getJudgeIds(undefined, {})).toEqual({ main: "groq/gpt-oss-20b" });
+    expect(otherJudge("groq/gpt-oss-20b")).toBeUndefined();
+    expect(otherJudge("gemini/gemma-4-31b")).toBe("groq/gpt-oss-20b"); // a report judged by another model still compares with the main judge
     const base = { id: "a", provider: "ollama", model: "x", baseUrl: "http://h/v1" };
+    const b = { ...base, id: "b" };
+    const withSecond = configFile({ default: "a", judges: { main: "a", second: "b" }, models: [base, b] });
+    expect(getJudgeIds(withSecond, {})).toEqual({ main: "a", second: "b" });
+    expect(otherJudge("a", withSecond)).toBe("b");
     expect(() => loadModelConfigs(configFile({ default: "a", judges: { main: "a", second: "nope" }, models: [base] }), {})).toThrow(/Judge model "nope"/);
   });
 

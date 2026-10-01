@@ -1,7 +1,8 @@
 /**
  * Agreement between the judges and Julian's blind grades:
  *   npm run judge:agreement -- <dir> [--judge <model>] [--second-judge <model>]
- * (the configured judges are judges.main / judges.second in config/models.json)
+ * (the configured main judge is judges.main in config/models.json; no second judge
+ * has been configured since 2026-10-01, but one can still be named here)
  * Needs every item graded. Without flags it compares the verdicts the sample
  * was drawn from with Julian (no model calls).
  *

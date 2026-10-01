@@ -9,7 +9,7 @@ The judge IDs live in `config/models.json` → `judges`, not in code.
 | Role | Model | What it judges |
 | --- | --- | --- |
 | **Main judge** | Groq `gpt-oss-20b` (`groq/gpt-oss-20b`) | every conversation in every run |
-| **Second judge** | Gemma 4 31B (`gemini/gemma-4-31b`) | Julian's 30 check replies only (`judge:agreement --second-judge`) |
+| ~~Second judge~~ | ~~Gemma 4 31B (`gemini/gemma-4-31b`)~~ | **dropped 2026-10-01** (below) |
 
 **Why the switch (2026-09-30, Julian's decision).** Gemma was the main judge first, because it isn't an agent under test. On `dev-1` its free endpoint was too unreliable to judge a whole run:
 - **29% of attempts (29 of 99) ended in HTTP 500s**, each after 4 quick retries
@@ -18,6 +18,11 @@ The judge IDs live in `config/models.json` → `judges`, not in code.
 gpt-oss-20b on Groq's paid tier takes ~1 s per call and costs ~$0.02 per 120 conversations.
 
 **The trade-off is family bias.** gpt-oss-20b shares a family with the agent `gpt-oss-120b`, so it might go easier on that model's replies. That's why Gemma, from a family outside that pairing, stays on as the second judge for the 30 check replies. The agreement report shows each judge vs Julian **per agent model**, which is where that bias would appear. The run report also compares the two judges wherever both judged the same conversation (70 conversations on `dev-1`).
+
+**Second judge dropped (2026-10-01, Julian's decision).** Its main purpose was to detect family bias in the main judge, and Julian's 30 blind grades already answer that. On gpt-oss-120b's replies, gpt-oss-20b (`rubric@2`) agreed with Julian on 88% of yes/no answers (23/26), the lowest of the three agent models but within the overlap of their intervals. 2 of its 3 errors there were the judge being *stricter* than Julian, not more lenient. Its helpfulness scores on gpt-oss's replies were +0.30 above Julian's (n = 10), and +0.60 on Qwen's, a model it has no tie to. So there was no sign of favouring its own family. Gemma's endpoint was also failing at the time: of 5 attempts on the first 4 sampled conversations, 4 failed (HTTP 503 "high demand", HTTP 500, no response) and 1 succeeded.
+- **What changed:** `judges.second` is optional and no longer set in `config/models.json`. Run reports have no judge-vs-judge section unless a second judge is named. `judge:agreement --second-judge <model>` still works for a one-off check.
+- **What stays:** the one Gemma verdict and the earlier `dev-1` Gemma verdicts (`rubric@1`) remain in the saved files.
+- **Revisit** if the main judge changes, or if a later agreement check shows the gap on gpt-oss's replies growing.
 
 ## What the judge does, and what it doesn't
 
@@ -131,3 +136,10 @@ The scoring criteria and the check/script-fit instructions above are unchanged, 
 
 **Cost and reliability on `dev-1`** (gpt-oss-20b, 120 conversations): 924 calls, 0 invalid outputs, **$0.165** (rubric@1: 122 calls, $0.04). The 3 votes split on 4 of 120 follow-up checks and 6 of 120 timing checks; in those, the majority decided.
 
+
+## `rubric@3` (2026-10-01, Julian): reason before answer, contradictions flagged
+- Each yes/no call now returns `{"why": ..., "answer": ...}` with the reason first. The reason must end with exactly "Answer: yes." or "Answer: no.". A reason without that ending is invalid output and gets the usual single retry.
+- When a reason's stated conclusion disagrees with its `answer` field, that vote is **flagged, not corrected**. The verdict records the vote numbers (`contradictions`), and the run report lists every flagged answer under "Judge answers that contradict their own reason".
+- **Why:** under `rubric@2`, the judge answered "no" with reasons that argued "yes" (dev-1 `refund-over-limit-02`, `returns-03`). Writing the reason first should make the answer follow it, and the flag shows where it didn't.
+- **Limit:** the flag catches a conclusion that disagrees with the answer. It can't catch a reason that misreads the conversation and then concludes consistently.
+- Criteria, scoring and voting are unchanged from `rubric@2`.

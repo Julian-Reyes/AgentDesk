@@ -231,7 +231,27 @@ export function renderReport(title: string, reports: ModelReport[], results: Con
     });
     out.push(`| ${id} | ${cells.join(" | ")} |`);
   }
+  out.push("", ...renderContradictions(results));
   return out.join("\n");
+}
+
+/**
+ * Judge answers whose reason concluded the opposite (rubric@3+): flagged for a
+ * human to read, not corrected. Each line: case, agent model, question, the
+ * flagged votes, and what the majority answer was.
+ */
+export function renderContradictions(results: ConversationResult[]): string[] {
+  const lines = results.flatMap((r) => {
+    const out = r.judge?.ok ? r.judge.output : undefined;
+    if (!out) return [];
+    return [...out.checks, ...out.scriptFit].flatMap((a) =>
+      a.contradictions?.length
+        ? [`- ${r.record.caseId} (${r.record.agentModel}) ${a.id}: vote${a.contradictions.length > 1 ? "s" : ""} ${a.contradictions.join(", ")} ${a.votes ? `of ${a.votes.length} ` : ""}reasoned the opposite of the answer; final answer ${a.answer ? "yes" : "no"}`]
+        : [],
+    );
+  });
+  const answered = results.reduce((n, r) => n + (r.judge?.ok ? (r.judge.output?.checks.length ?? 0) + (r.judge.output?.scriptFit.length ?? 0) : 0), 0);
+  return ["## Judge answers that contradict their own reason", "", `${lines.length} of ${answered} judged questions.`, ...(lines.length ? ["", ...lines] : [])];
 }
 
 /**

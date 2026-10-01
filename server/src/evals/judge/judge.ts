@@ -127,10 +127,26 @@ export function renderQuestionRequest(input: JudgeInput, q: JudgeQuestionText, v
 const Score = z.coerce.number().int().min(1).max(5);
 const ReplyScore = z.object({ reply: z.coerce.number().int(), tone: Score, clarity: Score, helpfulness: Score, why: z.string().min(1) });
 const ScoreOutput = z.object({ replies: z.array(ReplyScore) });
-const AnswerOutput = z.object({ answer: z.boolean(), why: z.string().min(1) });
+/** The conclusion a question's reason must end with (rubric@3). */
+const CONCLUSION = /Answer:\s*(yes|no)\.?\s*$/i;
+const AnswerOutput = z
+  .object({ why: z.string().min(1), answer: z.boolean() })
+  .refine((a) => CONCLUSION.test(a.why.trim()), { message: '"why" must end with "Answer: yes." or "Answer: no."' });
 type AnswerOutput = z.infer<typeof AnswerOutput>;
-/** votes: each vote's answer, for a voted question (`answer` is their majority). */
-const Answer = z.object({ id: z.string(), answer: z.boolean(), why: z.string().min(1), votes: z.array(z.boolean()).optional() });
+/** What the reason concluded, from its closing "Answer: yes/no.". */
+export const statedConclusion = (why: string): boolean => CONCLUSION.exec(why.trim())![1]!.toLowerCase() === "yes";
+/**
+ * votes: each vote's answer, for a voted question (`answer` is their majority).
+ * contradictions: the votes (1-based; 1 for an unvoted question) whose reason
+ * concluded the opposite of their answer. Flagged, not corrected.
+ */
+const Answer = z.object({
+  id: z.string(),
+  answer: z.boolean(),
+  why: z.string().min(1),
+  votes: z.array(z.boolean()).optional(),
+  contradictions: z.array(z.number().int()).optional(),
+});
 export const JudgeOutput = z.object({
   replies: z.array(ReplyScore),
   checks: z.array(Answer).default([]),
@@ -224,7 +240,14 @@ export async function runJudge(provider: ChatProvider, input: JudgeInput): Promi
       answers.push(r.value);
     }
     const answer = majority(answers.map((a) => a.answer));
-    const entry = { id: q.id, answer, why: answers.find((a) => a.answer === answer)!.why, ...(voted ? { votes: answers.map((a) => a.answer) } : {}) };
+    const contradictions = answers.flatMap((a, i) => (statedConclusion(a.why) !== a.answer ? [i + 1] : []));
+    const entry = {
+      id: q.id,
+      answer,
+      why: answers.find((a) => a.answer === answer)!.why,
+      ...(voted ? { votes: answers.map((a) => a.answer) } : {}),
+      ...(contradictions.length ? { contradictions } : {}),
+    };
     (q.kind === "check" ? output.checks : output.scriptFit).push(entry);
   }
   const answers = Object.fromEntries([...output.checks, ...output.scriptFit].map((a) => [a.id, a.answer]));

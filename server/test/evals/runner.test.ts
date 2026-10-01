@@ -9,10 +9,10 @@ import { fixedClock } from "../../src/domain/clock.ts";
 import { ALL_CASES } from "../../src/evals/cases/index.ts";
 import { createGradingCatalog } from "../../src/evals/grading/catalog.ts";
 import { writeRunReport } from "../../src/evals/runner/finish.ts";
-import { buildResults, modelReport } from "../../src/evals/runner/report.ts";
+import { buildResults, modelReport, renderContradictions } from "../../src/evals/runner/report.ts";
 import { coverageNote } from "../../src/evals/runner/cli.ts";
 import { judgeCoverage, judgeFor, providerErrorOf, questionSetOf, regrade, runAgentsStage, runJudgeStage, unjudged } from "../../src/evals/runner/stages.ts";
-import { RunStore } from "../../src/evals/runner/store.ts";
+import { RunStore, type ConversationRecord, type JudgeRecord } from "../../src/evals/runner/store.ts";
 import { applyCaseSnapshotUpdate, planCaseSnapshotUpdate } from "../../src/evals/runner/update-cases.ts";
 import type { Observation } from "../../src/evals/run-case.ts";
 import { FakeProvider, fake, type FakeStep } from "../../src/llm/fake.ts";
@@ -92,7 +92,7 @@ class AutoJudge implements ChatProvider {
     const strict = this.opts.strict !== undefined && user.includes(this.opts.strict);
     const content = isScore
       ? { replies: [...user.matchAll(/^Agent reply (\d+):/gm)].map((m) => ({ reply: Number(m[1]), tone: strict ? 2 : 4, clarity: 4, helpfulness: 4, why: "fine" })) }
-      : { answer: !(strict && user.includes(TIMING_STATEMENT)), why: "ok" };
+      : { why: `ok. Answer: ${strict && user.includes(TIMING_STATEMENT) ? "no" : "yes"}.`, answer: !(strict && user.includes(TIMING_STATEMENT)) };
     return { message: { role: "assistant", content: JSON.stringify(content) }, finishReason: "stop", usage: { inputTokens: 100, outputTokens: 20 }, latencyMs: 5 };
   }
 }
@@ -328,3 +328,28 @@ describe("applying approved case changes to a saved run", () => {
     expect(unjudged(store, "judge/x", RUBRIC).map((x) => x.caseId)).toEqual([old.id]);
   });
 });
+
+describe("the report lists judge answers that contradict their own reason (rubric@3)", () => {
+  it("one line per flagged answer, with the votes and the final answer; a count over all judged questions", () => {
+    const record = { caseId: "refund-over-limit-02", agentModel: "groq/gpt-oss-120b" } as ConversationRecord;
+    const output = {
+      replies: [],
+      checks: [
+        { id: "judge:0", answer: false, why: "Matches the tool results. Answer: yes.", contradictions: [1] },
+        { id: "judge:timing", answer: true, why: "ok. Answer: yes.", votes: [true, false, true], contradictions: [2] },
+        { id: "judge:followup", answer: true, why: "ok. Answer: yes.", votes: [true, true, true] },
+      ],
+      scriptFit: [],
+    };
+    const lines = renderContradictions([{ record, judge: { ok: true, output } as unknown as JudgeRecord, status: "fail" }]);
+    expect(lines).toEqual([
+      "## Judge answers that contradict their own reason",
+      "",
+      "2 of 3 judged questions.",
+      "",
+      "- refund-over-limit-02 (groq/gpt-oss-120b) judge:0: vote 1 reasoned the opposite of the answer; final answer no",
+      "- refund-over-limit-02 (groq/gpt-oss-120b) judge:timing: vote 2 of 3 reasoned the opposite of the answer; final answer yes",
+    ]);
+  });
+});
+

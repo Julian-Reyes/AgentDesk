@@ -53,7 +53,8 @@ try {
     writeFileSync(gradesPath, `${JSON.stringify(grades, null, 2)}\n`);
     console.log(`Saved ${item.itemId}.\n`);
   }
-  console.log(`All ${items.length} graded. Next: npm run judge:agreement -- ${dir} --judge ${getJudgeIds().main} --second-judge ${getJudgeIds().second}`);
+  const { main, second } = getJudgeIds();
+  console.log(`All ${items.length} graded. Next: npm run judge:agreement -- ${dir} --judge ${main}${second ? ` --second-judge ${second}` : ""}`);
 } catch (e) {
   if (!(e instanceof Quit)) throw e;
   console.log(`\nStopped. ${Object.keys(grades).length} of ${items.length} graded; run the same command to continue.`);

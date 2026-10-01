@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { ALL_CASES } from "../../src/evals/cases/index.ts";
 import { finalizeGrade, type CaseGrade } from "../../src/evals/grading/grade.ts";
-import { buildJudgeInput, judgeSafeText, questionsOf, renderQuestionRequest, renderScoreRequest, runJudge, stripThoughts, summarizeTools, type JudgeInput } from "../../src/evals/judge/judge.ts";
+import { buildJudgeInput, judgeSafeText, questionsOf, renderQuestionRequest, renderScoreRequest, runJudge, statedConclusion, stripThoughts, summarizeTools, type JudgeInput } from "../../src/evals/judge/judge.ts";
 import { QUESTION_PROMPT, SCORE_PROMPT } from "../../src/evals/judge/rubric.ts";
 import type { ChatRequest } from "../../src/llm/types.ts";
 import type { Observation } from "../../src/evals/run-case.ts";
@@ -52,7 +52,8 @@ function responder(answers: Record<string, boolean | boolean[]>, opts: { scores?
     const id = Object.keys(answers).find((k) => q.includes(statementOf[k]!))!;
     const vote = Number(/vote (\d) of/.exec(user)?.[1] ?? 1);
     const a = answers[id]!;
-    return fake.text(JSON.stringify({ answer: Array.isArray(a) ? a[vote - 1] : a, why: `${id} vote ${vote}` }));
+    const answer = Array.isArray(a) ? a[vote - 1]! : a;
+    return fake.text(JSON.stringify({ why: `${id} vote ${vote}. Answer: ${answer ? "yes" : "no"}.`, answer }));
   };
 }
 const statementOf: Record<string, string> = {
@@ -70,7 +71,7 @@ describe("runJudge (rubric@2): scores in one call, each question in its own", ()
     const r = await runJudge(judge, input);
     expect(r.ok && r.answers).toEqual({ "judge:0": true, "script:2": true });
     expect(r.ok && r.output.replies).toEqual(scores);
-    expect(r.rubric).toMatch(/^rubric@2#[0-9a-f]{8}$/);
+    expect(r.rubric).toMatch(/^rubric@3#[0-9a-f]{8}$/);
     expect(judge.requests.map((q) => q.messages[0]!.content)).toEqual([SCORE_PROMPT, QUESTION_PROMPT, QUESTION_PROMPT]);
     expect(judge.requests.every((q) => q.responseFormat === "json")).toBe(true);
     expect(r.calls.map((x) => x.purpose).sort()).toEqual(["judge:0", "scores", "script:2"]);
@@ -99,7 +100,7 @@ describe("runJudge (rubric@2): scores in one call, each question in its own", ()
     const r = await runJudge(judge, all);
     expect(judge.requests).toHaveLength(1 + 1 + 3 + 3 + 1);
     expect(r.ok && r.answers).toEqual({ "judge:0": true, "judge:followup": false, "judge:timing": true, "script:2": true });
-    expect(r.ok && r.output.checks.find((x) => x.id === "judge:followup")).toEqual({ id: "judge:followup", answer: false, why: "judge:followup vote 2", votes: [true, false, false] });
+    expect(r.ok && r.output.checks.find((x) => x.id === "judge:followup")).toEqual({ id: "judge:followup", answer: false, why: "judge:followup vote 2. Answer: no.", votes: [true, false, false] });
     expect(r.ok && r.output.checks.find((x) => x.id === "judge:0")!.votes).toBeUndefined();
     const followups = judge.requests.map(userOf).filter((u) => u.includes("No follow-up promises."));
     expect(followups.map((u) => /\(Independent vote (\d) of 3\.\)/.exec(u)?.[1])).toEqual(["1", "2", "3"]);
@@ -107,8 +108,8 @@ describe("runJudge (rubric@2): scores in one call, each question in its own", ()
   });
 
   it("reads JSON after a <thought> block, even one containing braces (seen from Gemma 4)", async () => {
-    const raw = `<thought>The customer said {something}. Reply 1 asks…</thought>\n${JSON.stringify({ answer: true, why: "x" })}`;
-    expect(JSON.parse(stripThoughts(raw))).toEqual({ answer: true, why: "x" });
+    const raw = `<thought>The customer said {something}. Reply 1 asks…</thought>\n${JSON.stringify({ why: "x. Answer: yes.", answer: true })}`;
+    expect(JSON.parse(stripThoughts(raw))).toEqual({ why: "x. Answer: yes.", answer: true });
     const one: JudgeInput = { ...input, scriptFit: [] };
     const r = await runJudge(new FakeProvider([fake.text(JSON.stringify({ replies: scores })), fake.text(raw)]), one);
     expect(r.ok && r.answers).toEqual({ "judge:0": true });
@@ -126,11 +127,36 @@ describe("runJudge (rubric@2): scores in one call, each question in its own", ()
   it("rejects out-of-range scores and a non-boolean answer, and fails the verdict after two bad answers to one call", async () => {
     const one: JudgeInput = { ...input, scriptFit: [] };
     const bad = { replies: [{ ...scores[0]!, tone: 7 }, scores[1]!] };
-    let r = await runJudge(new FakeProvider([fake.text(JSON.stringify(bad)), fake.text(JSON.stringify({ answer: true, why: "x" })), fake.text(JSON.stringify(bad))]), one);
+    let r = await runJudge(new FakeProvider([fake.text(JSON.stringify(bad)), fake.text(JSON.stringify({ why: "x. Answer: yes.", answer: true })), fake.text(JSON.stringify(bad))]), one);
     expect(r.ok).toBe(false);
     expect(!r.ok && r.error).toMatch(/^scores: .*tone/s);
-    r = await runJudge(new FakeProvider([fake.text(JSON.stringify({ replies: scores })), fake.text('{"answer":"maybe","why":"x"}'), fake.text('{"answer":"yes","why":"x"}')]), one);
+    r = await runJudge(new FakeProvider([fake.text(JSON.stringify({ replies: scores })), fake.text('{"why":"x. Answer: yes.","answer":"maybe"}'), fake.text('{"why":"x. Answer: yes.","answer":"yes"}')]), one);
     expect(!r.ok && r.error).toMatch(/^judge:0: /);
+  });
+
+  it("rubric@3: a reason must end with its conclusion; missing it is invalid output and gets the one retry", async () => {
+    const one: JudgeInput = { ...input, scriptFit: [] };
+    const judge = new FakeProvider([fake.text(JSON.stringify({ replies: scores })), fake.text('{"why":"It asked which item.","answer":true}'), fake.text('{"why":"It asked which item. Answer: yes.","answer":true}')]);
+    const r = await runJudge(judge, one);
+    expect(r.ok && r.answers).toEqual({ "judge:0": true });
+    expect(r.calls.find((c) => c.purpose === "judge:0" && c.error)!.error).toMatch(/must end with "Answer: yes." or "Answer: no."/);
+    // The reason comes first in the requested output.
+    expect(QUESTION_PROMPT).toContain('{"why":"... Answer: yes.","answer":true}');
+  });
+
+  it("rubric@3: a vote whose reason concludes the opposite of its answer is flagged, not corrected", async () => {
+    const all = buildJudgeInput(c, obs, withGlobals);
+    // Vote 2 of the timing check reasons "yes" but answers false (the dev-1 refund-over-limit-02 pattern).
+    const contradicting = (req: ChatRequest) => {
+      const user = userOf(req);
+      if (user.includes("No unsupported timing.") && user.includes("vote 2 of")) return fake.text(JSON.stringify({ why: "The timing matches the tool result. Answer: yes.", answer: false }));
+      return responder({ "judge:0": true, "script:2": true, "judge:followup": true, "judge:timing": true })(req);
+    };
+    const r = await runJudge(judgeWith(9, contradicting), all);
+    const timing = r.ok ? r.output.checks.find((x) => x.id === "judge:timing")! : undefined;
+    expect(timing).toMatchObject({ answer: true, votes: [true, false, true], contradictions: [2] });
+    expect(r.ok && r.output.checks.find((x) => x.id === "judge:0")!.contradictions).toBeUndefined();
+    expect(statedConclusion("Fine. Answer: No.")).toBe(false);
   });
 
   it("a provider error on any call is thrown (the runner retries the conversation later)", async () => {

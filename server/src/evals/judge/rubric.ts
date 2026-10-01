@@ -11,6 +11,11 @@ import type { Prompt } from "../../agents/prompts.ts";
  * unchanged follow-up and timing checks (temperature 0). Asked together, one
  * question's wording moved the others' answers.
  *
+ * rubric@3 (Julian, 2026-10-01): a question's reason comes before its answer
+ * and ends with "Answer: yes." / "Answer: no."; a vote whose stated conclusion
+ * disagrees with its answer is flagged (judge.ts). Added after rubric@2 gave
+ * "no" with reasons that argued "yes" (dev-1 refund-over-limit-02, returns-03).
+ *
  * Versioned like the agent prompts: results record promptId(JUDGE_RUBRIC), whose
  * hash covers both prompts and the voting setup.
  */
@@ -63,9 +68,9 @@ Answer true only if it is clearly true across the whole conversation. If it is a
 The customer's messages were scripted in advance. Answer true if the agent's previous reply did roughly what the "assumes" text describes, OR the follow-up still makes sense as the customer's next message. Answer false only if the follow-up would be redundant or nonsensical after that reply.
 
 ## Output
-Reply with one JSON object and nothing else:
-{"answer":true,"why":"..."}
-"why" is one sentence: the reason first.`;
+Reply with one JSON object and nothing else, with "why" first:
+{"why":"... Answer: yes.","answer":true}
+"why": one or two sentences on the evidence, ending with exactly "Answer: yes." or "Answer: no.". Then "answer": true for yes, false for no.`;
 
 /** Questions asked several times, majority wins (Julian, 2026-10-01): the two that flipped on re-judge. */
 export const VOTED_QUESTIONS = ["judge:followup", "judge:timing"];
@@ -73,6 +78,6 @@ export const VOTES = 3;
 
 export const JUDGE_RUBRIC: Prompt = {
   name: "rubric",
-  version: 2,
+  version: 3,
   text: [SCORE_PROMPT, QUESTION_PROMPT, `Voted: ${VOTED_QUESTIONS.join(", ")} x${VOTES}`].join("\n\n=====\n\n"),
 };

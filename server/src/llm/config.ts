@@ -50,10 +50,13 @@ const ConfigFileSchema = z.object({
   /** The model used when nothing else is specified (dev default: local Ollama). */
   default: z.string(),
   /**
-   * The eval judges: `main` judges every conversation, `second` re-judges only
-   * Julian's 30 check replies (judge:agreement). Optional so test configs can omit it.
+   * The eval judges: `main` judges every conversation. `second` (optional)
+   * re-judges Julian's 30 check replies (judge:agreement) and gets compared in
+   * run reports. None is configured since 2026-10-01: Julian's 30 grades showed
+   * no family bias in the main judge, which was the second judge's purpose
+   * (docs/JUDGE_RUBRIC.md, "Which models judge"). Optional so test configs can omit the whole entry.
    */
-  judges: z.object({ main: z.string(), second: z.string() }).optional(),
+  judges: z.object({ main: z.string(), second: z.string().optional() }).optional(),
   models: z.array(ModelConfigSchema).min(1),
 });
 
@@ -87,7 +90,7 @@ export function loadModelConfigs(path: URL | string = CONFIG_PATH, env: Env = pr
     }
   }
   if (!ids.has(file.default)) throw new Error(`Default model "${file.default}" is not in the config`);
-  for (const j of Object.values(file.judges ?? {})) if (!ids.has(j)) throw new Error(`Judge model "${j}" is not in the config`);
+  for (const j of Object.values(file.judges ?? {})) if (j !== undefined && !ids.has(j)) throw new Error(`Judge model "${j}" is not in the config`);
   return file;
 }
 
@@ -101,14 +104,15 @@ export function getModelConfig(id = process.env.MODEL, path?: URL | string, env:
 }
 
 /** The configured eval judges (config/models.json → judges). */
-export function getJudgeIds(path?: URL | string, env: Env = process.env): { main: string; second: string } {
+export function getJudgeIds(path?: URL | string, env: Env = process.env): { main: string; second?: string | undefined } {
   const { judges } = loadModelConfigs(path, env);
   if (!judges) throw new Error("config/models.json has no judges entry");
   return judges;
 }
 
-/** The configured judge that isn't `judgeModel`, for the judge-vs-judge comparison in a run's report. */
-export const otherJudge = (judgeModel: string): string => {
-  const { main, second } = getJudgeIds();
+/** The configured judge that isn't `judgeModel`, for the judge-vs-judge comparison in a run's report; undefined without a second judge. */
+export const otherJudge = (judgeModel: string, path?: URL | string): string | undefined => {
+  const { main, second } = getJudgeIds(path);
+  if (!second) return judgeModel === main ? undefined : main;
   return judgeModel === main ? second : main;
 };
