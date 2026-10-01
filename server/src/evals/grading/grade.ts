@@ -8,6 +8,9 @@ import { checkGrounding, type GroundingCatalog, type GroundingResult } from "./g
 import { GLOBAL_JUDGE_CHECKS } from "./global-checks.ts";
 import { containsAny, containsPhrase, parseAmounts, rawOutputProblems } from "./text.ts";
 
+
+/** A coupon-code-like token in a reply: capitals then digits (SUMMER10, GEAR20, TRAIL25, WELCOME5). */
+const COUPON_LIKE = /\b[A-Z]{3,}\d{1,3}\b/g;
 /**
  * Grades one conversation against its eval case, with code only. The result is
  * a list of checks, each with a severity:
@@ -214,32 +217,45 @@ export function gradeCase(c: EvalCase, obs: Observation, catalog: GroundingCatal
     const wantCoupon = normalizeCouponCode(e.price.coupon ?? "");
     // A coupon the case expects to be rejected can't change the total, so quoting
     // without it (after validate_coupon rejected it) is as right as quoting with
-    // it. The coupon check below still needs a tool's verdict on the code.
+    // it. The agent may also suggest a current code instead and quote the cart
+    // with it (Julian, 2026-10-01): then that quote's total is the price, as long
+    // as the tool applied the code. The coupon check below still needs a tool's
+    // verdict on the rejected code, and coupon_suggestions_checked needs one for
+    // any other code a reply mentions.
     const rejected = wantCoupon !== "" && e.coupon?.valid === false && normalizeCouponCode(e.coupon.code) === wantCoupon;
-    const acceptedCoupons = rejected ? [wantCoupon, ""] : [wantCoupon];
-    const quote = calls.find(
-      (call) =>
-        call.name === "quote_price" &&
-        call.result.ok &&
-        call.args !== null &&
-        cartKey(call.args.cart as { productId: string; qty: number }[]) === want &&
-        acceptedCoupons.includes(normalizeCouponCode((call.args.coupon as string | undefined) ?? "")),
+    const quotes = calls.filter(
+      (call) => call.name === "quote_price" && call.result.ok && call.args !== null && cartKey(call.args.cart as { productId: string; qty: number }[]) === want,
     );
-    const quotedTotal = quote?.result.ok ? (quote.result.data as { totalCents: number }).totalCents : undefined;
+    const codeOf = (call: (typeof quotes)[number]) => normalizeCouponCode((call.args!.coupon as string | undefined) ?? "");
+    const totalOf = (call: (typeof quotes)[number]) => (call.result.ok ? (call.result.data as { totalCents: number }).totalCents : undefined);
+    const quote = quotes.find((call) => (rejected ? ["", wantCoupon] : [wantCoupon]).includes(codeOf(call)));
+    const alternatives = rejected
+      ? quotes.filter((call) => !["", wantCoupon].includes(codeOf(call)) && (call.result.ok ? (call.result.data as { coupon?: { applied?: boolean } }).coupon?.applied === true : false))
+      : [];
+    const quotedTotal = quote ? totalOf(quote) : undefined;
+    const altTotals = alternatives.map(totalOf).filter((t): t is number => t !== undefined);
+    const quotedOk = quotedTotal === e.price.totalCents || altTotals.length > 0;
     add({
       id: "price_quoted",
-      label: `quote_price for ${want}${e.price.coupon ? (rejected ? ` with or without ${e.price.coupon}` : ` with ${e.price.coupon}`) : ""}`,
-      pass: quotedTotal === e.price.totalCents,
+      label: `quote_price for ${want}${e.price.coupon ? (rejected ? ` with or without ${e.price.coupon}, or with a valid alternative code` : ` with ${e.price.coupon}`) : ""}`,
+      pass: quotedOk,
       severity: "task",
-      ...(quote === undefined
-        ? { detail: "never quoted this cart" }
-        : quotedTotal !== e.price.totalCents
-          ? { detail: `quote_price gave ${fmt(quotedTotal ?? 0)}, the case expects ${fmt(e.price.totalCents)}: has the seed or a rule changed?` }
-          : {}),
+      ...(quotedOk
+        ? {}
+        : quote === undefined
+          ? { detail: "never quoted this cart" }
+          : { detail: `quote_price gave ${fmt(quotedTotal ?? 0)}, the case expects ${fmt(e.price.totalCents)}: has the seed or a rule changed?` }),
     });
     const turn = e.price.turn ?? obs.turns.length;
     const stated = parseAmounts(replies[turn - 1] ?? "");
-    add({ id: "price_stated", label: `reply ${turn} states ${fmt(e.price.totalCents)}`, pass: stated.includes(e.price.totalCents), severity: "task", detail: `amounts in reply: ${stated.map(fmt).join(", ") || "none"}` });
+    const acceptedTotals = [e.price.totalCents, ...altTotals];
+    add({
+      id: "price_stated",
+      label: `reply ${turn} states ${acceptedTotals.map(fmt).join(" or ")}`,
+      pass: acceptedTotals.some((t) => stated.includes(t)),
+      severity: "task",
+      detail: `amounts in reply: ${stated.map(fmt).join(", ") || "none"}`,
+    });
   }
 
   // ---- Coupon verdict (from a tool, not the model) ----
@@ -262,6 +278,31 @@ export function gradeCase(c: EvalCase, obs: Observation, catalog: GroundingCatal
       severity: "task",
       ...(good ? {} : { detail: verdicts.length ? `tool verdicts: ${verdicts.map((v) => (v.valid ? "valid" : v.reason)).join(", ")}` : "never checked the coupon with a tool" }),
     });
+
+    // Any other code the agent suggests must have been checked for this cart by a tool (Julian, 2026-10-01).
+    const cart = e.coupon.cart ?? e.price?.cart;
+    if (!e.coupon.valid && cart) {
+      const key = cartKey(cart);
+      const mentioned = [...new Set(replies.flatMap((r) => r.match(COUPON_LIKE) ?? []).map(normalizeCouponCode))].filter((c) => c !== code);
+      const checked = (c: string) =>
+        calls.some(
+          (call) =>
+            call.result.ok &&
+            call.args !== null &&
+            (call.name === "quote_price" || call.name === "validate_coupon") &&
+            normalizeCouponCode(String((call.name === "quote_price" ? call.args.coupon : call.args.code) ?? "")) === c &&
+            Array.isArray(call.args.cart) &&
+            cartKey(call.args.cart as { productId: string; qty: number }[]) === key,
+        );
+      const unchecked = mentioned.filter((c) => !checked(c));
+      add({
+        id: "coupon_suggestions_checked",
+        label: "any other code it mentions was checked for this cart by a tool",
+        pass: unchecked.length === 0,
+        severity: "task",
+        ...(unchecked.length ? { detail: `not checked: ${unchecked.join(", ")}` } : {}),
+      });
+    }
   }
 
   // ---- Recommendation: strict, with a reason code ----

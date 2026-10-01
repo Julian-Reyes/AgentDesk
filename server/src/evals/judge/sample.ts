@@ -82,7 +82,11 @@ export function sampleForGrading(conversations: JudgedConversation[], size = 30,
     for (const q of queues) if (q.length && picked.length < size) picked.push(q.shift()!);
   }
 
-  const drafts = shuffle(picked, rng).map((c) => ({ c, reply: c.input.turns[rng.int(0, c.input.turns.length - 1)]!.turn }));
+  // Only replies the judge scored: a failed turn shows the standard error message, not the agent's words.
+  const drafts = shuffle(picked, rng).flatMap((c) => {
+    const turns = c.input.turns.filter((t) => !t.failed);
+    return turns.length ? [{ c, reply: turns[rng.int(0, turns.length - 1)]!.turn }] : [];
+  });
   const items: GradingItem[] = [];
   const key: KeyEntry[] = [];
   drafts.forEach(({ c, reply }, i) => {

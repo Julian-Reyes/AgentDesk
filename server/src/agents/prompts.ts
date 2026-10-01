@@ -95,7 +95,7 @@ const replaceLine = (text: string, line: string, replacement: string) => {
 };
 
 /** shopping@2 (round 1): the shared round-1 rules, and suggesting a valid coupon. */
-export const SHOPPING_PROMPT: Prompt = {
+export const SHOPPING_PROMPT_V2: Prompt = {
   name: "shopping",
   version: 2,
   text: insertAfter(
@@ -106,7 +106,7 @@ export const SHOPPING_PROMPT: Prompt = {
 };
 
 /** support@3 (round 1): the shared round-1 rules; no predicting refund approval; no promising replacements; ticket numbers. */
-export const SUPPORT_PROMPT: Prompt = {
+export const SUPPORT_PROMPT_V3: Prompt = {
   name: "support",
   version: 3,
   text: replaceLine(
@@ -121,16 +121,37 @@ export const SUPPORT_PROMPT: Prompt = {
   ),
 };
 
+/**
+ * Round 2 (Julian, 2026-10-01): it's fine to say which account is signed in;
+ * just don't address the customer by their full name. Round 1 said "never use
+ * their full name", which also forbade "you're signed in as Maya Chen"
+ * (adversarial-05).
+ */
+const fullNameR2 = (text: string) =>
+  replaceLine(
+    text,
+    `- Speak to the customer as "you"; never use their full name. No emojis.`,
+    `- Speak to the customer as "you"; never address them by their full name (saying which account is signed in is fine). No emojis.`,
+  );
+
+/** shopping@3 (round 2): round 1 with the full-name rule clarified. */
+export const SHOPPING_PROMPT: Prompt = { name: "shopping", version: 3, text: fullNameR2(SHOPPING_PROMPT_V2.text) };
+
+/** support@4 (round 2): round 1 with the full-name rule clarified. */
+export const SUPPORT_PROMPT: Prompt = { name: "support", version: 4, text: fullNameR2(SUPPORT_PROMPT_V3.text) };
+
 export const AGENT_PROMPTS = { shopping: SHOPPING_PROMPT, support: SUPPORT_PROMPT } as const;
 
 /**
  * Named prompt sets, so a run can use earlier prompts with the current code
- * (eval:run --prompts round-0). round-0 is exactly what dev-1 ran with (a test
- * pins its hashes); round-1 is the current set.
+ * (eval:run --prompts round-0). round-0 is exactly what dev-1 ran with and
+ * round-1 what dev-2 ran with (a test pins both sets' hashes); round-2 is the
+ * current set.
  */
 export const PROMPT_SETS = {
   "round-0": { shopping: SHOPPING_PROMPT_V1, support: SUPPORT_PROMPT_V2 },
-  "round-1": AGENT_PROMPTS,
+  "round-1": { shopping: SHOPPING_PROMPT_V2, support: SUPPORT_PROMPT_V3 },
+  "round-2": AGENT_PROMPTS,
 } as const;
 export type PromptSetName = keyof typeof PROMPT_SETS;
 

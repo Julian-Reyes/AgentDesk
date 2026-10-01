@@ -12,7 +12,9 @@ import type { RunStore } from "./store.ts";
  * the verdict's question set (questionSetOf), so the old verdict stops counting
  * on its own and the conversation shows up as unjudged for eval:judge. A changed
  * judge note isn't in the question set, so an old verdict would silently keep
- * counting; that stays refused.
+ * counting; that stays refused unless allowJudgeNotes, which is only for when
+ * every conversation will be re-judged under a new rubric id anyway (so no old
+ * verdict can count).
  */
 const FIXED_FIELDS = ["customer", "turns", "judgeChecks", "judge"] as const;
 
@@ -47,7 +49,9 @@ function changedFields(a: EvalCase, b: EvalCase): string[] {
  * verdicts stay valid because the questions and the note the judge saw are
  * unchanged (anything else is refused).
  */
-export function planCaseSnapshotUpdate(store: RunStore, current: EvalCase[], opts: { allowJudgeChecks?: boolean } = {}): CaseSnapshotPlan {
+export type UpdateOptions = { allowJudgeChecks?: boolean; allowJudgeNotes?: boolean };
+
+export function planCaseSnapshotUpdate(store: RunStore, current: EvalCase[], opts: UpdateOptions = {}): CaseSnapshotPlan {
   const byId = new Map(current.map((c) => [c.id, c]));
   const plan: CaseSnapshotPlan = { changes: [], refused: [] };
   for (const r of store.conversations()) {
@@ -57,9 +61,9 @@ export function planCaseSnapshotUpdate(store: RunStore, current: EvalCase[], opt
     const before = fieldsOf(r.case);
     const after = fieldsOf(now);
     const fixed = FIXED_FIELDS.filter((f) => !isDeepStrictEqual(before[f], after[f]));
-    const blocking = opts.allowJudgeChecks ? fixed.filter((f) => f !== "judgeChecks") : fixed;
+    const blocking = fixed.filter((f) => !(f === "judgeChecks" && opts.allowJudgeChecks) && !(f === "judge" && opts.allowJudgeNotes));
     if (blocking.length) plan.refused.push({ ...change, why: `${blocking.join(", ")} changed: this needs a new run or a re-judge` });
-    else plan.changes.push(fixed.includes("judgeChecks") ? { ...change, needsRejudge: true } : change);
+    else plan.changes.push(fixed.includes("judgeChecks") || fixed.includes("judge") ? { ...change, needsRejudge: true } : change);
   }
   return plan;
 }
@@ -69,7 +73,7 @@ export function planCaseSnapshotUpdate(store: RunStore, current: EvalCase[], opt
  * kept in caseHistory, and the manifest records the update and its reason.
  * Refuses to apply anything if any change was refused.
  */
-export function applyCaseSnapshotUpdate(store: RunStore, current: EvalCase[], reason: string, at: string, opts: { allowJudgeChecks?: boolean } = {}): CaseSnapshotPlan {
+export function applyCaseSnapshotUpdate(store: RunStore, current: EvalCase[], reason: string, at: string, opts: UpdateOptions = {}): CaseSnapshotPlan {
   const plan = planCaseSnapshotUpdate(store, current, opts);
   if (plan.refused.length) throw new Error(`Refusing to update case snapshots: ${plan.refused.map((x) => `${x.model} ${x.caseId} (${x.why})`).join("; ")}`);
   if (!plan.changes.length) return plan;

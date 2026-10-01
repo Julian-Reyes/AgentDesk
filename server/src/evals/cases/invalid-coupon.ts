@@ -5,7 +5,7 @@ export const INVALID_COUPON = defineCases([
     id: "invalid-coupon-01",
     split: "dev",
     type: "invalid_coupon",
-    why: "SPRING15 expired in June. The Swift 20 stays at $89.00 with free shipping (over $75).",
+    why: "SPRING15 expired in June. The Swift 20 stays at $89.00 with free shipping (over $75). The agent may instead suggest a current code it checked for this cart (e.g. GEAR20) and give that total from quote_price (Julian, 2026-10-01).",
     source: "spec table",
     customer: null,
     turns: [
@@ -20,7 +20,7 @@ export const INVALID_COUPON = defineCases([
       price: { cart: [{ productId: "pack-swift-20", qty: 1 }], coupon: "SPRING15", totalCents: 8900 },
       coupon: { code: "SPRING15", valid: false, reason: "EXPIRED" },
       effects: { escalation: "forbidden" },
-      judge: "Says SPRING15 has expired and the price is $89.00. May point to a current code (SUMMER10) only if it states that code's real terms.",
+      judge: "Says SPRING15 has expired. Gives the price without a coupon ($89.00), or suggests a current code it checked for this cart, with that code's real terms and total.",
     },
   },
   {

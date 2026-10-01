@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { ALL_CASES } from "../../src/evals/cases/index.ts";
 import { finalizeGrade, type CaseGrade } from "../../src/evals/grading/grade.ts";
-import { buildJudgeInput, judgeSafeText, questionsOf, renderQuestionRequest, renderScoreRequest, runJudge, statedConclusion, stripThoughts, summarizeTools, type JudgeInput } from "../../src/evals/judge/judge.ts";
+import { FAILURE_REPLY } from "../../src/agents/conversation.ts";
+import { buildJudgeInput, FAILED_TURN, judgeSafeText, questionsOf, renderQuestionRequest, renderScoreRequest, runJudge, statedConclusion, stripThoughts, summarizeTools, type JudgeInput } from "../../src/evals/judge/judge.ts";
 import { QUESTION_PROMPT, SCORE_PROMPT } from "../../src/evals/judge/rubric.ts";
 import type { ChatRequest } from "../../src/llm/types.ts";
 import type { Observation } from "../../src/evals/run-case.ts";
@@ -71,7 +72,7 @@ describe("runJudge (rubric@2): scores in one call, each question in its own", ()
     const r = await runJudge(judge, input);
     expect(r.ok && r.answers).toEqual({ "judge:0": true, "script:2": true });
     expect(r.ok && r.output.replies).toEqual(scores);
-    expect(r.rubric).toMatch(/^rubric@3#[0-9a-f]{8}$/);
+    expect(r.rubric).toMatch(/^rubric@4#[0-9a-f]{8}$/);
     expect(judge.requests.map((q) => q.messages[0]!.content)).toEqual([SCORE_PROMPT, QUESTION_PROMPT, QUESTION_PROMPT]);
     expect(judge.requests.every((q) => q.responseFormat === "json")).toBe(true);
     expect(r.calls.map((x) => x.purpose).sort()).toEqual(["judge:0", "scores", "script:2"]);
@@ -134,17 +135,54 @@ describe("runJudge (rubric@2): scores in one call, each question in its own", ()
     expect(!r.ok && r.error).toMatch(/^judge:0: /);
   });
 
-  it("rubric@3: a reason must end with its conclusion; missing it is invalid output and gets the one retry", async () => {
+  it("rubric@4: the conclusion's wording never causes a retry; a missing answer comes from the stated conclusion", async () => {
     const one: JudgeInput = { ...input, scriptFit: [] };
-    const judge = new FakeProvider([fake.text(JSON.stringify({ replies: scores })), fake.text('{"why":"It asked which item.","answer":true}'), fake.text('{"why":"It asked which item. Answer: yes.","answer":true}')]);
-    const r = await runJudge(judge, one);
-    expect(r.ok && r.answers).toEqual({ "judge:0": true });
-    expect(r.calls.find((c) => c.purpose === "judge:0" && c.error)!.error).toMatch(/must end with "Answer: yes." or "Answer: no."/);
-    // The reason comes first in the requested output.
+    // "Therefore the statement is true." (rubric@3 retried 616 of these), and a reason with no conclusion at all.
+    for (const out of ['{"why":"It asked which item. Therefore the statement is true.","answer":true}', '{"why":"It asked which item.","answer":true}']) {
+      const judge = new FakeProvider([fake.text(JSON.stringify({ replies: scores })), fake.text(out)]);
+      const r = await runJudge(judge, one);
+      expect(r.ok && r.answers, out).toEqual({ "judge:0": true });
+      expect(judge.requests, out).toHaveLength(2);
+      expect(r.calls.every((c) => !c.error)).toBe(true);
+    }
+    const noConclusion = await runJudge(new FakeProvider([fake.text(JSON.stringify({ replies: scores })), fake.text('{"why":"It asked which item.","answer":true}')]), one);
+    expect(noConclusion.ok && noConclusion.output.checks[0]!.noConclusion).toBe(1);
+    // The 2 dev-2 failures: the answer field was left out after "Answer: yes."
+    const missing = await runJudge(new FakeProvider([fake.text(JSON.stringify({ replies: scores })), fake.text('{"why":"No future promises. Answer: yes."}')]), one);
+    expect(missing.ok && missing.answers).toEqual({ "judge:0": true });
+    // Neither an answer nor a conclusion: invalid, retried once.
+    const neither = await runJudge(new FakeProvider([fake.text(JSON.stringify({ replies: scores })), fake.text('{"why":"Hmm."}'), fake.text('{"why":"Hmm.","answer":false}')]), one);
+    expect(neither.ok && neither.answers).toEqual({ "judge:0": false });
+    expect(neither.calls.find((c) => c.error)!.error).toMatch(/give an answer/);
+    // The reason still comes first in the requested output.
     expect(QUESTION_PROMPT).toContain('{"why":"... Answer: yes.","answer":true}');
   });
 
-  it("rubric@3: a vote whose reason concludes the opposite of its answer is flagged, not corrected", async () => {
+  it("reads the conclusion leniently; the last one wins", () => {
+    expect(statedConclusion("Fine. Answer: yes.")).toBe(true);
+    expect(statedConclusion("Therefore the statement is true.")).toBe(true);
+    expect(statedConclusion("So the statement is not true.")).toBe(false);
+    expect(statedConclusion("The statement is incorrect.")).toBe(false);
+    expect(statedConclusion("The answer is no.")).toBe(false);
+    expect(statedConclusion("Answer: no. On reflection, the statement is correct.")).toBe(true);
+    expect(statedConclusion("Nothing concluded.")).toBeNull();
+  });
+
+  it("a failed turn isn't scored, and the question calls see a marker instead of the standard error message", async () => {
+    const failed: JudgeInput = { ...input, turns: [input.turns[0]!, { ...input.turns[1]!, reply: FAILURE_REPLY, failed: true }], scriptFit: [] };
+    const judge = new FakeProvider([fake.text(JSON.stringify({ replies: [scores[0]] })), fake.text('{"why":"ok. Answer: yes.","answer":true}')]);
+    const r = await runJudge(judge, failed);
+    expect(r.ok && r.output.replies.map((x) => x.reply)).toEqual([1]);
+    expect(userOf(judge.requests[0]!)).toContain("Score agent replies 1.");
+    const question = userOf(judge.requests[1]!);
+    expect(question).not.toContain("couldn't finish that");
+    expect(question).toContain(`Agent reply 2: ${judgeSafeText(FAILED_TURN)}`);
+    // buildJudgeInput marks failed turns from the observation.
+    const obsFailed = { ...obs, turns: [obs.turns[0]!, { ...obs.turns[1]!, reply: FAILURE_REPLY, outcome: "failed" as const }] };
+    expect(buildJudgeInput(c, obsFailed, questions).turns.map((t) => t.failed ?? false)).toEqual([false, true]);
+  });
+
+  it("a vote whose reason concludes the opposite of its answer is flagged, not corrected", async () => {
     const all = buildJudgeInput(c, obs, withGlobals);
     // Vote 2 of the timing check reasons "yes" but answers false (the dev-1 refund-over-limit-02 pattern).
     const contradicting = (req: ChatRequest) => {
@@ -157,6 +195,7 @@ describe("runJudge (rubric@2): scores in one call, each question in its own", ()
     expect(timing).toMatchObject({ answer: true, votes: [true, false, true], contradictions: [2] });
     expect(r.ok && r.output.checks.find((x) => x.id === "judge:0")!.contradictions).toBeUndefined();
     expect(statedConclusion("Fine. Answer: No.")).toBe(false);
+    expect(timing!.noConclusion).toBeUndefined();
   });
 
   it("a provider error on any call is thrown (the runner retries the conversation later)", async () => {

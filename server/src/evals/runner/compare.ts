@@ -33,6 +33,22 @@ const LEAK_PATTERNS: RegExp[] = [
 ];
 const EMOJI = /\p{Extended_Pictographic}/u;
 
+/**
+ * The reply uses the customer's full name other than to say which account is
+ * signed in (Julian, 2026-10-01: that's fine; addressing them by it isn't).
+ * A heuristic: "signed in as Maya Chen" and "Maya Chen's account" don't count.
+ */
+export function addressesByFullName(text: string, fullName: string): boolean {
+  const name = fullName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  for (const m of text.matchAll(new RegExp(name, "gi"))) {
+    const before = text.slice(Math.max(0, m.index - 30), m.index).toLowerCase();
+    const after = text.slice(m.index + m[0].length, m.index + m[0].length + 10).toLowerCase();
+    if (/(signed in as|logged in as|account (of|for)|account,?|account \()\s*$/.test(before) || /^['’]s\b/.test(after) || /^\s*\(/.test(after)) continue;
+    return true;
+  }
+  return false;
+}
+
 export type RunModelSummary = {
   statuses: Record<FinalStatus, number>;
   taskSuccess: { k: number; n: number; ci: [number, number] };
@@ -45,7 +61,8 @@ export type RunModelSummary = {
   garbled: { heldBack: number; fallbacks: number; delivered: number };
   emojiReplies: string[];
   fullNameReplies: string[];
-  contradictions: { flagged: number; questions: number; where: string[] };
+  /** uncheckable: votes whose reason stated no recognizable conclusion (rubric@4). */
+  contradictions: { flagged: number; questions: number; uncheckable: number; where: string[] };
   /** Per case: the final status, for listing what changed between runs. */
   byCase: Record<string, FinalStatus>;
 };
@@ -77,7 +94,7 @@ function summarize(results: ConversationResult[], names: Map<string, string>): R
     garbled: { heldBack: 0, fallbacks: 0, delivered: 0 },
     emojiReplies: [],
     fullNameReplies: [],
-    contradictions: { flagged: 0, questions: 0, where: [] },
+    contradictions: { flagged: 0, questions: 0, uncheckable: 0, where: [] },
     byCase: {},
   };
   // Every model id in these traces (normally this one model, in all three roles).
@@ -96,6 +113,7 @@ function summarize(results: ConversationResult[], names: Map<string, string>): R
     const out = r.judge?.ok ? r.judge.output : undefined;
     for (const a of out ? [...out.checks, ...out.scriptFit] : []) {
       s.contradictions.questions += 1;
+      s.contradictions.uncheckable += a.noConclusion ?? 0;
       if (a.contradictions?.length) {
         s.contradictions.flagged += 1;
         s.contradictions.where.push(`${id} ${a.id}`);
@@ -112,7 +130,7 @@ function summarize(results: ConversationResult[], names: Map<string, string>): R
         }
       }
       if (EMOJI.test(text)) s.emojiReplies.push(id);
-      if (fullName && text.toLowerCase().includes(fullName.toLowerCase())) s.fullNameReplies.push(id);
+      if (fullName && addressesByFullName(text, fullName)) s.fullNameReplies.push(id);
     }
   }
   return s;
@@ -141,8 +159,8 @@ export function renderComparison(runs: { name: string; summary: Record<string, R
       row("Follow-up promises (judge)", (s) => `${s.followup.length} of ${s.judged}`),
       row("Internal-step leaks (phrase scan)", (s) => String(s.leaks.length)),
       row("Garbled: held back / failure msg / delivered", (s) => `${s.garbled.heldBack} / ${s.garbled.fallbacks} / ${s.garbled.delivered}`),
-      row("Replies with emojis / the full name", (s) => `${s.emojiReplies.length} / ${s.fullNameReplies.length}`),
-      row("Judge answers contradicting their reason", (s) => `${s.contradictions.flagged} of ${s.contradictions.questions}`),
+      row("Replies with emojis / addressing the customer by full name", (s) => `${s.emojiReplies.length} / ${s.fullNameReplies.length}`),
+      row("Judge answers contradicting their reason", (s) => `${s.contradictions.flagged} of ${s.contradictions.questions}${s.contradictions.uncheckable ? ` (${s.contradictions.uncheckable} votes stated no conclusion)` : ""}`),
       "",
     );
     for (const [i, s] of cols.entries()) {

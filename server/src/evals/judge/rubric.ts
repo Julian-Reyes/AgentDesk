@@ -16,6 +16,9 @@ import type { Prompt } from "../../agents/prompts.ts";
  * disagrees with its answer is flagged (judge.ts). Added after rubric@2 gave
  * "no" with reasons that argued "yes" (dev-1 refund-over-limit-02, returns-03).
  *
+ * rubric@4 (Julian, 2026-10-01): same prompts; the conclusion is read leniently
+ * and its wording never causes a retry.
+ *
  * Versioned like the agent prompts: results record promptId(JUDGE_RUBRIC), whose
  * hash covers both prompts and the voting setup.
  */
@@ -78,6 +81,8 @@ export const VOTES = 3;
 
 export const JUDGE_RUBRIC: Prompt = {
   name: "rubric",
-  version: 3,
+  // v4 (2026-10-01): same text as v3; the parser reads the conclusion leniently and
+  // no longer retries over its wording (judge.ts statedConclusion).
+  version: 4,
   text: [SCORE_PROMPT, QUESTION_PROMPT, `Voted: ${VOTED_QUESTIONS.join(", ")} x${VOTES}`].join("\n\n=====\n\n"),
 };

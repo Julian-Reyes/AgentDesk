@@ -79,7 +79,7 @@ describe("agent loop: happy paths", () => {
       expect(run.team).toMatchObject({ router: { model: "fake", provider: "fake", prompt: expect.stringMatching(/^router@1#[0-9a-f]{8}$/) } });
       expect(run.summary).toEqual({ outcome: "resolved", turns: 1 });
       const call = run.steps.find((s) => s.kind === "model_call")!;
-      expect(call).toMatchObject({ agent: "support", modelConfigId: "fake", provider: "fake", promptVersion: expect.stringMatching(/^support@3#/), inputTokens: 100, outputTokens: 20, cached: false, costMicros: 0 });
+      expect(call).toMatchObject({ agent: "support", modelConfigId: "fake", provider: "fake", promptVersion: expect.stringMatching(/^support@4#/), inputTokens: 100, outputTokens: 20, cached: false, costMicros: 0 });
     }));
 
   it("keeps the conversation with the same agent on the next turn, with its earlier tool results", () =>

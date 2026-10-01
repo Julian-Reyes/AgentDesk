@@ -322,6 +322,8 @@ describe("applying approved case changes to a saved run", () => {
     const noted = structuredClone(edited);
     noted.expect.judge = "A different note.";
     expect(planCaseSnapshotUpdate(store, [noted], { allowJudgeChecks: true }).refused[0]!.why).toBe("judge changed: this needs a new run or a re-judge");
+    // Only for a full re-judge under a new rubric: then the changed note is accepted too.
+    expect(planCaseSnapshotUpdate(store, [noted], { allowJudgeChecks: true, allowJudgeNotes: true }).changes[0]).toMatchObject({ needsRejudge: true, fields: expect.arrayContaining(["expect.judge"]) });
 
     applyCaseSnapshotUpdate(store, [edited], "new wording", "2026-10-01T00:00:00Z", { allowJudgeChecks: true });
     const [r] = regrade(store.conversations());

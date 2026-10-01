@@ -4,7 +4,7 @@
  *   npm run eval:run -- --name dev-1 --no-judge           (quick iteration: code checks only)
  *   npm run eval:run -- --name dev-1 --estimate-only      (just the preflight estimate)
  * Options: --split dev|test, --models a,b,c, --cases id,id, --judge <model>, --yes, --rerun-errors,
- * --prompts round-0|round-1 (the agents' prompt set; default the current one, round-1).
+ * --prompts round-0|round-1|round-2 (the agents' prompt set; default the current one, round-2).
  *
  * Always prints the preflight estimate (calls, tokens, time per model, daily
  * limits, bottleneck) and asks before starting; --yes skips the question.
@@ -46,7 +46,7 @@ const { values } = parseArgs({
     yes: { type: "boolean", default: false },
     "estimate-only": { type: "boolean", default: false },
     "rerun-errors": { type: "boolean", default: false },
-    prompts: { type: "string", default: "round-1" },
+    prompts: { type: "string", default: "round-2" },
   },
 });
 const fail = (msg: string): never => {

@@ -150,11 +150,53 @@ describe("grading catches what the case forbids", () => {
           agent: [fake.tools(["validate_coupon", { code: "SPRING15", cart }]), fake.tools(["quote_price", coupon ? { cart, coupon } : { cart }]), fake.reply(reply)],
         });
         expect(failing(grade), String(coupon)).toEqual([]);
-        expect(grade.checks.find((x) => x.id === "price_quoted")!.label).toBe("quote_price for pack-swift-20×1 with or without SPRING15");
+        expect(grade.checks.find((x) => x.id === "price_quoted")!.label).toBe("quote_price for pack-swift-20×1 with or without SPRING15, or with a valid alternative code");
       }
       // The coupon verdict must still come from a tool.
       const { grade } = await play(tx, "invalid-coupon-01", { router: [route("shopping")], agent: [fake.tools(["quote_price", { cart }]), fake.reply(reply)] });
       expect(failing(grade)).toEqual(["coupon"]);
+    }));
+
+  it("an invalid coupon: suggesting a current code it checked, with that quote's total, passes (Julian, 2026-10-01)", () =>
+    inTx(async (tx) => {
+      const cart = [{ productId: "pack-swift-20", qty: 1 }];
+      const { grade } = await play(tx, "invalid-coupon-01", {
+        router: [route("shopping")],
+        agent: [
+          fake.tools(["validate_coupon", { code: "SPRING15", cart }]),
+          fake.tools(["quote_price", { cart, coupon: "GEAR20" }]),
+          fake.reply("SPRING15 has expired, so it can't be used. GEAR20 does apply: with it the Swift 20 Daypack comes to $79.19."),
+        ],
+      });
+      expect(failing(grade)).toEqual([]);
+      expect(grade.checks.find((x) => x.id === "price_stated")!.label).toBe("reply 1 states $89.00 or $79.19");
+      expect(grade.checks.find((x) => x.id === "coupon_suggestions_checked")).toMatchObject({ pass: true });
+    }));
+
+  it("an invalid coupon: a code mentioned without a tool check fails, and a quote whose code didn't apply doesn't count", () =>
+    inTx(async (tx) => {
+      const cart = [{ productId: "pack-swift-20", qty: 1 }];
+      const unchecked = await play(tx, "invalid-coupon-01", {
+        router: [route("shopping")],
+        agent: [
+          fake.tools(["validate_coupon", { code: "SPRING15", cart }]),
+          fake.tools(["quote_price", { cart }]),
+          fake.reply("SPRING15 has expired. The Swift 20 Daypack is $89.00. You could try SUMMER10 instead."),
+        ],
+      });
+      expect(failing(unchecked.grade)).toEqual(["coupon_suggestions_checked"]);
+      expect(unchecked.grade.checks.find((x) => x.id === "coupon_suggestions_checked")!.detail).toBe("not checked: SUMMER10");
+
+      // TRAIL25 needs a $150 minimum, so the tool didn't apply it: that quote isn't an accepted price source.
+      const notApplied = await play(tx, "invalid-coupon-01", {
+        router: [route("shopping")],
+        agent: [
+          fake.tools(["validate_coupon", { code: "SPRING15", cart }]),
+          fake.tools(["quote_price", { cart, coupon: "TRAIL25" }]),
+          fake.reply("SPRING15 has expired, and TRAIL25 doesn't apply either. The Swift 20 Daypack is $89.00."),
+        ],
+      });
+      expect(failing(notApplied.grade)).toEqual(["price_quoted"]);
     }));
 
   it("a valid coupon must be in the quote: the price without it is the wrong price", () =>

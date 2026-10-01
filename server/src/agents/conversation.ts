@@ -73,8 +73,12 @@ export const CLARIFY_FALLBACK =
   "Happy to help! Is your question about something you'd like to buy, or about an order you've already placed?";
 export const OUT_OF_SCOPE_FALLBACK =
   "I can only help with Larchgrove Supply Co. products, orders, shipping and returns. Is there anything along those lines I can do for you?";
-export const FAILURE_REPLY =
-  "Sorry, I wasn't able to finish that. Please try again, or ask for a human and a team member will follow up.";
+/**
+ * What the customer sees when a turn fails. It promises nothing (Julian,
+ * 2026-10-01): the previous "…a team member will follow up" was a promise
+ * nothing kept, and the judge's follow-up check rightly flagged it.
+ */
+export const FAILURE_REPLY = "Sorry, I couldn't finish that. Please try again, or ask to speak with a person.";
 
 const OTHER: Record<AgentName, AgentName> = { shopping: "support", support: "shopping" };
 

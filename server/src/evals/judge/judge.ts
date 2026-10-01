@@ -19,7 +19,12 @@ import { JUDGE_RUBRIC, QUESTION_PROMPT, SCORE_PROMPT, VOTED_QUESTIONS, VOTES } f
 
 export type JudgeInput = {
   caseId: string;
-  turns: { turn: number; customer: string; reply: string }[];
+  /**
+   * failed: the turn failed and the customer saw the store's standard error
+   * message (FAILURE_REPLY), not the agent's words. It isn't scored, and the
+   * question calls see a marker instead of the message (Julian, 2026-10-01).
+   */
+  turns: { turn: number; customer: string; reply: string; failed?: true }[];
   /** What the tools returned, one line per call, so helpfulness is judged against what was knowable. */
   toolSummary: string[];
   judgeNote?: string;
@@ -45,7 +50,7 @@ export function summarizeTools(obs: Observation): string[] {
 export function buildJudgeInput(c: EvalCase, obs: Observation, questions: JudgeQuestion[]): JudgeInput {
   return {
     caseId: c.id,
-    turns: obs.turns.map((t, i) => ({ turn: i + 1, customer: t.customer, reply: t.reply })),
+    turns: obs.turns.map((t, i) => ({ turn: i + 1, customer: t.customer, reply: t.reply, ...(t.outcome === "failed" ? { failed: true as const } : {}) })),
     toolSummary: summarizeTools(obs),
     ...(c.expect.judge ? { judgeNote: c.expect.judge } : {}),
     checks: questions.flatMap((q) => (q.kind === "judge_check" ? [{ id: q.id, statement: q.statement }] : [])),
@@ -84,16 +89,22 @@ export function judgeSafeText(text: string): string {
  */
 function renderConversation(input: JudgeInput): string[] {
   const out: string[] = ["## Conversation"];
-  for (const t of input.turns) out.push(`Customer message ${t.turn}: ${t.customer}`, `Agent reply ${t.turn}: ${t.reply}`, "");
+  for (const t of input.turns) out.push(`Customer message ${t.turn}: ${t.customer}`, `Agent reply ${t.turn}: ${t.failed ? FAILED_TURN : t.reply}`, "");
   out.push("## What the tools returned", ...(input.toolSummary.length ? input.toolSummary : ["(no tools were called)"]), "");
   if (input.judgeNote) out.push("## What a good answer does", input.judgeNote, "");
   return out;
 }
 
+/** What the judge sees instead of the standard error message on a failed turn. */
+export const FAILED_TURN = "(none: this turn failed, and the customer saw the store's standard error message. Those aren't the agent's words: leave this turn out of your answer.)";
+
+/** The replies the judge scores: every turn that didn't fail. */
+export const scoredTurns = (input: JudgeInput) => input.turns.filter((t) => !t.failed).map((t) => t.turn);
+
 /** The scoring call's user message. */
 export function renderScoreRequest(input: JudgeInput): string {
   const out = renderConversation(input);
-  out.push(`Score agent replies ${input.turns.map((t) => t.turn).join(", ")}.`);
+  out.push(`Score agent replies ${scoredTurns(input).join(", ")}.`);
   return judgeSafeText(out.join("\n"));
 }
 
@@ -127,14 +138,40 @@ export function renderQuestionRequest(input: JudgeInput, q: JudgeQuestionText, v
 const Score = z.coerce.number().int().min(1).max(5);
 const ReplyScore = z.object({ reply: z.coerce.number().int(), tone: Score, clarity: Score, helpfulness: Score, why: z.string().min(1) });
 const ScoreOutput = z.object({ replies: z.array(ReplyScore) });
-/** The conclusion a question's reason must end with (rubric@3). */
-const CONCLUSION = /Answer:\s*(yes|no)\.?\s*$/i;
+/**
+ * The conclusion a reason states, read leniently (rubric@4, Julian 2026-10-01):
+ * "Answer: yes/no", "the answer is yes/no", or "the statement is (not)
+ * true/false/correct/incorrect"; the last one wins. null when there's none.
+ * Under rubric@3 a reason without an exact "Answer: yes/no." ending was invalid
+ * output and retried: 616 retries (18% of calls) and 3 failed verdicts across
+ * dev-1/1b/2, nearly all for "Therefore the statement is true." The wording is
+ * no longer a reason to retry; a vote without a recognizable conclusion just
+ * can't be checked for a contradiction.
+ */
+const CONCLUSIONS = /\banswer(?:\s+is)?\s*:?\s*(yes|no)\b|\bstatement\s+is\s+(not\s+)?(true|false|correct|incorrect)\b/gi;
+export function statedConclusion(why: string): boolean | null {
+  let last: boolean | null = null;
+  for (const m of why.matchAll(CONCLUSIONS)) {
+    if (m[1]) last = m[1].toLowerCase() === "yes";
+    else {
+      const positive = ["true", "correct"].includes(m[3]!.toLowerCase());
+      last = m[2] ? !positive : positive;
+    }
+  }
+  return last;
+}
+/** A missing `answer` is taken from the stated conclusion; with neither, the output is invalid. */
 const AnswerOutput = z
-  .object({ why: z.string().min(1), answer: z.boolean() })
-  .refine((a) => CONCLUSION.test(a.why.trim()), { message: '"why" must end with "Answer: yes." or "Answer: no."' });
+  .object({ why: z.string().min(1), answer: z.boolean().optional() })
+  .transform((a, ctx) => {
+    const answer = a.answer ?? statedConclusion(a.why);
+    if (answer === null) {
+      ctx.addIssue({ code: "custom", message: "give an answer (true or false)" });
+      return z.NEVER;
+    }
+    return { why: a.why, answer, fromReason: a.answer === undefined };
+  });
 type AnswerOutput = z.infer<typeof AnswerOutput>;
-/** What the reason concluded, from its closing "Answer: yes/no.". */
-export const statedConclusion = (why: string): boolean => CONCLUSION.exec(why.trim())![1]!.toLowerCase() === "yes";
 /**
  * votes: each vote's answer, for a voted question (`answer` is their majority).
  * contradictions: the votes (1-based; 1 for an unvoted question) whose reason
@@ -146,6 +183,8 @@ const Answer = z.object({
   why: z.string().min(1),
   votes: z.array(z.boolean()).optional(),
   contradictions: z.array(z.number().int()).optional(),
+  /** Votes whose reason stated no recognizable conclusion (so they couldn't be checked for a contradiction). */
+  noConclusion: z.number().int().optional(),
 });
 export const JudgeOutput = z.object({
   replies: z.array(ReplyScore),
@@ -209,7 +248,7 @@ const majority = (votes: boolean[]) => votes.filter(Boolean).length * 2 > votes.
 export async function runJudge(provider: ChatProvider, input: JudgeInput): Promise<JudgeResult> {
   const rubric = promptId(JUDGE_RUBRIC);
   const calls: JudgeCall[] = [];
-  const turns = input.turns.map((t) => t.turn);
+  const turns = scoredTurns(input);
 
   const scoreJob = ask(provider, "scores", SCORE_PROMPT, renderScoreRequest(input), (json) => {
     const replies = ScoreOutput.parse(json).replies;
@@ -240,13 +279,18 @@ export async function runJudge(provider: ChatProvider, input: JudgeInput): Promi
       answers.push(r.value);
     }
     const answer = majority(answers.map((a) => a.answer));
-    const contradictions = answers.flatMap((a, i) => (statedConclusion(a.why) !== a.answer ? [i + 1] : []));
+    const contradictions = answers.flatMap((a, i) => {
+      const stated = statedConclusion(a.why);
+      return stated !== null && stated !== a.answer ? [i + 1] : [];
+    });
+    const unchecked = answers.filter((a) => statedConclusion(a.why) === null).length;
     const entry = {
       id: q.id,
       answer,
       why: answers.find((a) => a.answer === answer)!.why,
       ...(voted ? { votes: answers.map((a) => a.answer) } : {}),
       ...(contradictions.length ? { contradictions } : {}),
+      ...(unchecked ? { noConclusion: unchecked } : {}),
     };
     (q.kind === "check" ? output.checks : output.scriptFit).push(entry);
   }

@@ -34,6 +34,16 @@ const pool = MODELS.flatMap((m, mi) => Array.from({ length: 12 }, (_, i) => conv
 describe("drawing the blind sample", () => {
   const { items, key } = sampleForGrading(pool, 30);
 
+  it("never picks a failed turn's reply (the store's standard error message, which the judge doesn't score)", () => {
+    const withFailed = pool.map((c) =>
+      c.input.turns.length === 2 ? { ...c, input: { ...c.input, turns: [c.input.turns[0]!, { ...c.input.turns[1]!, failed: true as const }] } } : c,
+    );
+    const allFailed = { ...conversation(MODELS[0]!, 999), input: { ...conversation(MODELS[0]!, 999).input, turns: [{ turn: 1, customer: "q", reply: "x", failed: true as const }] } };
+    const drawn = sampleForGrading([allFailed, ...withFailed], 30);
+    for (const item of drawn.items) expect(item.input.turns.find((t) => t.turn === item.reply)!.failed, item.itemId).toBeUndefined();
+    expect(drawn.key.some((k) => k.caseId === "case-999")).toBe(false);
+  });
+
   it("takes 30 replies, spread evenly across agent models, one per conversation", () => {
     expect(items).toHaveLength(30);
     const perModel = MODELS.map((m) => key.filter((k) => k.agentModel === m).length);

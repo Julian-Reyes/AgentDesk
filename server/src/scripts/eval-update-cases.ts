@@ -7,7 +7,9 @@
  * manifest records the update. Changes to the script, customer, judge checks or
  * judge note are refused (those need a new run or a re-judge), except judge
  * checks with --allow-judge-checks: those conversations lose their old verdict,
- * so re-judge them with npm run eval:judge -- --name dev-1.
+ * so re-judge them with npm run eval:judge -- --name dev-1. --allow-judge-notes
+ * also accepts a changed judge note: only when the whole run will be re-judged
+ * under a new rubric id, since the note isn't part of a verdict's question set.
  * Then: npm run eval:report -- --name dev-1
  */
 import { parseArgs } from "node:util";
@@ -15,7 +17,13 @@ import { ALL_CASES } from "../evals/cases/index.ts";
 import { applyCaseSnapshotUpdate, planCaseSnapshotUpdate } from "../evals/runner/update-cases.ts";
 import { RunStore } from "../evals/runner/store.ts";
 
-const { values } = parseArgs({ options: { name: { type: "string" }, reason: { type: "string" }, yes: { type: "boolean", default: false }, "allow-judge-checks": { type: "boolean", default: false } } });
+const { values } = parseArgs({ options: {
+    name: { type: "string" },
+    reason: { type: "string" },
+    yes: { type: "boolean", default: false },
+    "allow-judge-checks": { type: "boolean", default: false },
+    "allow-judge-notes": { type: "boolean", default: false },
+  } });
 if (!values.name) {
   console.error('Usage: npm run eval:update-cases -- --name <run> [--reason "<why>" --yes]');
   process.exit(1);
@@ -25,7 +33,7 @@ if (!store.manifest()) {
   console.error(`No run named ${values.name} in ${store.dir}.`);
   process.exit(1);
 }
-const opts = { allowJudgeChecks: values["allow-judge-checks"] };
+const opts = { allowJudgeChecks: values["allow-judge-checks"], allowJudgeNotes: values["allow-judge-notes"] };
 const plan = planCaseSnapshotUpdate(store, ALL_CASES, opts);
 for (const c of plan.changes) console.log(`update  ${c.caseId} (${c.model}): ${c.fields.join(", ")}${c.needsRejudge ? "  [needs re-judging]" : ""}`);
 for (const c of plan.refused) console.log(`REFUSED ${c.caseId} (${c.model}): ${c.why}`);

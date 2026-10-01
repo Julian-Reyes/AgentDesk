@@ -16,7 +16,7 @@ describe("team config", () => {
 
   it("records model, provider and prompt version per role", () => {
     const team = buildTeam(loadTeamSpec({ MODEL: "ollama/qwen3.5-4b" }), { env: {}, cacheMode: "off" });
-    expect(team.meta.support).toEqual({ model: "ollama/qwen3.5-4b", provider: "ollama", prompt: expect.stringMatching(/^support@3#[0-9a-f]{8}$/) });
+    expect(team.meta.support).toEqual({ model: "ollama/qwen3.5-4b", provider: "ollama", prompt: expect.stringMatching(/^support@4#[0-9a-f]{8}$/) });
     expect(Object.keys(team.agents).sort()).toEqual(["shopping", "support"]);
   });
 
@@ -35,8 +35,9 @@ describe("prompt sets (tuning round 1, 2026-10-01)", () => {
     expect(promptId(PROMPT_SETS["round-0"].support)).toBe("support@2#cca33593");
   });
 
-  it("round-1 is the current set: round 0 plus the approved rules, nothing removed", () => {
-    expect(PROMPT_SETS["round-1"]).toBe(AGENT_PROMPTS);
+  it("round-1 is exactly what dev-2 ran with, and round 0 plus the approved rules, nothing removed", () => {
+    expect(promptId(PROMPT_SETS["round-1"].shopping)).toBe("shopping@2#3e94b8f1");
+    expect(promptId(PROMPT_SETS["round-1"].support)).toBe("support@3#d7518dde");
     for (const agent of ["shopping", "support"] as const) {
       const before = PROMPT_SETS["round-0"][agent].text.split("\n");
       const after = PROMPT_SETS["round-1"][agent].text.split("\n");
@@ -47,6 +48,19 @@ describe("prompt sets (tuning round 1, 2026-10-01)", () => {
     expect(SHOPPING_PROMPT.text).toContain("Never suggest a code you haven't checked.");
     expect(SUPPORT_PROMPT.text).toContain("never say a replacement is on its way");
     expect(SUPPORT_PROMPT.text).toContain('Never say "I\'ll let you know"');
+  });
+
+  it("round-2 is the current set: round 1 with only the full-name line changed", () => {
+    expect(PROMPT_SETS["round-2"]).toBe(AGENT_PROMPTS);
+    for (const agent of ["shopping", "support"] as const) {
+      const before = PROMPT_SETS["round-1"][agent].text.split("\n");
+      const after = PROMPT_SETS["round-2"][agent].text.split("\n");
+      expect(before.filter((l) => !after.includes(l)), agent).toEqual(['- Speak to the customer as "you"; never use their full name. No emojis.']);
+      expect(after.filter((l) => !before.includes(l)), agent).toEqual([
+        '- Speak to the customer as "you"; never address them by their full name (saying which account is signed in is fine). No emojis.',
+      ]);
+    }
+    expect([SHOPPING_PROMPT.version, SUPPORT_PROMPT.version]).toEqual([3, 4]);
   });
 
   it("buildTeam uses the prompt set it's given, and records it", () => {
