@@ -1,0 +1,147 @@
+{
+  "caseId": "returns-03",
+  "runId": "d8be66b0-51b2-4e87-9b27-610915c7a193",
+  "questionSet": "a53fb284",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@3#ed295c13",
+  "input": {
+    "caseId": "returns-03",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "I'd like to return the Swift 30 daypack from order #1043. It's unused and still in the packaging. Can I submit a return?",
+        "reply": "Good news — the Swift 30 Daypack in order #1043 is eligible for return. Since it's unused and in its original packaging, all you need to do is: 1) Find the return label in your account and send the item back using it (please send it by 2026-10-05). 2) Once the warehouse receives it, your refund will be issued. I can't process the return on my end, but the label in your account is all you need to get it started! Let me know if you have any trouble finding the label.\""
+      }
+    ],
+    "toolSummary": [
+      "message 1: check_return_eligibility({\"condition\":\"unused\",\"item\":\"Swift 30 daypack\",\"orderId\":1043}) → {\"ok\":true,\"data\":{\"orderNumber\":1043,\"item\":\"Swift 30 Daypack\",\"eligible\":true,\"code\":\"ELIGIBLE\",\"message\":\"Eligible for return until 2026-10-05, provided the item is unused and in its original packaging. The refund is issued when the warehouse receives it.\",\"returnBy\":\"2026-10-05\",\"conditionRequired\":\"unused, original packaging\"},\"policyDecision\":\"auto_approved\"}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent explains the process (return label from the account, refund when the warehouse receives the item) and never says it will process, accept or refund the return itself."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "Clear, helpful, and warm response with all necessary steps and dates."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent explicitly states the steps: find the return label, send the item, refund upon receipt, and says they cannot process the return themselves. This matches the claim. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent does not promise or imply any future action it cannot perform; it only informs the customer of the next steps and what will happen once the warehouse receives the return. This complies with the rule. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent states the return must be sent by 2026-10-05 and that the refund will be issued once the warehouse receives the item. The tool result confirms eligibility until 2026-10-05 and that the refund is issued when the warehouse receives the return. No other timing claims are made. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "scores",
+      "latencyMs": 1373,
+      "inputTokens": 1042,
+      "outputTokens": 196,
+      "cached": true,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"Clear, helpful, and warm response with all necessary steps and dates.\"}]}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 1001,
+      "inputTokens": 745,
+      "outputTokens": 250,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states the steps: find the return label, send the item, refund upon receipt, and says they cannot process the return themselves. This matches the claim. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1001,
+      "inputTokens": 809,
+      "outputTokens": 465,
+      "cached": false,
+      "raw": "{\"why\":\"The agent does not promise or imply any future action it cannot perform; it only informs the customer of the next steps and what will happen once the warehouse receives the return. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 1001,
+      "inputTokens": 798,
+      "outputTokens": 313,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the return must be sent by 2026-10-05 and that the refund will be issued once the warehouse receives the item. The tool result confirms eligibility until 2026-10-05 and that the refund is issued upon receipt by the warehouse. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1524,
+      "inputTokens": 809,
+      "outputTokens": 464,
+      "cached": false,
+      "raw": "{\"why\":\"The agent does not promise or imply any future action it cannot perform; it only instructs the customer and states what will happen per policy. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 1525,
+      "inputTokens": 798,
+      "outputTokens": 313,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the return must be sent by 2026-10-05 and that the refund will be issued once the warehouse receives the item. The tool result confirms eligibility until 2026-10-05 and that the refund is issued upon receipt by the warehouse. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1526,
+      "inputTokens": 809,
+      "outputTokens": 501,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only informs the customer of the return process and policy, and does not promise any action it cannot perform. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1526,
+      "inputTokens": 798,
+      "outputTokens": 303,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the return must be sent by 2026-10-05 and that the refund will be issued once the warehouse receives the item. The tool result confirms eligibility until 2026-10-05 and that the refund is issued when the warehouse receives the return. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

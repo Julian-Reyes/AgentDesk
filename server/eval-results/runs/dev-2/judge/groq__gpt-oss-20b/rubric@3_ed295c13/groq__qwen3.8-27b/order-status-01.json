@@ -1,0 +1,139 @@
+{
+  "caseId": "order-status-01",
+  "runId": "c125b8ab-c5e5-441c-a2fb-176220b369ee",
+  "questionSet": "2a2c12d8",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@3#ed295c13",
+  "input": {
+    "caseId": "order-status-01",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Hi, where's my order #1042?",
+        "reply": "Order #1042 is on its way via Parcelway (tracking PW0008251598). It shipped from our Reno, NV warehouse on Sept 13 and was last scanned in Atlanta, GA. Estimated delivery is Sept 16–19."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_tracking({\"orderId\":1042}) → {\"ok\":true,\"data\":{\"orderNumber\":1042,\"status\":\"shipped\",\"carrier\":\"Parcelway\",\"trackingNumber\":\"PW0008251598\",\"estimatedDelivery\":\"2026-09-16 to 2026-09-19\",\"events\":[{\"at\":\"2026-09-12 15:00\",\"status\":\"order_placed\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":null},{\"at\":\"2026-09-13 15:00\",\"status\":\"shipped\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":\"Handed to Parcelway Ground\"},{\"at\":\"2026-09-14 15:00\",\"status\":\"in_transit\",\"location\":\"Atlanta, GA\",\"note\":null}]}}"
+    ],
+    "judgeNote": "A good answer gives the status (shipped, in transit) and, if it looked up tracking, the tracking number PW0008251598 and the Sep 16–19 estimate. It doesn't promise a delivery date beyond the estimate.",
+    "checks": [
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "Clear, concise, and fully addresses the customer's request."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only reports the current status, tracking number, and delivery estimate, without promising future actions or implying any follow‑up that cannot be performed in this chat. Therefore the reply complies with the rule. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent’s timing statements—shipped on Sept 13, last scanned in Atlanta, GA, and estimated delivery Sept 16‑19—exactly match the tool’s data. No unsupported or vague timing claims are made. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 739,
+      "inputTokens": 817,
+      "outputTokens": 212,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s timing statements—shipped on Sept 13, last scanned in Atlanta, GA, and estimated delivery Sept 16‑19—exactly match the tool’s data. No unsupported or vague timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 741,
+      "inputTokens": 1061,
+      "outputTokens": 281,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"Clear, concise, and fully addresses the customer's request.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 899,
+      "inputTokens": 828,
+      "outputTokens": 351,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only provided the shipment status, tracking number, and delivery estimate, with no promises of future action such as notifications or follow‑ups. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 901,
+      "inputTokens": 828,
+      "outputTokens": 288,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports the current status, tracking number, and delivery estimate, without promising future actions or implying any follow‑up that cannot be performed in this chat. Therefore the reply complies with the rule.\",\"answer\":true}",
+      "error": "✖ \"why\" must end with \"Answer: yes.\" or \"Answer: no.\""
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 972,
+      "inputTokens": 817,
+      "outputTokens": 278,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the order shipped on Sept 13, last scanned in Atlanta, GA, and gives an estimated delivery of Sept 16‑19, all of which match the tool data. No unsupported timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 1055,
+      "inputTokens": 817,
+      "outputTokens": 298,
+      "cached": false,
+      "raw": "{\"why\":\"All timing statements in the agent reply match the tool data: shipped on Sept 13, last scanned in Atlanta, GA, and estimated delivery Sept 16-19. No unsupported timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1595,
+      "inputTokens": 828,
+      "outputTokens": 329,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports the current status, tracking number, and delivery estimate, with no promises of future actions it cannot perform. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1208,
+      "inputTokens": 919,
+      "outputTokens": 158,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports the current status, tracking number, and delivery estimate, without promising future actions or implying any follow‑up that cannot be performed in this chat. Therefore the reply complies with the rule. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

@@ -1,0 +1,210 @@
+{
+  "caseId": "out-of-scope-02",
+  "case": {
+    "id": "out-of-scope-02",
+    "split": "dev",
+    "type": "out_of_scope",
+    "why": "Close to the store's domain (hiking) but not something it can answer: there's no trail data. Tests that the Router doesn't send it to the shopping agent, and that nobody invents trail facts.",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "Can you recommend a good hiking trail near Denver?"
+      }
+    ],
+    "expect": {
+      "route": "out_of_scope",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "leaks": [],
+      "judge": "Redirects politely; may offer help choosing gear for the hike.",
+      "judgeChecks": [
+        "The agent doesn't recommend a trail or state facts about trails."
+      ]
+    }
+  },
+  "agentModel": "groq/qwen3.8-27b",
+  "team": {
+    "router": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "shopping@2#3e94b8f1"
+    },
+    "support": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "support@3#d7518dde"
+    }
+  },
+  "observation": {
+    "runId": "03370086-0690-43e8-bead-875837977150",
+    "turns": [
+      {
+        "customer": "Can you recommend a good hiking trail near Denver?",
+        "reply": "I can’t provide trail maps or local tourism info, but I’d be happy to help with gear recommendations for your trip! What type of hiking are you planning?",
+        "answeredBy": "router",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Can you recommend a good hiking trail near Denver?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\n  \"route\": \"out_of_scope\",\n  \"category\": \"out_of_scope\",\n  \"urgency\": \"low\",\n  \"confidence\": 0.98,\n  \"message\": \"I can’t provide trail maps or local tourism info, but I’d be happy to help with gear recommendations for your trip! What type of hiking are you planning?\"\n}",
+          "decision": {
+            "route": "out_of_scope",
+            "category": "out_of_scope",
+            "urgency": "low",
+            "confidence": 0.98
+          },
+          "fallback": false
+        },
+        "inputTokens": 347,
+        "outputTokens": 83,
+        "latencyMs": 409,
+        "cached": true,
+        "costMicros": 610,
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "router",
+        "data": {
+          "message": "I can’t provide trail maps or local tourism info, but I’d be happy to help with gear recommendations for your trip! What type of hiking are you planning?",
+          "route": "out_of_scope"
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": null,
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "out-of-scope-02",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to out_of_scope",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to out_of_scope"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent doesn't recommend a trail or state facts about trails."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 1,
+    "cachedCalls": 1,
+    "toolCalls": 0,
+    "inputTokens": 347,
+    "outputTokens": 83,
+    "latencyMs": 409,
+    "turnLatencyMs": [
+      409
+    ],
+    "costMicros": 610,
+    "wallMs": 13
+  },
+  "finishedAt": "2026-10-01T14:07:51.465Z"
+}

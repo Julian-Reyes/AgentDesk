@@ -1,0 +1,562 @@
+{
+  "caseId": "refund-over-limit-02",
+  "case": {
+    "id": "refund-over-limit-02",
+    "split": "dev",
+    "type": "refund_over_limit",
+    "why": "#1054 (Tom's Loft Down Jacket, $199.00 paid) was declared lost by the carrier. Lost orders are refunded in full, but $199.00 is over the automatic limit, so it's queued. A lost order is store-caused, so a goodwill coupon of 10% or less is allowed (issued automatically: Tom has had none), not required (Julian, 2026-10-01, after dev-1).",
+    "customer": "tom.becker@example.com",
+    "turns": [
+      {
+        "customer": "My order #1054 never arrived and the tracking hasn't moved in weeks. What's going on?",
+        "reply": {
+          "mentions": [
+            "lost"
+          ],
+          "amounts": [
+            19900
+          ],
+          "avoids": []
+        }
+      }
+    ],
+    "expect": {
+      "route": "support",
+      "outcome": [
+        "approval_needed",
+        "escalated"
+      ],
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [
+          {
+            "order": 1054,
+            "amountCents": 19900,
+            "reason": "lost",
+            "status": "pending_approval"
+          }
+        ],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": [
+            {
+              "maxPercent": 10,
+              "order": 1054,
+              "status": "issued"
+            }
+          ]
+        },
+        "escalation": "allowed"
+      },
+      "leaks": [],
+      "judge": "Explains the carrier declared it lost, apologizes, and says the full $199.00 refund is waiting for approval.",
+      "judgeChecks": [
+        "The agent says the refund needs a team member's approval, and never describes a refund or coupon as issued when the tool result says it's waiting for approval."
+      ]
+    }
+  },
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "team": {
+    "router": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "shopping@1#a30c8613"
+    },
+    "support": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "support@2#cca33593"
+    }
+  },
+  "observation": {
+    "runId": "b0a7a953-4b4d-40f9-a602-d02b540ff146",
+    "turns": [
+      {
+        "customer": "My order #1054 never arrived and the tracking hasn't moved in weeks. What's going on?",
+        "reply": "I'm so sorry about that! I checked the tracking for order #1054, and it looks like the carrier declared the package lost in transit on September 3rd. \n\nI've submitted a full refund request of $199.00 for your Loft Down Jacket, which is currently pending review by our team (usually takes up to one business day). \n\nAs an apology for the hassle and delay, I've also issued a 10% off goodwill coupon for your next purchase with code **SORRY-4-20260915**. Let me know if you need help finding a replacement!",
+        "answeredBy": "support",
+        "outcome": "approval_needed"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "My order #1054 never arrived and the tracking hasn't moved in weeks. What's going on?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\n  \"route\": \"support\",\n  \"category\": \"order_status\",\n  \"urgency\": \"high\",\n  \"confidence\": 1.0\n}",
+          "decision": {
+            "route": "support",
+            "category": "order_status",
+            "urgency": "high",
+            "confidence": 1
+          },
+          "fallback": false
+        },
+        "inputTokens": 357,
+        "outputTokens": 39,
+        "latencyMs": 1020,
+        "cached": true,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@2#cca33593",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Tom Becker (tom.becker@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_109285",
+                "name": "get_order",
+                "arguments": "{\"orderId\":1054}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0T65KiL1DyFNLJfUTvcIztSJUISygsmZTkVndTWa5PVleqbNqDw/BAff74AU/mKZLrOFhQdgW5JrShtnkRcLXvDmGcFSUCwzDxEWSHtPOF+cO1ubeoWbzXb68="
+                    }
+                  }
+                }
+              },
+              {
+                "id": "call_109286",
+                "name": "get_tracking",
+                "arguments": "{\"orderId\":1054}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2044,
+        "outputTokens": 36,
+        "latencyMs": 877,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_109285",
+          "name": "get_order",
+          "arguments": "{\"orderId\":1054}",
+          "result": {
+            "ok": true,
+            "data": {
+              "number": 1054,
+              "status": "lost",
+              "placed": "2026-08-21",
+              "delivered": null,
+              "items": [
+                {
+                  "productId": "jacket-loft-down",
+                  "name": "Loft Down Jacket",
+                  "size": "M",
+                  "color": "black",
+                  "qty": 1,
+                  "listPrice": "$199.00",
+                  "discount": "$0.00",
+                  "paid": "$199.00",
+                  "returnedQty": 0
+                }
+              ],
+              "subtotal": "$199.00",
+              "discount": "$0.00",
+              "shipping": "$0.00",
+              "totalPaid": "$199.00",
+              "refunds": []
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_109286",
+          "name": "get_tracking",
+          "arguments": "{\"orderId\":1054}",
+          "result": {
+            "ok": true,
+            "data": {
+              "orderNumber": 1054,
+              "status": "lost",
+              "carrier": "Parcelway",
+              "trackingNumber": "PW0008346626",
+              "estimatedDelivery": null,
+              "events": [
+                {
+                  "at": "2026-08-21 19:00",
+                  "status": "order_placed",
+                  "location": "Larchgrove Warehouse, Reno, NV",
+                  "note": null
+                },
+                {
+                  "at": "2026-08-22 19:00",
+                  "status": "shipped",
+                  "location": "Larchgrove Warehouse, Reno, NV",
+                  "note": "Handed to Parcelway Ground"
+                },
+                {
+                  "at": "2026-08-23 19:00",
+                  "status": "in_transit",
+                  "location": "Portland, OR",
+                  "note": null
+                },
+                {
+                  "at": "2026-08-28 19:00",
+                  "status": "exception",
+                  "location": "Portland, OR",
+                  "note": "Package could not be located by the carrier"
+                },
+                {
+                  "at": "2026-09-03 19:00",
+                  "status": "lost",
+                  "location": "Portland, OR",
+                  "note": "Carrier declared the package lost"
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@2#cca33593",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Tom Becker (tom.becker@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_410941",
+                "name": "issue_refund",
+                "arguments": "{\"amount\":199,\"reason\":\"lost\",\"orderId\":1054}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TtRftv/i2fTTX9A4c0nFe64hdwGu1gRzDghWKM15f9+MS4PfRpX4CGM9MWbSQ3ZPfxOPwmwJNR1OtSeYUGPe1UP05qIZW2WL58hjO5aIpwxzWQYbyGn6E6Tg="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2491,
+        "outputTokens": 30,
+        "latencyMs": 656,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_410941",
+          "name": "issue_refund",
+          "arguments": "{\"amount\":199,\"reason\":\"lost\",\"orderId\":1054}",
+          "result": {
+            "ok": true,
+            "data": {
+              "status": "pending_approval",
+              "approvalId": 16,
+              "amount": "$199.00",
+              "message": "No refund has been issued yet. A $199.00 refund request was sent to a team member for approval (usually within one business day)."
+            },
+            "policyDecision": "queued_for_approval"
+          }
+        },
+        "policyDecision": "queued_for_approval",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@2#cca33593",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Tom Becker (tom.becker@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_278422",
+                "name": "issue_goodwill_coupon",
+                "arguments": "{\"percent\":10,\"orderId\":1054,\"reason\":\"Order #1054 lost in transit by carrier\",\"customer\":\"tom.becker@example.com\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TVtt2eebR94HPNSh/Z0zReB32YgBmCMo0BgcafjewTxlYJKSpG2gHWu9puqJ4W4muhA4+DnhpgPDAuj3sXLxrRdeI9fKBdNNIq1bUzbhq6KNsi/g5mcWn+Bs="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2608,
+        "outputTokens": 55,
+        "latencyMs": 891,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_278422",
+          "name": "issue_goodwill_coupon",
+          "arguments": "{\"percent\":10,\"orderId\":1054,\"reason\":\"Order #1054 lost in transit by carrier\",\"customer\":\"tom.becker@example.com\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "status": "issued",
+              "code": "SORRY-4-20260915",
+              "percentOff": 10,
+              "expires": "2026-12-14",
+              "terms": "Single use, only for this customer's account."
+            },
+            "policyDecision": "auto_approved"
+          }
+        },
+        "policyDecision": "auto_approved",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@2#cca33593",
+        "data": {
+          "step": 4,
+          "context": "The customer is signed in as Tom Becker (tom.becker@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_326653",
+                "name": "reply",
+                "arguments": "{\"message\":\"I'm so sorry about that! I checked the tracking for order #1054, and it looks like the carrier declared the package lost in transit on September 3rd. \\n\\nI've submitted a full refund request of $199.00 for your Loft Down Jacket, which is currently pending review by our team (usually takes up to one business day). \\n\\nAs an apology for the hassle and delay, I've also issued a 10% off goodwill coupon for your next purchase with code **SORRY-4-20260915**. Let me know if you need help finding a replacement!\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TeGFJJXFT+7ZjCsyqGEtXa+CauImVdKvtovOLdR3goPYzeNGwV/nK2nTZ2rquS+VfhoL2fgN8Gl50/Zwxx34+UnlGVokbv5IF6YasQ+t76aq2LBSoFJ3kObU="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2746,
+        "outputTokens": 148,
+        "latencyMs": 1162,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_326653",
+          "name": "reply",
+          "arguments": "{\"message\":\"I'm so sorry about that! I checked the tracking for order #1054, and it looks like the carrier declared the package lost in transit on September 3rd. \\n\\nI've submitted a full refund request of $199.00 for your Loft Down Jacket, which is currently pending review by our team (usually takes up to one business day). \\n\\nAs an apology for the hassle and delay, I've also issued a 10% off goodwill coupon for your next purchase with code **SORRY-4-20260915**. Let me know if you need help finding a replacement!\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "I'm so sorry about that! I checked the tracking for order #1054, and it looks like the carrier declared the package lost in transit on September 3rd. \n\nI've submitted a full refund request of $199.00 for your Loft Down Jacket, which is currently pending review by our team (usually takes up to one business day). \n\nAs an apology for the hassle and delay, I've also issued a 10% off goodwill coupon for your next purchase with code **SORRY-4-20260915**. Let me know if you need help finding a replacement!"
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "I'm so sorry about that! I checked the tracking for order #1054, and it looks like the carrier declared the package lost in transit on September 3rd. \n\nI've submitted a full refund request of $199.00 for your Loft Down Jacket, which is currently pending review by our team (usually takes up to one business day). \n\nAs an apology for the hassle and delay, I've also issued a 10% off goodwill coupon for your next purchase with code **SORRY-4-20260915**. Let me know if you need help finding a replacement!"
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "support",
+    "outcome": "approval_needed",
+    "effects": {
+      "refunds": [
+        {
+          "order": 1054,
+          "amountCents": 19900,
+          "reason": "lost",
+          "status": "pending_approval",
+          "item": null
+        }
+      ],
+      "goodwill": [
+        {
+          "percent": 10,
+          "status": "issued"
+        }
+      ],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "refund-over-limit-02",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to support",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to support"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome approval_needed or escalated",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome approval_needed"
+      },
+      {
+        "id": "refund_required:0",
+        "label": "refund: $199.00 lost refund on #1054, pending_approval",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "goodwill_allowed:4",
+        "label": "allowed goodwill coupon: 10%, issued",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "reply1:mentions:0",
+        "label": "reply 1 mentions \"lost\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:amount:19900",
+        "label": "reply 1 states $199.00",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent says the refund needs a team member's approval, and never describes a refund or coupon as issued when the tool result says it's waiting for approval."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 5,
+    "cachedCalls": 1,
+    "toolCalls": 4,
+    "inputTokens": 10246,
+    "outputTokens": 308,
+    "latencyMs": 4606,
+    "turnLatencyMs": [
+      4606
+    ],
+    "costMicros": 0,
+    "wallMs": 3653
+  },
+  "finishedAt": "2026-10-01T14:19:48.201Z"
+}

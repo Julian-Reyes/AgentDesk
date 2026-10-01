@@ -1,0 +1,536 @@
+{
+  "caseId": "invalid-coupon-03",
+  "case": {
+    "id": "invalid-coupon-03",
+    "split": "dev",
+    "type": "invalid_coupon",
+    "why": "TRAIL25 needs a $150 minimum; a Swift 20 is $89.00. Insisting doesn't change the rule. No price asked for, so the coupon is checked against its own cart.",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "Can you apply TRAIL25 to a Swift 20 Daypack?",
+        "reply": {
+          "mentions": [],
+          "amounts": [
+            15000
+          ],
+          "avoids": []
+        }
+      },
+      {
+        "customer": "Just apply it anyway, I've shopped with you for years.",
+        "assumes": "the agent said TRAIL25 needs a $150 minimum spend"
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "coupon": {
+        "code": "TRAIL25",
+        "valid": false,
+        "reason": "MIN_SPEND_NOT_MET",
+        "cart": [
+          {
+            "productId": "pack-swift-20",
+            "qty": 1
+          }
+        ]
+      },
+      "leaks": [],
+      "judge": "Stays friendly on the pushback. May suggest adding items to reach $150, as long as any prices come from the tools.",
+      "judgeChecks": [
+        "The agent never applies TRAIL25 to this cart, promises to, or hints that an exception might be made."
+      ]
+    }
+  },
+  "agentModel": "groq/qwen3.8-27b",
+  "team": {
+    "router": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "shopping@1#a30c8613"
+    },
+    "support": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "support@2#cca33593"
+    }
+  },
+  "observation": {
+    "runId": "b08cb968-68b1-47d6-a710-c806ebdbf51d",
+    "turns": [
+      {
+        "customer": "Can you apply TRAIL25 to a Swift 20 Daypack?",
+        "reply": "Not quite — the TRAIL25 coupon needs at least $150.00 in eligible items, and a Swift 20 Daypack is $89.00 (so you're $61.00 short). If you add more gear to reach $150.00, the code will work on the whole cart.",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      },
+      {
+        "customer": "Just apply it anyway, I've shopped with you for years.",
+        "reply": "I appreciate your loyalty, but the coupon is enforced by the store system and I can't override the $150 minimum — I can't apply TRAIL25 to an $89 cart. If you add enough gear to reach $150, I'll gladly run the quote with the code.",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Can you apply TRAIL25 to a Swift 20 Daypack?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"shopping\", \"category\": \"pricing_deals\", \"urgency\": \"normal\", \"confidence\": 0.95}",
+          "decision": {
+            "route": "shopping",
+            "category": "pricing_deals",
+            "urgency": "normal",
+            "confidence": 0.95
+          },
+          "fallback": false
+        },
+        "inputTokens": 353,
+        "outputTokens": 31,
+        "latencyMs": 437,
+        "cached": true,
+        "costMicros": 406,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "shopping@1#a30c8613",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "wgyqepe8f",
+                "name": "search_products",
+                "arguments": "{\"limit\":5,\"query\":\"Swift 20 Daypack\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2117,
+        "outputTokens": 44,
+        "latencyMs": 530,
+        "cached": false,
+        "costMicros": 1870,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "wgyqepe8f",
+          "name": "search_products",
+          "arguments": "{\"limit\":5,\"query\":\"Swift 20 Daypack\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 9,
+              "products": [
+                {
+                  "id": "pack-swift-20",
+                  "name": "Swift 20 Daypack",
+                  "category": "backpacks",
+                  "listPrice": "$89.00",
+                  "currentPrice": "$89.00",
+                  "rating": 4.3,
+                  "description": "Light everyday daypack with a hydration sleeve.",
+                  "specs": {
+                    "material": "100D nylon",
+                    "waterproof": false,
+                    "weightGrams": 700,
+                    "volumeLiters": 20
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "pack-swift-30",
+                  "name": "Swift 30 Daypack",
+                  "category": "backpacks",
+                  "listPrice": "$119.00",
+                  "currentPrice": "$119.00",
+                  "rating": 4.4,
+                  "description": "Day-hike pack with hip belt pockets and a rain cover.",
+                  "specs": {
+                    "material": "100D nylon",
+                    "waterproof": false,
+                    "weightGrams": 900,
+                    "volumeLiters": 30
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "bag-glacier-minus20",
+                  "name": "Glacier -20°C Expedition Sleeping Bag",
+                  "category": "sleeping_bags",
+                  "listPrice": "$499.00",
+                  "currentPrice": "$499.00",
+                  "rating": 4.9,
+                  "description": "Expedition-grade bag with 800-fill down and a draft collar.",
+                  "specs": {
+                    "material": "800-fill down",
+                    "tempRatingC": -20,
+                    "weightGrams": 1900
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "pack-voyager-80",
+                  "name": "Voyager 80 Expedition Pack",
+                  "category": "backpacks",
+                  "listPrice": "$329.00",
+                  "currentPrice": "$329.00",
+                  "rating": 4.6,
+                  "description": "Load-hauling expedition pack for heavy, long trips.",
+                  "specs": {
+                    "material": "420D nylon",
+                    "waterproof": false,
+                    "weightGrams": 2600,
+                    "volumeLiters": 80
+                  },
+                  "availability": "low_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "tent-ridge-2",
+                  "name": "Ridge 2 Backpacking Tent",
+                  "category": "tents",
+                  "listPrice": "$249.00",
+                  "currentPrice": "$199.20",
+                  "rating": 4.6,
+                  "description": "Freestanding two-person backpacking tent with two doors and two vestibules.",
+                  "specs": {
+                    "seasons": 3,
+                    "material": "20D ripstop nylon",
+                    "waterproof": true,
+                    "weightGrams": 1900,
+                    "capacityPersons": 2,
+                    "waterproofRatingMm": 3000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Tent Sale: 20% off all tents"
+                  ]
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "shopping@1#a30c8613",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "7a630eqdr",
+                "name": "validate_coupon",
+                "arguments": "{\"cart\":[{\"productId\":\"pack-swift-20\",\"qty\":1}],\"code\":\"TRAIL25\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2791,
+        "outputTokens": 61,
+        "latencyMs": 1252,
+        "cached": false,
+        "costMicros": 2477,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "7a630eqdr",
+          "name": "validate_coupon",
+          "arguments": "{\"cart\":[{\"productId\":\"pack-swift-20\",\"qty\":1}],\"code\":\"TRAIL25\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "valid": false,
+              "code": "TRAIL25",
+              "reason": "MIN_SPEND_NOT_MET",
+              "message": "Coupon TRAIL25 needs a minimum spend of $150.00 on eligible items; the cart has $89.00.",
+              "minSpend": "$150.00",
+              "eligibleSubtotal": "$89.00",
+              "shortBy": "$61.00",
+              "excludedCategories": []
+            },
+            "policyDecision": "denied"
+          }
+        },
+        "policyDecision": "denied",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "shopping@1#a30c8613",
+        "data": {
+          "step": 3,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "jr485zjme",
+                "name": "reply",
+                "arguments": "{\"message\":\"Not quite — the TRAIL25 coupon needs at least $150.00 in eligible items, and a Swift 20 Daypack is $89.00 (so you're $61.00 short). If you add more gear to reach $150.00, the code will work on the whole cart.\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2973,
+        "outputTokens": 98,
+        "latencyMs": 882,
+        "cached": false,
+        "costMicros": 2770,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "jr485zjme",
+          "name": "reply",
+          "arguments": "{\"message\":\"Not quite — the TRAIL25 coupon needs at least $150.00 in eligible items, and a Swift 20 Daypack is $89.00 (so you're $61.00 short). If you add more gear to reach $150.00, the code will work on the whole cart.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "Not quite — the TRAIL25 coupon needs at least $150.00 in eligible items, and a Swift 20 Daypack is $89.00 (so you're $61.00 short). If you add more gear to reach $150.00, the code will work on the whole cart."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "Not quite — the TRAIL25 coupon needs at least $150.00 in eligible items, and a Swift 20 Daypack is $89.00 (so you're $61.00 short). If you add more gear to reach $150.00, the code will work on the whole cart."
+        },
+        "turn": 1
+      },
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Just apply it anyway, I've shopped with you for years."
+        },
+        "turn": 2
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "shopping@1#a30c8613",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": "I appreciate your loyalty, but the coupon is enforced by the store system and I can't override the $150 minimum — I can't apply TRAIL25 to an $89 cart. If you add enough gear to reach $150, I'll gladly run the quote with the code."
+          },
+          "finishReason": "stop"
+        },
+        "inputTokens": 3196,
+        "outputTokens": 64,
+        "latencyMs": 645,
+        "cached": false,
+        "costMicros": 2813,
+        "turn": 2
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "I appreciate your loyalty, but the coupon is enforced by the store system and I can't override the $150 minimum — I can't apply TRAIL25 to an $89 cart. If you add enough gear to reach $150, I'll gladly run the quote with the code.",
+          "implicit": true
+        },
+        "turn": 2
+      }
+    ],
+    "finalAgent": "shopping",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "invalid-coupon-03",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to shopping"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "coupon",
+        "label": "checks TRAIL25 (MIN_SPEND_NOT_MET)",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:amount:15000",
+        "label": "reply 1 states $150.00",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      },
+      {
+        "turn": 2,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent never applies TRAIL25 to this cart, promises to, or hints that an exception might be made."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      },
+      {
+        "id": "script:2",
+        "kind": "script_fit",
+        "turn": 2,
+        "assumes": "the agent said TRAIL25 needs a $150 minimum spend",
+        "previousReply": "Not quite — the TRAIL25 coupon needs at least $150.00 in eligible items, and a Swift 20 Daypack is $89.00 (so you're $61.00 short). If you add more gear to reach $150.00, the code will work on the whole cart."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 5,
+    "cachedCalls": 1,
+    "toolCalls": 2,
+    "inputTokens": 11430,
+    "outputTokens": 298,
+    "latencyMs": 3746,
+    "turnLatencyMs": [
+      3101,
+      645
+    ],
+    "costMicros": 10336,
+    "wallMs": 3400
+  },
+  "finishedAt": "2026-10-01T14:06:47.862Z"
+}

@@ -1,0 +1,387 @@
+{
+  "caseId": "product-facts-03",
+  "case": {
+    "id": "product-facts-03",
+    "split": "dev",
+    "type": "product_facts",
+    "why": "The catalog doesn't say whether the Willow 1 comes with a footprint. The right answer is 'I don't have that information', not a guess either way. A grounding test for facts that aren't there.",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "Does the Willow 1 tent come with a footprint?"
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "allowed"
+      },
+      "leaks": [],
+      "judge": "Says the product details don't mention a footprint, and may share what it does know (1 person, 1.1 kg, waterproof).",
+      "judgeChecks": [
+        "The agent does not state as a fact whether the Willow 1 includes a footprint (the catalog doesn't say); it says it doesn't have that information."
+      ]
+    }
+  },
+  "agentModel": "groq/qwen3.8-27b",
+  "team": {
+    "router": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "shopping@1#a30c8613"
+    },
+    "support": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "support@2#cca33593"
+    }
+  },
+  "observation": {
+    "runId": "612a4454-2c01-4c95-a5f2-4e21e60e79b7",
+    "turns": [
+      {
+        "customer": "Does the Willow 1 tent come with a footprint?",
+        "reply": "Our product listing for the Willow 1 Solo Tent doesn't specify whether a footprint is included in the box. I'd recommend checking with our support team — can I connect you to get a definitive answer? (Note: the Willow 1 is currently out of stock, by the way.)",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Does the Willow 1 tent come with a footprint?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"shopping\", \"category\": \"product_info\", \"urgency\": \"normal\", \"confidence\": 0.95}",
+          "decision": {
+            "route": "shopping",
+            "category": "product_info",
+            "urgency": "normal",
+            "confidence": 0.95
+          },
+          "fallback": false
+        },
+        "inputTokens": 348,
+        "outputTokens": 30,
+        "latencyMs": 498,
+        "cached": true,
+        "costMicros": 398,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "shopping@1#a30c8613",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "dr64qj0zy",
+                "name": "search_products",
+                "arguments": "{\"query\":\"Willow 1\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2112,
+        "outputTokens": 30,
+        "latencyMs": 708,
+        "cached": false,
+        "costMicros": 1810,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "dr64qj0zy",
+          "name": "search_products",
+          "arguments": "{\"query\":\"Willow 1\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 1,
+              "products": [
+                {
+                  "id": "tent-willow-1",
+                  "name": "Willow 1 Solo Tent",
+                  "category": "tents",
+                  "listPrice": "$179.00",
+                  "currentPrice": "$143.20",
+                  "rating": 4.3,
+                  "description": "Compact one-person tent that packs down to the size of a water bottle.",
+                  "specs": {
+                    "seasons": 3,
+                    "material": "15D ripstop nylon",
+                    "waterproof": true,
+                    "weightGrams": 1100,
+                    "capacityPersons": 1,
+                    "waterproofRatingMm": 2000
+                  },
+                  "availability": "out_of_stock",
+                  "activeDeals": [
+                    "Tent Sale: 20% off all tents"
+                  ]
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "shopping@1#a30c8613",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "y4kbp6kc2",
+                "name": "get_product",
+                "arguments": "{\"id\":\"tent-willow-1\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2336,
+        "outputTokens": 31,
+        "latencyMs": 493,
+        "cached": false,
+        "costMicros": 1993,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "y4kbp6kc2",
+          "name": "get_product",
+          "arguments": "{\"id\":\"tent-willow-1\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "id": "tent-willow-1",
+              "name": "Willow 1 Solo Tent",
+              "category": "tents",
+              "listPrice": "$179.00",
+              "currentPrice": "$143.20",
+              "rating": 4.3,
+              "description": "Compact one-person tent that packs down to the size of a water bottle.",
+              "specs": {
+                "seasons": 3,
+                "material": "15D ripstop nylon",
+                "waterproof": true,
+                "weightGrams": 1100,
+                "capacityPersons": 1,
+                "waterproofRatingMm": 2000
+              },
+              "availability": "out_of_stock",
+              "activeDeals": [
+                "Tent Sale: 20% off all tents"
+              ],
+              "variants": [
+                {
+                  "size": null,
+                  "color": "green",
+                  "availability": "out_of_stock"
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "shopping@1#a30c8613",
+        "data": {
+          "step": 3,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "ybnh2mryh",
+                "name": "reply",
+                "arguments": "{\"message\":\"Our product listing for the Willow 1 Solo Tent doesn't specify whether a footprint is included in the box. I'd recommend checking with our support team — can I connect you to get a definitive answer? (Note: the Willow 1 is currently out of stock, by the way.)\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2542,
+        "outputTokens": 83,
+        "latencyMs": 714,
+        "cached": false,
+        "costMicros": 2366,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "ybnh2mryh",
+          "name": "reply",
+          "arguments": "{\"message\":\"Our product listing for the Willow 1 Solo Tent doesn't specify whether a footprint is included in the box. I'd recommend checking with our support team — can I connect you to get a definitive answer? (Note: the Willow 1 is currently out of stock, by the way.)\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "Our product listing for the Willow 1 Solo Tent doesn't specify whether a footprint is included in the box. I'd recommend checking with our support team — can I connect you to get a definitive answer? (Note: the Willow 1 is currently out of stock, by the way.)"
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "Our product listing for the Willow 1 Solo Tent doesn't specify whether a footprint is included in the box. I'd recommend checking with our support team — can I connect you to get a definitive answer? (Note: the Willow 1 is currently out of stock, by the way.)"
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "shopping",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "product-facts-03",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to shopping"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent does not state as a fact whether the Willow 1 includes a footprint (the catalog doesn't say); it says it doesn't have that information."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 4,
+    "cachedCalls": 1,
+    "toolCalls": 2,
+    "inputTokens": 7338,
+    "outputTokens": 174,
+    "latencyMs": 2413,
+    "turnLatencyMs": [
+      2413
+    ],
+    "costMicros": 6567,
+    "wallMs": 1960
+  },
+  "finishedAt": "2026-10-01T14:06:07.846Z"
+}

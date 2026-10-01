@@ -1,0 +1,793 @@
+{
+  "caseId": "price-deals-04",
+  "case": {
+    "id": "price-deals-04",
+    "split": "dev",
+    "type": "price_deals",
+    "why": "Swift 30 ($119) + Pocket Pro ($55) = $174.00, which meets TRAIL25's $150 minimum: $25 off, free shipping, $149.00.",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "What would a Swift 30 Daypack plus a Pocket Pro stove cost with code TRAIL25?"
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "price": {
+        "cart": [
+          {
+            "productId": "pack-swift-30",
+            "qty": 1
+          },
+          {
+            "productId": "stove-pocket-pro",
+            "qty": 1
+          }
+        ],
+        "coupon": "TRAIL25",
+        "totalCents": 14900
+      },
+      "coupon": {
+        "code": "TRAIL25",
+        "valid": true
+      },
+      "leaks": [],
+      "judgeChecks": []
+    }
+  },
+  "agentModel": "groq/qwen3.8-27b",
+  "team": {
+    "router": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "shopping@2#3e94b8f1"
+    },
+    "support": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "support@3#d7518dde"
+    }
+  },
+  "observation": {
+    "runId": "05db4d5f-958f-4fa2-a7c3-cef87621748e",
+    "turns": [
+      {
+        "customer": "What would a Swift 30 Daypack plus a Pocket Pro stove cost with code TRAIL25?",
+        "reply": "With code TRAIL25, a Swift 30 Daypack plus a Pocket Pro Canister Stove comes to: line items $119.00 + $55.00, subtotal $174.00, minus the $25.00 off from TRAIL25, plus free shipping. Total: $149.00",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "What would a Swift 30 Daypack plus a Pocket Pro stove cost with code TRAIL25?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\n  \"route\": \"shopping\",\n  \"category\": \"pricing_deals\",\n  \"urgency\": \"normal\",\n  \"confidence\": 0.98\n}",
+          "decision": {
+            "route": "shopping",
+            "category": "pricing_deals",
+            "urgency": "normal",
+            "confidence": 0.98
+          },
+          "fallback": false
+        },
+        "inputTokens": 359,
+        "outputTokens": 41,
+        "latencyMs": 499,
+        "cached": true,
+        "costMicros": 451,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "shopping@2#3e94b8f1",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "rnybxmkwk",
+                "name": "search_products",
+                "arguments": "{\"query\":\"Swift 30 Daypack\"}"
+              },
+              {
+                "id": "ka0pk422j",
+                "name": "search_products",
+                "arguments": "{\"query\":\"Pocket Pro\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2463,
+        "outputTokens": 60,
+        "latencyMs": 1261,
+        "cached": false,
+        "costMicros": 2210,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "rnybxmkwk",
+          "name": "search_products",
+          "arguments": "{\"query\":\"Swift 30 Daypack\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 7,
+              "products": [
+                {
+                  "id": "pack-swift-30",
+                  "name": "Swift 30 Daypack",
+                  "category": "backpacks",
+                  "listPrice": "$119.00",
+                  "currentPrice": "$119.00",
+                  "rating": 4.4,
+                  "description": "Day-hike pack with hip belt pockets and a rain cover.",
+                  "specs": {
+                    "material": "100D nylon",
+                    "waterproof": false,
+                    "weightGrams": 900,
+                    "volumeLiters": 30
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "pack-swift-20",
+                  "name": "Swift 20 Daypack",
+                  "category": "backpacks",
+                  "listPrice": "$89.00",
+                  "currentPrice": "$89.00",
+                  "rating": 4.3,
+                  "description": "Light everyday daypack with a hydration sleeve.",
+                  "specs": {
+                    "material": "100D nylon",
+                    "waterproof": false,
+                    "weightGrams": 700,
+                    "volumeLiters": 20
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "boot-frostline-winter",
+                  "name": "Frostline Winter Boot",
+                  "category": "boots",
+                  "listPrice": "$199.00",
+                  "currentPrice": "$199.00",
+                  "rating": 4.6,
+                  "description": "Insulated snow boot rated to -30°C.",
+                  "specs": {
+                    "material": "leather and rubber",
+                    "waterproof": true,
+                    "tempRatingC": -30,
+                    "weightGrams": 1600
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "stove-fuel-230",
+                  "name": "Isobutane Fuel Canister 230 g",
+                  "category": "stoves",
+                  "listPrice": "$6.99",
+                  "currentPrice": "$6.99",
+                  "rating": 4.5,
+                  "description": "230 g isobutane-propane canister; fits all threaded canister stoves.",
+                  "specs": {
+                    "fuel": "isobutane-propane",
+                    "weightGrams": 360,
+                    "burnTimeMinutes": 90
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "tent-summit-3",
+                  "name": "Summit 3 Trekking Tent",
+                  "category": "tents",
+                  "listPrice": "$329.00",
+                  "currentPrice": "$263.20",
+                  "rating": 4.5,
+                  "description": "Roomy three-person trekking tent with a steep-walled design for long trips.",
+                  "specs": {
+                    "seasons": 3,
+                    "material": "30D ripstop nylon",
+                    "waterproof": true,
+                    "weightGrams": 2600,
+                    "capacityPersons": 3,
+                    "waterproofRatingMm": 3000
+                  },
+                  "availability": "low_stock",
+                  "activeDeals": [
+                    "Tent Sale: 20% off all tents"
+                  ]
+                },
+                {
+                  "id": "lamp-glowworm-300",
+                  "name": "Glowworm 300 Headlamp",
+                  "category": "headlamps",
+                  "listPrice": "$29.00",
+                  "currentPrice": "$29.00",
+                  "rating": 4.4,
+                  "description": "All-round AAA headlamp with a red night mode.",
+                  "specs": {
+                    "lumens": 300,
+                    "waterproof": true,
+                    "weightGrams": 78,
+                    "burnTimeMinutes": 1800
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Headlamps: buy 2, get 1 free"
+                  ]
+                },
+                {
+                  "id": "pack-cub-15",
+                  "name": "Cub 15 Kids Pack",
+                  "category": "backpacks",
+                  "listPrice": "$45.00",
+                  "currentPrice": "$45.00",
+                  "rating": 4.2,
+                  "description": "Small daypack sized for kids, with a chest strap and whistle.",
+                  "specs": {
+                    "material": "polyester",
+                    "waterproof": false,
+                    "weightGrams": 400,
+                    "volumeLiters": 15
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "ka0pk422j",
+          "name": "search_products",
+          "arguments": "{\"query\":\"Pocket Pro\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 14,
+              "products": [
+                {
+                  "id": "stove-pocket-pro",
+                  "name": "Pocket Pro Canister Stove",
+                  "category": "stoves",
+                  "listPrice": "$55.00",
+                  "currentPrice": "$55.00",
+                  "rating": 4.6,
+                  "description": "Pocket stove with a push-button igniter and wind shield.",
+                  "specs": {
+                    "fuel": "isobutane canister",
+                    "weightGrams": 95
+                  },
+                  "availability": "low_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "jacket-tundra-parka",
+                  "name": "Tundra Insulated Parka",
+                  "category": "jackets",
+                  "listPrice": "$329.00",
+                  "currentPrice": "$329.00",
+                  "rating": 4.8,
+                  "description": "Waterproof insulated parka for deep winter.",
+                  "specs": {
+                    "material": "down + waterproof shell",
+                    "waterproof": true,
+                    "tempRatingC": -25,
+                    "weightGrams": 1100,
+                    "waterproofRatingMm": 15000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "jacket-squall-pro",
+                  "name": "Squall Pro Rain Jacket",
+                  "category": "jackets",
+                  "listPrice": "$229.00",
+                  "currentPrice": "$229.00",
+                  "rating": 4.7,
+                  "description": "3-layer storm shell for mountain weather.",
+                  "specs": {
+                    "material": "3-layer nylon",
+                    "waterproof": true,
+                    "weightGrams": 420,
+                    "waterproofRatingMm": 20000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "boot-ridgeline-mid",
+                  "name": "Ridgeline Mid Hiking Boot",
+                  "category": "boots",
+                  "listPrice": "$179.00",
+                  "currentPrice": "$179.00",
+                  "rating": 4.5,
+                  "description": "Waterproof mid-cut hiking boot with a membrane liner.",
+                  "specs": {
+                    "material": "suede and mesh",
+                    "waterproof": true,
+                    "weightGrams": 1200
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "stove-fuel-230",
+                  "name": "Isobutane Fuel Canister 230 g",
+                  "category": "stoves",
+                  "listPrice": "$6.99",
+                  "currentPrice": "$6.99",
+                  "rating": 4.5,
+                  "description": "230 g isobutane-propane canister; fits all threaded canister stoves.",
+                  "specs": {
+                    "fuel": "isobutane-propane",
+                    "weightGrams": 360,
+                    "burnTimeMinutes": 90
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "bag-sprout-kids",
+                  "name": "Sprout 5°C Kids Sleeping Bag",
+                  "category": "sleeping_bags",
+                  "listPrice": "$49.00",
+                  "currentPrice": "$49.00",
+                  "rating": 4.4,
+                  "description": "Kid-sized synthetic bag for children up to 150 cm tall.",
+                  "specs": {
+                    "material": "synthetic fill",
+                    "tempRatingC": 5,
+                    "weightGrams": 900
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "boot-ledge-approach",
+                  "name": "Ledge Approach Shoe",
+                  "category": "boots",
+                  "listPrice": "$149.00",
+                  "currentPrice": "$149.00",
+                  "rating": 4.4,
+                  "description": "Sticky-rubber approach shoe for scrambling.",
+                  "specs": {
+                    "material": "suede",
+                    "waterproof": false,
+                    "weightGrams": 800
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "boot-ridgeline-low",
+                  "name": "Ridgeline Low Hiking Shoe",
+                  "category": "boots",
+                  "listPrice": "$139.00",
+                  "currentPrice": "$139.00",
+                  "rating": 4.4,
+                  "description": "Low-cut waterproof hiking shoe for day hikes.",
+                  "specs": {
+                    "material": "suede and mesh",
+                    "waterproof": true,
+                    "weightGrams": 900
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "pack-featherline-45",
+                  "name": "Featherline 45 Ultralight Pack",
+                  "category": "backpacks",
+                  "listPrice": "$239.00",
+                  "currentPrice": "$239.00",
+                  "rating": 4.4,
+                  "description": "Frameless ultralight pack made from waterproof laminate fabric.",
+                  "specs": {
+                    "material": "waterproof laminate",
+                    "waterproof": true,
+                    "weightGrams": 800,
+                    "volumeLiters": 45
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "pack-swift-30",
+                  "name": "Swift 30 Daypack",
+                  "category": "backpacks",
+                  "listPrice": "$119.00",
+                  "currentPrice": "$119.00",
+                  "rating": 4.4,
+                  "description": "Day-hike pack with hip belt pockets and a rain cover.",
+                  "specs": {
+                    "material": "100D nylon",
+                    "waterproof": false,
+                    "weightGrams": 900,
+                    "volumeLiters": 30
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "shopping@2#3e94b8f1",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "b3sx8zpn3",
+                "name": "quote_price",
+                "arguments": "{\"cart\":[{\"productId\":\"pack-swift-30\",\"qty\":1},{\"productId\":\"stove-pocket-pro\",\"qty\":1}],\"coupon\":\"=\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 4456,
+        "outputTokens": 72,
+        "latencyMs": 901,
+        "cached": false,
+        "costMicros": 3853,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "b3sx8zpn3",
+          "name": "quote_price",
+          "arguments": "{\"cart\":[{\"productId\":\"pack-swift-30\",\"qty\":1},{\"productId\":\"stove-pocket-pro\",\"qty\":1}],\"coupon\":\"=\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "lines": [
+                {
+                  "productId": "pack-swift-30",
+                  "name": "Swift 30 Daypack",
+                  "qty": 1,
+                  "listPrice": "$119.00",
+                  "discounts": [],
+                  "lineTotal": "$119.00"
+                },
+                {
+                  "productId": "stove-pocket-pro",
+                  "name": "Pocket Pro Canister Stove",
+                  "qty": 1,
+                  "listPrice": "$55.00",
+                  "discounts": [],
+                  "lineTotal": "$55.00"
+                }
+              ],
+              "subtotal": "$174.00",
+              "coupon": {
+                "code": "=",
+                "applied": false,
+                "reason": "NOT_FOUND",
+                "message": "Coupon code = doesn't exist."
+              },
+              "totalDiscounts": "$0.00",
+              "shipping": "FREE",
+              "total": "$174.00",
+              "totalCents": 17400
+            },
+            "policyDecision": "denied"
+          }
+        },
+        "policyDecision": "denied",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "shopping@2#3e94b8f1",
+        "data": {
+          "step": 3,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": "I quoted the cart with the wrong code — let me redo it with TRAIL25.\n\n",
+            "toolCalls": [
+              {
+                "id": "sam5d6vc8",
+                "name": "quote_price",
+                "arguments": "{\"cart\":[{\"productId\":\"pack-swift-30\",\"qty\":1},{\"productId\":\"stove-pocket-pro\",\"qty\":1}],\"coupon\":\"TRAIL25\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 4726,
+        "outputTokens": 96,
+        "latencyMs": 1239,
+        "cached": false,
+        "costMicros": 4165,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "sam5d6vc8",
+          "name": "quote_price",
+          "arguments": "{\"cart\":[{\"productId\":\"pack-swift-30\",\"qty\":1},{\"productId\":\"stove-pocket-pro\",\"qty\":1}],\"coupon\":\"TRAIL25\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "lines": [
+                {
+                  "productId": "pack-swift-30",
+                  "name": "Swift 30 Daypack",
+                  "qty": 1,
+                  "listPrice": "$119.00",
+                  "discounts": [],
+                  "lineTotal": "$119.00"
+                },
+                {
+                  "productId": "stove-pocket-pro",
+                  "name": "Pocket Pro Canister Stove",
+                  "qty": 1,
+                  "listPrice": "$55.00",
+                  "discounts": [],
+                  "lineTotal": "$55.00"
+                }
+              ],
+              "subtotal": "$174.00",
+              "coupon": {
+                "code": "TRAIL25",
+                "applied": true,
+                "discount": "-$25.00"
+              },
+              "totalDiscounts": "-$25.00",
+              "shipping": "FREE",
+              "total": "$149.00",
+              "totalCents": 14900
+            },
+            "policyDecision": "auto_approved"
+          }
+        },
+        "policyDecision": "auto_approved",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "shopping@2#3e94b8f1",
+        "data": {
+          "step": 4,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": "Good news — TRAIL25 works on this cart. Here's the total:\n\n- Swift 30 Daypack: $119.00\n- Pocket Pro Canister Stove: $55.00\n- Subtotal: $174.00\n- Code TRAIL25: −$25.00\n- Shipping: FREE\n\n**Your total: $149.00**\n\n",
+            "toolCalls": [
+              {
+                "id": "tem2bbjtx",
+                "name": "reply",
+                "arguments": "{\"message\":\"With code TRAIL25, a Swift 30 Daypack plus a Pocket Pro Canister Stove comes to: line items $119.00 + $55.00, subtotal $174.00, minus the $25.00 off from TRAIL25, plus free shipping. Total: $149.00\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 5017,
+        "outputTokens": 198,
+        "latencyMs": 1189,
+        "cached": false,
+        "costMicros": 4806,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "tem2bbjtx",
+          "name": "reply",
+          "arguments": "{\"message\":\"With code TRAIL25, a Swift 30 Daypack plus a Pocket Pro Canister Stove comes to: line items $119.00 + $55.00, subtotal $174.00, minus the $25.00 off from TRAIL25, plus free shipping. Total: $149.00\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "With code TRAIL25, a Swift 30 Daypack plus a Pocket Pro Canister Stove comes to: line items $119.00 + $55.00, subtotal $174.00, minus the $25.00 off from TRAIL25, plus free shipping. Total: $149.00"
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "With code TRAIL25, a Swift 30 Daypack plus a Pocket Pro Canister Stove comes to: line items $119.00 + $55.00, subtotal $174.00, minus the $25.00 off from TRAIL25, plus free shipping. Total: $149.00"
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "shopping",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "price-deals-04",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to shopping"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "price_quoted",
+        "label": "quote_price for pack-swift-30×1,stove-pocket-pro×1 with TRAIL25",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "price_stated",
+        "label": "reply 1 states $149.00",
+        "pass": true,
+        "severity": "task",
+        "detail": "amounts in reply: $119.00, $55.00, $174.00, $25.00, $149.00"
+      },
+      {
+        "id": "coupon",
+        "label": "checks TRAIL25 (valid)",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 5,
+    "cachedCalls": 1,
+    "toolCalls": 4,
+    "inputTokens": 17021,
+    "outputTokens": 467,
+    "latencyMs": 5089,
+    "turnLatencyMs": [
+      5089
+    ],
+    "costMicros": 15485,
+    "wallMs": 4658
+  },
+  "finishedAt": "2026-10-01T14:06:31.934Z"
+}

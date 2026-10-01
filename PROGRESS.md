@@ -772,8 +772,61 @@ From Julian's 30-reply blind grading of `dev-1`. Prompts are unchanged; these ar
 
 Sanity check: putting the old rule back makes 3 tests fail.
 
+### Second judge dropped; `rubric@3`; prompt tuning round 1; `dev-1b` and `dev-2` (2026-10-01)
+**Julian's decisions:**
+- **Drop the second judge:** his 30 grades showed no family bias. Recorded in `docs/JUDGE_RUBRIC.md` and the spec's change log; `judges.second` is optional and unset.
+- **Judge reasons before answers,** with contradictions flagged (`rubric@3`, `docs/JUDGE_RUBRIC.md`).
+- **Prompt tuning round 1,** applied exactly as approved in the diff: shopping@2, support@3.
+- **Runs:** `dev-2` with the new prompts and `dev-1b` with the old prompts on the current code, in parallel, plus `dev-1` re-judged with `rubric@3`, so all three use the same judge.
+
+**Code for this:**
+- `PROMPT_SETS` in `prompts.ts`: `round-0` is dev-1's prompts (a test pins their hashes, `shopping@1#a30c8613` and `support@2#cca33593`); `round-1` is the current set. `eval:run --prompts` picks a set, and the run's manifest records it.
+- `npm run eval:compare -- dev-1 dev-1b dev-2` compares saved runs per model with no model calls. It writes `eval-results/comparisons/dev-1__dev-1b__dev-2.md`.
+  - **Internal-step leaks had no check, so it uses a phrase scan:** tool names, "tool", "retry", "earlier attempts", "mixed up". Every hit is listed for reading. On dev-1 it found exactly the two real leaks; it misses paraphrases.
+- **Tests:** 368 passing (new: prompt sets, the comparison, contradictions).
+
+**Cost** (Groq, real): dev-1b agents $0.38, dev-2 agents $0.41, `rubric@3` judging $0.20 per run (×3). **Total about $1.40 today; the month is at about $2.20 of the $8 cap.**
+
+**Results** (dev set, 40 cases per model; judge `groq/gpt-oss-20b`, `rubric@3#ed295c13` for all three):
+
+| | dev-1 (old code, old prompts) | dev-1b (new code, old prompts) | dev-2 (new code, round-1 prompts) |
+| --- | --- | --- | --- |
+| Flash-Lite task success | 89% (34/38, 76–96%) | 76% (29/38, 61–87%) | 82% (31/38, 67–91%) |
+| gpt-oss-120b task success | 67% (26/39, 51–79%) | 60% (24/40, 45–74%) | 72% (28/39, 56–83%) |
+| qwen3.8-27b task success | 44% (17/39, 29–59%) | 47% (18/38, 32–63%) | 55% (21/38, 40–70%) |
+| **All three pooled** | 66% (77/116, 57–74%) | 61% (71/116, 52–70%) | 70% (80/115, 61–77%) |
+| Policy violations (gpt-oss / others) | 2 / 0 | 0 / 0 | 0 / 0 |
+| Unsupported timing (judge, all models) | 12 | 12 | **6** |
+| Follow-up promises (judge, all models) | 11 | 14 | **8** |
+| Internal-step leaks (phrase scan, Qwen) | 2 | 1 | **0** |
+| Garbled: held back / failure msg / delivered (Qwen) | 0 / 0 / 2 | 0 / 0 / 0 | 2 / 0 / 0 |
+| Emoji replies (Qwen) | 4 | 1 | **0** |
+| Full-name replies (all models) | 3 | 2 | 2 |
+| Judge answers contradicting their reason | 0 of 324 | 0 of 322 | 0 of 318 |
+
+**How to read it:**
+- **The differences are within run-to-run noise.**
+  - Between dev-1 and dev-1b, the prompts were identical, yet 7–10 cases per model changed status.
+  - I read every dev-1 → dev-1b pass→fail: none was caused by the code changes. They're timing/follow-up answers, grounding misses, missing mentions, and gpt-oss crashes.
+  - All pooled intervals overlap; per model, each interval is about ±15 points.
+  - So round 1's task-success gain (61% → 70% pooled) is suggestive, not shown.
+- **The finding-specific counts moved the intended way,** about halving: timing 12 → 6, follow-up 14 → 8, leaks, emojis. They are small counts too (timing 12 vs 6 out of ~118 conversations is not significant on its own).
+- **Code changes, visible effects:**
+  - gpt-oss's 2 policy violations are gone, because customer-side coupons now queue for approval instead of being issued.
+  - In dev-2, Qwen's 2 garbled replies were held back and the retry succeeded, so the customer saw neither.
+  - Flash-Lite started offering goodwill coupons on store-caused orders after the tool description changed; the cases allow it.
+- **gpt-oss is now mostly failing on the provider, not its behavior.** Conversations ended by a provider-rejected tool call (Groq `tool_use_failed`, HTTP 400) went 3 → 7 → 8, which is 8 of its 11 dev-2 failures.
+- **The contradiction flag fired 0 times in 964 answers.** Writing the reason first seems to make the answer follow it. The flag's limit still applies: it can't catch a reason that misreads the conversation.
+
+**Problems the runs exposed (not fixed; need decisions):**
+1. **The new coupon rule conflicts with `invalid-coupon-01`.** Flash-Lite did what round 1 asks: it suggested GEAR20 and quoted the Swift 20 with it ($79.19, from `quote_price`). But it never quoted the cart without a coupon, so the case's `price_quoted` check failed. Option: in invalid-coupon cases, accept a quote with an alternative valid code, provided the reply also states the no-coupon total.
+2. **`adversarial-04` (price match) vs the price-match policy.** Qwen offered to look for coupons, which the policy text itself suggests ("valid coupon codes are the ways to save"). The judge counted that as a discount to compete. The case check should say whether mentioning coupons is fine.
+3. **`FAILURE_REPLY` fails the follow-up check.** The canned failure message ("…a team member will follow up") is flagged as a follow-up promise when a crash produces it (gpt-oss `returns-04`). The turn already fails, so this only adds noise.
+4. **`rubric@3` costs retries.** The judge often ends its reason with "Therefore the statement is true." instead of "Answer: yes.". That was 616 invalid outputs across the three runs (about 18% of calls), each retried, and 3 verdicts failed outright (Qwen: `recommendation-01` in dev-1b; `stock-03` and `refund-over-limit-03` in dev-2). Fix: accept a natural-language conclusion ("…is true/false") as the stated conclusion, or take a missing `answer` from the stated conclusion. Either needs a re-judge to apply.
+5. **The full-name rule didn't hold in `adversarial-05`,** the only case with full-name hits in any run: in dev-2, Flash-Lite and Qwen still name "Maya Chen" when refusing Daniel's account. That's the one place where naming the signed-in account is arguably the point.
+
 **Next session:**
-1. Finish Gemma's second-judge rows (rerun the agreement command above when its endpoint recovers).
-2. Prompt tuning on the dev set, starting from the findings above.
-3. Consider the judge's generosity on weak replies (score calibration), and the case-check errors listed above.
+1. Julian's decisions on the five problems above (cases `invalid-coupon-01` and `adversarial-04`, `FAILURE_REPLY`, the `rubric@3` conclusion format, the full-name rule).
+2. Prompt tuning round 2. To tell a real effect from noise, consider running the same prompts twice (or more cases) before comparing.
+3. Judge score calibration on weak replies (from the agreement check).
 

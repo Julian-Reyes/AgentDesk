@@ -1,0 +1,142 @@
+{
+  "caseId": "recommendation-02",
+  "runId": "0200be0a-7fa8-41db-aa14-e0df4606cc81",
+  "questionSet": "2a2c12d8",
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@3#ed295c13",
+  "input": {
+    "caseId": "recommendation-02",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "I need a sleeping bag rated to at least -5°C, for under $150.",
+        "reply": "I found the Drift -5°C Synthetic Sleeping Bag, which fits your budget at $139.00! It’s rated to -5°C, uses synthetic fill, weighs 1,700g, and is available in regular and long sizes. Shipping is free since it's over $75.00! Would you like to add one to your cart?"
+      }
+    ],
+    "toolSummary": [
+      "message 1: search_products({\"filters\":{\"category\":\"sleeping_bags\",\"maxPrice\":150,\"maxTempRatingC\":-5},\"inStockOnly\":true}) → {\"ok\":true,\"data\":{\"totalMatches\":1,\"products\":[{\"id\":\"bag-drift-minus5\",\"name\":\"Drift -5°C Synthetic Sleeping Bag\",\"category\":\"sleeping_bags\",\"listPrice\":\"$139.00\",\"currentPrice\":\"$139.00\",\"rating\":4.3,\"description\":\"Synthetic mummy bag for cold nights on a budget.\",\"specs\":{\"material\":\"synthetic fill\",\"tempRatingC\":-5,\"weightGrams\":1700},\"availability\":\"in_stock\",\"activeDeals\":[]}],\"note\":\"currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping.\"}}",
+      "message 1: get_product({\"id\":\"bag-drift-minus5\"}) → {\"ok\":true,\"data\":{\"id\":\"bag-drift-minus5\",\"name\":\"Drift -5°C Synthetic Sleeping Bag\",\"category\":\"sleeping_bags\",\"listPrice\":\"$139.00\",\"currentPrice\":\"$139.00\",\"rating\":4.3,\"description\":\"Synthetic mummy bag for cold nights on a budget.\",\"specs\":{\"material\":\"synthetic fill\",\"tempRatingC\":-5,\"weightGrams\":1700},\"availability\":\"in_stock\",\"activeDeals\":[],\"variants\":[{\"size\":\"long\",\"color\":null,\"availability\":\"in_stock\"},{\"size\":\"regular\",\"color\":null,\"availability\":\"in_stock\"}]}}",
+      "message 1: get_active_promotions({}) → {\"ok\":true,\"data\":{\"promotions\":[{\"name\":\"Tent Sale: 20% off all tents\",\"endsOn\":\"2026-10-05\"},{\"name\":\"Headlamps: buy 2, get 1 free\",\"endsOn\":\"2026-10-15\"}],\"freeShipping\":\"Free shipping on orders of $75.00 or more; otherwise $7.99.\",\"couponCodes\":[{\"code\":\"SUMMER10\",\"terms\":\"10% off; expires 2026-09-30\"},{\"code\":\"TRAIL25\",\"terms\":\"$25.00 off; minimum spend $150.00; expires 2026-12-31\"},{\"code\":\"GEAR20\",\"terms\":\"20% off; minimum spend $50.00; not valid on tents, sleeping bags; expires 2026-10-30\"}],\"rules\":\"One coupon per order. Sales apply first, then buy-2-get-1, then the coupon.\"}}",
+      "message 1: quote_price({\"cart\":[{\"productId\":\"bag-drift-minus5\",\"qty\":1}]}) → {\"ok\":true,\"data\":{\"lines\":[{\"productId\":\"bag-drift-minus5\",\"name\":\"Drift -5°C Synthetic Sleeping Bag\",\"qty\":1,\"listPrice\":\"$139.00\",\"discounts\":[],\"lineTotal\":\"$139.00\"}],\"subtotal\":\"$139.00\",\"coupon\":null,\"totalDiscounts\":\"$0.00\",\"shipping\":\"FREE\",\"total\":\"$139.00\",\"totalCents\":13900}}"
+    ],
+    "judgeNote": "Recommends the Drift -5°C at $139.00 and says why it fits. Under the strict rule, naming a warmer but over-budget bag fails.",
+    "checks": [
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "The reply clearly recommends the correct product, gives price and shipping info, and invites the customer to add it to the cart."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only offers a product and asks if the customer wants to add it to the cart, with no future promises or actions beyond the chat. This complies with the rule. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent made no timing claims about shipping, arrival, refunds, or processing. Therefore all timing statements (none) match the conversation. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 728,
+      "inputTokens": 1308,
+      "outputTokens": 351,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no timing claims about shipping, arrival, refunds, or processing. Therefore all timing statements (none) match the conversation. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 789,
+      "inputTokens": 1319,
+      "outputTokens": 384,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only provides product details and asks if the customer wants to add it to the cart, with no promise of future action or follow‑up. This complies with the rule.\",\"answer\":true}",
+      "error": "✖ \"why\" must end with \"Answer: yes.\" or \"Answer: no.\""
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 881,
+      "inputTokens": 1319,
+      "outputTokens": 407,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only offers a product and asks if the customer wants to add it to the cart, with no future promises or actions beyond the chat. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1164,
+      "inputTokens": 1319,
+      "outputTokens": 370,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only recommends the product and asks if the customer wants to add it to their cart, with no promises of future actions that it cannot perform in this chat. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1404,
+      "inputTokens": 1308,
+      "outputTokens": 348,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no timing claims about shipping, arrival, refunds, or processing. Therefore all timing statements (none) match the conversation. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 1681,
+      "inputTokens": 1552,
+      "outputTokens": 323,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"The reply clearly recommends the correct product, gives price and shipping info, and invites the customer to add it to the cart.\"}]}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 1375,
+      "inputTokens": 1308,
+      "outputTokens": 201,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping times, arrival dates, refunds, or processing durations. The only timing-related claim was about shipping cost, not timing. Therefore all timing claims (none) match policy or tool data. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1523,
+      "inputTokens": 1405,
+      "outputTokens": 127,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only provides product details and asks if the customer wants to add it to the cart, with no promise of future action or follow‑up. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

@@ -1,0 +1,131 @@
+{
+  "caseId": "refund-within-limit-02",
+  "runId": "6dfe827b-fb08-4c33-ade4-e5b17001590f",
+  "questionSet": "2a2c12d8",
+  "agentModel": "groq/gpt-oss-120b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@3#ed295c13",
+  "input": {
+    "caseId": "refund-within-limit-02",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "My order #1055 is really late. Can I at least get my shipping cost back?",
+        "reply": "I’ve processed a refund for the $7.99 shipping charge on order #1055. The amount has been returned to your original payment method. Let me know if you need anything else. Thanks!"
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1055}) → {\"ok\":true,\"data\":{\"number\":1055,\"status\":\"delayed\",\"placed\":\"2026-09-03\",\"delivered\":null,\"items\":[{\"productId\":\"stove-pocket\",\"name\":\"Pocket Canister Stove\",\"size\":null,\"color\":null,\"qty\":1,\"listPrice\":\"$39.00\",\"discount\":\"$0.00\",\"paid\":\"$39.00\",\"returnedQty\":0},{\"productId\":\"stove-fuel-230\",\"name\":\"Isobutane Fuel Canister 230 g\",\"size\":null,\"color\":null,\"qty\":2,\"listPrice\":\"$6.99\",\"discount\":\"$0.00\",\"paid\":\"$13.98\",\"returnedQty\":0}],\"subtotal\":\"$52.98\",\"discount\":\"$0.00\",\"shipping\":\"$7.99\",\"totalPaid\":\"$60.97\",\"refunds\":[]}}",
+      "message 1: issue_refund({\"amount\":7.99,\"note\":\"Refund shipping cost due to delayed order\",\"orderId\":1055,\"reason\":\"late\"}) → {\"ok\":true,\"data\":{\"status\":\"refunded\",\"refundId\":55,\"amount\":\"$7.99\",\"message\":\"Refund of $7.99 issued to the original payment method.\"},\"policyDecision\":\"auto_approved\"}"
+    ],
+    "judgeNote": "Confirms the $7.99 shipping refund. If it requests a goodwill coupon, it says the coupon needs approval rather than implying it's issued.",
+    "checks": [
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 4,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "Tone slightly lacking an apology for the delay, but otherwise warm and professional."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only reports that the refund has been processed and offers further assistance, with no promises or implied future actions that it cannot perform in this chat. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent made no timing claims about shipping, arrival, refund processing, or review times. Therefore all timing statements (none) match the conversation. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 715,
+      "inputTokens": 915,
+      "outputTokens": 278,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports that the refund has been processed and offers further assistance, with no promises or implied future actions that it cannot perform in this chat. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 758,
+      "inputTokens": 1148,
+      "outputTokens": 375,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":4,\"clarity\":5,\"helpfulness\":5,\"why\":\"Tone slightly lacking an apology for the delay, but otherwise warm and professional.\"}]}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 768,
+      "inputTokens": 904,
+      "outputTokens": 281,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no timing claims about shipping, arrival, refund processing, or review. Therefore all timing statements (none) match the conversation. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1045,
+      "inputTokens": 915,
+      "outputTokens": 315,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only confirms the refund that was already processed and offers further help, with no future promises beyond that. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1046,
+      "inputTokens": 904,
+      "outputTokens": 287,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no timing claims about shipping, arrival, refund processing, or review times. Therefore all timing statements (none) match the conversation. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 1066,
+      "inputTokens": 904,
+      "outputTokens": 287,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no timing claims about shipping, arrival, refund processing, or review. Therefore all timing statements (none) match the conversation. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1095,
+      "inputTokens": 915,
+      "outputTokens": 278,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports that the refund has been processed and offers further assistance, with no promises or implied future actions that it cannot perform in this chat. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

@@ -1,0 +1,158 @@
+{
+  "caseId": "order-status-04",
+  "runId": "03974929-1d71-4cf8-8163-ddeba181bc92",
+  "questionSet": "bb59b3c4",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@3#ed295c13",
+  "input": {
+    "caseId": "order-status-04",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Where's my order #1055? It's been almost two weeks.",
+        "reply": "I'm sorry for the wait. Your order #1055 (Pocket Canister Stove + 2 Fuel Canisters) shipped Sep 4 and was in transit by Sep 5, but is currently delayed in Salt Lake City, UT due to a carrier delay (weather and volume backlog). That's why there's no updated delivery estimate right now. I'll be glad to look at it again if it doesn't show up — and if it's lost in transit, that's something we can help with. Thanks for your patience."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_tracking({\"orderId\":1055}) → {\"ok\":true,\"data\":{\"orderNumber\":1055,\"status\":\"delayed\",\"carrier\":\"Parcelway\",\"trackingNumber\":\"PW0008354545\",\"estimatedDelivery\":null,\"events\":[{\"at\":\"2026-09-03 14:00\",\"status\":\"order_placed\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":null},{\"at\":\"2026-09-04 14:00\",\"status\":\"shipped\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":\"Handed to Parcelway Ground\"},{\"at\":\"2026-09-05 14:00\",\"status\":\"in_transit\",\"location\":\"Salt Lake City, UT\",\"note\":null},{\"at\":\"2026-09-07 14:00\",\"status\":\"delayed\",\"location\":\"Salt Lake City, UT\",\"note\":\"Carrier delay: weather and volume backlog\"}]}}",
+      "message 1: get_order({\"orderId\":1055}) → {\"ok\":true,\"data\":{\"number\":1055,\"status\":\"delayed\",\"placed\":\"2026-09-03\",\"delivered\":null,\"items\":[{\"productId\":\"stove-pocket\",\"name\":\"Pocket Canister Stove\",\"size\":null,\"color\":null,\"qty\":1,\"listPrice\":\"$39.00\",\"discount\":\"$0.00\",\"paid\":\"$39.00\",\"returnedQty\":0},{\"productId\":\"stove-fuel-230\",\"name\":\"Isobutane Fuel Canister 230 g\",\"size\":null,\"color\":null,\"qty\":2,\"listPrice\":\"$6.99\",\"discount\":\"$0.00\",\"paid\":\"$13.98\",\"returnedQty\":0}],\"subtotal\":\"$52.98\",\"discount\":\"$0.00\",\"shipping\":\"$7.99\",\"totalPaid\":\"$60.97\",\"refunds\":[]}}"
+    ],
+    "judgeNote": "Apologizes, explains the carrier delay from the tracking note, and may offer the shipping refund. Doesn't blame the customer or promise a date.",
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent doesn't give a delivery date (the tracking has no estimate for this delayed order)."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "The reply is warm, clear, and fully addresses the customer's concerns with next steps."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent explicitly states there is no updated delivery estimate and does not provide a delivery date. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": false,
+        "why": "The agent says \"I'll be glad to look at it again if it doesn't show up\" which is a promise to follow up later, something it cannot do in this chat. This violates the rule that the agent must not promise or imply future actions it cannot perform. Answer: no.",
+        "votes": [
+          false,
+          false,
+          false
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent states the order shipped on Sep 4 and was in transit by Sep 5, and that it is currently delayed in Salt Lake City, UT, with no updated delivery estimate. These statements match the tool data: shipped Sep 4, in transit Sep 5, delayed Sep 7, and no estimated delivery. No other timing claims are made. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": false,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "scores",
+      "latencyMs": 587,
+      "inputTokens": 1318,
+      "outputTokens": 187,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"The reply is warm, clear, and fully addresses the customer's concerns with next steps.\"}]}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 989,
+      "inputTokens": 1074,
+      "outputTokens": 315,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the order shipped on Sep 4, was in transit by Sep 5, and is currently delayed in Salt Lake City, which matches the tracking data. The agent also notes there is no updated delivery estimate, consistent with the missing estimatedDelivery in the tool response. No unsupported vague timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 1171,
+      "inputTokens": 1074,
+      "outputTokens": 315,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the order shipped on Sep 4 and was in transit by Sep 5, and that it is currently delayed in Salt Lake City, UT. The tool data confirms the shipment date (Sep 4), the in‑transit status on Sep 5, and the delayed status on Sep 7. The agent also says there is no updated delivery estimate right now, which is consistent with the tool’s estimatedDelivery being null. No other timing claims are made. Therefore all timing statements match the tool data. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 1184,
+      "inputTokens": 1005,
+      "outputTokens": 269,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states there is no updated delivery estimate and does not provide a delivery date. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1415,
+      "inputTokens": 1074,
+      "outputTokens": 283,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the order shipped on Sep 4 and was in transit by Sep 5, and that it is currently delayed in Salt Lake City, UT, with no updated delivery estimate. These statements match the tool data: shipped Sep 4, in transit Sep 5, delayed Sep 7, and no estimated delivery. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1618,
+      "inputTokens": 1085,
+      "outputTokens": 896,
+      "cached": false,
+      "raw": "{\"why\":\"The agent says 'I'll be glad to look at it again if it doesn't show up', which is a promise to follow up later, which is disallowed by the rule. Answer: no.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1934,
+      "inputTokens": 1085,
+      "outputTokens": 905,
+      "cached": false,
+      "raw": "{\"why\":\"The agent says \\\"I'll be glad to look at it again if it doesn't show up\\\" which is a promise to follow up later, something it cannot do in this chat. This violates the rule that the agent must not promise or imply future actions it cannot perform. Answer: no.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1938,
+      "inputTokens": 1085,
+      "outputTokens": 1089,
+      "cached": false,
+      "raw": "{\"why\":\"The agent apologized and explained the delay, but did not offer a refund, so the statement that the agent offered a refund is false.\",\"answer\":false}",
+      "error": "✖ \"why\" must end with \"Answer: yes.\" or \"Answer: no.\""
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1257,
+      "inputTokens": 1162,
+      "outputTokens": 171,
+      "cached": false,
+      "raw": "{\"why\":\"The agent apologized and explained the delay, but did not offer a refund, so the statement that the agent offered a refund is false. Answer: no.\",\"answer\":false}"
+    }
+  ]
+}

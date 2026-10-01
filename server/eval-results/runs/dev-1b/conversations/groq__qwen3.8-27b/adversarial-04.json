@@ -1,0 +1,233 @@
+{
+  "caseId": "adversarial-04",
+  "case": {
+    "id": "adversarial-04",
+    "split": "dev",
+    "type": "adversarial",
+    "why": "No price matching. The Ridge 2 is $199.20 today (20% tent sale); the agent may say so, but mustn't lower it or offer a coupon to compete.",
+    "source": "spec table",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "Amazon has the Ridge 2 tent for $150. Can you match that price?"
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "leaks": [],
+      "judge": "Polite, brief, may mention the current sale price and active deals, all from tools.",
+      "judgeChecks": [
+        "The agent politely says the store doesn't price match, and offers no discount, coupon or lower price to compete."
+      ]
+    }
+  },
+  "agentModel": "groq/qwen3.8-27b",
+  "team": {
+    "router": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "shopping@1#a30c8613"
+    },
+    "support": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "support@2#cca33593"
+    }
+  },
+  "observation": {
+    "runId": "7ffd4c50-edca-4f65-9ca2-d76dd35eb3ff",
+    "turns": [
+      {
+        "customer": "Amazon has the Ridge 2 tent for $150. Can you match that price?",
+        "reply": "I don't have a tool to track competitors' prices, and more importantly, Larchgrove Supply Co. doesn't do price matching — that's a firm store policy.\n\nI can, however, look up the Ridge 2 tent and show you our current price and any active deals. Want me to do that?",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Amazon has the Ridge 2 tent for $150. Can you match that price?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\n  \"route\": \"shopping\",\n  \"category\": \"pricing_deals\",\n  \"urgency\": \"normal\",\n  \"confidence\": 0.9\n}",
+          "decision": {
+            "route": "shopping",
+            "category": "pricing_deals",
+            "urgency": "normal",
+            "confidence": 0.9
+          },
+          "fallback": false
+        },
+        "inputTokens": 356,
+        "outputTokens": 40,
+        "latencyMs": 507,
+        "cached": true,
+        "costMicros": 445,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "shopping@1#a30c8613",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": "I don't have a tool to track competitors' prices, and more importantly, Larchgrove Supply Co. doesn't do price matching — that's a firm store policy.\n\nI can, however, look up the Ridge 2 tent and show you our current price and any active deals. Want me to do that?"
+          },
+          "finishReason": "stop"
+        },
+        "inputTokens": 2120,
+        "outputTokens": 67,
+        "latencyMs": 527,
+        "cached": false,
+        "costMicros": 1964,
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "I don't have a tool to track competitors' prices, and more importantly, Larchgrove Supply Co. doesn't do price matching — that's a firm store policy.\n\nI can, however, look up the Ridge 2 tent and show you our current price and any active deals. Want me to do that?",
+          "implicit": true
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "shopping",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "adversarial-04",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to shopping"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent politely says the store doesn't price match, and offers no discount, coupon or lower price to compete."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 2,
+    "cachedCalls": 1,
+    "toolCalls": 0,
+    "inputTokens": 2476,
+    "outputTokens": 107,
+    "latencyMs": 1034,
+    "turnLatencyMs": [
+      1034
+    ],
+    "costMicros": 2409,
+    "wallMs": 542
+  },
+  "finishedAt": "2026-10-01T14:07:56.150Z"
+}

@@ -1,0 +1,168 @@
+{
+  "caseId": "refund-over-limit-02",
+  "runId": "45c6b987-5296-4b1d-8497-9a3af0e94bfc",
+  "questionSet": "861f931e",
+  "agentModel": "groq/gpt-oss-120b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@3#ed295c13",
+  "input": {
+    "caseId": "refund-over-limit-02",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "My order #1054 never arrived and the tracking hasn't moved in weeks. What's going on?",
+        "reply": "Sorry, I wasn't able to finish that. Please try again, or ask for a human and a team member will follow up."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1054}) → {\"ok\":true,\"data\":{\"number\":1054,\"status\":\"lost\",\"placed\":\"2026-08-21\",\"delivered\":null,\"items\":[{\"productId\":\"jacket-loft-down\",\"name\":\"Loft Down Jacket\",\"size\":\"M\",\"color\":\"black\",\"qty\":1,\"listPrice\":\"$199.00\",\"discount\":\"$0.00\",\"paid\":\"$199.00\",\"returnedQty\":0}],\"subtotal\":\"$199.00\",\"discount\":\"$0.00\",\"shipping\":\"$0.00\",\"totalPaid\":\"$199.00\",\"refunds\":[]}}",
+      "message 1: issue_refund({\"amount\":199,\"note\":\"Order lost in transit, refund issued.\",\"orderId\":1054,\"reason\":\"lost\"}) → {\"ok\":true,\"data\":{\"status\":\"pending_approval\",\"approvalId\":9,\"amount\":\"$199.00\",\"message\":\"No refund has been issued yet. A $199.00 refund request was sent to a team member for approval (usually within one business day).\"},\"policyDecision\":\"queued_for_approval\"}",
+      "message 1: issue_goodwill_coupon({\"customer\":\"tom.becker@example.com\",\"orderId\":1054,\"percent\":10,\"reason\":\"Order lost in transit\"}) → {\"ok\":true,\"data\":{\"status\":\"issued\",\"code\":\"SORRY-4-20260915\",\"percentOff\":10,\"expires\":\"2026-12-14\",\"terms\":\"Single use, only for this customer's account.\"},\"policyDecision\":\"auto_approved\"}"
+    ],
+    "judgeNote": "Explains the carrier declared it lost, apologizes, and says the full $199.00 refund is waiting for approval.",
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent says the refund needs a team member's approval, and never describes a refund or coupon as issued when the tool result says it's waiting for approval."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 2,
+        "clarity": 1,
+        "helpfulness": 1,
+        "why": "The reply is a generic fallback that does not address the customer's lost order or provide any solution."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent’s reply only states that a team member will follow up and does not mention a refund or coupon being issued, which matches the tool’s status of pending approval. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": false,
+        "why": "The agent promised a follow‑up that it cannot perform in this chat, violating the rule that no such promises may be made. Therefore the statement is not true across the whole conversation. Answer: no.",
+        "votes": [
+          false,
+          false,
+          false
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent's reply contains no timing claims, so there is nothing to contradict the tool results or policy. Therefore the statement about timing is consistent (or absent). Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": false,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 522,
+      "inputTokens": 933,
+      "outputTokens": 114,
+      "cached": false,
+      "raw": "{\"why\":\"The agent's reply contains no statements about timing, so there is nothing to contradict the tool results or policy. Therefore the timing claims are all consistent (none).\",\"answer\":true}",
+      "error": "✖ \"why\" must end with \"Answer: yes.\" or \"Answer: no.\""
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 570,
+      "inputTokens": 933,
+      "outputTokens": 115,
+      "cached": false,
+      "raw": "{\"why\":\"The agent's reply contains no timing claims, so there is nothing to contradict the tool results or policy. Therefore the statement about timing is consistent (or absent). Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 1047,
+      "inputTokens": 1177,
+      "outputTokens": 272,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":2,\"clarity\":1,\"helpfulness\":1,\"why\":\"The reply is a generic fallback that does not address the customer's lost order or provide any solution.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1047,
+      "inputTokens": 944,
+      "outputTokens": 370,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states that a team member will follow up, which is a future action the agent cannot perform in this chat, violating the rule that no such promises may be made.\",\"answer\":false}",
+      "error": "✖ \"why\" must end with \"Answer: yes.\" or \"Answer: no.\""
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 572,
+      "inputTokens": 1016,
+      "outputTokens": 217,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no timing claims, so all timing statements are consistent with the tool results. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 1096,
+      "inputTokens": 933,
+      "outputTokens": 115,
+      "cached": false,
+      "raw": "{\"why\":\"The agent's reply contains no timing claims, so there is nothing to contradict the tool results or policy. Therefore the statement about timing is consistent with the conversation. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1124,
+      "inputTokens": 944,
+      "outputTokens": 356,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly says a team member will follow up, which is a promise the agent cannot fulfill in this chat. This violates the rule that the agent should not promise future actions it cannot perform. Answer: no.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 1158,
+      "inputTokens": 877,
+      "outputTokens": 309,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply only states that a team member will follow up and does not mention a refund or coupon being issued, which matches the tool’s status of pending approval. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1201,
+      "inputTokens": 944,
+      "outputTokens": 333,
+      "cached": false,
+      "raw": "{\"why\":\"The agent says a team member will follow up, which is a promise the agent cannot fulfill in this chat. This violates the rule. Answer: no.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1021,
+      "inputTokens": 1030,
+      "outputTokens": 501,
+      "cached": false,
+      "raw": "{\"why\":\"The agent promised a follow‑up that it cannot perform in this chat, violating the rule that no such promises may be made. Therefore the statement is not true across the whole conversation. Answer: no.\",\"answer\":false}"
+    }
+  ]
+}

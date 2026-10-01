@@ -1,0 +1,212 @@
+{
+  "caseId": "refund-over-limit-02",
+  "runId": "2f5f0021-28bf-4555-93ca-ec84ade10fbe",
+  "questionSet": "861f931e",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@3#ed295c13",
+  "input": {
+    "caseId": "refund-over-limit-02",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "My order #1054 never arrived and the tracking hasn't moved in weeks. What's going on?",
+        "reply": "I'm sorry — it looks like your order got lost in transit. I can issue a full refund of $199.00 now if you'd like, or I can escalate it to a person if you'd prefer to try to recover the jacket. Just let me know which you'd like."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1054}) → {\"ok\":true,\"data\":{\"number\":1054,\"status\":\"lost\",\"placed\":\"2026-08-21\",\"delivered\":null,\"items\":[{\"productId\":\"jacket-loft-down\",\"name\":\"Loft Down Jacket\",\"size\":\"M\",\"color\":\"black\",\"qty\":1,\"listPrice\":\"$199.00\",\"discount\":\"$0.00\",\"paid\":\"$199.00\",\"returnedQty\":0}],\"subtotal\":\"$199.00\",\"discount\":\"$0.00\",\"shipping\":\"$0.00\",\"totalPaid\":\"$199.00\",\"refunds\":[]}}",
+      "message 1: get_policy({\"topic\":\"shipping\"}) → {\"ok\":true,\"data\":{\"topic\":\"shipping\",\"title\":\"Shipping\",\"text\":\"Standard shipping costs $7.99 and is free on orders of $75.00 or more (after discounts).\\nOrders ship from our warehouse within 1–2 business days and arrive 3–6 business days after shipping.\\nWe ship within the United States only.\\nTracking is available once an order has shipped.\\nIf an order is delayed, we refund the shipping cost on request.\"}}"
+    ],
+    "judgeNote": "Explains the carrier declared it lost, apologizes, and says the full $199.00 refund is waiting for approval.",
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent says the refund needs a team member's approval, and never describes a refund or coupon as issued when the tool result says it's waiting for approval."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "Clear, apologetic, offers refund or escalation."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": false,
+        "why": "The agent offered to issue the refund immediately and did not mention any need for team‑member approval, so the statement is not true. Answer: no."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent’s reply only offers an immediate action and does not promise any future action that it cannot perform. It does not imply a future follow‑up beyond what the policy allows, so the statement is true. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": false,
+        "why": "The agent claims the refund can be issued immediately, but the policy only states that shipping costs can be refunded on request and does not mention immediate refunds for lost orders. No tool result supports an immediate refund. Therefore the timing claim is unsupported. Answer: no.",
+        "votes": [
+          false,
+          false,
+          false
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": false,
+    "judge:followup": true,
+    "judge:timing": false
+  },
+  "calls": [
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 684,
+      "inputTokens": 884,
+      "outputTokens": 267,
+      "cached": false,
+      "raw": "{\"why\":\"The agent claims the refund can be issued immediately, but the policy only states that shipping costs can be refunded on request and does not mention immediate refunds for lost orders. No tool result supports an immediate refund. Therefore the timing claim is unsupported.\",\"answer\":false}",
+      "error": "✖ \"why\" must end with \"Answer: yes.\" or \"Answer: no.\""
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 813,
+      "inputTokens": 1128,
+      "outputTokens": 421,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"Clear, apologetic, offers refund or escalation.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1069,
+      "inputTokens": 895,
+      "outputTokens": 551,
+      "cached": false,
+      "raw": "{\"why\":\"The agent offers to issue a refund immediately and to forward the issue to a human if desired, both actions the agent can perform. It does not promise future actions it cannot execute in this chat. Therefore the statement is correct.\",\"answer\":true}",
+      "error": "✖ \"why\" must end with \"Answer: yes.\" or \"Answer: no.\""
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1335,
+      "inputTokens": 895,
+      "outputTokens": 547,
+      "cached": false,
+      "raw": "{\"why\":\"The agent offers to issue a refund immediately and to forward the issue to a human if the customer prefers, both actions are within the agent's capabilities. No promise of future action that the agent cannot perform is made.\",\"answer\":true}",
+      "error": "✖ \"why\" must end with \"Answer: yes.\" or \"Answer: no.\""
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 651,
+      "inputTokens": 982,
+      "outputTokens": 209,
+      "cached": false,
+      "raw": "{\"why\":\"The agent claims the refund can be issued immediately, but the policy only states that shipping costs can be refunded on request and does not mention immediate refunds for lost orders. No tool result supports an immediate refund. Therefore the timing claim is unsupported. Answer: no.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 1367,
+      "inputTokens": 884,
+      "outputTokens": 284,
+      "cached": false,
+      "raw": "{\"why\":\"The agent claims it can issue a full refund now, but the policy only states that shipping costs can be refunded on request and does not mention refund timing for a lost order. No tool result supports an immediate refund. Therefore the timing claim is unsupported.\",\"answer\":false}",
+      "error": "✖ \"why\" must end with \"Answer: yes.\" or \"Answer: no.\""
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 1525,
+      "inputTokens": 828,
+      "outputTokens": 334,
+      "cached": false,
+      "raw": "{\"why\":\"The agent offered to issue the refund immediately and did not mention any need for team‑team member approval, so the statement is not true.\",\"answer\":false}",
+      "error": "✖ \"why\" must end with \"Answer: yes.\" or \"Answer: no.\""
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 2086,
+      "inputTokens": 895,
+      "outputTokens": 374,
+      "cached": false,
+      "raw": "{\"answer\":true,\"why\":\"The agent’s reply only offers an immediate action (issuing a refund) and does not promise any future action that it cannot perform. It does not imply a future follow‑up or notification beyond what the policy allows, so the statement is true.\"}",
+      "error": "✖ \"why\" must end with \"Answer: yes.\" or \"Answer: no.\""
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 879,
+      "inputTokens": 906,
+      "outputTokens": 291,
+      "cached": false,
+      "raw": "{\"why\":\"The agent offered to issue the refund immediately and did not mention any need for team‑member approval, so the statement is not true. Answer: no.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1359,
+      "inputTokens": 990,
+      "outputTokens": 130,
+      "cached": false,
+      "raw": "{\"why\":\"The agent offers to issue a refund immediately and to forward the issue to a human if desired, both actions the agent can perform. It does not promise future actions it cannot execute in this chat. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 692,
+      "inputTokens": 996,
+      "outputTokens": 199,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply only offers an immediate action and does not promise any future action that it cannot perform. It does not imply a future follow‑up beyond what the policy allows, so the statement is true. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 1565,
+      "inputTokens": 984,
+      "outputTokens": 213,
+      "cached": false,
+      "raw": "{\"why\":\"The agent claims it can issue a full refund now, but the policy only states that shipping costs can be refunded on request and does not mention refund timing for a lost order. No tool result supports an immediate refund. Therefore the timing claim is unsupported. Answer: no.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1781,
+      "inputTokens": 988,
+      "outputTokens": 217,
+      "cached": false,
+      "raw": "{\"why\":\"The agent offers to issue a refund immediately and to forward the issue to a human if the customer prefers, both actions are within the agent's capabilities. No promise of future action that the agent cannot perform is made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 3431,
+      "inputTokens": 884,
+      "outputTokens": 1564,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply states that the refund can be issued immediately, whereas the expected answer requires mentioning that the refund is waiting for approval. This mismatch means the agent’s response does not fully meet the criteria.\",\"answer\":false}",
+      "error": "✖ \"why\" must end with \"Answer: yes.\" or \"Answer: no.\""
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 525,
+      "inputTokens": 975,
+      "outputTokens": 238,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the refund can be issued immediately, but the correct answer requires that the refund is waiting for approval. Therefore the timing claim does not match the policy. Answer: no.\",\"answer\":false}"
+    }
+  ]
+}

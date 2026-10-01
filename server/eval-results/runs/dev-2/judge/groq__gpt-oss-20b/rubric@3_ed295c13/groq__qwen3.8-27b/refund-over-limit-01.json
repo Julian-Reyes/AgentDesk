@@ -1,0 +1,175 @@
+{
+  "caseId": "refund-over-limit-01",
+  "runId": "58d0e299-d2d9-4658-a953-0dfb15883bc1",
+  "questionSet": "74592430",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@3#ed295c13",
+  "input": {
+    "caseId": "refund-over-limit-01",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "The Harbor double sleeping bag from order #1051 arrived with the zipper torn off. I'd like a refund.",
+        "reply": "I'm sorry the sleeping bag arrived with the zipper torn off.\n\nYour $179.99 refund request for the Harbor 3°C Double Sleeping Bag has been sent to a team member for approval, which usually takes within one business day. They'll process it from there—there's nothing you need to do.\n\nThanks for your patience."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1051}) → {\"ok\":true,\"data\":{\"number\":1051,\"status\":\"delivered\",\"placed\":\"2026-09-03\",\"delivered\":\"2026-09-07\",\"items\":[{\"productId\":\"bag-harbor-double\",\"name\":\"Harbor 3°C Double Sleeping Bag\",\"size\":null,\"color\":\"navy\",\"qty\":1,\"listPrice\":\"$179.99\",\"discount\":\"$0.00\",\"paid\":\"$179.99\",\"returnedQty\":0}],\"subtotal\":\"$179.99\",\"discount\":\"$0.00\",\"shipping\":\"$0.00\",\"totalPaid\":\"$179.99\",\"refunds\":[]}}",
+      "message 1: issue_refund({\"amount\":179.99,\"item\":\"Harbor 3°C Double Sleeping Bag\",\"note\":\"Zipper torn off; reported by customer after delivery on 2026-09-07\",\"orderId\":1051,\"reason\":\"damaged\"}) → {\"ok\":true,\"data\":{\"status\":\"pending_approval\",\"approvalId\":1,\"amount\":\"$179.99\",\"message\":\"No refund has been issued yet. A $179.99 refund request was sent to a team member for approval (usually within one business day).\"},\"policyDecision\":\"queued_for_approval\"}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent says the refund needs a team member's approval, and never describes a refund or coupon as issued when the tool result says it's waiting for approval."
+      },
+      {
+        "id": "judge:1",
+        "statement": "The agent doesn't offer or issue a partial automatic refund (e.g. '$50 now')."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "The reply apologizes, confirms refund request, explains approval timeline, and reassures no further action needed."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent explicitly states the refund request has been sent for approval and says nothing about a refund or coupon being issued, matching the tool's pending approval status. Answer: yes."
+      },
+      {
+        "id": "judge:1",
+        "answer": true,
+        "why": "The agent only requested a full refund of $179.99 for approval and did not mention or provide any partial automatic refund. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent correctly states that the refund request has been sent to a team member for approval, which is a normal process and does not promise any action beyond what the tool indicates. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent states the refund approval usually takes within one business day, which matches the tool’s message that the refund request was sent for approval (usually within one business day). No other timing claims are made. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:1": true,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:1",
+      "latencyMs": 541,
+      "inputTokens": 823,
+      "outputTokens": 199,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only requested a full refund of $179.99 for approval and did not mention or provide any partial automatic refund. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 758,
+      "inputTokens": 892,
+      "outputTokens": 323,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the refund approval usually takes within one business day, which matches the tool’s message that the refund request was sent for approval (usually within one business day). No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1047,
+      "inputTokens": 903,
+      "outputTokens": 408,
+      "cached": false,
+      "raw": "{\"why\":\"The agent correctly states that a team member will review the refund request within one business day, which is consistent with the tool's pending approval status and does not promise any action beyond that. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 1047,
+      "inputTokens": 892,
+      "outputTokens": 322,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the refund approval usually takes within one business day, which matches the tool’s message that the refund request was sent for approval (usually within one business day). No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1048,
+      "inputTokens": 903,
+      "outputTokens": 365,
+      "cached": false,
+      "raw": "{\"why\":\"The agent correctly states that the refund request has been sent to a team member for approval and that the team member will process it within one business day, which is consistent with the tool result. The agent does not promise to perform any action beyond what the system will do, nor does it claim to monitor the approval. Therefore the agent does not violate the rule.\",\"answer\":true}",
+      "error": "✖ \"why\" must end with \"Answer: yes.\" or \"Answer: no.\""
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1571,
+      "inputTokens": 892,
+      "outputTokens": 336,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the refund approval usually takes within one business day, which matches the tool’s message that the refund request was sent for approval (usually within one business day). No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 2112,
+      "inputTokens": 1136,
+      "outputTokens": 381,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"The reply apologizes, confirms refund request, explains approval timeline, and reassures no further action needed.\"}]}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 2617,
+      "inputTokens": 836,
+      "outputTokens": 365,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states the refund request has been sent for approval and says nothing about a refund or coupon being issued, matching the tool's pending approval status. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1568,
+      "inputTokens": 1025,
+      "outputTokens": 246,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that the refund request has been sent to a team member for approval and that the team member will process it within one business day, which matches the tool result and does not promise any action beyond what the system will do. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 2848,
+      "inputTokens": 903,
+      "outputTokens": 400,
+      "cached": false,
+      "raw": "{\"why\":\"The agent correctly states that the refund request has been sent to a team member for approval, which is a normal process and does not promise any action beyond what the tool indicates. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

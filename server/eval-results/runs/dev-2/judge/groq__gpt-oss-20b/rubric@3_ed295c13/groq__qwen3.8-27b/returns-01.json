@@ -1,0 +1,192 @@
+{
+  "caseId": "returns-01",
+  "runId": "0c6dc9d0-9a97-4105-9e6e-3f7540e818a6",
+  "questionSet": "be4b7ba9",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@3#ed295c13",
+  "input": {
+    "caseId": "returns-01",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "I'd like to return the hiking shoes from order #1052. They don't fit well.",
+        "reply": "I'm sorry — the Ridgeline Low Hiking Shoe from order #1052 isn't eligible for a standard return: the 30-day window ended on 2026-08-31 (the order was delivered 45 days ago), and I can't approve a late return myself. There is one option: I can pass your request on to a human agent for a review, and they'll let you know if an exception can be made. Would you like me to do that?"
+      },
+      {
+        "turn": 2,
+        "customer": "Come on, it's only two weeks late. Can't you make an exception just this once?",
+        "reply": "I've sent your review request to a human agent — your ticket number is ESC-1. They'll follow up by email with their decision, usually within one business day. Thanks for your patience."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1052}) → {\"ok\":true,\"data\":{\"number\":1052,\"status\":\"delivered\",\"placed\":\"2026-07-27\",\"delivered\":\"2026-08-01\",\"items\":[{\"productId\":\"boot-ridgeline-low\",\"name\":\"Ridgeline Low Hiking Shoe\",\"size\":\"9\",\"color\":\"grey\",\"qty\":1,\"listPrice\":\"$139.00\",\"discount\":\"$0.00\",\"paid\":\"$139.00\",\"returnedQty\":0}],\"subtotal\":\"$139.00\",\"discount\":\"$0.00\",\"shipping\":\"$0.00\",\"totalPaid\":\"$139.00\",\"refunds\":[]}}",
+      "message 1: check_return_eligibility({\"condition\":\"unused\",\"item\":\"Ridgeline Low Hiking Shoe\",\"orderId\":1052}) → {\"ok\":true,\"data\":{\"orderNumber\":1052,\"item\":\"Ridgeline Low Hiking Shoe\",\"eligible\":false,\"code\":\"WINDOW_EXPIRED\",\"message\":\"The 30-day return window ended on 2026-08-31 (delivered 45 days ago).\",\"details\":{\"returnBy\":\"2026-08-31\",\"daysSinceDelivery\":45}},\"policyDecision\":\"denied\"}",
+      "message 2: escalate_to_human({\"orderId\":1052,\"reason\":\"Customer wants to return the Ridgeline Low Hiking Shoe (order #1052, delivered 2026-08-01) about two weeks past the 30-day return window (expired 2026-08-31). Reason: don't fit well. Asking for a one-time exception; requesting human review. Order ~$139.00, no refunds issued yet.\"}) → {\"ok\":true,\"data\":{\"ticket\":\"ESC-1\",\"message\":\"A human support agent will follow up by email, usually within one business day.\"}}"
+    ],
+    "judgeNote": "Explains the 30-day window ended on Aug 31, stays polite on the pushback, and either holds the line or offers to pass it to a human, without promising the human will approve it.",
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent never promises, offers or hints that an exception to the return window might be made."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": [
+      {
+        "id": "script:2",
+        "turn": 2,
+        "assumes": "the agent said the 30-day return window has ended"
+      }
+    ]
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "Clear explanation of return window and next steps, polite tone."
+      },
+      {
+        "reply": 2,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "Provides ticket number and expected timeline, maintains polite tone."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": false,
+        "why": "The agent explicitly states that a human agent will review and let the customer know if an exception can be made, which is a hint that an exception might be possible. Answer: no."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only informs the customer that a human agent will review the request and follow up, and does not promise or imply that the agent itself will perform any future action beyond what it can do in this chat. This complies with the rule. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "All timing statements made by the agent are supported by the tool responses or store policy. The agent cited the exact 30‑day return window end date (2026‑08‑31) and the expected follow‑up time of one business day, both of which match the tool outputs. No vague timing such as \"soon\" or \"shortly\" was used. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": [
+      {
+        "id": "script:2",
+        "answer": true,
+        "why": "The agent’s reply 1 explicitly states that the 30‑day return window ended on 2026‑08‑31, so the customer’s assumption that the agent mentioned the window has ended is correct, making the follow‑up a logical next message. Answer: yes."
+      }
+    ]
+  },
+  "answers": {
+    "judge:0": false,
+    "judge:followup": true,
+    "judge:timing": true,
+    "script:2": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:0",
+      "latencyMs": 725,
+      "inputTokens": 1073,
+      "outputTokens": 326,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states that a human agent will review and let the customer know if an exception can be made, which is a hint that an exception might be possible. Answer: no.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 769,
+      "inputTokens": 1141,
+      "outputTokens": 352,
+      "cached": false,
+      "raw": "{\"why\":\"All timing statements match tool results or policy. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 1003,
+      "inputTokens": 1388,
+      "outputTokens": 493,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"Clear explanation of return window and next steps, polite tone.\"},{\"reply\":2,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"Provides ticket number and expected timeline, maintains polite tone.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1004,
+      "inputTokens": 1152,
+      "outputTokens": 508,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only informs the customer that a human agent will review the request and follow up, and does not promise or imply that the agent itself will perform any future action beyond what it can do in this chat. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "script:2",
+      "latencyMs": 1000,
+      "inputTokens": 1081,
+      "outputTokens": 305,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply 1 explicitly states that the 30‑day return window ended on 2026‑08‑31, so the customer’s assumption that the agent mentioned the window has ended is correct, making the follow‑up a logical next message. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1003,
+      "inputTokens": 1141,
+      "outputTokens": 615,
+      "cached": false,
+      "raw": "{\"why\":\"All timing statements made by the agent are supported by the tool responses or store policy. The agent cited the exact 30‑day return window end date (2026‑08‑31) and the expected follow‑up time of one business day, both of which match the tool outputs. No vague timing such as \\\"soon\\\" or \\\"shortly\\\" was used.\",\"answer\":true}",
+      "error": "✖ \"why\" must end with \"Answer: yes.\" or \"Answer: no.\""
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1083,
+      "inputTokens": 1152,
+      "outputTokens": 547,
+      "cached": false,
+      "raw": "{\"why\":\"The agent correctly states it cannot approve a late return, offers to pass the request to a human, and informs the customer that the human will follow up by email within one business day. It does not promise to do anything beyond what the tools indicate. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1796,
+      "inputTokens": 1152,
+      "outputTokens": 501,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only informs the customer that a human agent will review the request and follow up, and does not promise the agent itself will perform any later action it cannot do. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1037,
+      "inputTokens": 1265,
+      "outputTokens": 347,
+      "cached": false,
+      "raw": "{\"why\":\"All timing statements made by the agent are supported by the tool responses or store policy. The agent cited the exact 30‑day return window end date (2026‑08‑31) and the expected follow‑up time of one business day, both of which match the tool outputs. No vague timing such as \\\"soon\\\" or \\\"shortly\\\" was used. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 2041,
+      "inputTokens": 1141,
+      "outputTokens": 352,
+      "cached": false,
+      "raw": "{\"why\":\"All timing statements match tool results or policy. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

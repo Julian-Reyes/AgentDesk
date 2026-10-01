@@ -1,0 +1,381 @@
+{
+  "caseId": "recommendation-01",
+  "case": {
+    "id": "recommendation-01",
+    "split": "dev",
+    "type": "recommendation",
+    "why": "Tents for 2+ people whose price today (with the 20% tent sale) is ≤ $200: Ridge 2 ($199.20), Canopy 2 ($151.20), Creek 2 ($103.20). Recommending any other tent breaks a constraint.",
+    "source": "spec table",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "What's the best 2-person tent under $200?"
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "recommendation": {
+        "constraints": {
+          "category": "tents",
+          "maxPriceCents": 20000,
+          "minCapacityPersons": 2
+        },
+        "acceptable": [
+          "tent-ridge-2",
+          "tent-canopy-2",
+          "tent-creek-2"
+        ]
+      },
+      "leaks": [],
+      "judge": "Picks one (or compares the three) with a reason based on real specs (weight, rating, waterproofing). Shows the sale price; may mention the list price.",
+      "judgeChecks": []
+    }
+  },
+  "agentModel": "groq/gpt-oss-120b",
+  "team": {
+    "router": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "shopping@2#3e94b8f1"
+    },
+    "support": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "support@3#d7518dde"
+    }
+  },
+  "observation": {
+    "runId": "00229946-96b3-41df-98e7-16e997f6d3fe",
+    "turns": [
+      {
+        "customer": "What's the best 2-person tent under $200?",
+        "reply": "The top‑rated two‑person tent under $200 is the Ridge 2 Backpacking Tent. It’s currently $199.20 (was $249.00) and has a 4.6 rating, waterproof 3000 mm rating, and weighs 1,900 g. If you’d like to see other options, the Canopy 2 Trail Tent is $151.20 (4.5 rating) and the Creek 2 Budget Tent is $103.20 (3.9 rating).",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "What's the best 2-person tent under $200?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\":\"shopping\",\"category\":\"recommendation\",\"urgency\":\"normal\",\"confidence\":0.99}",
+          "decision": {
+            "route": "shopping",
+            "category": "recommendation",
+            "urgency": "normal",
+            "confidence": 0.99
+          },
+          "fallback": false
+        },
+        "inputTokens": 419,
+        "outputTokens": 81,
+        "latencyMs": 1177,
+        "cached": true,
+        "costMicros": 111,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@2#3e94b8f1",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_0817ba7a-dce4-45b4-9d5c-70e3446e2552",
+                "name": "search_products",
+                "arguments": "{\"filters\":{\"category\":\"tents\",\"maxPrice\":200,\"minCapacityPersons\":2},\"limit\":10}"
+              }
+            ]
+          },
+          "reasoning": "We need to find 2-person tents under $200, best. Need to search products category tents, minCapacityPersons? Possibly capacity 2, price max 200. Use search_products.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1840,
+        "outputTokens": 99,
+        "latencyMs": 2359,
+        "cached": false,
+        "costMicros": 335,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_0817ba7a-dce4-45b4-9d5c-70e3446e2552",
+          "name": "search_products",
+          "arguments": "{\"filters\":{\"category\":\"tents\",\"maxPrice\":200,\"minCapacityPersons\":2},\"limit\":10}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 3,
+              "products": [
+                {
+                  "id": "tent-ridge-2",
+                  "name": "Ridge 2 Backpacking Tent",
+                  "category": "tents",
+                  "listPrice": "$249.00",
+                  "currentPrice": "$199.20",
+                  "rating": 4.6,
+                  "description": "Freestanding two-person backpacking tent with two doors and two vestibules.",
+                  "specs": {
+                    "seasons": 3,
+                    "material": "20D ripstop nylon",
+                    "waterproof": true,
+                    "weightGrams": 1900,
+                    "capacityPersons": 2,
+                    "waterproofRatingMm": 3000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Tent Sale: 20% off all tents"
+                  ]
+                },
+                {
+                  "id": "tent-canopy-2",
+                  "name": "Canopy 2 Trail Tent",
+                  "category": "tents",
+                  "listPrice": "$189.00",
+                  "currentPrice": "$151.20",
+                  "rating": 4.5,
+                  "description": "Lightweight two-person trail tent with a full-coverage fly.",
+                  "specs": {
+                    "seasons": 3,
+                    "material": "20D ripstop polyester",
+                    "waterproof": true,
+                    "weightGrams": 2000,
+                    "capacityPersons": 2,
+                    "waterproofRatingMm": 2500
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Tent Sale: 20% off all tents"
+                  ]
+                },
+                {
+                  "id": "tent-creek-2",
+                  "name": "Creek 2 Budget Tent",
+                  "category": "tents",
+                  "listPrice": "$129.00",
+                  "currentPrice": "$103.20",
+                  "rating": 3.9,
+                  "description": "Affordable two-person tent for fair-weather weekends.",
+                  "specs": {
+                    "seasons": 3,
+                    "material": "polyester",
+                    "waterproof": true,
+                    "weightGrams": 2400,
+                    "capacityPersons": 2,
+                    "waterproofRatingMm": 1200
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Tent Sale: 20% off all tents"
+                  ]
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@2#3e94b8f1",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_dfec1db5-5a40-4c49-b283-0d2d23146e7b",
+                "name": "reply",
+                "arguments": "{\"message\":\"The top‑rated two‑person tent under $200 is the Ridge 2 Backpacking Tent. It’s currently $199.20 (was $249.00) and has a 4.6 rating, waterproof 3000 mm rating, and weighs 1,900 g. If you’d like to see other options, the Canopy 2 Trail Tent is $151.20 (4.5 rating) and the Creek 2 Budget Tent is $103.20 (3.9 rating).\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to recommend best 2-person tent under $200. Based on rating: Ridge (4.6) at $199.20, Canopy (4.5) $151.20, Creek (3.9) $103.20. Best likely Ridge (highest rating). Provide price and note it's under $200. Also maybe mention others. Need to reply via reply tool.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2280,
+        "outputTokens": 207,
+        "latencyMs": 3860,
+        "cached": false,
+        "costMicros": 466,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_dfec1db5-5a40-4c49-b283-0d2d23146e7b",
+          "name": "reply",
+          "arguments": "{\"message\":\"The top‑rated two‑person tent under $200 is the Ridge 2 Backpacking Tent. It’s currently $199.20 (was $249.00) and has a 4.6 rating, waterproof 3000 mm rating, and weighs 1,900 g. If you’d like to see other options, the Canopy 2 Trail Tent is $151.20 (4.5 rating) and the Creek 2 Budget Tent is $103.20 (3.9 rating).\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "The top‑rated two‑person tent under $200 is the Ridge 2 Backpacking Tent. It’s currently $199.20 (was $249.00) and has a 4.6 rating, waterproof 3000 mm rating, and weighs 1,900 g. If you’d like to see other options, the Canopy 2 Trail Tent is $151.20 (4.5 rating) and the Creek 2 Budget Tent is $103.20 (3.9 rating)."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "The top‑rated two‑person tent under $200 is the Ridge 2 Backpacking Tent. It’s currently $199.20 (was $249.00) and has a 4.6 rating, waterproof 3000 mm rating, and weighs 1,900 g. If you’d like to see other options, the Canopy 2 Trail Tent is $151.20 (4.5 rating) and the Creek 2 Budget Tent is $103.20 (3.9 rating)."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "shopping",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "recommendation-01",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to shopping"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "recommendation",
+        "label": "recommends only products that meet every constraint",
+        "pass": true,
+        "severity": "task",
+        "detail": "named: tent-ridge-2, tent-canopy-2, tent-creek-2"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 3,
+    "cachedCalls": 1,
+    "toolCalls": 1,
+    "inputTokens": 4539,
+    "outputTokens": 387,
+    "latencyMs": 7396,
+    "turnLatencyMs": [
+      7396
+    ],
+    "costMicros": 912,
+    "wallMs": 6252
+  },
+  "finishedAt": "2026-10-01T14:06:55.579Z"
+}

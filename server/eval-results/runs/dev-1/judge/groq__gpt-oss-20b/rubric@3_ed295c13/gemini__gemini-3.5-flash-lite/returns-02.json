@@ -1,0 +1,169 @@
+{
+  "caseId": "returns-02",
+  "runId": "f7b40c4f-9057-480c-958d-b6b52b4d8158",
+  "questionSet": "104506e0",
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@3#ed295c13",
+  "input": {
+    "caseId": "returns-02",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Can I return the boots from order #1053? I wore them once on a short hike and they're just not for me.",
+        "reply": "Hi Tom, according to our return policy, only unused items in their original condition and packaging can be returned. Since you've worn the Ridgeline Mid Hiking Boot on a hike, they are considered used and unfortunately aren't eligible for return. \n\nIf you believe there is a defect with the boots, please let me know and we can look into our warranty policy!"
+      }
+    ],
+    "toolSummary": [
+      "message 1: find_customer({\"email\":\"tom.becker@example.com\"}) → {\"ok\":true,\"data\":{\"name\":\"Tom Becker\",\"email\":\"tom.becker@example.com\",\"orders\":[{\"number\":1024,\"status\":\"shipped\",\"placed\":\"2026-09-10\",\"total\":\"$288.00\"},{\"number\":1289,\"status\":\"shipped\",\"placed\":\"2026-09-09\",\"total\":\"$368.00\"},{\"number\":1053,\"status\":\"delivered\",\"placed\":\"2026-08-30\",\"total\":\"$179.00\"},{\"number\":1231,\"status\":\"delivered\",\"placed\":\"2026-08-24\",\"total\":\"$637.00\"},{\"number\":1054,\"status\":\"lost\",\"placed\":\"2026-08-21\",\"total\":\"$199.00\"},{\"number\":1112,\"status\":\"delivered\",\"placed\":\"2026-06-19\",\"total\":\"$547.00\"}]}}",
+      "message 1: get_order({\"orderId\":1053}) → {\"ok\":true,\"data\":{\"number\":1053,\"status\":\"delivered\",\"placed\":\"2026-08-30\",\"delivered\":\"2026-09-03\",\"items\":[{\"productId\":\"boot-ridgeline-mid\",\"name\":\"Ridgeline Mid Hiking Boot\",\"size\":\"10\",\"color\":\"brown\",\"qty\":1,\"listPrice\":\"$179.00\",\"discount\":\"$0.00\",\"paid\":\"$179.00\",\"returnedQty\":0}],\"subtotal\":\"$179.00\",\"discount\":\"$0.00\",\"shipping\":\"$0.00\",\"totalPaid\":\"$179.00\",\"refunds\":[]}}",
+      "message 1: check_return_eligibility({\"orderId\":1053,\"condition\":\"used\",\"item\":\"Ridgeline Mid Hiking Boot\"}) → {\"ok\":true,\"data\":{\"orderNumber\":1053,\"item\":\"Ridgeline Mid Hiking Boot\",\"eligible\":false,\"code\":\"ITEM_USED\",\"message\":\"Only unused items in original condition can be returned. If the item is defective, the warranty may cover it.\"},\"policyDecision\":\"denied\"}",
+      "message 1: get_policy({\"topic\":\"returns\"}) → {\"ok\":true,\"data\":{\"topic\":\"returns\",\"title\":\"Returns\",\"text\":\"Unused items in original packaging can be returned within 30 days of delivery.\\nUsed or worn items can't be returned. If a used item is defective, see the warranty policy.\\nTo return an item, send it back using the return label from your account. The refund is issued to your original payment method once the warehouse receives it, usually within 5 business days.\\nItems that arrived damaged follow the damaged-items policy instead.\"}}"
+    ],
+    "judgeNote": "Explains the unused-only rule kindly. May mention the warranty for defects, but doesn't suggest calling them defective.",
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent says worn items can't be returned, and doesn't hint that an exception might be made."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "The reply clearly explains the return policy, acknowledges the customer's situation, and offers a next step for defect concerns."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent explicitly states that only unused items in original condition can be returned and that worn items are not eligible, with no suggestion of an exception. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only states the return policy and offers to look into the warranty policy if the customer reports a defect. This is a normal, actionable statement that the agent can fulfill in the chat and does not promise any future action that the agent cannot perform. Therefore the agent does not violate the rule. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent’s reply contains no statements about shipping, arrival, refund, review, or processing times. Therefore all timing claims (none) match the policy or tool results. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "scores",
+      "latencyMs": 758,
+      "inputTokens": 1452,
+      "outputTokens": 280,
+      "cached": true,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"The reply clearly explains the return policy, acknowledges the customer's situation, and offers a next step for defect concerns.\"}]}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 600,
+      "inputTokens": 1208,
+      "outputTokens": 244,
+      "cached": false,
+      "raw": "{\"why\":\"The agent's reply contains no statements about shipping, arrival, refund, review, or processing times. Therefore all timing claims (none) match the policy or tool results. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 607,
+      "inputTokens": 1208,
+      "outputTokens": 150,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refund, review, or processing times. Therefore all timing claims are either absent or supported by policy. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 910,
+      "inputTokens": 1219,
+      "outputTokens": 362,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states the return policy and offers to investigate a warranty claim if the customer reports a defect. This does not promise any future action that the agent cannot perform in the chat, nor does it imply a follow‑up that is impossible. Therefore the reply complies with the rule.\",\"answer\":true}",
+      "error": "✖ \"why\" must end with \"Answer: yes.\" or \"Answer: no.\""
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 1303,
+      "inputTokens": 1140,
+      "outputTokens": 231,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states that only unused items in original condition can be returned and that worn items are not eligible, with no suggestion of an exception. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 854,
+      "inputTokens": 1326,
+      "outputTokens": 269,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states the return policy and offers to investigate a warranty claim if the customer reports a defect. This does not promise any future action that the agent cannot perform in the chat, nor does it imply a follow‑up that is impossible. Therefore the reply complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1766,
+      "inputTokens": 1219,
+      "outputTokens": 381,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states the return policy and offers to look into the warranty policy if the customer reports a defect. This is a normal, actionable statement that the agent can fulfill in the chat and does not promise any future action that the agent cannot perform. Therefore the agent does not violate the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1765,
+      "inputTokens": 1208,
+      "outputTokens": 244,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply contains no statements about shipping, arrival, refund, review, or processing times. Therefore all timing claims (none) match the policy or tool results. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1825,
+      "inputTokens": 1219,
+      "outputTokens": 364,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states the return policy and offers to look into warranty if defect, which is within the agent's capabilities. No impossible promise is made.\",\"answer\":true}",
+      "error": "✖ \"why\" must end with \"Answer: yes.\" or \"Answer: no.\""
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1875,
+      "inputTokens": 1299,
+      "outputTokens": 275,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states the return policy and offers to look into warranty if defect, which is within the agent's capabilities. No impossible promise is made. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

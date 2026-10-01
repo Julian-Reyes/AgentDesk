@@ -14,6 +14,7 @@ import { coverageNote } from "../../src/evals/runner/cli.ts";
 import { judgeCoverage, judgeFor, providerErrorOf, questionSetOf, regrade, runAgentsStage, runJudgeStage, unjudged } from "../../src/evals/runner/stages.ts";
 import { RunStore, type ConversationRecord, type JudgeRecord } from "../../src/evals/runner/store.ts";
 import { applyCaseSnapshotUpdate, planCaseSnapshotUpdate } from "../../src/evals/runner/update-cases.ts";
+import { renderComparison, summarizeRun } from "../../src/evals/runner/compare.ts";
 import type { Observation } from "../../src/evals/run-case.ts";
 import { FakeProvider, fake, type FakeStep } from "../../src/llm/fake.ts";
 import type { ChatProvider, ChatRequest, ChatResponse } from "../../src/llm/types.ts";
@@ -353,3 +354,35 @@ describe("the report lists judge answers that contradict their own reason (rubri
   });
 });
 
+
+describe("comparing runs (eval:compare)", () => {
+  it("per model: task success, policy violations, the judge's timing answers, leak/emoji/full-name scans, and the cases that changed", async () => {
+    const before = newStore();
+    await stage(before, { "fake/a": teamWith(goodScript(["order-status-01"])) }, [cases[0]!]);
+    await runJudgeStage({ store: before, judgeModel: "judge/x", rubric: RUBRIC, provider: new AutoJudge() });
+
+    const after = newStore();
+    const leaky = {
+      router: [route("support")],
+      agent: [fake.tools(["get_order", { orderId: 1042 }]), fake.reply("I checked with get_order: Maya Chen, your order #1042 has shipped 🙂")],
+    };
+    await stage(after, { "fake/a": teamWith(leaky) }, [cases[0]!]);
+    await runJudgeStage({ store: after, judgeModel: "judge/x", rubric: RUBRIC, provider: new AutoJudge({ strict: "#1042" }) });
+
+    const judge = { model: "judge/x", rubric: RUBRIC };
+    const a = summarizeRun(before, judge)["fake/a"]!;
+    const b = summarizeRun(after, judge)["fake/a"]!;
+    expect(a).toMatchObject({ taskSuccess: { k: 1, n: 1 }, policyViolations: 0, timing: [], leaks: [], emojiReplies: [], fullNameReplies: [] });
+    expect(b.timing).toEqual(["order-status-01"]);
+    expect(b.leaks).toEqual([{ caseId: "order-status-01", text: "I checked with get_order: Maya Chen, your order #1042 has shippe…" }]);
+    expect(b.emojiReplies).toEqual(["order-status-01"]);
+    expect(b.fullNameReplies).toEqual(["order-status-01"]);
+    expect(b.byCase["order-status-01"]).toBe("fail");
+
+    const md = renderComparison([{ name: "r1", summary: { "fake/a": a } }, { name: "r2", summary: { "fake/a": b } }], "judge/x");
+    expect(md).toContain("| **Task success** | **100%** (1/1, 21%–100%) | **0%** (0/1, 0%–79%) |");
+    expect(md).toContain("| Unsupported timing (judge) | 0 of 1 | 1 of 1 |");
+    expect(md).toContain('- leak? order-status-01: "I checked with get_order');
+    expect(md).toContain("**r1 → r2, cases that changed:** order-status-01 pass → fail");
+  });
+});

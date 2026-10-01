@@ -1,0 +1,452 @@
+{
+  "caseId": "product-facts-02",
+  "case": {
+    "id": "product-facts-02",
+    "split": "dev",
+    "type": "product_facts",
+    "why": "Beacon 900 Rechargeable Headlamp: 900 lumens, 900 minutes (15 hours) of burn time. Tests that the agent converts or quotes the burn time correctly.",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "How bright is the Beacon 900 headlamp, and how long does the battery last?",
+        "reply": {
+          "mentions": [
+            [
+              "900 lumens",
+              "900 lm",
+              "900-lumen"
+            ],
+            [
+              "15 hours",
+              "15 h",
+              "15-hour",
+              "900 minutes"
+            ]
+          ],
+          "amounts": [],
+          "avoids": []
+        }
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "leaks": [],
+      "judge": "Gives 900 lumens and 15 hours (900 minutes). Doesn't invent a charge time or battery capacity; the catalog has neither.",
+      "judgeChecks": []
+    }
+  },
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "team": {
+    "router": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "shopping@2#3e94b8f1"
+    },
+    "support": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "support@3#d7518dde"
+    }
+  },
+  "observation": {
+    "runId": "ebca1c60-71d7-4ab1-a0c7-b72bf7cd82cd",
+    "turns": [
+      {
+        "customer": "How bright is the Beacon 900 headlamp, and how long does the battery last?",
+        "reply": "The Beacon 900 Rechargeable Headlamp outputs 900 lumens and has a burn time of 900 minutes (15 hours).",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "How bright is the Beacon 900 headlamp, and how long does the battery last?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"shopping\", \"category\": \"product_info\", \"urgency\": \"normal\", \"confidence\": 1.0}",
+          "decision": {
+            "route": "shopping",
+            "category": "product_info",
+            "urgency": "normal",
+            "confidence": 1
+          },
+          "fallback": false
+        },
+        "inputTokens": 352,
+        "outputTokens": 29,
+        "latencyMs": 993,
+        "cached": true,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@2#3e94b8f1",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_323922",
+                "name": "search_products",
+                "arguments": "{\"query\":\"Beacon 900\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TvABmNI+x8z3V3bxu+8wfxbnO8Pbq7OEj8YcyShHLRne/vQi1BCTzuLaHMy2nnZSL2EpYsK4zVQMfEpeFnHGHPQ6LYW9PtKtNRPKLJSByapL262MmOgaR3rI="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1986,
+        "outputTokens": 20,
+        "latencyMs": 10100,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_323922",
+          "name": "search_products",
+          "arguments": "{\"query\":\"Beacon 900\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 2,
+              "products": [
+                {
+                  "id": "lamp-beacon-900",
+                  "name": "Beacon 900 Rechargeable Headlamp",
+                  "category": "headlamps",
+                  "listPrice": "$79.00",
+                  "currentPrice": "$79.00",
+                  "rating": 4.7,
+                  "description": "High-output rechargeable headlamp with a rear battery pack.",
+                  "specs": {
+                    "lumens": 900,
+                    "waterproof": true,
+                    "weightGrams": 140,
+                    "burnTimeMinutes": 900
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Headlamps: buy 2, get 1 free"
+                  ]
+                },
+                {
+                  "id": "lamp-beacon-500",
+                  "name": "Beacon 500 Rechargeable Headlamp",
+                  "category": "headlamps",
+                  "listPrice": "$49.00",
+                  "currentPrice": "$49.00",
+                  "rating": 4.6,
+                  "description": "USB-C rechargeable headlamp with a lock mode.",
+                  "specs": {
+                    "lumens": 500,
+                    "waterproof": true,
+                    "weightGrams": 86,
+                    "burnTimeMinutes": 1200
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Headlamps: buy 2, get 1 free"
+                  ]
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@2#3e94b8f1",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_260851",
+                "name": "get_product",
+                "arguments": "{\"id\":\"lamp-beacon-900\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0ToF5aunQ5mVvTDavX7h2dmTF3F/yXrXI7G4g3YMDUJbgImS1TEtyXYvhZoXDi0RbTWVbZ8mQp2tKmiParDm8vmBLPfCrjaALcPOpurgkBxcaOqVlfLvL3Sj4="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2305,
+        "outputTokens": 22,
+        "latencyMs": 1036,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_260851",
+          "name": "get_product",
+          "arguments": "{\"id\":\"lamp-beacon-900\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "id": "lamp-beacon-900",
+              "name": "Beacon 900 Rechargeable Headlamp",
+              "category": "headlamps",
+              "listPrice": "$79.00",
+              "currentPrice": "$79.00",
+              "rating": 4.7,
+              "description": "High-output rechargeable headlamp with a rear battery pack.",
+              "specs": {
+                "lumens": 900,
+                "waterproof": true,
+                "weightGrams": 140,
+                "burnTimeMinutes": 900
+              },
+              "availability": "in_stock",
+              "activeDeals": [
+                "Headlamps: buy 2, get 1 free"
+              ],
+              "variants": [
+                {
+                  "size": null,
+                  "color": "black",
+                  "availability": "in_stock"
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@2#3e94b8f1",
+        "data": {
+          "step": 3,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_214314",
+                "name": "reply",
+                "arguments": "{\"message\":\"The Beacon 900 Rechargeable Headlamp outputs 900 lumens and has a burn time of 900 minutes (15 hours).\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0T0euPq5CKl+AyzkZZ3Oh1psO3CY0zqpczCZ8g+8+6kei6ubBUKsP42H3UFtysCQvay6UIr1kYiLzhnSkPKpUE7xTgtP0yHWPGUSZo6evdjjCtL1Z2zUAYtis="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2485,
+        "outputTokens": 45,
+        "latencyMs": 24280,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_214314",
+          "name": "reply",
+          "arguments": "{\"message\":\"The Beacon 900 Rechargeable Headlamp outputs 900 lumens and has a burn time of 900 minutes (15 hours).\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "The Beacon 900 Rechargeable Headlamp outputs 900 lumens and has a burn time of 900 minutes (15 hours)."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "The Beacon 900 Rechargeable Headlamp outputs 900 lumens and has a burn time of 900 minutes (15 hours)."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "shopping",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "product-facts-02",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to shopping"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "reply1:mentions:0",
+        "label": "reply 1 mentions \"900 lumens\" or \"900 lm\" or \"900-lumen\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:mentions:1",
+        "label": "reply 1 mentions \"15 hours\" or \"15 h\" or \"15-hour\" or \"900 minutes\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 4,
+    "cachedCalls": 1,
+    "toolCalls": 2,
+    "inputTokens": 7128,
+    "outputTokens": 116,
+    "latencyMs": 36409,
+    "turnLatencyMs": [
+      36409
+    ],
+    "costMicros": 0,
+    "wallMs": 35495
+  },
+  "finishedAt": "2026-10-01T14:07:22.239Z"
+}

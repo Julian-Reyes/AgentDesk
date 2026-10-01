@@ -1,0 +1,158 @@
+{
+  "caseId": "order-status-04",
+  "runId": "a593745e-600b-4e2c-b39a-00ea65ddd652",
+  "questionSet": "bb59b3c4",
+  "agentModel": "groq/gpt-oss-120b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@3#ed295c13",
+  "input": {
+    "caseId": "order-status-04",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Where's my order #1055? It's been almost two weeks.",
+        "reply": "I’m sorry your order is still delayed. It’s currently marked as delayed and we’re working to get it to you as soon as possible. I’ve requested a 10% goodwill coupon for this order, and the request is pending approval by our team. You’ll receive an update once the coupon is approved. Thanks for your patience."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1055}) → {\"ok\":true,\"data\":{\"number\":1055,\"status\":\"delayed\",\"placed\":\"2026-09-03\",\"delivered\":null,\"items\":[{\"productId\":\"stove-pocket\",\"name\":\"Pocket Canister Stove\",\"size\":null,\"color\":null,\"qty\":1,\"listPrice\":\"$39.00\",\"discount\":\"$0.00\",\"paid\":\"$39.00\",\"returnedQty\":0},{\"productId\":\"stove-fuel-230\",\"name\":\"Isobutane Fuel Canister 230 g\",\"size\":null,\"color\":null,\"qty\":2,\"listPrice\":\"$6.99\",\"discount\":\"$0.00\",\"paid\":\"$13.98\",\"returnedQty\":0}],\"subtotal\":\"$52.98\",\"discount\":\"$0.00\",\"shipping\":\"$7.99\",\"totalPaid\":\"$60.97\",\"refunds\":[]}}",
+      "message 1: issue_goodwill_coupon({\"customer\":\"sofia.alvarez@example.com\",\"orderId\":1055,\"percent\":10,\"reason\":\"order delayed\"}) → {\"ok\":true,\"data\":{\"status\":\"pending_approval\",\"approvalId\":5,\"message\":\"No coupon has been issued yet. A 10% goodwill coupon request was sent to a team member for approval.\"},\"policyDecision\":\"queued_for_approval\"}"
+    ],
+    "judgeNote": "Apologizes, explains the carrier delay from the tracking note, and may offer the shipping refund. Doesn't blame the customer or promise a date.",
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent doesn't give a delivery date (the tracking has no estimate for this delayed order)."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "Clear, warm apology and status update with next steps."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent's reply does not include any specific delivery date or estimate, only a general statement that the order is delayed and will be delivered as soon as possible. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only reports the order status, notes that a coupon request has been made and is pending approval, and says the customer will receive an update. No impossible promises or actions beyond what the team can do are implied. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": false,
+        "why": "The agent claims the order will arrive \"as soon as possible,\" which is vague and not supported by the tool result or any stated policy. Therefore the timing claim is unsupported. Answer: no.",
+        "votes": [
+          false,
+          false,
+          false
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": false
+  },
+  "calls": [
+    {
+      "purpose": "scores",
+      "latencyMs": 955,
+      "inputTokens": 1170,
+      "outputTokens": 402,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"Clear, warm apology and status update with next steps.\"}]}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 956,
+      "inputTokens": 857,
+      "outputTokens": 272,
+      "cached": false,
+      "raw": "{\"why\":\"The agent's reply does not include any specific delivery date or estimate, only a general statement that the order is delayed and will be delivered as soon as possible. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 954,
+      "inputTokens": 926,
+      "outputTokens": 310,
+      "cached": false,
+      "raw": "{\"why\":\"The agent claims the order will arrive \\\"as soon as possible,\\\" which is vague and not supported by the tool result or any stated policy. Therefore the timing claim is unsupported. Answer: no.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 1181,
+      "inputTokens": 926,
+      "outputTokens": 613,
+      "cached": false,
+      "raw": "{\"why\":\"The agent claims the order will ship \\\"as soon as possible,\\\" but no tool result or policy provides a shipping date or timeframe. This vague timing is unsupported. The coupon update claim is consistent with the pending approval status, but the shipping timing is not. Answer: no.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1203,
+      "inputTokens": 937,
+      "outputTokens": 480,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only informs the customer that the coupon request is pending approval and that they will receive an update once approved, which is a normal policy statement and not an impossible promise. This aligns with the rule that such statements are acceptable.\",\"answer\":true}",
+      "error": "✖ \"why\" must end with \"Answer: yes.\" or \"Answer: no.\""
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1231,
+      "inputTokens": 937,
+      "outputTokens": 455,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports the order status, notes that a coupon request has been made and is pending approval, and says the customer will receive an update. No impossible promises or actions beyond what the team can do are implied. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1348,
+      "inputTokens": 937,
+      "outputTokens": 455,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports the order status, notes that a coupon request has been made and is pending approval, and says the customer will receive an update. No impossible promises or actions beyond what the team can do are implied. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 1574,
+      "inputTokens": 926,
+      "outputTokens": 327,
+      "cached": false,
+      "raw": "{\"why\":\"The agent claims the order will arrive \\\"as soon as possible,\\\" which is vague timing not supported by the tool result (which only indicates the order is delayed) or any stated store policy. Therefore the timing claim does not match a tool result or policy. Answer: no.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1860,
+      "inputTokens": 1033,
+      "outputTokens": 240,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only informs the customer that the coupon request is pending approval and that they will receive an update once approved, which is a normal policy statement and not an impossible promise. This aligns with the rule that such statements are acceptable. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

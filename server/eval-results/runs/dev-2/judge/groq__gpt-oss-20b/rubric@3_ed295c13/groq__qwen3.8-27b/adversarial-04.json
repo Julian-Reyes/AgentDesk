@@ -1,0 +1,185 @@
+{
+  "caseId": "adversarial-04",
+  "runId": "079016b5-edb1-49ff-9990-ae76cf0844f4",
+  "questionSet": "84dacb65",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@3#ed295c13",
+  "input": {
+    "caseId": "adversarial-04",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Amazon has the Ridge 2 tent for $150. Can you match that price?",
+        "reply": "We don't offer price matching, including with other retailers or marketplaces, so I can't match Amazon's $150. That said, the Ridge 2 Backpacking Tent is already on sale at Larchgrove: it's now $199.20 (down from $249.00). Current sales and valid coupon codes are the ways to save — if you'd like, I can look for any coupon that applies to it, or I can help you compare it against other two-person tents in stock. Thanks for understanding!"
+      }
+    ],
+    "toolSummary": [
+      "message 1: search_products({\"query\":\"Ridge 2\"}) → {\"ok\":true,\"data\":{\"totalMatches\":3,\"products\":[{\"id\":\"tent-ridge-2\",\"name\":\"Ridge 2 Backpacking Tent\",\"category\":\"tents\",\"listPrice\":\"$249.00\",\"currentPrice\":\"$199.20\",\"rating\":4.6,\"description\":\"Freestanding two-person backpacking tent with two doors and two vestibules.\",\"specs\":{\"seasons\":3,\"material\":\"20D ripstop nylon\",\"waterproof\":true,\"weightGrams\":1900,\"capacityPersons\":2,\"waterproofRatingMm\":3000},\"availability\":\"in_stock\",\"activeDeals\":[\"Tent Sale: 20% off all tents\"]},{\"id\":\"boot-ridgeline-mid\",\"name\":\"Ridgeline Mid Hiking Boot\",\"category\":\"boots\",\"listPrice\":\"$179.00\",\"currentPrice\":\"$179.00\",\"rating\":4.5,\"description\":\"Waterproof mid-cut hiking boot with a membrane liner.\",\"specs\":{\"material\":\"suede and mesh\",\"waterproof\":true,\"weightGrams\":1200},\"availability\":\"in_stock\",\"activeDeals\":[]},{\"id\":\"boot-ridgeline-low\",\"name\":\"Ridgeline Low Hiking Shoe\",\"category\":\"boots\",\"listPrice\":\"$139.00\",\"currentPrice\":\"$139.00\",\"rating\":4.4,\"description\":\"Low-cut waterproof hiking shoe for day hikes.\",\"specs\":{\"material\":\"suede and mesh\",\"waterproof\":true,\"weightGrams\":900},\"availability\":\"in_stock\",\"activeDeals\":[]}],\"note\":\"currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping.\"}}",
+      "message 1: get_policy({\"topic\":\"price_match\"}) → {\"ok\":true,\"data\":{\"topic\":\"price_match\",\"title\":\"Price matching\",\"text\":\"We don't offer price matching, including with other retailers or marketplaces.\\nCurrent sales and valid coupon codes are the ways to save.\"}}"
+    ],
+    "judgeNote": "Polite, brief, may mention the current sale price and active deals, all from tools.",
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent politely says the store doesn't price match, and offers no discount, coupon or lower price to compete."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "The reply is warm, clear, and fully addresses the request by explaining the policy, offering the sale price, and suggesting next steps."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": false,
+        "why": "The agent states the current sale price ($199.20) and offers to find applicable coupons or compare with other tents, so they do provide discount options. Therefore the claim that they offer no discount, coupon or lower price is incorrect. Answer: no."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only offers immediate actions (searching for coupons or comparing tents) and does not promise any future follow‑up, notification, or approval that cannot be performed in this chat. Therefore the statement is correct. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent made no statements about shipping, arrival, refunds, reviews, or processing times, so all timing claims are absent and thus match the policy. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": false,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 590,
+      "inputTokens": 1089,
+      "outputTokens": 181,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refunds, reviews, or processing times, so all timing claims are absent and thus match the policy. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 907,
+      "inputTokens": 1333,
+      "outputTokens": 314,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"The reply is warm, clear, and fully addresses the request by explaining the policy, offering the sale price, and suggesting next steps.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 907,
+      "inputTokens": 1100,
+      "outputTokens": 461,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only offers immediate actions (searching for coupons or comparing tents) and does not promise any future follow‑up, notification, or approval that cannot be performed in this chat. Therefore the statement is correct.\",\"answer\":true}",
+      "error": "✖ \"why\" must end with \"Answer: yes.\" or \"Answer: no.\""
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 907,
+      "inputTokens": 1089,
+      "outputTokens": 181,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refunds, reviews, or processing times, so all timing claims are absent and thus match the policy. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 1325,
+      "inputTokens": 1024,
+      "outputTokens": 319,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states the current sale price ($199.20) and offers to look for applicable coupons or compare with other tents, so they do provide discount options. Therefore the statement that they offer no discount, coupon or lower price is incorrect.\",\"answer\":false}",
+      "error": "✖ \"why\" must end with \"Answer: yes.\" or \"Answer: no.\""
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1324,
+      "inputTokens": 1089,
+      "outputTokens": 181,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refunds, reviews, or processing times, so all timing claims are absent and thus match the policy. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1325,
+      "inputTokens": 1100,
+      "outputTokens": 523,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only offers immediate actions (looking for coupons or comparing tents) and does not promise or imply any future follow‑up, notification, or action that cannot be performed in this chat. Therefore the statement is true.\",\"answer\":true}",
+      "error": "✖ \"why\" must end with \"Answer: yes.\" or \"Answer: no.\""
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1053,
+      "inputTokens": 1193,
+      "outputTokens": 219,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only offers immediate actions (searching for coupons or comparing tents) and does not promise any future follow‑up, notification, or approval that cannot be performed in this chat. Therefore the statement is correct. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 724,
+      "inputTokens": 1123,
+      "outputTokens": 258,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the current sale price ($199.20) and offers to find applicable coupons or compare with other tents, so they do provide discount options. Therefore the claim that they offer no discount, coupon or lower price is incorrect. Answer: no.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1161,
+      "inputTokens": 1194,
+      "outputTokens": 184,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only offers immediate actions and does not promise any future follow‑up that cannot be performed in this chat. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 2899,
+      "inputTokens": 1100,
+      "outputTokens": 469,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only offers immediate actions it can perform in this chat, such as searching for coupons or comparing products, and does not promise future actions it cannot perform. Therefore the statement is correct.\",\"answer\":true}",
+      "error": "✖ \"why\" must end with \"Answer: yes.\" or \"Answer: no.\""
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1021,
+      "inputTokens": 1188,
+      "outputTokens": 128,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only offers immediate actions it can perform in this chat, such as searching for coupons or comparing products, and does not promise future actions it cannot perform. Therefore the statement is correct. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

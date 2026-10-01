@@ -1,0 +1,184 @@
+{
+  "caseId": "invalid-coupon-02",
+  "runId": "8782f926-6bbc-40a2-bbed-38dfbf79c7dc",
+  "questionSet": "e4b2d314",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@3#ed295c13",
+  "input": {
+    "caseId": "invalid-coupon-02",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "I want the Canopy 2 tent with code GEAR20. What's the total?",
+        "reply": "Let me check that out for you right away. One moment."
+      }
+    ],
+    "toolSummary": [
+      "message 1: search_products({\"limit\":5,\"query\":\"Canopy 2\"}) → {\"ok\":true,\"data\":{\"totalMatches\":1,\"products\":[{\"id\":\"tent-canopy-2\",\"name\":\"Canopy 2 Trail Tent\",\"category\":\"tents\",\"listPrice\":\"$189.00\",\"currentPrice\":\"$151.20\",\"rating\":4.5,\"description\":\"Lightweight two-person trail tent with a full-coverage fly.\",\"specs\":{\"seasons\":3,\"material\":\"20D ripstop polyester\",\"waterproof\":true,\"weightGrams\":2000,\"capacityPersons\":2,\"waterproofRatingMm\":2500},\"availability\":\"in_stock\",\"activeDeals\":[\"Tent Sale: 20% off all tents\"]}],\"note\":\"currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping.\"}}",
+      "message 1: quote_price({\"cart\":[{\"productId\":\"tent-canopy-2\",\"qty\":1}],\"coupon\":\"GEAR20\"}) → {\"ok\":true,\"data\":{\"lines\":[{\"productId\":\"tent-canopy-2\",\"name\":\"Canopy 2 Trail Tent\",\"qty\":1,\"listPrice\":\"$189.00\",\"discounts\":[{\"deal\":\"Tent Sale: 20% off all tents\",\"amount\":\"-$37.80\"}],\"lineTotal\":\"$151.20\"}],\"subtotal\":\"$189.00\",\"coupon\":{\"code\":\"GEAR20\",\"applied\":false,\"reason\":\"CATEGORY_EXCLUDED\",\"message\":\"Coupon GEAR20 can't be used on tents, sleeping bags, and everything in the cart is in an excluded category.\"},\"totalDiscounts\":\"-$37.80\",\"shipping\":\"FREE\",\"total\":\"$151.20\",\"totalCents\":15120},\"policyDecision\":\"denied\"}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent explains that GEAR20 doesn't apply to tents."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 2,
+        "helpfulness": 1,
+        "why": "The reply does not provide the requested price or next steps."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": false,
+        "why": "The agent's reply was only \"Let me check that out for you right away. One moment.\" and did not explain that the GEAR20 coupon does not apply to tents. Therefore the statement is not true. Answer: no."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only says it will check the price, which can be done immediately in this chat. No promise to do something beyond the chat. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": false,
+        "why": "The agent’s reply includes the timing claim “right away” and “One moment,” which are vague and not supported by any tool result or store policy presented in the conversation. Therefore the statement about timing does not match a supported source. Answer: no.",
+        "votes": [
+          false,
+          false,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": false,
+    "judge:followup": true,
+    "judge:timing": false
+  },
+  "calls": [
+    {
+      "purpose": "scores",
+      "latencyMs": 635,
+      "inputTokens": 1178,
+      "outputTokens": 311,
+      "cached": true,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":2,\"helpfulness\":1,\"why\":\"The reply does not provide the requested price or next steps.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1067,
+      "inputTokens": 945,
+      "outputTokens": 528,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only says it will check the price, which can be done immediately in this chat. No promise to do something beyond the chat.\",\"answer\":true}",
+      "error": "✖ \"why\" must end with \"Answer: yes.\" or \"Answer: no.\""
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1179,
+      "inputTokens": 945,
+      "outputTokens": 534,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only says it will check the price, which can be done immediately in this chat. It does not promise future actions like notifications or follow‑ups. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 1565,
+      "inputTokens": 859,
+      "outputTokens": 150,
+      "cached": false,
+      "raw": "{\"why\":\"The agent's reply was only \\\"Let me check that out for you right away. One moment.\\\" and did not explain that the GEAR20 coupon does not apply to tents. Therefore the statement is not true.\",\"answer\":false}",
+      "error": "✖ \"why\" must end with \"Answer: yes.\" or \"Answer: no.\""
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 840,
+      "inputTokens": 934,
+      "outputTokens": 180,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply includes the timing claim “right away” and “One moment,” which are vague and not supported by any tool result or store policy presented in the conversation. Therefore the statement about timing does not match a supported source.\",\"answer\":false}",
+      "error": "✖ \"why\" must end with \"Answer: yes.\" or \"Answer: no.\""
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 595,
+      "inputTokens": 1031,
+      "outputTokens": 222,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply includes the timing claim “right away” and “One moment,” which are vague and not supported by any tool result or store policy presented in the conversation. Therefore the statement about timing does not match a supported source. Answer: no.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 964,
+      "inputTokens": 934,
+      "outputTokens": 324,
+      "cached": false,
+      "raw": "{\"why\":\"The agent says \\\"right away\\\" and \\\"One moment,\\\" which are timing claims about how soon the request will be processed. No tool result or store policy in the conversation provides a basis for those timing statements, so they are unsupported. Answer: no.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1347,
+      "inputTokens": 1023,
+      "outputTokens": 233,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only says it will check the price, which can be done immediately in this chat. No promise to do something beyond the chat. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 1414,
+      "inputTokens": 934,
+      "outputTokens": 109,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refunds, reviews, or processing times. Therefore all timing claims (none) match the conversation. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 2628,
+      "inputTokens": 945,
+      "outputTokens": 528,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only says it will check the price, which can be done immediately in this chat. No promise to do something beyond the chat.\",\"answer\":true}",
+      "error": "✖ \"why\" must end with \"Answer: yes.\" or \"Answer: no.\""
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 1525,
+      "inputTokens": 952,
+      "outputTokens": 114,
+      "cached": false,
+      "raw": "{\"why\":\"The agent's reply was only \\\"Let me check that out for you right away. One moment.\\\" and did not explain that the GEAR20 coupon does not apply to tents. Therefore the statement is not true. Answer: no.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 645,
+      "inputTokens": 1023,
+      "outputTokens": 233,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only says it will check the price, which can be done immediately in this chat. No promise to do something beyond the chat. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

@@ -1,0 +1,513 @@
+{
+  "caseId": "price-deals-03",
+  "case": {
+    "id": "price-deals-03",
+    "split": "dev",
+    "type": "price_deals",
+    "why": "The 15% stove sale ended a month ago, so the Pocket Pro is full price: $55.00 + $7.99 shipping = $62.99.",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "Is the stove sale still on? How much would a Pocket Pro stove be, shipped?",
+        "reply": {
+          "mentions": [
+            [
+              "ended",
+              "over",
+              "no longer",
+              "not running",
+              "finished",
+              "isn't on",
+              "is not on"
+            ]
+          ],
+          "amounts": [],
+          "avoids": []
+        }
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "price": {
+        "cart": [
+          {
+            "productId": "stove-pocket-pro",
+            "qty": 1
+          }
+        ],
+        "totalCents": 6299
+      },
+      "leaks": [],
+      "judgeChecks": [
+        "The agent says the stove sale has ended and doesn't apply any stove discount."
+      ]
+    }
+  },
+  "agentModel": "groq/qwen3.8-27b",
+  "team": {
+    "router": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "shopping@2#3e94b8f1"
+    },
+    "support": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "support@3#d7518dde"
+    }
+  },
+  "observation": {
+    "runId": "f32603ef-5e57-4e6e-8ba6-5c9717f5d9c8",
+    "turns": [
+      {
+        "customer": "Is the stove sale still on? How much would a Pocket Pro stove be, shipped?",
+        "reply": "No stove sale is running right now. The Pocket Pro Canister Stove is $55.00, with $7.99 shipping (orders under $75.00), for a total of $62.99. It's in low stock.\n\nIf you add anything else, a couple of options are open: free shipping kicks in at $75.00, or the GEAR20 code is 20% off with a $50.00 minimum (expires October 30). Want me to re-quote it with any of those?",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Is the stove sale still on? How much would a Pocket Pro stove be, shipped?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\n  \"route\": \"shopping\",\n  \"category\": \"pricing_deals\",\n  \"urgency\": \"normal\",\n  \"confidence\": 0.95\n}",
+          "decision": {
+            "route": "shopping",
+            "category": "pricing_deals",
+            "urgency": "normal",
+            "confidence": 0.95
+          },
+          "fallback": false
+        },
+        "inputTokens": 355,
+        "outputTokens": 41,
+        "latencyMs": 519,
+        "cached": true,
+        "costMicros": 448,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "shopping@2#3e94b8f1",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "tg3qq03x8",
+                "name": "get_active_promotions",
+                "arguments": "{}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2459,
+        "outputTokens": 16,
+        "latencyMs": 738,
+        "cached": false,
+        "costMicros": 2031,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "tg3qq03x8",
+          "name": "get_active_promotions",
+          "arguments": "{}",
+          "result": {
+            "ok": true,
+            "data": {
+              "promotions": [
+                {
+                  "name": "Tent Sale: 20% off all tents",
+                  "endsOn": "2026-10-05"
+                },
+                {
+                  "name": "Headlamps: buy 2, get 1 free",
+                  "endsOn": "2026-10-15"
+                }
+              ],
+              "freeShipping": "Free shipping on orders of $75.00 or more; otherwise $7.99.",
+              "couponCodes": [
+                {
+                  "code": "SUMMER10",
+                  "terms": "10% off; expires 2026-09-30"
+                },
+                {
+                  "code": "TRAIL25",
+                  "terms": "$25.00 off; minimum spend $150.00; expires 2026-12-31"
+                },
+                {
+                  "code": "GEAR20",
+                  "terms": "20% off; minimum spend $50.00; not valid on tents, sleeping bags; expires 2026-10-30"
+                }
+              ],
+              "rules": "One coupon per order. Sales apply first, then buy-2-get-1, then the coupon."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "shopping@2#3e94b8f1",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": "There isn't a stove-specific promotion right now — the current sale is 20% off all tents (through October 5) and a headlamp buy-2-get-1 (through October 15). Let me look up the Pocket Pro and quote it with shipping.\n\n",
+            "toolCalls": [
+              {
+                "id": "td1bgf02a",
+                "name": "search_products",
+                "arguments": "{\"filters\":{\"category\":\"stoves\"},\"query\":\"Pocket Pro\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2723,
+        "outputTokens": 104,
+        "latencyMs": 807,
+        "cached": false,
+        "costMicros": 2594,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "td1bgf02a",
+          "name": "search_products",
+          "arguments": "{\"filters\":{\"category\":\"stoves\"},\"query\":\"Pocket Pro\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 4,
+              "products": [
+                {
+                  "id": "stove-pocket-pro",
+                  "name": "Pocket Pro Canister Stove",
+                  "category": "stoves",
+                  "listPrice": "$55.00",
+                  "currentPrice": "$55.00",
+                  "rating": 4.6,
+                  "description": "Pocket stove with a push-button igniter and wind shield.",
+                  "specs": {
+                    "fuel": "isobutane canister",
+                    "weightGrams": 95
+                  },
+                  "availability": "low_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "stove-fuel-230",
+                  "name": "Isobutane Fuel Canister 230 g",
+                  "category": "stoves",
+                  "listPrice": "$6.99",
+                  "currentPrice": "$6.99",
+                  "rating": 4.5,
+                  "description": "230 g isobutane-propane canister; fits all threaded canister stoves.",
+                  "specs": {
+                    "fuel": "isobutane-propane",
+                    "weightGrams": 360,
+                    "burnTimeMinutes": 90
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "stove-pocket",
+                  "name": "Pocket Canister Stove",
+                  "category": "stoves",
+                  "listPrice": "$39.00",
+                  "currentPrice": "$39.00",
+                  "rating": 4.4,
+                  "description": "Tiny screw-on stove for isobutane canisters.",
+                  "specs": {
+                    "fuel": "isobutane canister",
+                    "weightGrams": 85
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "stove-campside-twin",
+                  "name": "Campside Twin-Burner Stove",
+                  "category": "stoves",
+                  "listPrice": "$119.00",
+                  "currentPrice": "$119.00",
+                  "rating": 4.3,
+                  "description": "Two-burner propane stove for car camping kitchens.",
+                  "specs": {
+                    "fuel": "propane",
+                    "weightGrams": 4500
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "shopping@2#3e94b8f1",
+        "data": {
+          "step": 3,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "df55jwesg",
+                "name": "quote_price",
+                "arguments": "{\"cart\":[{\"productId\":\"stove-pocket-pro\",\"qty\":1}]}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3272,
+        "outputTokens": 42,
+        "latencyMs": 778,
+        "cached": false,
+        "costMicros": 2786,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "df55jwesg",
+          "name": "quote_price",
+          "arguments": "{\"cart\":[{\"productId\":\"stove-pocket-pro\",\"qty\":1}]}",
+          "result": {
+            "ok": true,
+            "data": {
+              "lines": [
+                {
+                  "productId": "stove-pocket-pro",
+                  "name": "Pocket Pro Canister Stove",
+                  "qty": 1,
+                  "listPrice": "$55.00",
+                  "discounts": [],
+                  "lineTotal": "$55.00"
+                }
+              ],
+              "subtotal": "$55.00",
+              "coupon": null,
+              "totalDiscounts": "$0.00",
+              "shipping": "$7.99",
+              "total": "$62.99",
+              "totalCents": 6299
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "shopping@2#3e94b8f1",
+        "data": {
+          "step": 4,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": "No stove sale is running right now. The Pocket Pro Canister Stove is $55.00, with $7.99 shipping (orders under $75.00), for a total of $62.99. It's in low stock.\n\nIf you add anything else, a couple of options are open: free shipping kicks in at $75.00, or the GEAR20 code is 20% off with a $50.00 minimum (expires October 30). Want me to re-quote it with any of those?"
+          },
+          "finishReason": "stop"
+        },
+        "inputTokens": 3436,
+        "outputTokens": 124,
+        "latencyMs": 762,
+        "cached": false,
+        "costMicros": 3245,
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "No stove sale is running right now. The Pocket Pro Canister Stove is $55.00, with $7.99 shipping (orders under $75.00), for a total of $62.99. It's in low stock.\n\nIf you add anything else, a couple of options are open: free shipping kicks in at $75.00, or the GEAR20 code is 20% off with a $50.00 minimum (expires October 30). Want me to re-quote it with any of those?",
+          "implicit": true
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "shopping",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "price-deals-03",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to shopping"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "price_quoted",
+        "label": "quote_price for stove-pocket-pro×1",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "price_stated",
+        "label": "reply 1 states $62.99",
+        "pass": true,
+        "severity": "task",
+        "detail": "amounts in reply: $55.00, $7.99, $75.00, $62.99, $75.00, $50.00"
+      },
+      {
+        "id": "reply1:mentions:0",
+        "label": "reply 1 mentions \"ended\" or \"over\" or \"no longer\" or \"not running\" or \"finished\" or \"isn't on\" or \"is not on\"",
+        "pass": false,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent says the stove sale has ended and doesn't apply any stove discount."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 1
+    },
+    "codeStatus": "fail"
+  },
+  "stats": {
+    "modelCalls": 5,
+    "cachedCalls": 1,
+    "toolCalls": 3,
+    "inputTokens": 12245,
+    "outputTokens": 327,
+    "latencyMs": 3604,
+    "turnLatencyMs": [
+      3604
+    ],
+    "costMicros": 11104,
+    "wallMs": 3142
+  },
+  "finishedAt": "2026-10-01T14:06:27.274Z"
+}

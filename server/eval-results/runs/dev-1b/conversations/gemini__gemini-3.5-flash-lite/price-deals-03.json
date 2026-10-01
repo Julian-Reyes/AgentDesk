@@ -1,0 +1,636 @@
+{
+  "caseId": "price-deals-03",
+  "case": {
+    "id": "price-deals-03",
+    "split": "dev",
+    "type": "price_deals",
+    "why": "The 15% stove sale ended a month ago, so the Pocket Pro is full price: $55.00 + $7.99 shipping = $62.99.",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "Is the stove sale still on? How much would a Pocket Pro stove be, shipped?",
+        "reply": {
+          "mentions": [
+            [
+              "ended",
+              "over",
+              "no longer",
+              "not running",
+              "finished",
+              "isn't on",
+              "is not on"
+            ]
+          ],
+          "amounts": [],
+          "avoids": []
+        }
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "price": {
+        "cart": [
+          {
+            "productId": "stove-pocket-pro",
+            "qty": 1
+          }
+        ],
+        "totalCents": 6299
+      },
+      "leaks": [],
+      "judgeChecks": [
+        "The agent says the stove sale has ended and doesn't apply any stove discount."
+      ]
+    }
+  },
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "team": {
+    "router": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "shopping@1#a30c8613"
+    },
+    "support": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "support@2#cca33593"
+    }
+  },
+  "observation": {
+    "runId": "29c06f05-09ae-4763-9c24-3596b86244f6",
+    "turns": [
+      {
+        "customer": "Is the stove sale still on? How much would a Pocket Pro stove be, shipped?",
+        "reply": "There is currently no active sale on stoves (our active promotions are a tent sale and headlamps buy-2-get-1 free). \n\nThe Pocket Pro Canister Stove is $55.00. With shipping ($7.99), the total comes to $62.99. (We offer free shipping on orders of $75.00 or more if you'd like to add anything else!)",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Is the stove sale still on? How much would a Pocket Pro stove be, shipped?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"shopping\", \"category\": \"pricing_deals\", \"urgency\": \"normal\", \"confidence\": 1.0}",
+          "decision": {
+            "route": "shopping",
+            "category": "pricing_deals",
+            "urgency": "normal",
+            "confidence": 1
+          },
+          "fallback": false
+        },
+        "inputTokens": 350,
+        "outputTokens": 29,
+        "latencyMs": 804,
+        "cached": true,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@1#a30c8613",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_44883",
+                "name": "get_active_promotions",
+                "arguments": "{}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0T7/hiYvjuUQvL0NeDcMjkZC1peuhFVl0keKBniLVfTCGilmHNPfOC0Dv4f79VRJQkmYPYXrj4XoGfkF+q9TuydKEMWpdBqs2dqDhgZkFzSOqjLZe7/ySwJsM="
+                    }
+                  }
+                }
+              },
+              {
+                "id": "call_44884",
+                "name": "search_products",
+                "arguments": "{\"query\":\"Pocket Pro\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1632,
+        "outputTokens": 30,
+        "latencyMs": 762,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_44883",
+          "name": "get_active_promotions",
+          "arguments": "{}",
+          "result": {
+            "ok": true,
+            "data": {
+              "promotions": [
+                {
+                  "name": "Tent Sale: 20% off all tents",
+                  "endsOn": "2026-10-05"
+                },
+                {
+                  "name": "Headlamps: buy 2, get 1 free",
+                  "endsOn": "2026-10-15"
+                }
+              ],
+              "freeShipping": "Free shipping on orders of $75.00 or more; otherwise $7.99.",
+              "couponCodes": [
+                {
+                  "code": "SUMMER10",
+                  "terms": "10% off; expires 2026-09-30"
+                },
+                {
+                  "code": "TRAIL25",
+                  "terms": "$25.00 off; minimum spend $150.00; expires 2026-12-31"
+                },
+                {
+                  "code": "GEAR20",
+                  "terms": "20% off; minimum spend $50.00; not valid on tents, sleeping bags; expires 2026-10-30"
+                }
+              ],
+              "rules": "One coupon per order. Sales apply first, then buy-2-get-1, then the coupon."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_44884",
+          "name": "search_products",
+          "arguments": "{\"query\":\"Pocket Pro\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 14,
+              "products": [
+                {
+                  "id": "stove-pocket-pro",
+                  "name": "Pocket Pro Canister Stove",
+                  "category": "stoves",
+                  "listPrice": "$55.00",
+                  "currentPrice": "$55.00",
+                  "rating": 4.6,
+                  "description": "Pocket stove with a push-button igniter and wind shield.",
+                  "specs": {
+                    "fuel": "isobutane canister",
+                    "weightGrams": 95
+                  },
+                  "availability": "low_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "jacket-tundra-parka",
+                  "name": "Tundra Insulated Parka",
+                  "category": "jackets",
+                  "listPrice": "$329.00",
+                  "currentPrice": "$329.00",
+                  "rating": 4.8,
+                  "description": "Waterproof insulated parka for deep winter.",
+                  "specs": {
+                    "material": "down + waterproof shell",
+                    "waterproof": true,
+                    "tempRatingC": -25,
+                    "weightGrams": 1100,
+                    "waterproofRatingMm": 15000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "jacket-squall-pro",
+                  "name": "Squall Pro Rain Jacket",
+                  "category": "jackets",
+                  "listPrice": "$229.00",
+                  "currentPrice": "$229.00",
+                  "rating": 4.7,
+                  "description": "3-layer storm shell for mountain weather.",
+                  "specs": {
+                    "material": "3-layer nylon",
+                    "waterproof": true,
+                    "weightGrams": 420,
+                    "waterproofRatingMm": 20000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "boot-ridgeline-mid",
+                  "name": "Ridgeline Mid Hiking Boot",
+                  "category": "boots",
+                  "listPrice": "$179.00",
+                  "currentPrice": "$179.00",
+                  "rating": 4.5,
+                  "description": "Waterproof mid-cut hiking boot with a membrane liner.",
+                  "specs": {
+                    "material": "suede and mesh",
+                    "waterproof": true,
+                    "weightGrams": 1200
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "stove-fuel-230",
+                  "name": "Isobutane Fuel Canister 230 g",
+                  "category": "stoves",
+                  "listPrice": "$6.99",
+                  "currentPrice": "$6.99",
+                  "rating": 4.5,
+                  "description": "230 g isobutane-propane canister; fits all threaded canister stoves.",
+                  "specs": {
+                    "fuel": "isobutane-propane",
+                    "weightGrams": 360,
+                    "burnTimeMinutes": 90
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "bag-sprout-kids",
+                  "name": "Sprout 5°C Kids Sleeping Bag",
+                  "category": "sleeping_bags",
+                  "listPrice": "$49.00",
+                  "currentPrice": "$49.00",
+                  "rating": 4.4,
+                  "description": "Kid-sized synthetic bag for children up to 150 cm tall.",
+                  "specs": {
+                    "material": "synthetic fill",
+                    "tempRatingC": 5,
+                    "weightGrams": 900
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "boot-ledge-approach",
+                  "name": "Ledge Approach Shoe",
+                  "category": "boots",
+                  "listPrice": "$149.00",
+                  "currentPrice": "$149.00",
+                  "rating": 4.4,
+                  "description": "Sticky-rubber approach shoe for scrambling.",
+                  "specs": {
+                    "material": "suede",
+                    "waterproof": false,
+                    "weightGrams": 800
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "boot-ridgeline-low",
+                  "name": "Ridgeline Low Hiking Shoe",
+                  "category": "boots",
+                  "listPrice": "$139.00",
+                  "currentPrice": "$139.00",
+                  "rating": 4.4,
+                  "description": "Low-cut waterproof hiking shoe for day hikes.",
+                  "specs": {
+                    "material": "suede and mesh",
+                    "waterproof": true,
+                    "weightGrams": 900
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "pack-featherline-45",
+                  "name": "Featherline 45 Ultralight Pack",
+                  "category": "backpacks",
+                  "listPrice": "$239.00",
+                  "currentPrice": "$239.00",
+                  "rating": 4.4,
+                  "description": "Frameless ultralight pack made from waterproof laminate fabric.",
+                  "specs": {
+                    "material": "waterproof laminate",
+                    "waterproof": true,
+                    "weightGrams": 800,
+                    "volumeLiters": 45
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "pack-swift-30",
+                  "name": "Swift 30 Daypack",
+                  "category": "backpacks",
+                  "listPrice": "$119.00",
+                  "currentPrice": "$119.00",
+                  "rating": 4.4,
+                  "description": "Day-hike pack with hip belt pockets and a rain cover.",
+                  "specs": {
+                    "material": "100D nylon",
+                    "waterproof": false,
+                    "weightGrams": 900,
+                    "volumeLiters": 30
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@1#a30c8613",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_225804",
+                "name": "quote_price",
+                "arguments": "{\"cart\":[{\"productId\":\"stove-pocket-pro\",\"qty\":1}]}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0T8rfcwKcvm+uWppM88umf9c3OBVybadShqWAymj8DbGrtjHemPwajotsmFc44WvlkVDN9qD2c8Q67zEUWbJ6vQcEt07vwKQ6WMuNBaAIWyJIpWqpv8HAccHA="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3008,
+        "outputTokens": 27,
+        "latencyMs": 777,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_225804",
+          "name": "quote_price",
+          "arguments": "{\"cart\":[{\"productId\":\"stove-pocket-pro\",\"qty\":1}]}",
+          "result": {
+            "ok": true,
+            "data": {
+              "lines": [
+                {
+                  "productId": "stove-pocket-pro",
+                  "name": "Pocket Pro Canister Stove",
+                  "qty": 1,
+                  "listPrice": "$55.00",
+                  "discounts": [],
+                  "lineTotal": "$55.00"
+                }
+              ],
+              "subtotal": "$55.00",
+              "coupon": null,
+              "totalDiscounts": "$0.00",
+              "shipping": "$7.99",
+              "total": "$62.99",
+              "totalCents": 6299
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@1#a30c8613",
+        "data": {
+          "step": 3,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_361163",
+                "name": "reply",
+                "arguments": "{\"message\":\"There is currently no active sale on stoves (our active promotions are a tent sale and headlamps buy-2-get-1 free). \\n\\nThe Pocket Pro Canister Stove is $55.00. With shipping ($7.99), the total comes to $62.99. (We offer free shipping on orders of $75.00 or more if you'd like to add anything else!)\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TKlvf9GEx06D5ndrOEf+5mmktmL4UsfpgYSHvcgnv0LXqQLYfJPYVIG72Fzt5kj42OrZrguAtqP0fgtMcqwsSO6ukNRRGQoRh+fAxjjj993QBzHG8nvX/6nI="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3152,
+        "outputTokens": 102,
+        "latencyMs": 1035,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_361163",
+          "name": "reply",
+          "arguments": "{\"message\":\"There is currently no active sale on stoves (our active promotions are a tent sale and headlamps buy-2-get-1 free). \\n\\nThe Pocket Pro Canister Stove is $55.00. With shipping ($7.99), the total comes to $62.99. (We offer free shipping on orders of $75.00 or more if you'd like to add anything else!)\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "There is currently no active sale on stoves (our active promotions are a tent sale and headlamps buy-2-get-1 free). \n\nThe Pocket Pro Canister Stove is $55.00. With shipping ($7.99), the total comes to $62.99. (We offer free shipping on orders of $75.00 or more if you'd like to add anything else!)"
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "There is currently no active sale on stoves (our active promotions are a tent sale and headlamps buy-2-get-1 free). \n\nThe Pocket Pro Canister Stove is $55.00. With shipping ($7.99), the total comes to $62.99. (We offer free shipping on orders of $75.00 or more if you'd like to add anything else!)"
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "shopping",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "price-deals-03",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to shopping"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "price_quoted",
+        "label": "quote_price for stove-pocket-pro×1",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "price_stated",
+        "label": "reply 1 states $62.99",
+        "pass": true,
+        "severity": "task",
+        "detail": "amounts in reply: $55.00, $7.99, $62.99, $75.00"
+      },
+      {
+        "id": "reply1:mentions:0",
+        "label": "reply 1 mentions \"ended\" or \"over\" or \"no longer\" or \"not running\" or \"finished\" or \"isn't on\" or \"is not on\"",
+        "pass": false,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent says the stove sale has ended and doesn't apply any stove discount."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 1
+    },
+    "codeStatus": "fail"
+  },
+  "stats": {
+    "modelCalls": 4,
+    "cachedCalls": 1,
+    "toolCalls": 3,
+    "inputTokens": 8142,
+    "outputTokens": 188,
+    "latencyMs": 3378,
+    "turnLatencyMs": [
+      3378
+    ],
+    "costMicros": 0,
+    "wallMs": 2627
+  },
+  "finishedAt": "2026-10-01T14:12:05.884Z"
+}
