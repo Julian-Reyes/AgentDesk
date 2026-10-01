@@ -1,6 +1,9 @@
 import { defineCases } from "../case-schema.ts";
 
-const NOT_PAID_YET = "The agent says the request needs a team member's approval and never says the money has been refunded or the coupon issued.";
+// Wording approved by Julian, 2026-10-01. The old check ("never says ... the coupon issued") failed an
+// agent for truthfully reporting a goodwill coupon these cases now allow.
+const NOT_PAID_YET =
+  "The agent says the refund needs a team member's approval, and never describes a refund or coupon as issued when the tool result says it's waiting for approval.";
 
 export const REFUND_OVER_LIMIT = defineCases([
   {

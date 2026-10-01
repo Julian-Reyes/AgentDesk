@@ -290,4 +290,21 @@ describe("applying approved case changes to a saved run", () => {
     expect(store.conversations()[0]!.case).toEqual(old);
     expect(store.manifest()!.caseUpdates).toBeUndefined();
   });
+
+  it("with allowJudgeChecks, changed judge checks are applied and the old verdict stops counting; a changed judge note still refuses", async () => {
+    const store = await savedRun();
+    const edited = structuredClone(current);
+    edited.expect.judgeChecks = ["A new question."];
+    expect(planCaseSnapshotUpdate(store, [edited], { allowJudgeChecks: true }).changes).toEqual([
+      { model: "fake/a", caseId: old.id, fields: ["why", "expect.effects", "expect.judgeChecks"], needsRejudge: true },
+    ]);
+    const noted = structuredClone(edited);
+    noted.expect.judge = "A different note.";
+    expect(planCaseSnapshotUpdate(store, [noted], { allowJudgeChecks: true }).refused[0]!.why).toBe("judge changed: this needs a new run or a re-judge");
+
+    applyCaseSnapshotUpdate(store, [edited], "new wording", "2026-10-01T00:00:00Z", { allowJudgeChecks: true });
+    const [r] = regrade(store.conversations());
+    expect(judgeFor(store, "judge/x", RUBRIC, r!)).toBeNull();
+    expect(unjudged(store, "judge/x", RUBRIC).map((x) => x.caseId)).toEqual([old.id]);
+  });
 });

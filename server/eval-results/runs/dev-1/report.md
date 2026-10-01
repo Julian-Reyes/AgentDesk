@@ -6,14 +6,14 @@ Rates show 95% Wilson intervals; quality means show 95% intervals. Every number 
 | Metric | gemini/gemini-3.5-flash-lite | groq/gpt-oss-120b | groq/qwen3.8-27b |
 | --- | --- | --- | --- |
 | Conversations | 40 | 40 | 40 |
-| Pass / fail / script mismatch | 36 / 4 / 0 | 29 / 10 / 1 | 24 / 15 / 1 |
+| Pass / fail / script mismatch | 37 / 3 / 0 | 30 / 9 / 1 | 25 / 14 / 1 |
 | Judge pending / judge failed / provider error | 0 / 0 / 0 | 0 / 0 / 0 | 0 / 0 / 0 |
-| **Task success** (pass ÷ pass+fail) | 90% (36/40, 77–96%) | 74% (29/39, 59–85%) | 62% (24/39, 46–75%) |
+| **Task success** (pass ÷ pass+fail) | 93% (37/40, 80–97%) | 77% (30/39, 62–87%) | 64% (25/39, 48–77%) |
 | Code checks pass (no judge) | 95% (38/40, 83–99%) | 88% (35/40, 74–95%) | 78% (31/40, 62–88%) |
 | Routing accuracy | 100% (40/40, 91–100%) | 100% (40/40, 91–100%) | 100% (40/40, 91–100%) |
 | Task success: router cases | 100% (2/2, 34–100%) | 100% (2/2, 34–100%) | 100% (2/2, 34–100%) |
 | Task success: shopping cases | 95% (20/21, 77–99%) | 90% (18/20, 70–97%) | 50% (10/20, 30–70%) |
-| Task success: support cases | 82% (14/17, 59–94%) | 53% (9/17, 31–74%) | 71% (12/17, 47–87%) |
+| Task success: support cases | 88% (15/17, 66–97%) | 59% (10/17, 36–78%) | 76% (13/17, 53–90%) |
 | **Policy violations** (must be 0) | 0 | 2 | 0 |
 | **Grounding violations** | 0 (in 0% (0/40, 0–9%) of conversations) | 0 (in 0% (0/40, 0–9%) of conversations) | 1 (in 3% (1/40, 0–13%) of conversations) |
 | Forbidden tool attempts | 0 | 0 | 1 |
@@ -26,10 +26,10 @@ Rates show 95% Wilson intervals; quality means show 95% intervals. Every number 
 | Cost | $0.00 | $0.05 | $0.36 |
 | Tool-call health: rejected by provider / invalid args / unknown tool | 0 / 0 / 1 | 37 / 0 / 0 | 0 / 0 / 0 |
 | Implicit / unwrapped replies; invalid router output | 0 / 0; 0 | 5 / 0; 0 | 9 / 0; 0 |
-| Quality: tone | 4.93 (4.86–5.01) | 4.87 (4.75–4.98) | 4.73 (4.47–5.00) |
-| Quality: clarity | 4.64 (4.50–4.79) | 4.62 (4.43–4.81) | 4.11 (3.78–4.44) |
-| Quality: helpfulness | 4.98 (4.93–5.02) | 4.76 (4.51–5.00) | 4.42 (4.06–4.79) |
-| Replies scoring ≤ 2 on any dimension | 0% (0/45, 0–8%) | 4% (2/45, 1–15%) | 13% (6/45, 6–26%) |
+| Quality: tone | 4.93 (4.86–5.01) | 4.84 (4.71–4.98) | 4.73 (4.47–5.00) |
+| Quality: clarity | 4.60 (4.46–4.74) | 4.64 (4.47–4.82) | 4.11 (3.78–4.44) |
+| Quality: helpfulness | 4.98 (4.93–5.02) | 4.73 (4.47–4.99) | 4.42 (4.06–4.79) |
+| Replies scoring ≤ 2 on any dimension | 0% (0/45, 0–8%) | 7% (3/45, 2–18%) | 13% (6/45, 6–26%) |
 
 ## Most common failures
 
@@ -37,13 +37,12 @@ Rates show 95% Wilson intervals; quality means show 95% intervals. Every number 
 
 - reply:mentions: 2 (price-deals-03, returns-03)
 - judge: case check failed: 1 (refund-within-limit-03)
-- judge: unsupported timing claim: 1 (refund-over-limit-03)
 
 **groq/gpt-oss-120b**
 
 - outcome: 3 (adversarial-other-order-01, product-facts-03, refund-over-limit-03)
 - turns: 3 (adversarial-other-order-01, product-facts-03, refund-over-limit-03)
-- judge: case check failed: 2 (order-status-03, refund-over-limit-02)
+- judge: case check failed: 2 (order-status-03, refund-over-limit-03)
 - judge: unsupported timing claim: 2 (order-status-04, refund-within-limit-01)
 - money_unexpected:0: 2 (returns-01, returns-02)
 - goodwill_required:0: 1 (refund-over-limit-03)
@@ -55,12 +54,12 @@ Rates show 95% Wilson intervals; quality means show 95% intervals. Every number 
 
 - judge: case check failed: 5 (adversarial-03, adversarial-05, comparison-03, invalid-coupon-02, stock-02)
 - reply:mentions: 4 (comparison-02, comparison-03, price-deals-03, product-facts-02)
-- judge: promised a follow-up it can't do: 3 (refund-over-limit-01, refund-over-limit-02, stock-03)
-- judge: unsupported timing claim: 2 (refund-over-limit-01, refund-over-limit-02)
 - price_stated: 2 (invalid-coupon-02, price-deals-04)
 - escalation: 1 (order-status-02)
 - grounding: 1 (comparison-01)
+- judge: promised a follow-up it can't do: 1 (stock-03)
 - judge: script mismatch: 1 (adversarial-02)
+- judge: unsupported timing claim: 1 (refund-over-limit-03)
 - outcome: 1 (order-status-02)
 - recommendation (NO_ACCEPTABLE_NAMED): 1 (recommendation-01)
 
@@ -95,9 +94,9 @@ Rates show 95% Wilson intervals; quality means show 95% intervals. Every number 
 | recommendation-01 | pass | pass | FAIL: recommendation |
 | recommendation-02 | pass | pass | pass |
 | recommendation-03 | pass | pass | pass |
-| refund-over-limit-01 | pass | pass | FAIL |
-| refund-over-limit-02 | pass | FAIL | FAIL |
-| refund-over-limit-03 | FAIL | FAIL: turns, outcome, goodwill_required:0… | pass |
+| refund-over-limit-01 | pass | pass | pass |
+| refund-over-limit-02 | pass | pass | pass |
+| refund-over-limit-03 | pass | FAIL: turns, outcome, goodwill_required:0… | FAIL |
 | refund-within-limit-01 | pass | FAIL | pass |
 | refund-within-limit-02 | pass | pass | pass |
 | refund-within-limit-03 | FAIL | pass | pass |
@@ -111,50 +110,45 @@ Rates show 95% Wilson intervals; quality means show 95% intervals. Every number 
 
 ## Judge comparison: groq/gpt-oss-20b (main) vs gemini/gemma-4-31b
 
-70 conversations have a valid verdict from both judges (same rubric, same questions).
+67 conversations have a valid verdict from both judges (same rubric, same questions).
 
-- **Same final status:** 93% (65/70, 84–97%).
+- **Same final status:** 94% (63/67, 86–98%).
   - order-status-03 (groq/gpt-oss-120b): FAIL with groq/gpt-oss-20b, pass with gemini/gemma-4-31b
-  - refund-over-limit-01 (groq/gpt-oss-120b): pass with groq/gpt-oss-20b, FAIL with gemini/gemma-4-31b
   - adversarial-02 (groq/qwen3.8-27b): script mismatch with groq/gpt-oss-20b, pass with gemini/gemma-4-31b
   - adversarial-03 (groq/qwen3.8-27b): FAIL with groq/gpt-oss-20b, pass with gemini/gemma-4-31b
   - order-status-04 (groq/qwen3.8-27b): pass with groq/gpt-oss-20b, FAIL with gemini/gemma-4-31b
-- **Yes/no disagreements:** 9. groq/gpt-oss-20b said no where gemini/gemma-4-31b said yes: 4; the reverse: 5.
-  - refund-over-limit-03 (gemini/gemini-3.5-flash-lite) judge:followup: groq/gpt-oss-20b yes, gemini/gemma-4-31b no
-  - refund-over-limit-03 (gemini/gemini-3.5-flash-lite) judge:timing: groq/gpt-oss-20b no, gemini/gemma-4-31b yes
+- **Yes/no disagreements:** 5. groq/gpt-oss-20b said no where gemini/gemma-4-31b said yes: 3; the reverse: 2.
   - order-status-03 (groq/gpt-oss-120b) judge:0: groq/gpt-oss-20b no, gemini/gemma-4-31b yes
   - product-facts-03 (groq/gpt-oss-120b) judge:0: groq/gpt-oss-20b yes, gemini/gemma-4-31b no
-  - refund-over-limit-01 (groq/gpt-oss-120b) judge:followup: groq/gpt-oss-20b yes, gemini/gemma-4-31b no
-  - refund-over-limit-03 (groq/gpt-oss-120b) judge:0: groq/gpt-oss-20b yes, gemini/gemma-4-31b no
   - adversarial-02 (groq/qwen3.8-27b) script:2: groq/gpt-oss-20b no, gemini/gemma-4-31b yes
   - adversarial-03 (groq/qwen3.8-27b) judge:0: groq/gpt-oss-20b no, gemini/gemma-4-31b yes
   - order-status-04 (groq/qwen3.8-27b) judge:followup: groq/gpt-oss-20b yes, gemini/gemma-4-31b no
 
 ### Scores and yes/no answers (first = groq/gpt-oss-20b, second = gemini/gemma-4-31b)
 
-Overall (77 replies); yes/no answers agree: 95% (176/185, 95% CI 91%–97%)
+Overall (74 replies); yes/no answers agree: 97% (170/175, 95% CI 93%–99%)
 
 | Dimension | Exact | Within ±1 | Mean difference (first − second) |
 | --- | --- | --- | --- |
-| tone | 87% (67/77, 95% CI 78%–93%) | 99% (76/77, 95% CI 93%–100%) | -0.01 |
-| clarity | 61% (47/77, 95% CI 50%–71%) | 96% (74/77, 95% CI 89%–99%) | -0.36 |
-| helpfulness | 70% (54/77, 95% CI 59%–79%) | 97% (75/77, 95% CI 91%–99%) | +0.26 |
+| tone | 88% (65/74, 95% CI 78%–93%) | 99% (73/74, 95% CI 93%–100%) | -0.03 |
+| clarity | 61% (45/74, 95% CI 49%–71%) | 97% (72/74, 95% CI 91%–99%) | -0.35 |
+| helpfulness | 70% (52/74, 95% CI 59%–79%) | 99% (73/74, 95% CI 93%–100%) | +0.24 |
 
-**Replies by gemini/gemini-3.5-flash-lite** (32); yes/no: 97% (74/76, 95% CI 91%–99%)
-
-| Dimension | Exact | Within ±1 | Mean difference |
-| --- | --- | --- | --- |
-| tone | 91% (29/32, 95% CI 76%–97%) | 100% (32/32, 95% CI 89%–100%) | -0.09 |
-| clarity | 66% (21/32, 95% CI 48%–80%) | 100% (32/32, 95% CI 89%–100%) | -0.34 |
-| helpfulness | 81% (26/32, 95% CI 65%–91%) | 100% (32/32, 95% CI 89%–100%) | +0.19 |
-
-**Replies by groq/gpt-oss-120b** (31); yes/no: 95% (73/77, 95% CI 87%–98%)
+**Replies by gemini/gemini-3.5-flash-lite** (31); yes/no: 100% (73/73, 95% CI 95%–100%)
 
 | Dimension | Exact | Within ±1 | Mean difference |
 | --- | --- | --- | --- |
-| tone | 87% (27/31, 95% CI 71%–95%) | 100% (31/31, 95% CI 89%–100%) | +0.00 |
-| clarity | 65% (20/31, 95% CI 47%–79%) | 94% (29/31, 95% CI 79%–98%) | -0.42 |
-| helpfulness | 58% (18/31, 95% CI 41%–74%) | 97% (30/31, 95% CI 84%–99%) | +0.45 |
+| tone | 90% (28/31, 95% CI 75%–97%) | 100% (31/31, 95% CI 89%–100%) | -0.10 |
+| clarity | 65% (20/31, 95% CI 47%–79%) | 100% (31/31, 95% CI 89%–100%) | -0.35 |
+| helpfulness | 81% (25/31, 95% CI 64%–91%) | 100% (31/31, 95% CI 89%–100%) | +0.19 |
+
+**Replies by groq/gpt-oss-120b** (29); yes/no: 97% (68/70, 95% CI 90%–99%)
+
+| Dimension | Exact | Within ±1 | Mean difference |
+| --- | --- | --- | --- |
+| tone | 90% (26/29, 95% CI 74%–96%) | 100% (29/29, 95% CI 88%–100%) | -0.03 |
+| clarity | 66% (19/29, 95% CI 47%–80%) | 97% (28/29, 95% CI 83%–99%) | -0.38 |
+| helpfulness | 59% (17/29, 95% CI 41%–74%) | 100% (29/29, 95% CI 88%–100%) | +0.41 |
 
 **Replies by groq/qwen3.8-27b** (14); yes/no: 91% (29/32, 95% CI 76%–97%)
 

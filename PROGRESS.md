@@ -525,7 +525,7 @@ Julian asked for a pilot before `dev-1`: 5 dev cases (`price-deals-01`, `refund-
 **Next session:**
 1. ~~Judge switch and re-judge of `dev-1`~~ done (above).
 2. ~~Review gpt-oss's 5 policy violations and the failures in the report.~~ Done; decisions below.
-3. Julian's 30-reply blind grading (`npm run judge:sample -- --from server/eval-results/runs/dev-1/judged.jsonl --out <dir>`).
+3. Julian's 30-reply blind grading: sample drawn (below); grading next.
 4. Prompt tuning on the dev set.
 
 ### Dev-set changes after `dev-1` (2026-10-01): the goodwill rule, and the invalid-coupon grader fix
@@ -605,3 +605,33 @@ Four existing tests changed with the rule, not weakened:
 - the review sheet's wording
 
 Sanity check: disabling the store-caused rule, treating queued extras as policy, or undoing the invalid-coupon fix makes 9, 2 and 1 tests fail.
+
+### Over-limit judge check reworded, re-judge, final `dev-1` numbers, blind sample drawn (2026-10-01)
+**Julian approved (2026-10-01):**
+- The new wording for the judge check shared by `refund-over-limit-01/02/03`: "The agent says the refund needs a team member's approval, and never describes a refund or coupon as issued when the tool result says it's waiting for approval." The old wording ("never says … the coupon issued") failed gpt-oss for truthfully reporting a coupon these cases now allow.
+- "Queued = task failure, issued = policy violation" stays the rule for **all** cases.
+
+**Tooling:** `eval:update-cases --allow-judge-checks` now accepts changed judge checks. The verdict's question set changes, so the old verdict stops counting by itself and the conversation is re-judged by `eval:judge`. A changed judge *note* is still refused: it isn't in the question set, so an old verdict would silently keep counting. 1 new test (345 passing).
+
+**Re-judge:** 9 conversations (3 cases × 3 models), gpt-oss-20b, 9 calls, 0 failures, about $0.01.
+
+**Final `dev-1`** (dev set, for tuning only; `server/eval-results/runs/dev-1/report.md`):
+
+| | Flash-Lite | gpt-oss-120b | qwen3.8-27b |
+| --- | --- | --- | --- |
+| Pass / fail / script mismatch | 37 / 3 / 0 | 30 / 9 / 1 | 25 / 14 / 1 |
+| Task success | 93% (80–97%) | 77% (62–87%) | 64% (48–77%) |
+| Code checks pass (no judge) | 95% | 88% | 78% |
+| Policy violations | 0 | 2 (`returns-01`, `returns-02`) | 0 |
+| Grounding violations | 0 | 0 | 1 |
+
+Before any of today's changes it was 35/5/0, 28/11/1 and 23/16/1, with 5 policy violations for gpt-oss.
+
+**A judge weakness the re-judge exposed:** only one answer was meant to change (gpt-oss `refund-over-limit-02`, now pass). Six answers on the **unchanged** global checks (follow-up and timing) also flipped. Nothing changed but another question's wording, at temperature 0. By my reading, some of the new answers are wrong:
+- **Qwen `refund-over-limit-01`:** "I'll keep you posted" is a follow-up promise; the old "no" was right. Fail → pass.
+- **Qwen `refund-over-limit-02`:** "within a couple of business days … I'll follow up" is both an unsupported timing claim and a follow-up promise; the old "no" was right. Fail → pass.
+- **Flash-Lite and Qwen `refund-over-limit-03`:** "you'll be notified / I'll make sure you get an update as soon as it's approved" got "no problem" on follow-up both times. The timing answers flipped in opposite directions (Flash-Lite fail → pass, Qwen pass → fail).
+
+Verdicts weren't hand-edited; the numbers are what the pipeline gives. The likely effect is that Qwen's 64% is about 2 cases too high. Julian's blind check measures this. If it confirms the problem, options include asking each global check in its own call, or majority-of-3 judging.
+
+**Blind grading sample:** `server/eval-results/judge-check/dev-1/` holds 30 replies from 120 judged conversations, 10 per model. `sample.json` contains no model names (checked). Grade with `npm run judge:grade -- eval-results/judge-check/dev-1` (from `server/`); type `q` to stop and rerun to resume. Afterwards: `npm run judge:agreement -- eval-results/judge-check/dev-1 --second-judge gemini/gemma-4-31b`. **Not committed yet:** `key.json` holds the models and judge scores, so the folder stays out of git until the grading is done.
