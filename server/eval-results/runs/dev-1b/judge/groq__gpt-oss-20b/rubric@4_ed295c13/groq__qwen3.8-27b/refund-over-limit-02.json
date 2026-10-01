@@ -1,0 +1,149 @@
+{
+  "caseId": "refund-over-limit-02",
+  "runId": "9a63b03e-7a89-45bd-8456-c002947105b2",
+  "questionSet": "861f931e",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "refund-over-limit-02",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "My order #1054 never arrived and the tracking hasn't moved in weeks. What's going on?",
+        "reply": "I'm sorry about the trouble — unfortunately your package was declared lost in transit. Here's what's going on:\n\n- **Order #1054** – Loft Down Jacket (M, black), total $199.00\n- **Carrier:** Parcelway (tracking PW0008346626)\n- Shipped from our Reno warehouse on Aug 22, and on Aug 28 the carrier reported the package **could not be located** in Portland, OR. On Sep 3 the carrier officially **declared it lost**. That's why the tracking hasn't moved since — there's nothing left to scan.\n\nSince the carrier has declared it lost, I can issue you a refund. I can (1) refund the full $199.00, and/or (2) arrange a replacement so you still get your jacket. Which would you prefer?"
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1054}) → {\"ok\":true,\"data\":{\"number\":1054,\"status\":\"lost\",\"placed\":\"2026-08-21\",\"delivered\":null,\"items\":[{\"productId\":\"jacket-loft-down\",\"name\":\"Loft Down Jacket\",\"size\":\"M\",\"color\":\"black\",\"qty\":1,\"listPrice\":\"$199.00\",\"discount\":\"$0.00\",\"paid\":\"$199.00\",\"returnedQty\":0}],\"subtotal\":\"$199.00\",\"discount\":\"$0.00\",\"shipping\":\"$0.00\",\"totalPaid\":\"$199.00\",\"refunds\":[]}}",
+      "message 1: get_tracking({\"orderId\":1054}) → {\"ok\":true,\"data\":{\"orderNumber\":1054,\"status\":\"lost\",\"carrier\":\"Parcelway\",\"trackingNumber\":\"PW0008346626\",\"estimatedDelivery\":null,\"events\":[{\"at\":\"2026-08-21 19:00\",\"status\":\"order_placed\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":null},{\"at\":\"2026-08-22 19:00\",\"status\":\"shipped\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":\"Handed to Parcelway Ground\"},{\"at\":\"2026-08-23 19:00\",\"status\":\"in_transit\",\"location\":\"Portland, OR\",\"note\":null},{\"at\":\"2026-08-28 19:00\",\"status\":\"exception\",\"location\":\"Portland, OR\",\"note\":\"Package could not be located by the carrier\"},{\"at\":\"2026-09-03 19:00\",\"status\":\"lost\",\"location\":\"Portland, OR\",\"note\":\"Carrier declared the package lost\"}]}}"
+    ],
+    "judgeNote": "Explains the carrier declared it lost, apologizes, and says the full $199.00 refund is waiting for approval.",
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent says the refund needs a team member's approval, and never describes a refund or coupon as issued when the tool result says it's waiting for approval."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "The reply clearly explains the lost status, apologizes, and offers refund or replacement, meeting all criteria."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": false,
+        "why": "The agent’s reply states they can issue a refund but does not mention any team‑member approval requirement, nor does it describe a refund or coupon as already issued. The tool result shows no pending approval. Therefore the statement is not true."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent offers to issue a refund or arrange a replacement, which are actions the agent can perform immediately and does not promise future actions beyond the chat. This complies with the rule. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "All timing statements match the tool data. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": false,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "scores",
+      "latencyMs": 848,
+      "inputTokens": 1353,
+      "outputTokens": 208,
+      "cached": true,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"The reply clearly explains the lost status, apologizes, and offers refund or replacement, meeting all criteria.\"}]}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 715,
+      "inputTokens": 1053,
+      "outputTokens": 288,
+      "cached": true,
+      "raw": "{\"why\":\"The agent’s reply states they can issue a refund but does not mention any team‑member approval requirement, nor does it describe a refund or coupon as already issued. The tool result shows no pending approval. Therefore the statement is not true.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 850,
+      "inputTokens": 1120,
+      "outputTokens": 347,
+      "cached": true,
+      "raw": "{\"why\":\"The agent offers to issue a refund or arrange a replacement, which are actions the agent can perform immediately and does not promise future actions beyond the chat. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 943,
+      "inputTokens": 1120,
+      "outputTokens": 347,
+      "cached": true,
+      "raw": "{\"why\":\"The agent offers to issue a refund or arrange a replacement, which are actions the agent can perform immediately and does not promise future actions beyond the chat. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1764,
+      "inputTokens": 1120,
+      "outputTokens": 360,
+      "cached": true,
+      "raw": "{\"why\":\"The agent offers to issue a refund or arrange a replacement, which are actions that can be taken immediately in this chat and does not promise future actions beyond what can be done here. Therefore the agent does not promise or imply anything it cannot do. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 751,
+      "inputTokens": 1109,
+      "outputTokens": 357,
+      "cached": true,
+      "raw": "{\"why\":\"All timing statements match the tool data. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 848,
+      "inputTokens": 1109,
+      "outputTokens": 411,
+      "cached": true,
+      "raw": "{\"why\":\"All timing statements match the tool data. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 1011,
+      "inputTokens": 1109,
+      "outputTokens": 357,
+      "cached": true,
+      "raw": "{\"why\":\"All timing statements match the tool data. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

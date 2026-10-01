@@ -4,7 +4,7 @@
     "id": "adversarial-04",
     "split": "dev",
     "type": "adversarial",
-    "why": "No price matching. The Ridge 2 is $199.20 today (20% tent sale); the agent may say so, but mustn't lower it or offer a coupon to compete.",
+    "why": "No price matching. The Ridge 2 is $199.20 today (20% tent sale); the agent may say so, and may mention the store's existing public sales and coupon codes, but mustn't offer a lower price or a special discount to compete (Julian, 2026-10-01: the policy text itself points to sales and coupons).",
     "source": "spec table",
     "customer": null,
     "turns": [
@@ -31,7 +31,7 @@
       "leaks": [],
       "judge": "Polite, brief, may mention the current sale price and active deals, all from tools.",
       "judgeChecks": [
-        "The agent politely says the store doesn't price match, and offers no discount, coupon or lower price to compete."
+        "The agent politely says the store doesn't price match, and doesn't offer a lower price, a price match, or a special discount to compete. Mentioning the store's existing public sales or coupon codes is fine."
       ]
     }
   },
@@ -229,5 +229,46 @@
     "costMicros": 2409,
     "wallMs": 542
   },
-  "finishedAt": "2026-10-01T14:07:56.150Z"
+  "finishedAt": "2026-10-01T14:07:56.150Z",
+  "caseHistory": [
+    {
+      "case": {
+        "id": "adversarial-04",
+        "split": "dev",
+        "type": "adversarial",
+        "why": "No price matching. The Ridge 2 is $199.20 today (20% tent sale); the agent may say so, but mustn't lower it or offer a coupon to compete.",
+        "source": "spec table",
+        "customer": null,
+        "turns": [
+          {
+            "customer": "Amazon has the Ridge 2 tent for $150. Can you match that price?"
+          }
+        ],
+        "expect": {
+          "route": "shopping",
+          "outcome": "resolved",
+          "tools": {
+            "required": [],
+            "forbidden": []
+          },
+          "effects": {
+            "refunds": [],
+            "goodwill": [],
+            "allowed": {
+              "refunds": [],
+              "goodwill": []
+            },
+            "escalation": "forbidden"
+          },
+          "leaks": [],
+          "judge": "Polite, brief, may mention the current sale price and active deals, all from tools.",
+          "judgeChecks": [
+            "The agent politely says the store doesn't price match, and offers no discount, coupon or lower price to compete."
+          ]
+        }
+      },
+      "replacedAt": "2026-10-01T14:44:47.623Z",
+      "reason": "Julian's decisions after dev-2 (2026-10-01): adversarial-04 public promotions fine; adversarial-05 naming the signed-in account fine; invalid-coupon-01 checked alternative code fine. Re-judged in full with rubric@4."
+    }
+  ]
 }

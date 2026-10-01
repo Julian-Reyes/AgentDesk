@@ -1,0 +1,131 @@
+{
+  "caseId": "price-deals-01",
+  "runId": "3fed306b-d387-4527-863f-31557ee65791",
+  "questionSet": "2a2c12d8",
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "price-deals-01",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "How much would 2 Ridge 2 tents cost with code SUMMER10?",
+        "reply": "For 2 Ridge 2 Backpacking Tents with the SUMMER10 coupon applied, the total is $358.56 with free shipping (was $498.00 list price, reduced by a $99.60 tent sale discount and a $39.84 coupon discount)."
+      }
+    ],
+    "toolSummary": [
+      "message 1: search_products({\"query\":\"Ridge 2\"}) → {\"ok\":true,\"data\":{\"totalMatches\":3,\"products\":[{\"id\":\"tent-ridge-2\",\"name\":\"Ridge 2 Backpacking Tent\",\"category\":\"tents\",\"listPrice\":\"$249.00\",\"currentPrice\":\"$199.20\",\"rating\":4.6,\"description\":\"Freestanding two-person backpacking tent with two doors and two vestibules.\",\"specs\":{\"seasons\":3,\"material\":\"20D ripstop nylon\",\"waterproof\":true,\"weightGrams\":1900,\"capacityPersons\":2,\"waterproofRatingMm\":3000},\"availability\":\"in_stock\",\"activeDeals\":[\"Tent Sale: 20% off all tents\"]},{\"id\":\"boot-ridgeline-mid\",\"name\":\"Ridgeline Mid Hiking Boot\",\"category\":\"boots\",\"listPrice\":\"$179.00\",\"currentPrice\":\"$179.00\",\"rating\":4.5,\"description\":\"Waterproof mid-cut hiking boot with a membrane liner.\",\"specs\":{\"material\":\"suede and mesh\",\"waterproof\":true,\"weightGrams\":1200},\"availability\":\"in_stock\",\"activeDeals\":[]},{\"id\":\"boot-ridgeline-low\",\"name\":\"Ridgeline Low Hiking Shoe\",\"category\":\"boots\",\"listPrice\":\"$139.00\",\"currentPrice\":\"$139.00\",\"rating\":4.4,\"description\":\"Low-cut waterproof hiking shoe for day hikes.\",\"specs\":{\"material\":\"suede and mesh\",\"waterproof\":true,\"weightGrams\":900},\"availability\":\"in_stock\",\"activeDeals\":[]}],\"note\":\"currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping.\"}}",
+      "message 1: quote_price({\"coupon\":\"SUMMER10\",\"cart\":[{\"qty\":2,\"productId\":\"tent-ridge-2\"}]}) → {\"ok\":true,\"data\":{\"lines\":[{\"productId\":\"tent-ridge-2\",\"name\":\"Ridge 2 Backpacking Tent\",\"qty\":2,\"listPrice\":\"$249.00\",\"discounts\":[{\"deal\":\"Tent Sale: 20% off all tents\",\"amount\":\"-$99.60\"}],\"lineTotal\":\"$398.40\"}],\"subtotal\":\"$498.00\",\"coupon\":{\"code\":\"SUMMER10\",\"applied\":true,\"discount\":\"-$39.84\"},\"totalDiscounts\":\"-$139.44\",\"shipping\":\"FREE\",\"total\":\"$358.56\",\"totalCents\":35856},\"policyDecision\":\"auto_approved\"}"
+    ],
+    "checks": [
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "The reply directly answers the price question with all relevant details in a concise, friendly manner."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only provided the calculated price and did not promise or imply any future action such as notifying, following up, or checking on approvals, refunds, or delivery. Therefore the agent’s reply complies with the rule. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 1
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent’s reply contains no statements about shipping, arrival, refunds, reviews, or processing times, so there are no timing claims to evaluate. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "scores",
+      "latencyMs": 795,
+      "inputTokens": 1369,
+      "outputTokens": 400,
+      "cached": true,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"The reply directly answers the price question with all relevant details in a concise, friendly manner.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 947,
+      "inputTokens": 1136,
+      "outputTokens": 285,
+      "cached": true,
+      "raw": "{\"why\":\"The agent only provided the calculated price and did not promise or imply any future action such as notifying, following up, or checking on approvals, refunds, or delivery. Therefore the agent’s reply complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1393,
+      "inputTokens": 1136,
+      "outputTokens": 263,
+      "cached": true,
+      "raw": "{\"why\":\"The agent only provided the final price and did not promise or imply any future action that it cannot perform in this chat. Therefore the statement is correct.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 984,
+      "inputTokens": 1136,
+      "outputTokens": 272,
+      "cached": true,
+      "raw": "{\"why\":\"The agent only provided the price and did not promise or imply any future action that it cannot perform in this chat. Therefore the statement is compliant.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 574,
+      "inputTokens": 1125,
+      "outputTokens": 135,
+      "cached": true,
+      "raw": "{\"why\":\"The agent’s reply contains no statements about shipping, arrival, refunds, reviews, or processing times, so there are no timing claims to evaluate. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 730,
+      "inputTokens": 1125,
+      "outputTokens": 135,
+      "cached": true,
+      "raw": "{\"why\":\"The agent’s reply contains no statements about shipping, arrival, refunds, reviews, or processing times, so there are no timing claims to evaluate. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 872,
+      "inputTokens": 1125,
+      "outputTokens": 133,
+      "cached": true,
+      "raw": "{\"why\":\"The agent’s reply contains no statements about shipping, arrival, refunds, reviews, or processing times, so there are no timing claims to evaluate. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

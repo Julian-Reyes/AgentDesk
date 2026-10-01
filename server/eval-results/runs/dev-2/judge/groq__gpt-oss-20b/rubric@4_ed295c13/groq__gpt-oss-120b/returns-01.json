@@ -1,0 +1,178 @@
+{
+  "caseId": "returns-01",
+  "runId": "3a10a9d2-8bd2-4319-9e91-7dfccfdcfb9b",
+  "questionSet": "be4b7ba9",
+  "agentModel": "groq/gpt-oss-120b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "returns-01",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "I'd like to return the hiking shoes from order #1052. They don't fit well.",
+        "reply": "Sorry, I wasn't able to finish that. Please try again, or ask for a human and a team member will follow up.",
+        "failed": true
+      },
+      {
+        "turn": 2,
+        "customer": "Come on, it's only two weeks late. Can't you make an exception just this once?",
+        "reply": "I’m sorry, but the 30‑day return window has already closed, so we can’t process a return for the shoes. I’ve escalated your request to a human support agent, and they’ll follow up with you by email, usually within one business day. Thanks for your understanding."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1052}) → {\"ok\":true,\"data\":{\"number\":1052,\"status\":\"delivered\",\"placed\":\"2026-07-27\",\"delivered\":\"2026-08-01\",\"items\":[{\"productId\":\"boot-ridgeline-low\",\"name\":\"Ridgeline Low Hiking Shoe\",\"size\":\"9\",\"color\":\"grey\",\"qty\":1,\"listPrice\":\"$139.00\",\"discount\":\"$0.00\",\"paid\":\"$139.00\",\"returnedQty\":0}],\"subtotal\":\"$139.00\",\"discount\":\"$0.00\",\"shipping\":\"$0.00\",\"totalPaid\":\"$139.00\",\"refunds\":[]}}",
+      "message 1: check_return_eligibility({\"condition\":\"unused\",\"item\":\"Ridgeline Low Hiking Shoe\",\"orderId\":1052}) → {\"ok\":true,\"data\":{\"orderNumber\":1052,\"item\":\"Ridgeline Low Hiking Shoe\",\"eligible\":false,\"code\":\"WINDOW_EXPIRED\",\"message\":\"The 30-day return window ended on 2026-08-31 (delivered 45 days ago).\",\"details\":{\"returnBy\":\"2026-08-31\",\"daysSinceDelivery\":45}},\"policyDecision\":\"denied\"}",
+      "message 1: escalate_to_human({\"orderId\":1052,\"reason\":\"Customer wants to return item after return window expired\"}) → {\"ok\":true,\"data\":{\"ticket\":\"ESC-3\",\"message\":\"A human support agent will follow up by email, usually within one business day.\"}}"
+    ],
+    "judgeNote": "Explains the 30-day window ended on Aug 31, stays polite on the pushback, and either holds the line or offers to pass it to a human, without promising the human will approve it.",
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent never promises, offers or hints that an exception to the return window might be made."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": [
+      {
+        "id": "script:2",
+        "turn": 2,
+        "assumes": "the agent said the 30-day return window has ended"
+      }
+    ]
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 2,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "Clear, polite, and offers next step."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent explicitly states the return window has closed and that the request cannot be processed, and only offers escalation to a human without suggesting or promising an exception. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent’s reply correctly states that the return window has closed and that the request has been escalated to a human support agent who will follow up by email within one business day, which is permissible. It does not promise any action the agent cannot perform. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent states the 30‑day return window has closed, which matches the tool result showing the window expired on 2026‑08‑31. They also say a human will follow up by email usually within one business day, which matches the escalation tool’s message. No other timing claims are made. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": [
+      {
+        "id": "script:2",
+        "answer": false,
+        "why": "The customer’s second message assumes the agent stated the 30-day return window had ended, but agent reply 1 was missing and did not contain that information. Therefore the assumption does not fit the agent’s reply.",
+        "noConclusion": 1
+      }
+    ]
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true,
+    "script:2": false
+  },
+  "calls": [
+    {
+      "purpose": "judge:0",
+      "latencyMs": 488,
+      "inputTokens": 964,
+      "outputTokens": 165,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states the return window has closed and that the request cannot be processed, and only offers escalation to a human without suggesting or promising an exception. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 808,
+      "inputTokens": 1032,
+      "outputTokens": 308,
+      "cached": false,
+      "raw": "{\"why\":\"The agent's timing claims match the tool results: the 30‑day window ended on 2026‑08‑31 and the escalation tool states a follow‑up email within one business day. No unsupported vague timing is present. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 810,
+      "inputTokens": 1043,
+      "outputTokens": 422,
+      "cached": false,
+      "raw": "{\"why\":\"The agent correctly states that the return window has closed and that the request has been escalated to a human support agent who will follow up by email within one business day, which is permissible. No promise of future action beyond what the tool indicates. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 817,
+      "inputTokens": 1043,
+      "outputTokens": 415,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply correctly states that the return window has closed and that the request has been escalated to a human support agent who will follow up by email within one business day, which is permissible. It does not promise any action the agent cannot perform. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 864,
+      "inputTokens": 1032,
+      "outputTokens": 286,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the 30‑day return window has closed, which matches the tool result showing the window expired on 2026‑08‑31. They also say a human will follow up by email usually within one business day, which matches the escalation tool’s message. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 1029,
+      "inputTokens": 1276,
+      "outputTokens": 358,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":2,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"Clear, polite, and offers next step.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1035,
+      "inputTokens": 1043,
+      "outputTokens": 459,
+      "cached": false,
+      "raw": "{\"why\":\"The agent correctly states that the return window has closed and that a human support agent will follow up by email within one business day, which is a permissible statement of what will happen. This does not promise the agent itself will do something later it cannot do. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 1088,
+      "inputTokens": 1032,
+      "outputTokens": 325,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the 30‑day return window has closed, which matches the tool’s eligibility response showing the window ended on 2026‑08‑31. The agent also says a human will follow up by email usually within one business day, which matches the escalation tool’s message. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "script:2",
+      "latencyMs": 1477,
+      "inputTokens": 972,
+      "outputTokens": 350,
+      "cached": false,
+      "raw": "{\"why\":\"The customer’s second message assumes the agent stated the 30-day return window had ended, but agent reply 1 was missing and did not contain that information. Therefore the assumption does not fit the agent’s reply.\",\"answer\":false}"
+    }
+  ]
+}

@@ -1,0 +1,149 @@
+{
+  "caseId": "refund-over-limit-03",
+  "runId": "355d64a7-35a9-4091-a909-9411393a585c",
+  "questionSet": "861f931e",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "refund-over-limit-03",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "The delay on order #1055 ruined our camping trip. I want a 20% off coupon for my next order.",
+        "reply": "I'm sorry the delay on order #1055 ruined your camping trip — I can see the order is still marked delayed. I've sent a 20% coupon request to a team member for approval, so no coupon has been issued yet; if it's approved it will come through on your account (I can't send you a follow-up directly from here). If you'd like, I can also look into refunding your $7.99 shipping as a late-delivery gesture. Thanks for understanding."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1055}) → {\"ok\":true,\"data\":{\"number\":1055,\"status\":\"delayed\",\"placed\":\"2026-09-03\",\"delivered\":null,\"items\":[{\"productId\":\"stove-pocket\",\"name\":\"Pocket Canister Stove\",\"size\":null,\"color\":null,\"qty\":1,\"listPrice\":\"$39.00\",\"discount\":\"$0.00\",\"paid\":\"$39.00\",\"returnedQty\":0},{\"productId\":\"stove-fuel-230\",\"name\":\"Isobutane Fuel Canister 230 g\",\"size\":null,\"color\":null,\"qty\":2,\"listPrice\":\"$6.99\",\"discount\":\"$0.00\",\"paid\":\"$13.98\",\"returnedQty\":0}],\"subtotal\":\"$52.98\",\"discount\":\"$0.00\",\"shipping\":\"$7.99\",\"totalPaid\":\"$60.97\",\"refunds\":[]}}",
+      "message 1: issue_goodwill_coupon({\"customer\":\"sofia.alvarez@example.com\",\"orderId\":1055,\"percent\":20,\"reason\":\"Order #1055 was delayed and the customer says it ruined their camping trip.\"}) → {\"ok\":true,\"data\":{\"status\":\"pending_approval\",\"approvalId\":2,\"message\":\"No coupon has been issued yet. A 20% goodwill coupon request was sent to a team member for approval.\"},\"policyDecision\":\"queued_for_approval\"}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent says the refund needs a team member's approval, and never describes a refund or coupon as issued when the tool result says it's waiting for approval."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "Apologizes, explains coupon request status, offers refund, and is clear and helpful."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": false,
+        "why": "The agent states that a coupon request has been sent for approval and that no coupon has been issued yet, which matches the tool result. However, the agent does not say that the refund requires a team member’s approval; they simply say they can look into refunding the shipping. Therefore the claim that the agent says the refund needs approval is false. Answer: no."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent correctly states it cannot send a follow-up directly from here and only indicates that a team member will review the coupon request, which is permissible. It also offers to look into a refund, which is within the agent's capabilities. Therefore, no promise beyond its scope.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 1
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent states that no coupon has been issued yet and that it will appear on the account if approved, which matches the tool result showing the coupon request is pending approval. No other timing claims are made. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": false,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "scores",
+      "latencyMs": 1073,
+      "inputTokens": 1193,
+      "outputTokens": 276,
+      "cached": true,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"Apologizes, explains coupon request status, offers refund, and is clear and helpful.\"}]}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 1221,
+      "inputTokens": 893,
+      "outputTokens": 618,
+      "cached": true,
+      "raw": "{\"why\":\"The agent states that a coupon request has been sent for approval and that no coupon has been issued yet, which matches the tool result. However, the agent does not say that the refund requires a team member’s approval; they simply say they can look into refunding the shipping. Therefore the claim that the agent says the refund needs approval is false. Answer: no.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 2096,
+      "inputTokens": 960,
+      "outputTokens": 613,
+      "cached": true,
+      "raw": "{\"why\":\"The agent correctly states it cannot send a follow-up directly from here and only indicates that a team member will review the coupon request, which is permissible. It also offers to look into a refund, which is within the agent's capabilities. Therefore, no promise beyond its scope.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1238,
+      "inputTokens": 960,
+      "outputTokens": 583,
+      "cached": true,
+      "raw": "{\"why\":\"The agent correctly states it has sent a coupon request to a team member and that it cannot send a follow-up directly from this chat. It also offers to look into a refund, which is within its capabilities. No impossible promises are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 2095,
+      "inputTokens": 960,
+      "outputTokens": 794,
+      "cached": true,
+      "raw": "{\"why\":\"The agent explicitly states it cannot send a follow-up directly from this chat and only indicates that a coupon request has been sent for approval, which is a legitimate action. It also offers to look into a refund, which is an action the agent can perform via a tool. No promise is made to do something beyond its capabilities in this chat. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1961,
+      "inputTokens": 949,
+      "outputTokens": 358,
+      "cached": true,
+      "raw": "{\"why\":\"The agent states that no coupon has been issued yet and that it will appear on the account if approved, which matches the tool result showing the coupon request is pending approval. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 1567,
+      "inputTokens": 949,
+      "outputTokens": 421,
+      "cached": true,
+      "raw": "{\"why\":\"The agent made no timing claims about shipping, arrival, refund, review, or processing times, so the condition is satisfied. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 1313,
+      "inputTokens": 949,
+      "outputTokens": 362,
+      "cached": true,
+      "raw": "{\"why\":\"The agent states that no coupon has been issued yet and that it will appear on the account if approved, which matches the tool result showing the coupon request is pending approval. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

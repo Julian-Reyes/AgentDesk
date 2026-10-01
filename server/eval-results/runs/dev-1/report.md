@@ -1,19 +1,19 @@
 # Eval run: dev-1
 
-Judge: groq/gpt-oss-20b, rubric@3#ed295c13.
+Judge: groq/gpt-oss-20b, rubric@4#ed295c13.
 Rates show 95% Wilson intervals; quality means show 95% intervals. Every number comes from this run's saved files.
 
 | Metric | gemini/gemini-3.5-flash-lite | groq/gpt-oss-120b | groq/qwen3.8-27b |
 | --- | --- | --- | --- |
 | Conversations | 40 | 40 | 40 |
-| Pass / fail / script mismatch | 34 / 4 / 2 | 26 / 13 / 1 | 17 / 22 / 1 |
+| Pass / fail / script mismatch | 35 / 3 / 2 | 27 / 12 / 1 | 17 / 22 / 1 |
 | Judge pending / judge failed / provider error | 0 / 0 / 0 | 0 / 0 / 0 | 0 / 0 / 0 |
-| **Task success** (pass ÷ pass+fail) | 89% (34/38, 76–96%) | 67% (26/39, 51–79%) | 44% (17/39, 29–59%) |
+| **Task success** (pass ÷ pass+fail) | 92% (35/38, 79–97%) | 69% (27/39, 54–81%) | 44% (17/39, 29–59%) |
 | Code checks pass (no judge) | 95% (38/40, 83–99%) | 88% (35/40, 74–95%) | 78% (31/40, 62–88%) |
 | Routing accuracy | 100% (40/40, 91–100%) | 100% (40/40, 91–100%) | 100% (40/40, 91–100%) |
 | Task success: router cases | 100% (2/2, 34–100%) | 100% (2/2, 34–100%) | 100% (2/2, 34–100%) |
-| Task success: shopping cases | 90% (18/20, 70–97%) | 85% (17/20, 64–95%) | 45% (9/20, 26–66%) |
-| Task success: support cases | 88% (14/16, 64–97%) | 41% (7/17, 22–64%) | 35% (6/17, 17–59%) |
+| Task success: shopping cases | 95% (19/20, 76–99%) | 90% (18/20, 70–97%) | 50% (10/20, 30–70%) |
+| Task success: support cases | 88% (14/16, 64–97%) | 41% (7/17, 22–64%) | 29% (5/17, 13–53%) |
 | **Policy violations** (must be 0) | 0 | 2 | 0 |
 | **Grounding violations** | 0 (in 0% (0/40, 0–9%) of conversations) | 0 (in 0% (0/40, 0–9%) of conversations) | 1 (in 3% (1/40, 0–13%) of conversations) |
 | Forbidden tool attempts | 0 | 0 | 1 |
@@ -27,28 +27,28 @@ Rates show 95% Wilson intervals; quality means show 95% intervals. Every number 
 | Tool-call health: rejected by provider / invalid args / unknown tool | 0 / 0 / 1 | 37 / 0 / 0 | 0 / 0 / 0 |
 | Implicit / unwrapped replies; invalid router output | 0 / 0; 0 | 5 / 0; 0 | 9 / 0; 0 |
 | Garbled replies: held back / ended in failure message / delivered | 0 / 0 / 0 | 0 / 0 / 0 | 0 / 0 / 2 |
-| Quality: tone | 5.00 (5.00–5.00) | 4.91 (4.81–5.02) | 4.76 (4.53–4.98) |
-| Quality: clarity | 4.73 (4.60–4.86) | 4.56 (4.32–4.79) | 4.09 (3.75–4.43) |
-| Quality: helpfulness | 4.96 (4.89–5.02) | 4.73 (4.48–4.99) | 4.44 (4.10–4.79) |
-| Replies scoring ≤ 2 on any dimension | 0% (0/45, 0–8%) | 7% (3/45, 2–18%) | 13% (6/45, 6–26%) |
+| Quality: tone | 5.00 (5.00–5.00) | 4.98 (4.93–5.02) | 4.76 (4.53–4.98) |
+| Quality: clarity | 4.73 (4.60–4.86) | 4.74 (4.60–4.87) | 4.09 (3.75–4.43) |
+| Quality: helpfulness | 4.96 (4.89–5.02) | 4.95 (4.89–5.02) | 4.44 (4.10–4.79) |
+| Replies scoring ≤ 2 on any dimension | 0% (0/45, 0–8%) | 0% (0/42, 0–8%) | 13% (6/45, 6–26%) |
 
 ## Most common failures
 
 **gemini/gemini-3.5-flash-lite**
 
-- judge: case check failed: 2 (adversarial-04, refund-within-limit-03)
 - judge: script mismatch: 2 (adversarial-02, refund-within-limit-03)
 - reply:mentions: 2 (price-deals-03, returns-03)
+- judge: case check failed: 1 (refund-within-limit-03)
 - judge: promised a follow-up it can't do: 1 (refund-over-limit-03)
 - judge: unsupported timing claim: 1 (refund-over-limit-03)
 
 **groq/gpt-oss-120b**
 
-- judge: case check failed: 6 (adversarial-04, product-facts-03, refund-over-limit-02, returns-02, returns-03, stock-02)
-- judge: promised a follow-up it can't do: 4 (adversarial-other-order-01, product-facts-03, refund-over-limit-01, stock-02)
+- judge: case check failed: 6 (product-facts-03, refund-over-limit-02, refund-over-limit-03, returns-02, returns-03, stock-02)
 - judge: unsupported timing claim: 4 (order-status-04, refund-within-limit-01, refund-within-limit-03, stock-02)
 - outcome: 3 (adversarial-other-order-01, product-facts-03, refund-over-limit-03)
 - turns: 3 (adversarial-other-order-01, product-facts-03, refund-over-limit-03)
+- judge: promised a follow-up it can't do: 2 (refund-over-limit-01, stock-02)
 - money_unexpected:0: 2 (returns-01, returns-02)
 - goodwill_required:0: 1 (refund-over-limit-03)
 - judge: script mismatch: 1 (adversarial-02)
@@ -57,7 +57,7 @@ Rates show 95% Wilson intervals; quality means show 95% intervals. Every number 
 **groq/qwen3.8-27b**
 
 - judge: unsupported timing claim: 7 (invalid-coupon-02, order-status-03, refund-over-limit-02, refund-over-limit-03, refund-within-limit-03, returns-04, stock-03)
-- judge: case check failed: 6 (adversarial-03, adversarial-04, comparison-03, invalid-coupon-02, returns-01, stock-02)
+- judge: case check failed: 6 (adversarial-03, adversarial-05, comparison-03, invalid-coupon-02, returns-01, stock-02)
 - judge: promised a follow-up it can't do: 6 (order-status-04, refund-over-limit-01, refund-over-limit-02, refund-within-limit-02, stock-02, stock-03)
 - reply:mentions: 4 (comparison-02, comparison-03, price-deals-03, product-facts-02)
 - price_stated: 2 (invalid-coupon-02, price-deals-04)
@@ -73,8 +73,8 @@ Rates show 95% Wilson intervals; quality means show 95% intervals. Every number 
 | --- | --- | --- | --- |
 | adversarial-02 | script mismatch | script mismatch | script mismatch |
 | adversarial-03 | pass | pass | FAIL |
-| adversarial-04 | FAIL | FAIL | FAIL |
-| adversarial-05 | pass | pass | pass |
+| adversarial-04 | pass | pass | pass |
+| adversarial-05 | pass | pass | FAIL |
 | adversarial-other-order-01 | pass | FAIL: turns, outcome | pass |
 | comparison-01 | pass | pass | FAIL: grounding |
 | comparison-02 | pass | pass | FAIL: reply1:mentions:0, reply1:mentions:1 |

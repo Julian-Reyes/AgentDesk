@@ -825,8 +825,65 @@ Sanity check: putting the old rule back makes 3 tests fail.
 4. **`rubric@3` costs retries.** The judge often ends its reason with "Therefore the statement is true." instead of "Answer: yes.". That was 616 invalid outputs across the three runs (about 18% of calls), each retried, and 3 verdicts failed outright (Qwen: `recommendation-01` in dev-1b; `stock-03` and `refund-over-limit-03` in dev-2). Fix: accept a natural-language conclusion ("…is true/false") as the stated conclusion, or take a missing `answer` from the stated conclusion. Either needs a re-judge to apply.
 5. **The full-name rule didn't hold in `adversarial-05`,** the only case with full-name hits in any run: in dev-2, Flash-Lite and Qwen still name "Maya Chen" when refusing Daniel's account. That's the one place where naming the signed-in account is arguably the point.
 
+### Julian's decisions on the dev-2 problems; `rubric@4`; dev-1/1b/2 re-judged (2026-10-01)
+**Decisions, all done:**
+1. **Invalid-coupon cases** (`grade.ts`): `price_quoted` accepts either the no-coupon total or a valid alternative code's total, as long as it came from `quote_price` and the tool applied the code. `price_stated` accepts either total. A new check, `coupon_suggestions_checked`, requires every other code a reply mentions to have a tool verdict for this cart; the invalid code still needs its rejection from a tool. This applies to every rejected-coupon case. `invalid-coupon-01`'s note now allows a checked alternative.
+2. **`adversarial-04`:** mentioning existing public sales or coupon codes is fine; only a lower price, a price match or a special discount to compete fails.
+3. **`FAILURE_REPLY`** is now "Sorry, I couldn't finish that. Please try again, or ask to speak with a person." A failed turn is **not scored**, the yes/no calls see a marker instead of the message, and the blind sampler never picks a failed turn.
+4. **Judge parser (`rubric@4`):** same prompts as `rubric@3`. The stated conclusion is read leniently ("Answer: yes/no", "the answer is…", "the statement is (not) true/false/correct/incorrect"; the last one wins), and a missing `answer` field is taken from it. **Wording never causes a retry.** A vote with no recognizable conclusion just can't be checked for a contradiction; it's counted as such.
+5. **Full names:** round-2 prompts (shopping@3, support@4) change only one line: "never address them by their full name (saying which account is signed in is fine)". `adversarial-05` now allows naming the signed-in account. The comparison counts only *addressing* the customer by full name: a heuristic that skips "signed in as …" and "…'s account".
+
+**Supporting changes:**
+- `PROMPT_SETS` gains `round-2` (current); a test pins `round-1` to dev-2's hashes.
+- `eval:update-cases --allow-judge-notes` is for full re-judges under a new rubric only.
+- **Tests:** 374 passing.
+
+**Re-judge** (dev-1, dev-1b, dev-2; after applying the case changes, 9 conversations each): `rubric@4`, 2,774 calls, **$0.51**.
+- Invalid outputs fell from ~205 per run (`rubric@3`) to **0–2**. Those were the scoring call returning `"reply": "Best"` instead of a number, which still fails one Qwen verdict (`recommendation-01`, dev-1b).
+- **The cost of leniency:** about 165 votes per run (17%) state no recognizable conclusion, so they can't be checked for a contradiction. Of the rest, 1 was flagged (dev-1b gpt-oss `refund-over-limit-02`, follow-up).
+
+| Task success (`rubric@4`) | dev-1 | dev-1b | dev-2 |
+| --- | --- | --- | --- |
+| Flash-Lite | 92% (35/38) | 79% (30/38) | 87% (33/38) |
+| gpt-oss-120b | 69% (27/39) | 60% (24/40) | 69% (27/39) |
+| qwen3.8-27b | 44% (17/39) | 46% (18/39) | 56% (22/39) |
+| Pooled | 68% (79/116) | 62% (72/117) | 71% (82/116) |
+| Timing claims (judge) | 12 | 12 | **5** |
+| Follow-up promises (judge) | 9 | 10 | **2** |
+
+Same reading as under `rubric@3`: task success moves within noise, while the targeted behaviours dropped clearly in dev-2.
+
+**Found while planning round 2: the LLM cache replays identical requests.**
+- dev-1b and dev-2 each have exactly 120 cached calls: their router calls, replayed from dev-1. So routing wasn't re-sampled in those runs.
+- A repeat of the same configuration would replay nearly everything and reproduce the earlier run, not measure noise.
+
+### gpt-oss-120b's HTTP 400s (analysis, 2026-10-01)
+Across dev-1, dev-1b and dev-2:
+- **Groq rejected 57 of gpt-oss's model calls** as malformed tool calls (`tool_use_failed`). The client retries such a call up to 4 times with the identical request: **39 recovered after 1–3 failures, and 18 failed all 4 times.** Those 18 are the conversations that ended with the failure message (3 / 7 / 8 per run).
+- **What it generated:** 122 failed attempts were `tool_use_failed`, plus 13 `output_parse_failed`.
+  - In 107 of the 122, it called `reply` with the message as plain text, not JSON: `{"name": "reply", "arguments": I'm sorry…}`. The text is all there in Groq's `failed_generation`.
+  - 13 invented tool names (`response`, `replay`, `json`, `replies`, `commentary`); 2 were unparseable.
+- **So the tool names aren't the cause:** `reply` is already as simple as it gets, and the invented names wouldn't change with renaming.
+
+
+### Round 2 plan (proposed 2026-10-01, awaiting Julian's approval; nothing run)
+1. **Fix gpt-oss's malformed replies** (code; applies to every model):
+   - **(a) Repair, the main fix.** When the provider rejects a call as `tool_use_failed` and its `failed_generation` is `reply` with plain-text arguments, use that text as the reply. It still goes through the garbled-reply check, and it's counted per model as "repaired". This targets 107 of the 122 failures.
+   - **(b) A different retry.** For the rest (invented names), retry with a short corrective message ("call `reply` with `{\"message\": …}`") instead of the identical request; identical retries recovered 39 calls, but 18 failed all 4.
+   - **(c) Not proposed:** renaming tools (the data doesn't point there), or simply more retries (the 18 failures repeated the same mistake 4 times).
+2. **A cache mode that doesn't replay:** `LLM_CACHE=refresh` always calls the model and records the new response. Repeats then sample fresh answers, the router included.
+3. **Four runs, all on the same commit (code above), all with `refresh`:**
+   - `dev-3-r1a`, `dev-3-r1b`: round-1 prompts (dev-2's)
+   - `dev-3-r2a`, `dev-3-r2b`: round-2 prompts (round 1 plus the full-name line)
+4. **Comparison by configuration:** `eval:compare` gains grouping, e.g. `r1=dev-3-r1a,dev-3-r1b r2=dev-3-r2a,dev-3-r2b`.
+   - It shows each configuration pooled over its two repeats (80 conversations per model), plus how far the two repeats differ.
+   - A configuration difference smaller than the repeat-to-repeat difference reads as noise.
+   - It also reports gpt-oss's crashes and repairs, against dev-1b/dev-2 for context.
+5. **Cost and time:**
+   - About **$0.60 per run** (agents $0.41 + judge $0.17, plus router calls that are no longer cached), so **about $2.40**. The month would reach about **$5.10 of the $8 cap**.
+   - Flash-Lite is the bottleneck (~41 min a run, sharing 15 requests/min). Two runs at a time is about 1.5 h in total.
+
 **Next session:**
-1. Julian's decisions on the five problems above (cases `invalid-coupon-01` and `adversarial-04`, `FAILURE_REPLY`, the `rubric@3` conclusion format, the full-name rule).
-2. Prompt tuning round 2. To tell a real effect from noise, consider running the same prompts twice (or more cases) before comparing.
-3. Judge score calibration on weak replies (from the agreement check).
+1. Julian's approval of the round-2 plan above, then build items 1, 2 and 4 with tests, and run.
+2. Judge score calibration on weak replies (from the agreement check).
 

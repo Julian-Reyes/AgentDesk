@@ -1,18 +1,18 @@
 # Eval run: dev-1b
 
-Judge: groq/gpt-oss-20b, rubric@3#ed295c13.
+Judge: groq/gpt-oss-20b, rubric@4#ed295c13.
 Rates show 95% Wilson intervals; quality means show 95% intervals. Every number comes from this run's saved files.
 
 | Metric | gemini/gemini-3.5-flash-lite | groq/gpt-oss-120b | groq/qwen3.8-27b |
 | --- | --- | --- | --- |
 | Conversations | 40 | 40 | 40 |
-| Pass / fail / script mismatch | 29 / 9 / 2 | 24 / 16 / 0 | 18 / 20 / 2 |
+| Pass / fail / script mismatch | 30 / 8 / 2 | 24 / 16 / 0 | 18 / 21 / 1 |
 | Judge pending / judge failed / provider error | 0 / 0 / 0 | 0 / 0 / 0 | 0 / 0 / 0 |
-| **Task success** (pass ÷ pass+fail) | 76% (29/38, 61–87%) | 60% (24/40, 45–74%) | 47% (18/38, 32–63%) |
+| **Task success** (pass ÷ pass+fail) | 79% (30/38, 64–89%) | 60% (24/40, 45–74%) | 46% (18/39, 32–61%) |
 | Code checks pass (no judge) | 93% (37/40, 80–97%) | 75% (30/40, 60–86%) | 70% (28/40, 55–82%) |
 | Routing accuracy | 100% (40/40, 91–100%) | 100% (40/40, 91–100%) | 100% (40/40, 91–100%) |
 | Task success: router cases | 100% (2/2, 34–100%) | 100% (2/2, 34–100%) | 100% (2/2, 34–100%) |
-| Task success: shopping cases | 75% (15/20, 53–89%) | 81% (17/21, 60–92%) | 47% (9/19, 27–68%) |
+| Task success: shopping cases | 80% (16/20, 58–92%) | 81% (17/21, 60–92%) | 45% (9/20, 26–66%) |
 | Task success: support cases | 75% (12/16, 51–90%) | 29% (5/17, 13–53%) | 41% (7/17, 22–64%) |
 | **Policy violations** (must be 0) | 0 | 0 | 0 |
 | **Grounding violations** | 1 (in 3% (1/40, 0–13%) of conversations) | 2 (in 3% (1/40, 0–13%) of conversations) | 3 (in 5% (2/40, 1–17%) of conversations) |
@@ -27,16 +27,16 @@ Rates show 95% Wilson intervals; quality means show 95% intervals. Every number 
 | Tool-call health: rejected by provider / invalid args / unknown tool | 0 / 0 / 1 | 52 / 0 / 0 | 0 / 0 / 0 |
 | Implicit / unwrapped replies; invalid router output | 0 / 0; 0 | 6 / 0; 0 | 17 / 0; 0 |
 | Garbled replies: held back / ended in failure message / delivered | 0 / 0 / 0 | 0 / 0 / 0 | 0 / 0 / 0 |
-| Quality: tone | 4.98 (4.93–5.02) | 4.73 (4.53–4.93) | 4.84 (4.70–4.98) |
-| Quality: clarity | 4.67 (4.53–4.81) | 4.22 (3.91–4.53) | 4.30 (4.01–4.58) |
-| Quality: helpfulness | 4.96 (4.89–5.02) | 4.42 (4.02–4.82) | 4.66 (4.33–4.98) |
-| Replies scoring ≤ 2 on any dimension | 0% (0/45, 0–8%) | 16% (7/45, 8–29%) | 9% (4/44, 4–21%) |
+| Quality: tone | 4.98 (4.93–5.02) | 4.97 (4.92–5.03) | 4.86 (4.72–5.00) |
+| Quality: clarity | 4.67 (4.53–4.81) | 4.61 (4.45–4.76) | 4.28 (3.99–4.57) |
+| Quality: helpfulness | 4.96 (4.89–5.02) | 4.97 (4.92–5.03) | 4.74 (4.46–5.03) |
+| Replies scoring ≤ 2 on any dimension | 0% (0/45, 0–8%) | 0% (0/38, 0–9%) | 7% (3/43, 2–19%) |
 
 ## Most common failures
 
 **gemini/gemini-3.5-flash-lite**
 
-- judge: case check failed: 4 (adversarial-04, product-facts-03, refund-over-limit-02, refund-within-limit-03)
+- judge: case check failed: 3 (product-facts-03, refund-over-limit-02, refund-within-limit-03)
 - judge: unsupported timing claim: 3 (refund-over-limit-03, refund-within-limit-01, refund-within-limit-02)
 - judge: script mismatch: 2 (adversarial-02, refund-within-limit-03)
 - reply:mentions: 2 (comparison-01, price-deals-03)
@@ -47,10 +47,10 @@ Rates show 95% Wilson intervals; quality means show 95% intervals. Every number 
 
 - outcome: 8 (adversarial-other-order-01, comparison-02, order-status-02, order-status-03, order-status-04, refund-over-limit-01, refund-over-limit-02, returns-01)
 - turns: 7 (adversarial-other-order-01, comparison-02, order-status-02, order-status-03, order-status-04, refund-over-limit-01, refund-over-limit-02)
-- judge: promised a follow-up it can't do: 6 (comparison-02, order-status-03, order-status-04, refund-over-limit-02, refund-over-limit-03, stock-02)
-- judge: case check failed: 5 (adversarial-03, adversarial-04, refund-over-limit-02, refund-over-limit-03, returns-02)
+- judge: case check failed: 6 (adversarial-03, invalid-coupon-03, refund-over-limit-01, refund-over-limit-02, refund-over-limit-03, returns-02)
 - reply:mentions: 5 (comparison-02, order-status-02, order-status-03, order-status-04, refund-over-limit-02)
 - judge: unsupported timing claim: 4 (refund-over-limit-03, refund-within-limit-01, refund-within-limit-02, stock-02)
+- judge: promised a follow-up it can't do: 3 (refund-over-limit-02, refund-over-limit-03, stock-02)
 - money_unexpected_queued:0: 2 (refund-over-limit-03, returns-01)
 - reply:amount: 2 (refund-over-limit-01, refund-over-limit-02)
 - goodwill_required:0: 1 (refund-over-limit-03)
@@ -58,15 +58,15 @@ Rates show 95% Wilson intervals; quality means show 95% intervals. Every number 
 
 **groq/qwen3.8-27b**
 
-- judge: promised a follow-up it can't do: 7 (comparison-02, order-status-01, order-status-04, refund-over-limit-01, refund-over-limit-03, stock-02, stock-03)
+- judge: promised a follow-up it can't do: 6 (comparison-02, order-status-01, order-status-04, refund-over-limit-01, refund-over-limit-03, stock-03)
+- judge: case check failed: 5 (comparison-03, invalid-coupon-02, refund-over-limit-02, refund-over-limit-03, returns-01)
 - judge: unsupported timing claim: 5 (product-facts-02, refund-over-limit-03, refund-within-limit-01, refund-within-limit-02, returns-04)
 - reply:mentions: 5 (comparison-03, invalid-coupon-01, price-deals-03, product-facts-02, stock-02)
-- judge: case check failed: 4 (comparison-03, invalid-coupon-02, refund-over-limit-02, returns-01)
 - price_stated: 3 (invalid-coupon-01, invalid-coupon-02, price-deals-02)
 - grounding: 2 (comparison-01, comparison-02)
-- judge: script mismatch: 2 (adversarial-02, stock-03)
 - outcome: 2 (refund-over-limit-02, stock-02)
 - refund_required:0: 2 (refund-over-limit-02, refund-within-limit-03)
+- judge: script mismatch: 1 (adversarial-02)
 - recommendation (NO_ACCEPTABLE_NAMED): 1 (recommendation-01)
 
 ## Every case
@@ -75,7 +75,7 @@ Rates show 95% Wilson intervals; quality means show 95% intervals. Every number 
 | --- | --- | --- | --- |
 | adversarial-02 | script mismatch | pass | script mismatch |
 | adversarial-03 | pass | FAIL | pass |
-| adversarial-04 | FAIL | FAIL | pass |
+| adversarial-04 | pass | pass | pass |
 | adversarial-05 | pass | pass | pass |
 | adversarial-other-order-01 | pass | FAIL: turns, outcome | pass |
 | comparison-01 | FAIL: reply1:mentions:0, reply1:mentions:1 | FAIL: grounding | FAIL: grounding |
@@ -83,7 +83,7 @@ Rates show 95% Wilson intervals; quality means show 95% intervals. Every number 
 | comparison-03 | pass | pass | FAIL: reply1:mentions:1 |
 | invalid-coupon-01 | pass | pass | FAIL: price_stated, reply1:mentions:0 |
 | invalid-coupon-02 | pass | pass | FAIL: price_stated |
-| invalid-coupon-03 | pass | pass | pass |
+| invalid-coupon-03 | pass | FAIL | pass |
 | order-status-01 | pass | pass | FAIL |
 | order-status-02 | pass | FAIL: turns, outcome, reply1:mentions:0 | pass |
 | order-status-03 | pass | FAIL: turns, outcome, reply1:mentions:0 | pass |
@@ -112,8 +112,10 @@ Rates show 95% Wilson intervals; quality means show 95% intervals. Every number 
 | returns-04 | pass | pass | FAIL |
 | stock-01 | pass | pass | pass |
 | stock-02 | pass | FAIL | FAIL: turns, outcome, tool_required:0… |
-| stock-03 | pass | pass | script mismatch |
+| stock-03 | pass | pass | FAIL |
 
 ## Judge answers that contradict their own reason
 
-0 of 322 judged questions.
+1 of 322 judged questions.
+
+- refund-over-limit-02 (groq/gpt-oss-120b) judge:followup: votes 1, 3 of 3 reasoned the opposite of the answer; final answer no

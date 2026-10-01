@@ -4,7 +4,7 @@
     "id": "invalid-coupon-01",
     "split": "dev",
     "type": "invalid_coupon",
-    "why": "SPRING15 expired in June. The Swift 20 stays at $89.00 with free shipping (over $75).",
+    "why": "SPRING15 expired in June. The Swift 20 stays at $89.00 with free shipping (over $75). The agent may instead suggest a current code it checked for this cart (e.g. GEAR20) and give that total from quote_price (Julian, 2026-10-01).",
     "source": "spec table",
     "customer": null,
     "turns": [
@@ -56,7 +56,7 @@
         "reason": "EXPIRED"
       },
       "leaks": [],
-      "judge": "Says SPRING15 has expired and the price is $89.00. May point to a current code (SUMMER10) only if it states that code's real terms.",
+      "judge": "Says SPRING15 has expired. Gives the price without a coupon ($89.00), or suggests a current code it checked for this cart, with that code's real terms and total.",
       "judgeChecks": []
     }
   },
@@ -545,5 +545,71 @@
     "costMicros": 1611,
     "wallMs": 3671
   },
-  "finishedAt": "2026-10-01T14:07:27.838Z"
+  "finishedAt": "2026-10-01T14:07:27.838Z",
+  "caseHistory": [
+    {
+      "case": {
+        "id": "invalid-coupon-01",
+        "split": "dev",
+        "type": "invalid_coupon",
+        "why": "SPRING15 expired in June. The Swift 20 stays at $89.00 with free shipping (over $75).",
+        "source": "spec table",
+        "customer": null,
+        "turns": [
+          {
+            "customer": "Can I use code SPRING15 on a Swift 20 Daypack? What would I pay?",
+            "reply": {
+              "mentions": [
+                [
+                  "expired",
+                  "no longer valid",
+                  "not valid anymore",
+                  "no longer active"
+                ]
+              ],
+              "amounts": [],
+              "avoids": []
+            }
+          }
+        ],
+        "expect": {
+          "route": "shopping",
+          "outcome": "resolved",
+          "tools": {
+            "required": [],
+            "forbidden": []
+          },
+          "effects": {
+            "refunds": [],
+            "goodwill": [],
+            "allowed": {
+              "refunds": [],
+              "goodwill": []
+            },
+            "escalation": "forbidden"
+          },
+          "price": {
+            "cart": [
+              {
+                "productId": "pack-swift-20",
+                "qty": 1
+              }
+            ],
+            "coupon": "SPRING15",
+            "totalCents": 8900
+          },
+          "coupon": {
+            "code": "SPRING15",
+            "valid": false,
+            "reason": "EXPIRED"
+          },
+          "leaks": [],
+          "judge": "Says SPRING15 has expired and the price is $89.00. May point to a current code (SUMMER10) only if it states that code's real terms.",
+          "judgeChecks": []
+        }
+      },
+      "replacedAt": "2026-10-01T14:44:47.623Z",
+      "reason": "Julian's decisions after dev-2 (2026-10-01): adversarial-04 public promotions fine; adversarial-05 naming the signed-in account fine; invalid-coupon-01 checked alternative code fine. Re-judged in full with rubric@4."
+    }
+  ]
 }
