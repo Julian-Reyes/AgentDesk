@@ -942,9 +942,33 @@ Other counts (r1 → r2, 160 conversations each across gpt-oss and Qwen): 0 poli
 
 Comparison file: `server/eval-results/comparisons/dev-1b__dev-2__r1__r2.md`.
 
-**Next session:**
-1. After Gemini's daily quota resets, finish Flash-Lite with the same commands (the runs resume): `LLM_CACHE=refresh npm run eval:run -- --name dev-3-r2a --prompts round-2 --yes`, then `dev-3-r1b --prompts round-1` and `dev-3-r2b --prompts round-2`, each with `--models gemini/gemini-3.5-flash-lite --yes`. Then re-run `eval:compare -- dev-1b dev-2 r1=dev-3-r1a,dev-3-r1b r2=dev-3-r2a,dev-3-r2b`. It may take two days if the quota is about 50–60 conversations a day.
-2. Julian's decision on round-2's prompts (the data says no measurable effect either way).
-3. Why Qwen gained 15 pts from dev-2 to dev-3-r1 on the same prompts (start with routing).
-4. Judge score calibration on weak replies (from the agreement check).
+### Julian's decisions after round 2; the Qwen check; test-run cost (2026-10-01)
+**Decisions:**
+- **Keep the round-2 prompt line** (shopping@3, support@4), as a correctness fix. The data shows no measurable effect either way.
+- **Prompt tuning is done for now.**
+- Finish Flash-Lite after the quota resets, then the comparison.
 
+**Qwen's dev-2 → dev-3-r1 jump (56% → 71% on the same round-1 prompts): a time-boxed check, nothing re-run.**
+- **Scoring: not the cause.** dev-2 and the dev-3 runs are scored the same way. The comparison re-grades every run with the current grader, all are judged with `rubric@4`, and the case definitions saved with dev-2 and dev-3-r1a are identical for all 40 cases. The scoring changes made after dev-2 (Julian's dev-2 decisions: invalid-coupon grading, `adversarial-04`, unscored failed turns, the `rubric@4` parser) were applied to dev-2 too.
+- **Agent-side code between dev-2 (commit `ef25463`) and dev-3 (`b121100`/`66b645b`):**
+  1. Reply repair and corrective retries. **Never ran for Qwen:** 0 provider rejections in dev-2 and in dev-3.
+  2. `FAILURE_REPLY` text. Failed turns are unscored in every run anyway.
+  3. `LLM_CACHE=refresh`: dev-2 replayed dev-1's 40 Qwen router calls, and dev-3 sampled them fresh. **But routing wasn't the problem:** Qwen had 0 route failures in dev-2 (and in dev-1b and dev-3-r1a; 1 in dev-3-r1b).
+  4. The savepoint and order-number fixes came after the saved conversations and never triggered in them.
+- **The failures aren't concentrated in one place.** From dev-2 to r1a / r1b: judge-only failures 8 → 2 / 5, `reply:mentions` 4 → 2 / 2, grounding 3 → 2 / 3, outcome 2 → 2 / 3.
+- **Statistically it's consistent with noise.** dev-2 (22/39) vs r1 pooled (55/77): Fisher exact p = 0.15. Against all four dev-3 Qwen runs (107/154): p = 0.13. dev-2's 56% is 6 points below the lowest dev-3 repeat (r2b 62%), and the four dev-3 repeats themselves span 62–76%.
+- **Conclusion:** no code or scoring change explains it. It looks like a low draw on a single run. One thing I can't check is whether Groq changed how it serves the model between runs (about 3 h apart).
+
+**Projected cost of one full test run** (110 cases × 3 models = 330 conversations), from dev-3's measured costs:
+- agents: about **$1.13** (gpt-oss ~$0.05 + Qwen ~$0.36 per 40 cases; Flash-Lite is free)
+- judge (`rubric@4`): about **$0.46** ($0.52 for 376 conversations in dev-3)
+- **Total about $1.60; plan on ≤ $1.90** with retries. Unchanged from the earlier projection.
+- **Fits the cap:** about $5.00 spent so far, plus about $0.15 to judge the rest of Flash-Lite and about $1.90 for a test run, is about $7.05, leaving about $0.95.
+- **Flash-Lite's daily quota is about 500 requests.** It stopped at 497 calls (134 conversations) on 2026-10-01; it resets at midnight Pacific (04:00 local). A test run's 110 Flash-Lite conversations need about 410 calls, so they fit in one day, but **not on the same day as finishing round 2** (about 390 calls).
+
+**When the Groq $8 cap resets: not known from here.** Groq's spend limit is monthly and blocks requests "until the next billing cycle" (`docs/FREE_TIERS.md`). The cycle date depends on the account (Developer plan since 2026-09-30), and the repo doesn't record it. Julian: check Groq console → Settings → Billing. Until then, I count all spend since 2026-09-30 against one $8 cycle (conservative).
+
+**Next session:**
+1. Finish Flash-Lite after 04:00 local (a one-shot job is scheduled in this session for 04:17 on 2026-10-02; if the session has ended, run these by hand). One at a time: `LLM_CACHE=refresh npm run eval:run -- --name dev-3-r2a --prompts round-2 --models gemini/gemini-3.5-flash-lite --yes`, then `dev-3-r1b --prompts round-1` and `dev-3-r2b --prompts round-2` the same way. Then run `npm run eval:compare -- dev-1b dev-2 r1=dev-3-r1a,dev-3-r1b r2=dev-3-r2a,dev-3-r2b`. About 390 Flash-Lite calls, which should fit in one day's quota.
+2. Write the 110 test cases (not started).
+3. Judge score calibration on weak replies (from the agreement check).
