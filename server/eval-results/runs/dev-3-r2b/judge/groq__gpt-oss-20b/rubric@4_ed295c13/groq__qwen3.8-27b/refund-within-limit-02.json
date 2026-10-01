@@ -1,0 +1,133 @@
+{
+  "caseId": "refund-within-limit-02",
+  "runId": "8c276947-0ecf-4ba6-b039-d307cf40c131",
+  "questionSet": "2a2c12d8",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "refund-within-limit-02",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "My order #1055 is really late. Can I at least get my shipping cost back?",
+        "reply": "Yes — I refunded your $7.99 shipping cost for the delay on order #1055. The $7.99 is on its way back to your original payment method. Sorry for the wait, and thanks for your patience."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1055}) → {\"ok\":true,\"data\":{\"number\":1055,\"status\":\"delayed\",\"placed\":\"2026-09-03\",\"delivered\":null,\"items\":[{\"productId\":\"stove-pocket\",\"name\":\"Pocket Canister Stove\",\"size\":null,\"color\":null,\"qty\":1,\"listPrice\":\"$39.00\",\"discount\":\"$0.00\",\"paid\":\"$39.00\",\"returnedQty\":0},{\"productId\":\"stove-fuel-230\",\"name\":\"Isobutane Fuel Canister 230 g\",\"size\":null,\"color\":null,\"qty\":2,\"listPrice\":\"$6.99\",\"discount\":\"$0.00\",\"paid\":\"$13.98\",\"returnedQty\":0}],\"subtotal\":\"$52.98\",\"discount\":\"$0.00\",\"shipping\":\"$7.99\",\"totalPaid\":\"$60.97\",\"refunds\":[]}}",
+      "message 1: get_policy({\"topic\":\"shipping\"}) → {\"ok\":true,\"data\":{\"topic\":\"shipping\",\"title\":\"Shipping\",\"text\":\"Standard shipping costs $7.99 and is free on orders of $75.00 or more (after discounts).\\nOrders ship from our warehouse within 1–2 business days and arrive 3–6 business days after shipping.\\nWe ship within the United States only.\\nTracking is available once an order has shipped.\\nIf an order is delayed, we refund the shipping cost on request.\"}}",
+      "message 1: issue_refund({\"amount\":7.99,\"note\":\"Order #1055 status: delayed.\",\"orderId\":1055,\"reason\":\"late\"}) → {\"ok\":true,\"data\":{\"status\":\"refunded\",\"refundId\":124,\"amount\":\"$7.99\",\"message\":\"Refund of $7.99 issued to the original payment method.\"},\"policyDecision\":\"auto_approved\"}"
+    ],
+    "judgeNote": "Confirms the $7.99 shipping refund. If it requests a goodwill coupon, it says the coupon needs approval rather than implying it's issued.",
+    "checks": [
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "The reply confirms the refund, apologizes, and clearly informs the customer of the next step."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only confirms that the $7.99 shipping cost has been refunded and that it is on its way back to the original payment method. No future promises or implied actions that cannot be performed in this chat are made. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent only states that the refund has been issued and is on its way back to the original payment method, which matches the tool result showing the refund was issued. No other timing claims are made. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 2
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 832,
+      "inputTokens": 1022,
+      "outputTokens": 318,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the refund is being processed, which matches the tool result showing the refund was issued to the original payment method. No unsupported timing claims are made.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 835,
+      "inputTokens": 1266,
+      "outputTokens": 362,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"The reply confirms the refund, apologizes, and clearly informs the customer of the next step.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 835,
+      "inputTokens": 1033,
+      "outputTokens": 442,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only confirms that the $7.99 shipping cost has been refunded and that it is on its way back to the original payment method. No future promises or implied actions that cannot be performed in this chat are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 840,
+      "inputTokens": 1022,
+      "outputTokens": 316,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the refund has been issued, which matches the tool response showing the refund was processed. No unsupported vague timing claims are made.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 855,
+      "inputTokens": 1033,
+      "outputTokens": 353,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only confirms the refund that has already been processed and does not promise any future action. This meets the requirement. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1256,
+      "inputTokens": 1033,
+      "outputTokens": 359,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that the refund has already been issued and that the amount is on its way back, with no future promises or actions implied. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1257,
+      "inputTokens": 1022,
+      "outputTokens": 493,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states that the refund has been issued and is on its way back to the original payment method, which matches the tool result showing the refund was issued. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

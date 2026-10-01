@@ -865,7 +865,7 @@ Across dev-1, dev-1b and dev-2:
   - 13 invented tool names (`response`, `replay`, `json`, `replies`, `commentary`); 2 were unparseable.
 - **So the tool names aren't the cause:** `reply` is already as simple as it gets, and the invented names wouldn't change with renaming.
 
-### Next: round 2 (plan saved 2026-10-01; not approved or run yet, no code written)
+### Round-2 plan (saved 2026-10-01; approved and run, see "Round 2 (`dev-3`)" below)
 1. **gpt-oss reply repair** (code; applies to every model):
    - **Main fix:** when Groq rejects a call as `tool_use_failed` and its `failed_generation` is `reply` with plain-text arguments, deliver that text as the reply. It still goes through the garbled-reply check, and it's counted per model as "repaired". This targets 107 of the 122 `tool_use_failed` attempts in dev-1/1b/2.
    - **For the rest** (invented tool names), retry with a short corrective message instead of the identical request. Identical retries recovered 39 calls, but 18 failed all 4 attempts.
@@ -891,7 +891,60 @@ Across dev-1, dev-1b and dev-2:
 - Plus round 2 (~$2.40) and one test run (~$1.60–1.90): **about $6.70–7.00**, leaving **about $1.00–1.30** of headroom.
 - That leaves room for roughly one more dev run, not a second test run. Any extra re-judges (~$0.17 per dev run) come out of the same headroom.
 
+### Round 2 (`dev-3`): reply repair, refresh mode, repeated runs (2026-10-01), Flash-Lite incomplete
+Julian approved the plan as written: all three models, including Qwen's repeats.
+
+**Code (tests: 385 passing):**
+- **gpt-oss reply repair** (`repairReplyCall` in `openai-compatible.ts`).
+  - When Groq rejects a call as `tool_use_failed` and the generation is `reply` with plain-text arguments, the text becomes a normal `reply` call. It still goes through the garbled-reply check.
+  - It's traced as `repaired: true` on the model call and counted per model (`repairedReplies`).
+  - Run over the stored dev-1/1b/2 rejections, it repairs exactly the 107 of 122 that the analysis predicted.
+  - The full `failed_generation` is now kept in the trace (it used to be cut at 300 characters).
+- **Corrective retries:** a rejection that can't be repaired is retried with one short note naming the problem: an invented tool name, bad JSON arguments, reasoning written as the answer, or invalid JSON. The cache key stays the original request.
+- **`LLM_CACHE=refresh`:** always call the model and re-record. The run manifest records the cache mode.
+- **`eval:compare` groups:** `r1=dev-3-r1a,dev-3-r1b`. Each group is pooled over its repeats. The comparison reports the **repeat gap** (the largest task-success difference between repeats of one configuration), cases passed by a different share of repeats, and provider rejections / repairs / conversations ended by a rejection.
+
+**Two bugs the runs found, both fixed before any scoring:**
+1. **Stray quote in repaired replies.** gpt-oss closes a string it never opened (`…Thanks for understanding."}`), so all 20 repaired replies in the first attempt at r1a/r2a ended with a `"` the customer would see. The repair now drops a lone trailing quote; a paired quote (a quoted product name) is kept.
+   - I deleted gpt-oss's conversations in r1a, r2a and the partial r1b, then re-ran them on the fixed code (about $0.15 thrown away).
+   - Qwen and Flash-Lite had **zero** provider rejections in those runs, so the changed code never ran for them, and their conversations stand.
+2. **An out-of-range order number aborted an eval conversation.** In `dev-3-r2b`, Qwen sent `check_return_eligibility` the order number 1056005231261617 (`returns-04`). It overflows Postgres `integer`, so the query threw and the conversation's transaction was aborted. The loop carried on with `TOOL_FAILED`, and then the grader's query failed and killed the run.
+   - **Fix:** `orderNumberArg` is capped at the column range, so the value is now `INVALID_ARGS`.
+   - **Containment:** every tool call runs in its own transaction (a savepoint inside the eval/test transaction), so a tool that throws rolls back only itself. The test fails without the savepoint.
+   - No saved conversation had a tool exception or an out-of-range id, so the saved results are unaffected. r2b's remaining 24 conversations ran on the fixed code.
+
+**Runs** (dev split, judge `groq/gpt-oss-20b`, `rubric@4`, refresh mode, every conversation judged). dev-1b and dev-2 are shown for context only: they are single runs, and dev-2 replayed dev-1's router calls.
+
+| Task success | dev-1b (round-0) | dev-2 (round-1) | **r1** = r1a + r1b (round-1) | **r2** = r2a + r2b (round-2) |
+| --- | --- | --- | --- | --- |
+| gpt-oss-120b | 60% (24/40) | 69% (27/39) | **82%** (65/79, 72–89%); repeats 79% / 85%, gap 6 pts | **76%** (61/80, 66–84%); repeats 75% / 78%, gap 3 pts |
+| qwen3.8-27b | 46% (18/39) | 56% (22/39) | **71%** (55/77, 61–80%); repeats 76% / 67%, gap 10 pts | **68%** (52/77, 56–77%); repeats 74% / 62%, gap 12 pts |
+| Flash-Lite | 79% (30/38) | 87% (33/38) | 79% (31/39), **r1a only** | 88% (14/16), **16 of 40 cases in r2a only** |
+
+| gpt-oss-120b | dev-1b | dev-2 | r1 (80 conv.) | r2 (80 conv.) |
+| --- | --- | --- | --- | --- |
+| Provider-rejected calls / repaired / conversations ended by one | 52 / 0 / 7 | 46 / 0 / 8 | 26 / 22 / **0** | 20 / 19 / **0** |
+
+Other counts (r1 → r2, 160 conversations each across gpt-oss and Qwen): 0 policy violations in either. Full-name replies 2 → 1 (all in `adversarial-05`). Timing 6 → 3, follow-up 0 → 4. Garbled replies were held back 1 / 1 times, and none was delivered.
+
+**How to read it:**
+- **The repair works.** gpt-oss went from 7–8 conversations per run ending in the failure message to 0 in four runs. 41 of its 46 rejected calls were repaired, and the other 5 recovered on retry.
+- **Round 2 vs round 1 (the full-name line) is noise.**
+  - Qwen: −4 pts, against repeat gaps of 10 and 12.
+  - gpt-oss: −6 pts, which the comparison flags as "larger than the repeat gaps (6 and 3)". But 6.0 vs a gap of 5.5 is borderline, a gap from two repeats underestimates the noise, and the pooled intervals overlap almost completely.
+  - The full-name count is too small to show anything (2 vs 1).
+  - **Read: round-2's line neither helped nor hurt measurably.**
+- **The repeats show how noisy single runs are:** Qwen's two repeats of the same configuration differ by 10–12 points.
+- **dev-2 → r1 (same prompts) gained 13–15 pts for both Groq models.** For gpt-oss, much of that is the repair (8 crashed conversations in dev-2, 0 now). For Qwen it is **unexplained**: Qwen had no rejections, so neither the repair nor the corrective retries touched it. What differs is that the router is re-sampled (dev-2 replayed dev-1's) and that dev-2 is a single run. Not investigated yet.
+- **Flash-Lite hit its daily free-tier quota** (HTTP 429, per day) partway through r2a, after 56 conversations today plus earlier runs. 104 conversations are left: 24 in r2a, and 40 each in r1b and r2b. Its columns above can't be compared yet.
+
+**Cost** (Groq, real): agents $1.65 for the saved conversations, plus about $0.15 discarded (the stray-quote re-runs); judge $0.52. **Round 2 so far is about $2.30; the month is at about $5.00 of the $8 cap.** Finishing Flash-Lite costs $0 for the agents and about $0.15 to judge.
+
+Comparison file: `server/eval-results/comparisons/dev-1b__dev-2__r1__r2.md`.
+
 **Next session:**
-1. Julian's approval of round 2, then build items 1, 2 and 4 with tests, and run.
-2. Judge score calibration on weak replies (from the agreement check).
+1. After Gemini's daily quota resets, finish Flash-Lite with the same commands (the runs resume): `LLM_CACHE=refresh npm run eval:run -- --name dev-3-r2a --prompts round-2 --yes`, then `dev-3-r1b --prompts round-1` and `dev-3-r2b --prompts round-2`, each with `--models gemini/gemini-3.5-flash-lite --yes`. Then re-run `eval:compare -- dev-1b dev-2 r1=dev-3-r1a,dev-3-r1b r2=dev-3-r2a,dev-3-r2b`. It may take two days if the quota is about 50–60 conversations a day.
+2. Julian's decision on round-2's prompts (the data says no measurable effect either way).
+3. Why Qwen gained 15 pts from dev-2 to dev-3-r1 on the same prompts (start with routing).
+4. Judge score calibration on weak replies (from the agreement check).
 

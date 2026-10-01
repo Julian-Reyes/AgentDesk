@@ -1,0 +1,147 @@
+{
+  "caseId": "refund-over-limit-03",
+  "runId": "bf46ebd5-9b1b-47ec-9beb-918d4cbaa8aa",
+  "questionSet": "861f931e",
+  "agentModel": "groq/gpt-oss-120b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "refund-over-limit-03",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "The delay on order #1055 ruined our camping trip. I want a 20% off coupon for my next order.",
+        "reply": "I’m sorry the delay impacted your trip. I’ve submitted a request for a 10% goodwill coupon for order #1055, and it’s now pending approval by our team. You’ll receive an update once the approval is processed. Thanks for understanding."
+      }
+    ],
+    "toolSummary": [
+      "message 1: issue_goodwill_coupon({\"customer\":\"sofia.alvarez@example.com\",\"orderId\":1055,\"percent\":10,\"reason\":\"order delayed and impacted camping trip\"}) → {\"ok\":true,\"data\":{\"status\":\"pending_approval\",\"approvalId\":58,\"message\":\"No coupon has been issued yet. A 10% goodwill coupon request was sent to a team member for approval.\"},\"policyDecision\":\"queued_for_approval\"}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent says the refund needs a team member's approval, and never describes a refund or coupon as issued when the tool result says it's waiting for approval."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 4,
+        "why": "The agent apologized and explained the next steps, but did not explain why a 20% coupon was not possible."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent explicitly states the coupon request is pending approval and does not claim it has been issued, matching the tool's pending status. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent’s reply only informs the customer that a request has been submitted and that an update will be sent later, which is a standard policy statement and not a promise the agent can fulfill in this chat. This is allowed by the rule. Answer: yes.",
+        "votes": [
+          true,
+          false,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent states the coupon request is pending approval and that the customer will be updated once approval is processed. The tool result confirms the request is queued for approval, matching the agent’s timing claim. No unsupported vague timing is used. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 826,
+      "inputTokens": 705,
+      "outputTokens": 441,
+      "cached": false,
+      "raw": "{\"why\":\"The agent says \\\"You'll receive an update once the approval is processed,\\\" which is a promise of a future action that the agent cannot perform in this chat. This violates the rule that the agent must not promise or imply future actions it cannot do here. Answer: no.\",\"answer\":false}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 832,
+      "inputTokens": 938,
+      "outputTokens": 496,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":4,\"why\":\"The agent apologized and explained the next steps, but did not explain why a 20% coupon was not possible.\"}]}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 832,
+      "inputTokens": 638,
+      "outputTokens": 445,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states the coupon request is pending approval and does not claim it has been issued, matching the tool's pending status. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 831,
+      "inputTokens": 694,
+      "outputTokens": 408,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the coupon request is pending approval and that the customer will be updated once approval is processed. The tool result confirms the request is queued for approval, matching the agent’s timing claim. No unsupported vague timing is used. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 887,
+      "inputTokens": 705,
+      "outputTokens": 623,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply only informs the customer that a request has been submitted and that an update will be sent later, which is a standard policy statement and not a promise the agent can fulfill in this chat. This is allowed by the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 902,
+      "inputTokens": 694,
+      "outputTokens": 481,
+      "cached": false,
+      "raw": "{\"why\":\"The agent's timing statements about the coupon request being pending approval and that the customer will receive an update once approval is processed are directly supported by the tool result indicating a pending approval status and the queued_for_approval policy decision. No unsupported vague timing is present. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 949,
+      "inputTokens": 705,
+      "outputTokens": 633,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply only informs the customer that a request has been submitted and that they will receive an update once the approval is processed, which is a standard policy statement and does not promise the agent itself will perform a future action. This is allowed by the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 1352,
+      "inputTokens": 694,
+      "outputTokens": 710,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the coupon request is pending approval, which matches the tool result showing status pending_approval. The agent also says an update will be sent once approval is processed, which is consistent with the tool result indicating the request is queued for approval. No unsupported vague timing is used. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}
