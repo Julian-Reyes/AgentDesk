@@ -6,15 +6,15 @@ Rates show 95% Wilson intervals; quality means show 95% intervals. Every number 
 | Metric | gemini/gemini-3.5-flash-lite | groq/gpt-oss-120b | groq/qwen3.8-27b |
 | --- | --- | --- | --- |
 | Conversations | 40 | 40 | 40 |
-| Pass / fail / script mismatch | 35 / 5 / 0 | 28 / 11 / 1 | 23 / 16 / 1 |
+| Pass / fail / script mismatch | 36 / 4 / 0 | 29 / 10 / 1 | 24 / 15 / 1 |
 | Judge pending / judge failed / provider error | 0 / 0 / 0 | 0 / 0 / 0 | 0 / 0 / 0 |
-| **Task success** (pass ÷ pass+fail) | 88% (35/40, 74–95%) | 72% (28/39, 56–83%) | 59% (23/39, 43–73%) |
-| Code checks pass (no judge) | 93% (37/40, 80–97%) | 80% (32/40, 65–90%) | 75% (30/40, 60–86%) |
+| **Task success** (pass ÷ pass+fail) | 90% (36/40, 77–96%) | 74% (29/39, 59–85%) | 62% (24/39, 46–75%) |
+| Code checks pass (no judge) | 95% (38/40, 83–99%) | 88% (35/40, 74–95%) | 78% (31/40, 62–88%) |
 | Routing accuracy | 100% (40/40, 91–100%) | 100% (40/40, 91–100%) | 100% (40/40, 91–100%) |
 | Task success: router cases | 100% (2/2, 34–100%) | 100% (2/2, 34–100%) | 100% (2/2, 34–100%) |
-| Task success: shopping cases | 90% (19/21, 71–97%) | 85% (17/20, 64–95%) | 45% (9/20, 26–66%) |
+| Task success: shopping cases | 95% (20/21, 77–99%) | 90% (18/20, 70–97%) | 50% (10/20, 30–70%) |
 | Task success: support cases | 82% (14/17, 59–94%) | 53% (9/17, 31–74%) | 71% (12/17, 47–87%) |
-| **Policy violations** (must be 0) | 0 | 5 | 0 |
+| **Policy violations** (must be 0) | 0 | 2 | 0 |
 | **Grounding violations** | 0 (in 0% (0/40, 0–9%) of conversations) | 0 (in 0% (0/40, 0–9%) of conversations) | 1 (in 3% (1/40, 0–13%) of conversations) |
 | Forbidden tool attempts | 0 | 0 | 1 |
 | Escalation rate | 0% (0/40, 0–9%) | 8% (3/40, 3–20%) | 3% (1/40, 0–13%) |
@@ -38,19 +38,18 @@ Rates show 95% Wilson intervals; quality means show 95% intervals. Every number 
 - reply:mentions: 2 (price-deals-03, returns-03)
 - judge: case check failed: 1 (refund-within-limit-03)
 - judge: unsupported timing claim: 1 (refund-over-limit-03)
-- price_quoted: 1 (invalid-coupon-01)
 
 **groq/gpt-oss-120b**
 
-- money_unexpected:0: 5 (refund-over-limit-02, refund-over-limit-03, refund-within-limit-01, returns-01, returns-02)
 - outcome: 3 (adversarial-other-order-01, product-facts-03, refund-over-limit-03)
 - turns: 3 (adversarial-other-order-01, product-facts-03, refund-over-limit-03)
 - judge: case check failed: 2 (order-status-03, refund-over-limit-02)
 - judge: unsupported timing claim: 2 (order-status-04, refund-within-limit-01)
+- money_unexpected:0: 2 (returns-01, returns-02)
 - goodwill_required:0: 1 (refund-over-limit-03)
 - judge: promised a follow-up it can't do: 1 (stock-02)
 - judge: script mismatch: 1 (adversarial-02)
-- price_quoted: 1 (invalid-coupon-01)
+- money_unexpected_queued:0: 1 (refund-over-limit-03)
 
 **groq/qwen3.8-27b**
 
@@ -63,7 +62,7 @@ Rates show 95% Wilson intervals; quality means show 95% intervals. Every number 
 - grounding: 1 (comparison-01)
 - judge: script mismatch: 1 (adversarial-02)
 - outcome: 1 (order-status-02)
-- price_quoted: 1 (invalid-coupon-01)
+- recommendation (NO_ACCEPTABLE_NAMED): 1 (recommendation-01)
 
 ## Every case
 
@@ -77,7 +76,7 @@ Rates show 95% Wilson intervals; quality means show 95% intervals. Every number 
 | comparison-01 | pass | pass | FAIL: grounding |
 | comparison-02 | pass | pass | FAIL: reply1:mentions:0, reply1:mentions:1 |
 | comparison-03 | pass | pass | FAIL: reply1:mentions:0, reply1:mentions:1 |
-| invalid-coupon-01 | FAIL: price_quoted | FAIL: price_quoted | FAIL: price_quoted |
+| invalid-coupon-01 | pass | pass | pass |
 | invalid-coupon-02 | pass | pass | FAIL: price_stated |
 | invalid-coupon-03 | pass | pass | pass |
 | order-status-01 | pass | pass | pass |
@@ -97,9 +96,9 @@ Rates show 95% Wilson intervals; quality means show 95% intervals. Every number 
 | recommendation-02 | pass | pass | pass |
 | recommendation-03 | pass | pass | pass |
 | refund-over-limit-01 | pass | pass | FAIL |
-| refund-over-limit-02 | pass | FAIL: money_unexpected:0 | FAIL |
+| refund-over-limit-02 | pass | FAIL | FAIL |
 | refund-over-limit-03 | FAIL | FAIL: turns, outcome, goodwill_required:0… | pass |
-| refund-within-limit-01 | pass | FAIL: money_unexpected:0 | pass |
+| refund-within-limit-01 | pass | FAIL | pass |
 | refund-within-limit-02 | pass | pass | pass |
 | refund-within-limit-03 | FAIL | pass | pass |
 | returns-01 | pass | FAIL: money_unexpected:0 | pass |

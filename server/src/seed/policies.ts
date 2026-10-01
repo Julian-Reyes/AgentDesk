@@ -1,5 +1,6 @@
 import type { PolicyTopic } from "../db/schema.ts";
 import { formatCents } from "../domain/money.ts";
+import { STORE_CAUSED_PROBLEMS } from "../policy/goodwill.ts";
 import { RULES } from "../policy/rules.ts";
 import { SHIPPING } from "./promotions.ts";
 
@@ -77,6 +78,16 @@ export const POLICY_DOCS: { topic: PolicyTopic; title: string; body: string }[] 
       "Only one coupon code can be used per order. Coupons may have a minimum spend, an expiry date, or excluded categories; the minimum spend counts eligible items only, after sales.",
       "Expired, used, or invalid codes can't be applied.",
       "Prices include tax.",
+    ].join("\n"),
+  },
+  {
+    topic: "goodwill",
+    title: "Goodwill coupons",
+    body: [
+      `A goodwill coupon is a percent-off coupon for a future order, offered as an apology when we or our carrier caused a problem with an order: ${Object.values(STORE_CAUSED_PROBLEMS).join(", ")}.`,
+      "Problems on the customer's side (a change of mind, the wrong size, a used item, a missed return window) don't qualify, and neither does disagreeing with a policy decision.",
+      `Coupons for one of those problems, up to ${RULES.goodwillMaxPercent}% and at most one per customer every ${RULES.goodwillCooldownDays} days, are issued right away. Anything else (a higher percentage, a second coupon within ${RULES.goodwillCooldownDays} days, or no store-caused problem) is reviewed by a team member.`,
+      `Goodwill coupons are single use, only for the customer's own account, and expire after ${RULES.goodwillExpiryDays} days.`,
     ].join("\n"),
   },
 ];

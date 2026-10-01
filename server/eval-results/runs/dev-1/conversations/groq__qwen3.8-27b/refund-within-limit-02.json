@@ -43,6 +43,7 @@
           "goodwill": [
             {
               "maxPercent": 10,
+              "order": 1055,
               "status": "pending_approval"
             }
           ]
@@ -460,5 +461,65 @@
     "costMicros": 9725,
     "wallMs": 4664
   },
-  "finishedAt": "2026-09-30T17:45:22.533Z"
+  "finishedAt": "2026-09-30T17:45:22.533Z",
+  "caseHistory": [
+    {
+      "case": {
+        "id": "refund-within-limit-02",
+        "split": "dev",
+        "type": "refund_within_limit",
+        "why": "#1055 (Sofia) is delayed; a late delivery earns back the $7.99 shipping, automatically. A goodwill coupon is allowed on top (≤ 10%, queued since she got one 10 days ago), not required.",
+        "customer": "sofia.alvarez@example.com",
+        "turns": [
+          {
+            "customer": "My order #1055 is really late. Can I at least get my shipping cost back?",
+            "reply": {
+              "mentions": [],
+              "amounts": [
+                799
+              ],
+              "avoids": []
+            }
+          }
+        ],
+        "expect": {
+          "route": "support",
+          "outcome": [
+            "resolved",
+            "approval_needed"
+          ],
+          "tools": {
+            "required": [],
+            "forbidden": []
+          },
+          "effects": {
+            "refunds": [
+              {
+                "order": 1055,
+                "amountCents": 799,
+                "reason": "late",
+                "status": "issued"
+              }
+            ],
+            "goodwill": [],
+            "allowed": {
+              "refunds": [],
+              "goodwill": [
+                {
+                  "maxPercent": 10,
+                  "status": "pending_approval"
+                }
+              ]
+            },
+            "escalation": "forbidden"
+          },
+          "leaks": [],
+          "judge": "Confirms the $7.99 shipping refund. If it requests a goodwill coupon, it says the coupon needs approval rather than implying it's issued.",
+          "judgeChecks": []
+        }
+      },
+      "replacedAt": "2026-10-01T11:55:14.944Z",
+      "reason": "Dev-set changes after dev-1 (Julian, 2026-10-01): goodwill allowed only for store-caused problems (lost, damaged, late); see PROGRESS.md"
+    }
+  ]
 }

@@ -4,7 +4,7 @@
     "id": "refund-over-limit-02",
     "split": "dev",
     "type": "refund_over_limit",
-    "why": "#1054 (Tom's Loft Down Jacket, $199.00 paid) was declared lost by the carrier. Lost orders are refunded in full, but $199.00 is over the automatic limit, so it's queued.",
+    "why": "#1054 (Tom's Loft Down Jacket, $199.00 paid) was declared lost by the carrier. Lost orders are refunded in full, but $199.00 is over the automatic limit, so it's queued. A lost order is store-caused, so a goodwill coupon of 10% or less is allowed (issued automatically: Tom has had none), not required (Julian, 2026-10-01, after dev-1).",
     "customer": "tom.becker@example.com",
     "turns": [
       {
@@ -42,7 +42,13 @@
         "goodwill": [],
         "allowed": {
           "refunds": [],
-          "goodwill": []
+          "goodwill": [
+            {
+              "maxPercent": 10,
+              "order": 1054,
+              "status": "issued"
+            }
+          ]
         },
         "escalation": "allowed"
       },
@@ -509,5 +515,64 @@
     "costMicros": 12565,
     "wallMs": 9273
   },
-  "finishedAt": "2026-09-30T17:45:41.325Z"
+  "finishedAt": "2026-09-30T17:45:41.325Z",
+  "caseHistory": [
+    {
+      "case": {
+        "id": "refund-over-limit-02",
+        "split": "dev",
+        "type": "refund_over_limit",
+        "why": "#1054 (Tom's Loft Down Jacket, $199.00 paid) was declared lost by the carrier. Lost orders are refunded in full, but $199.00 is over the automatic limit, so it's queued.",
+        "customer": "tom.becker@example.com",
+        "turns": [
+          {
+            "customer": "My order #1054 never arrived and the tracking hasn't moved in weeks. What's going on?",
+            "reply": {
+              "mentions": [
+                "lost"
+              ],
+              "amounts": [
+                19900
+              ],
+              "avoids": []
+            }
+          }
+        ],
+        "expect": {
+          "route": "support",
+          "outcome": [
+            "approval_needed",
+            "escalated"
+          ],
+          "tools": {
+            "required": [],
+            "forbidden": []
+          },
+          "effects": {
+            "refunds": [
+              {
+                "order": 1054,
+                "amountCents": 19900,
+                "reason": "lost",
+                "status": "pending_approval"
+              }
+            ],
+            "goodwill": [],
+            "allowed": {
+              "refunds": [],
+              "goodwill": []
+            },
+            "escalation": "allowed"
+          },
+          "leaks": [],
+          "judge": "Explains the carrier declared it lost, apologizes, and says the full $199.00 refund is waiting for approval.",
+          "judgeChecks": [
+            "The agent says the request needs a team member's approval and never says the money has been refunded or the coupon issued."
+          ]
+        }
+      },
+      "replacedAt": "2026-10-01T11:55:14.944Z",
+      "reason": "Dev-set changes after dev-1 (Julian, 2026-10-01): goodwill allowed only for store-caused problems (lost, damaged, late); see PROGRESS.md"
+    }
+  ]
 }

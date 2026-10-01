@@ -9,7 +9,7 @@ describe("reading what a conversation changed in the store", () => {
       expect(await effectsSince(tx, snap)).toEqual({ refunds: [], goodwill: [], escalations: 0 });
 
       await call(tx, "issue_refund", { orderId: 1050, amount: 29, reason: "damaged", item: "lamp-glowworm-300" }, as(MAYA));
-      await call(tx, "issue_goodwill_coupon", { customer: "maya.chen@example.com", percent: 10, reason: "sorry" }, as(MAYA));
+      await call(tx, "issue_goodwill_coupon", { customer: "maya.chen@example.com", orderId: 1050, percent: 10, reason: "sorry" }, as(MAYA));
       // Sofia got one 10 days ago, so hers is queued.
       await call(tx, "issue_goodwill_coupon", { customer: "sofia.alvarez@example.com", percent: 10, reason: "sorry" }, as(SOFIA));
       await call(tx, "issue_refund", { orderId: 1055, amount: 50, reason: "lost" }, as(SOFIA)); // denied: #1055 is delayed, not lost

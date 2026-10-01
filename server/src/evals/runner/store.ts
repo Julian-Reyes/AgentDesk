@@ -49,6 +49,8 @@ export type ConversationRecord = {
   /** Set when a turn failed because a provider was unreachable or kept erroring (not the model's own output). */
   providerError?: string;
   finishedAt: string;
+  /** Earlier snapshots of the case, oldest first, when an approved case change was applied to this saved run (updateCaseSnapshots). */
+  caseHistory?: { case: EvalCase; replacedAt: string; reason: string }[];
 };
 
 export type JudgeRecord = {
@@ -68,7 +70,16 @@ export type JudgeRecord = {
   calls: { latencyMs: number; inputTokens: number; outputTokens: number; cached: boolean; raw: string | null; error?: string }[];
 };
 
-export type Manifest = { name: string; split: string; models: string[]; caseIds: string[]; createdAt: string; notes?: string };
+export type Manifest = {
+  name: string;
+  split: string;
+  models: string[];
+  caseIds: string[];
+  createdAt: string;
+  notes?: string;
+  /** Approved case changes applied to this run after it ran (no agent calls replayed). */
+  caseUpdates?: { at: string; reason: string; caseIds: string[] }[];
+};
 
 export const slug = (id: string) => id.replaceAll("/", "__");
 

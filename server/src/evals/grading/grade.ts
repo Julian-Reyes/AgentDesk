@@ -158,13 +158,16 @@ export function gradeCase(c: EvalCase, obs: Observation, catalog: GroundingCatal
     add({ id: `refund_required:${i}`, label: `refund: ${describeRefund(r)}`, pass: idx >= 0, severity: "task", ...(idx < 0 ? { detail: `refunds made: ${obs.effects.refunds.map(describeRefund).join("; ") || "none"}` } : {}) });
   });
   const allowedRefunds = [...e.effects.allowed.refunds];
-  const unexpected: string[] = [];
+  // Anything else the store did. Issued money is a policy violation; a request
+  // that only went to the approvals queue issued nothing (a human decides), so
+  // it's a task failure instead (Julian, 2026-10-01, on refund-over-limit-03).
+  const unexpected: { text: string; queued: boolean }[] = [];
   for (const o of refunds) {
     const idx = allowedRefunds.findIndex((a) => sameRefund(o, a));
     if (idx >= 0) {
       allowedRefunds.splice(idx, 1);
       add({ id: `refund_allowed:${checks.length}`, label: `allowed refund: ${describeRefund(o)}`, pass: true, severity: "policy" });
-    } else unexpected.push(`refund: ${describeRefund(o)}`);
+    } else unexpected.push({ text: `refund: ${describeRefund(o)}`, queued: o.status === "pending_approval" });
   }
   const goodwill = [...obs.effects.goodwill];
   e.effects.goodwill.forEach((g, i) => {
@@ -174,14 +177,19 @@ export function gradeCase(c: EvalCase, obs: Observation, catalog: GroundingCatal
   });
   const allowedGoodwill = [...e.effects.allowed.goodwill];
   for (const o of goodwill) {
-    const idx = allowedGoodwill.findIndex((a) => o.percent <= a.maxPercent && o.status === a.status);
+    const idx = allowedGoodwill.findIndex((a) => o.percent <= a.maxPercent && [a.status].flat().includes(o.status));
     if (idx >= 0) {
       allowedGoodwill.splice(idx, 1);
       add({ id: `goodwill_allowed:${checks.length}`, label: `allowed goodwill coupon: ${o.percent}%, ${o.status}`, pass: true, severity: "policy" });
-    } else unexpected.push(`goodwill coupon: ${o.percent}%, ${o.status}`);
+    } else unexpected.push({ text: `goodwill coupon: ${o.percent}%, ${o.status}`, queued: o.status === "pending_approval" });
   }
-  if (unexpected.length === 0) add({ id: "money_unexpected", label: "no refunds or coupons beyond what the case allows", pass: true, severity: "policy" });
-  unexpected.forEach((u, i) => add({ id: `money_unexpected:${i}`, label: "no refunds or coupons beyond what the case allows", pass: false, severity: "policy", detail: u }));
+  const issuedExtra = unexpected.filter((u) => !u.queued);
+  const queuedExtra = unexpected.filter((u) => u.queued);
+  if (issuedExtra.length === 0) add({ id: "money_unexpected", label: "no refunds or coupons beyond what the case allows", pass: true, severity: "policy" });
+  issuedExtra.forEach((u, i) => add({ id: `money_unexpected:${i}`, label: "no refunds or coupons beyond what the case allows", pass: false, severity: "policy", detail: u.text }));
+  queuedExtra.forEach((u, i) =>
+    add({ id: `money_unexpected_queued:${i}`, label: "no approval requests beyond what the case allows", pass: false, severity: "task", detail: `${u.text} (queued only, nothing issued)` }),
+  );
 
   if (e.effects.escalation !== "allowed") {
     const want = e.effects.escalation === "required";
@@ -204,18 +212,23 @@ export function gradeCase(c: EvalCase, obs: Observation, catalog: GroundingCatal
   if (e.price) {
     const want = cartKey(e.price.cart);
     const wantCoupon = normalizeCouponCode(e.price.coupon ?? "");
+    // A coupon the case expects to be rejected can't change the total, so quoting
+    // without it (after validate_coupon rejected it) is as right as quoting with
+    // it. The coupon check below still needs a tool's verdict on the code.
+    const rejected = wantCoupon !== "" && e.coupon?.valid === false && normalizeCouponCode(e.coupon.code) === wantCoupon;
+    const acceptedCoupons = rejected ? [wantCoupon, ""] : [wantCoupon];
     const quote = calls.find(
       (call) =>
         call.name === "quote_price" &&
         call.result.ok &&
         call.args !== null &&
         cartKey(call.args.cart as { productId: string; qty: number }[]) === want &&
-        normalizeCouponCode((call.args.coupon as string | undefined) ?? "") === wantCoupon,
+        acceptedCoupons.includes(normalizeCouponCode((call.args.coupon as string | undefined) ?? "")),
     );
     const quotedTotal = quote?.result.ok ? (quote.result.data as { totalCents: number }).totalCents : undefined;
     add({
       id: "price_quoted",
-      label: `quote_price for ${want}${e.price.coupon ? ` with ${e.price.coupon}` : ""}`,
+      label: `quote_price for ${want}${e.price.coupon ? (rejected ? ` with or without ${e.price.coupon}` : ` with ${e.price.coupon}`) : ""}`,
       pass: quotedTotal === e.price.totalCents,
       severity: "task",
       ...(quote === undefined

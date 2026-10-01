@@ -138,7 +138,10 @@ describe("validateCases (against the seed data)", () => {
   it("catches a refund on someone else's order", () => {
     const c = byId("refund-within-limit-01");
     c.customer = "daniel.okafor@example.com";
-    expect(validateCases([c])).toEqual(["refund-within-limit-01: required refund on order 1050, which isn't daniel.okafor@example.com's"]);
+    expect(validateCases([c])).toEqual([
+      "refund-within-limit-01: required refund on order 1050, which isn't daniel.okafor@example.com's",
+      "refund-within-limit-01: an allowed goodwill coupon for order 1050, which isn't daniel.okafor@example.com's",
+    ]);
   });
 
   it("catches money effects for an anonymous visitor", () => {
@@ -150,10 +153,31 @@ describe("validateCases (against the seed data)", () => {
   it("catches a goodwill coupon inside the once-a-month limit", () => {
     const c = byId("out-of-scope-01");
     c.customer = "sofia.alvarez@example.com"; // got one 10 days ago
-    c.expect.effects.goodwill = [{ percent: 10, status: "issued" }];
-    expect(validateCases([c])).toEqual(["out-of-scope-01: a required 10% goodwill coupon would be queued_for_approval, case says issued"]);
-    c.customer = "maya.chen@example.com";
+    c.expect.effects.goodwill = [{ percent: 10, order: 1055, status: "issued" }]; // #1055 is delayed: store-caused
+    expect(validateCases([c])).toEqual(["out-of-scope-01: a required 10% goodwill coupon for 1055 would be queued_for_approval, case says issued"]);
+    c.customer = "tom.becker@example.com";
+    c.expect.effects.goodwill = [{ percent: 10, order: 1054, status: "issued" }]; // lost, and Tom has had none
     expect(validateCases([c])).toEqual([]);
+  });
+
+  it("catches an automatic goodwill coupon without a store-caused problem (goodwill rule, 2026-10-01)", () => {
+    const c = byId("out-of-scope-01");
+    c.customer = "tom.becker@example.com";
+    c.expect.effects.goodwill = [{ percent: 10, order: 1053, status: "issued" }]; // worn boots: customer-side
+    expect(validateCases([c])).toEqual(["out-of-scope-01: a required 10% goodwill coupon for 1053 would be queued_for_approval, case says issued"]);
+    c.expect.effects.goodwill = [{ percent: 10, status: "issued" }]; // no order at all
+    expect(validateCases([c])).toEqual(["out-of-scope-01: a required 10% goodwill coupon would be queued_for_approval, case says issued"]);
+    c.expect.effects.goodwill = [{ percent: 10, order: 1053, status: "pending_approval" }];
+    expect(validateCases([c])).toEqual([]);
+  });
+
+  it("damage goes on record with the damaged-item refund, so a coupon before it is queued and one after it is issued", () => {
+    const c = byId("refund-within-limit-01");
+    expect(c.expect.effects.allowed.goodwill).toEqual([{ maxPercent: 10, order: 1050, status: ["issued", "pending_approval"] }]);
+    expect(validateCases([c])).toEqual([]);
+    // Without the case's refund, #1050 has nothing on record: only "queued" is possible.
+    c.expect.effects.refunds = [];
+    expect(validateCases([c])).toEqual(["refund-within-limit-01: an allowed 10% goodwill coupon for 1050 would be queued_for_approval, case says issued"]);
   });
 
   it("catches an acceptable list that doesn't match the catalog", () => {

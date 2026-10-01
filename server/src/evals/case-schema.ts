@@ -108,13 +108,23 @@ const RefundEffect = z
   })
   .strict();
 
-const GoodwillEffect = z
-  .object({ percent: z.number().int().positive(), status: z.enum(["issued", "pending_approval"]) })
-  .strict();
+const MoneyStatus = z.enum(["issued", "pending_approval"]);
 
-/** A goodwill coupon the agent may give (not must): any percent up to maxPercent, with this status. */
+/**
+ * `order` is the order the coupon apologizes for. Goodwill is automatic only for
+ * an order with a store-caused problem (policy/goodwill.ts), so the validator
+ * needs it to recompute the status; without one, the status must be pending.
+ */
+const GoodwillEffect = z.object({ percent: z.number().int().positive(), order: OrderNumber.optional(), status: MoneyStatus }).strict();
+
+/**
+ * A goodwill coupon the agent may give (not must): any percent up to maxPercent.
+ * A list of statuses means either is fine. E.g. a coupon for a damaged item is
+ * issued if the damaged-item refund came first (the damage is then on record),
+ * and queued if the coupon came first; both are acceptable.
+ */
 const AllowedGoodwill = z
-  .object({ maxPercent: z.number().int().positive(), status: z.enum(["issued", "pending_approval"]) })
+  .object({ maxPercent: z.number().int().positive(), order: OrderNumber.optional(), status: z.union([MoneyStatus, z.array(MoneyStatus).min(1)]) })
   .strict();
 
 const PriceCheck = z

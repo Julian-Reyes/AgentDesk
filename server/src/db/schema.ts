@@ -120,6 +120,7 @@ export const POLICY_TOPICS = [
   "price_match",
   "damaged_items",
   "promotions",
+  "goodwill",
 ] as const;
 export type PolicyTopic = (typeof POLICY_TOPICS)[number];
 export const policyTopicEnum = pgEnum("policy_topic", POLICY_TOPICS);

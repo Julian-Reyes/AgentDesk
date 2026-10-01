@@ -13,6 +13,7 @@ import { buildResults, modelReport } from "../../src/evals/runner/report.ts";
 import { coverageNote } from "../../src/evals/runner/cli.ts";
 import { judgeCoverage, judgeFor, providerErrorOf, questionSetOf, regrade, runAgentsStage, runJudgeStage, unjudged } from "../../src/evals/runner/stages.ts";
 import { RunStore } from "../../src/evals/runner/store.ts";
+import { applyCaseSnapshotUpdate, planCaseSnapshotUpdate } from "../../src/evals/runner/update-cases.ts";
 import type { Observation } from "../../src/evals/run-case.ts";
 import { FakeProvider, fake, type FakeStep } from "../../src/llm/fake.ts";
 import type { ChatRequest } from "../../src/llm/types.ts";
@@ -234,5 +235,59 @@ describe("telling provider trouble from model failure", () => {
     expect(providerErrorOf(withError({ name: "ProviderError", message: "groq: timed out", failedAttempts: [{ message: "timeout" }] }))).toBe("groq: timed out");
     expect(providerErrorOf(withError({ name: "ProviderError", message: "HTTP 400", failedAttempts: [{ code: "tool_use_failed" }, { code: "tool_use_failed" }] }))).toBeUndefined();
     expect(providerErrorOf(withError({ name: "Error", message: "No reply after 8 model calls (step limit)." }))).toBeUndefined();
+  });
+});
+
+describe("applying approved case changes to a saved run", () => {
+  const current = ALL_CASES.find((c) => c.id === "refund-within-limit-01")!;
+  // The case as it was in dev-1: no goodwill coupon allowed.
+  const old = structuredClone(current);
+  old.expect.effects.allowed.goodwill = [];
+  old.why = "old why";
+  const couponScript = {
+    router: [route("support")],
+    agent: [
+      fake.tools(["issue_refund", { orderId: 1050, amount: 29, reason: "damaged", item: "lamp-glowworm-300" }]),
+      fake.tools(["issue_goodwill_coupon", { customer: "maya.chen@example.com", orderId: 1050, percent: 10, reason: "sorry" }]),
+      fake.reply("Refunded $29.00 to your original payment method, and here's 10% off your next order."),
+    ],
+  };
+  const savedRun = async () => {
+    const store = newStore();
+    store.saveManifest({ name: "t", split: "dev", models: ["fake/a"], caseIds: [old.id], createdAt: "2026-09-30T00:00:00Z" });
+    await stage(store, { "fake/a": teamWith(couponScript) }, [old]);
+    await runJudgeStage({ store, judgeModel: "judge/x", rubric: RUBRIC, provider: new FakeProvider([autoJudge]) });
+    return store;
+  };
+
+  it("re-grades with the current case, keeps the old snapshot and the judge's verdict, and logs the update", async () => {
+    const store = await savedRun();
+    expect(regrade(store.conversations())[0]!.grade.counts.policyViolations).toBe(1);
+
+    expect(planCaseSnapshotUpdate(store, ALL_CASES)).toEqual({
+      changes: [{ model: "fake/a", caseId: old.id, fields: ["why", "expect.effects"] }],
+      refused: [],
+    });
+    applyCaseSnapshotUpdate(store, ALL_CASES, "goodwill rule", "2026-10-01T00:00:00Z");
+
+    const [r] = regrade(store.conversations());
+    expect(r!.case).toEqual(current);
+    expect(r!.caseHistory).toEqual([{ case: old, replacedAt: "2026-10-01T00:00:00Z", reason: "goodwill rule" }]);
+    expect(r!.grade.counts.policyViolations).toBe(0);
+    expect(judgeFor(store, "judge/x", RUBRIC, r!)).not.toBeNull(); // same questions, so the verdict still counts
+    expect(store.manifest()!.caseUpdates).toEqual([{ at: "2026-10-01T00:00:00Z", reason: "goodwill rule", caseIds: [old.id] }]);
+    expect(planCaseSnapshotUpdate(store, ALL_CASES).changes).toEqual([]); // nothing left to do
+  });
+
+  it("refuses, writing nothing, when the script or what the judge saw changed", async () => {
+    const store = await savedRun();
+    const edited = structuredClone(current);
+    edited.expect.judgeChecks = ["A new question."];
+    expect(planCaseSnapshotUpdate(store, [edited]).refused).toMatchObject([{ caseId: old.id, why: "judgeChecks changed: this needs a new run or a re-judge" }]);
+    expect(() => applyCaseSnapshotUpdate(store, [edited], "x", "2026-10-01T00:00:00Z")).toThrow(/Refusing/);
+    edited.turns = [{ customer: "Different message." }];
+    expect(planCaseSnapshotUpdate(store, [edited]).refused[0]!.why).toBe("turns, judgeChecks changed: this needs a new run or a re-judge");
+    expect(store.conversations()[0]!.case).toEqual(old);
+    expect(store.manifest()!.caseUpdates).toBeUndefined();
   });
 });

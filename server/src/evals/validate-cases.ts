@@ -1,6 +1,6 @@
 import { DEFAULT_STORE_DATE, fixedClock } from "../domain/clock.ts";
 import { normalizeCouponCode } from "../policy/coupons.ts";
-import { decideGoodwill } from "../policy/goodwill.ts";
+import { decideGoodwill, storeCausedProblem } from "../policy/goodwill.ts";
 import { applyAutomaticPromotions, quote, type CartLine } from "../policy/pricing.ts";
 import { activePromotionsAt } from "../policy/promotions.ts";
 import { decideRefund } from "../policy/refunds.ts";
@@ -134,23 +134,49 @@ export function validateCases(cases: EvalCase[], seed: SeedData = buildSeedData(
     for (const r of e.effects.allowed.refunds) checkRefund(r, "allowed", false);
 
     // ---- Goodwill coupons (same order: required, then each allowed one at its max percent) ----
+    // Automatic only for an order with a store-caused problem: its status, or a
+    // lost/late/damaged refund on it (seeded, or required earlier in this case).
     let lastGoodwill =
       seed.coupons
         .filter((k) => k.source === "goodwill" && k.customerId === customerId)
         .map((k) => k.createdAt)
         .sort((a, b) => b.getTime() - a.getTime())[0] ?? null;
     let hasPending = false;
-    const checkGoodwill = (percent: number, status: "issued" | "pending_approval", kind: string) => {
-      const decision = decideGoodwill(percent, { lastIssuedAt: lastGoodwill, hasPending }, now);
-      const expected = status === "issued" ? "auto_approved" : "queued_for_approval";
-      if (decision.decision !== expected) problem(`${kind} ${percent}% goodwill coupon would be ${decision.decision}, case says ${status}`);
+    const problemOf = (orderNumber: number | undefined, withCaseRefunds: boolean) => {
+      if (orderNumber === undefined) return null;
+      const order = orderByNumber.get(orderNumber)!;
+      const reasons = [
+        ...seed.refunds.filter((x) => x.orderNumber === orderNumber).map((x) => x.reason),
+        ...(withCaseRefunds ? e.effects.refunds.filter((r) => r.order === orderNumber).map((r) => r.reason) : []),
+      ];
+      return storeCausedProblem({ status: order.status, refundReasons: reasons });
+    };
+    const statusOf = (decision: { decision: string }) => (decision.decision === "auto_approved" ? "issued" : "pending_approval");
+    /**
+     * Each listed status must be one the rules give, either after the case's
+     * required refunds or before them (the agent may make the coupon first).
+     */
+    const checkGoodwill = (percent: number, orderNumber: number | undefined, statuses: ("issued" | "pending_approval")[], kind: string) => {
+      if (orderNumber !== undefined) {
+        const order = orderByNumber.get(orderNumber);
+        if (!order) return problem(`${kind} goodwill coupon for unknown order ${orderNumber}`);
+        if (order.customerId !== customerId) return problem(`${kind} goodwill coupon for order ${orderNumber}, which isn't ${c.customer ?? "the anonymous visitor"}'s`);
+      }
+      const history = { lastIssuedAt: lastGoodwill, hasPending };
+      const after = statusOf(decideGoodwill(percent, problemOf(orderNumber, true), history, now));
+      const before = statusOf(decideGoodwill(percent, problemOf(orderNumber, false), history, now));
+      for (const status of statuses) {
+        if (status !== after && status !== before) {
+          problem(`${kind} ${percent}% goodwill coupon${orderNumber ? ` for ${orderNumber}` : ""} would be ${after === "issued" ? "auto_approved" : "queued_for_approval"}, case says ${status}`);
+        }
+      }
     };
     for (const g of e.effects.goodwill) {
-      checkGoodwill(g.percent, g.status, "a required");
+      checkGoodwill(g.percent, g.order, [g.status], "a required");
       if (g.status === "issued") lastGoodwill = now;
       else hasPending = true;
     }
-    for (const g of e.effects.allowed.goodwill) checkGoodwill(g.maxPercent, g.status, "an allowed");
+    for (const g of e.effects.allowed.goodwill) checkGoodwill(g.maxPercent, g.order, [g.status].flat(), "an allowed");
 
     // ---- Recommendation: the acceptable list must be exactly what the catalog allows ----
     if (e.recommendation) {

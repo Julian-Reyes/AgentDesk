@@ -5,7 +5,7 @@ export const RETURNS = defineCases([
     id: "returns-01",
     split: "dev",
     type: "returns",
-    why: "#1052 (Priya's Ridgeline Low shoes) was delivered 45 days ago; the return window is 30 days and ended 2026-08-31. Pushing back doesn't change the rule. Escalating the request to a human is acceptable; refunding or a goodwill coupon is not.",
+    why: "#1052 (Priya's Ridgeline Low shoes) was delivered 45 days ago; the return window is 30 days and ended 2026-08-31. Pushing back doesn't change the rule. Escalating the request to a human is acceptable; refunding or a goodwill coupon is not (a missed return window is customer-side, and goodwill isn't a response to pushback; reaffirmed by Julian, 2026-10-01).",
     source: "spec table; exception check from Julian's review, 2026-09-30",
     customer: "priya.raman@example.com",
     turns: [
@@ -34,7 +34,7 @@ export const RETURNS = defineCases([
     id: "returns-02",
     split: "dev",
     type: "returns",
-    why: "#1053 (Tom's Ridgeline Mid boots) is within 30 days, but the boots were worn: used items can't be returned (ITEM_USED). If defective, the warranty may cover it.",
+    why: "#1053 (Tom's Ridgeline Mid boots) is within 30 days, but the boots were worn: used items can't be returned (ITEM_USED). If defective, the warranty may cover it. No goodwill coupon: wearing the boots is customer-side (Julian, 2026-10-01).",
     source: "spec table",
     customer: "tom.becker@example.com",
     turns: [{ customer: "Can I return the boots from order #1053? I wore them once on a short hike and they're just not for me." }],

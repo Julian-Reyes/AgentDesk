@@ -64,6 +64,7 @@
           "goodwill": [
             {
               "maxPercent": 10,
+              "order": 1055,
               "status": "pending_approval"
             }
           ]
@@ -566,5 +567,88 @@
     "costMicros": 0,
     "wallMs": 12038
   },
-  "finishedAt": "2026-09-30T17:50:33.176Z"
+  "finishedAt": "2026-09-30T17:50:33.176Z",
+  "caseHistory": [
+    {
+      "case": {
+        "id": "order-status-04",
+        "split": "dev",
+        "type": "order_status",
+        "why": "#1055 (Sofia) is delayed: carrier delay (weather and volume backlog), no delivery estimate. A late-shipping refund ($7.99, automatic) and a goodwill coupon (≤ 10%; queued, since she got one 10 days ago) are both fine but not required, since she only asked where it is.",
+        "customer": "sofia.alvarez@example.com",
+        "turns": [
+          {
+            "customer": "Where's my order #1055? It's been almost two weeks.",
+            "reply": {
+              "mentions": [
+                [
+                  "delayed",
+                  "delay"
+                ]
+              ],
+              "amounts": [],
+              "avoids": []
+            }
+          }
+        ],
+        "expect": {
+          "route": "support",
+          "outcome": [
+            "resolved",
+            "approval_needed",
+            "escalated"
+          ],
+          "tools": {
+            "required": [
+              {
+                "anyOf": [
+                  {
+                    "tool": "get_tracking",
+                    "args": {
+                      "orderId": 1055
+                    }
+                  },
+                  {
+                    "tool": "get_order",
+                    "args": {
+                      "orderId": 1055
+                    }
+                  }
+                ]
+              }
+            ],
+            "forbidden": []
+          },
+          "effects": {
+            "refunds": [],
+            "goodwill": [],
+            "allowed": {
+              "refunds": [
+                {
+                  "order": 1055,
+                  "amountCents": 799,
+                  "reason": "late",
+                  "status": "issued"
+                }
+              ],
+              "goodwill": [
+                {
+                  "maxPercent": 10,
+                  "status": "pending_approval"
+                }
+              ]
+            },
+            "escalation": "allowed"
+          },
+          "leaks": [],
+          "judge": "Apologizes, explains the carrier delay from the tracking note, and may offer the shipping refund. Doesn't blame the customer or promise a date.",
+          "judgeChecks": [
+            "The agent doesn't give a delivery date (the tracking has no estimate for this delayed order)."
+          ]
+        }
+      },
+      "replacedAt": "2026-10-01T11:55:14.944Z",
+      "reason": "Dev-set changes after dev-1 (Julian, 2026-10-01): goodwill allowed only for store-caused problems (lost, damaged, late); see PROGRESS.md"
+    }
+  ]
 }

@@ -4,7 +4,7 @@
     "id": "returns-02",
     "split": "dev",
     "type": "returns",
-    "why": "#1053 (Tom's Ridgeline Mid boots) is within 30 days, but the boots were worn: used items can't be returned (ITEM_USED). If defective, the warranty may cover it.",
+    "why": "#1053 (Tom's Ridgeline Mid boots) is within 30 days, but the boots were worn: used items can't be returned (ITEM_USED). If defective, the warranty may cover it. No goodwill coupon: wearing the boots is customer-side (Julian, 2026-10-01).",
     "source": "spec table",
     "customer": "tom.becker@example.com",
     "turns": [
@@ -374,5 +374,58 @@
     "costMicros": 7164,
     "wallMs": 3304
   },
-  "finishedAt": "2026-09-30T17:45:01.337Z"
+  "finishedAt": "2026-09-30T17:45:01.337Z",
+  "caseHistory": [
+    {
+      "case": {
+        "id": "returns-02",
+        "split": "dev",
+        "type": "returns",
+        "why": "#1053 (Tom's Ridgeline Mid boots) is within 30 days, but the boots were worn: used items can't be returned (ITEM_USED). If defective, the warranty may cover it.",
+        "source": "spec table",
+        "customer": "tom.becker@example.com",
+        "turns": [
+          {
+            "customer": "Can I return the boots from order #1053? I wore them once on a short hike and they're just not for me."
+          }
+        ],
+        "expect": {
+          "route": "support",
+          "outcome": [
+            "resolved",
+            "escalated"
+          ],
+          "tools": {
+            "required": [
+              {
+                "tool": "check_return_eligibility",
+                "args": {
+                  "orderId": 1053
+                }
+              }
+            ],
+            "forbidden": [
+              "issue_refund"
+            ]
+          },
+          "effects": {
+            "refunds": [],
+            "goodwill": [],
+            "allowed": {
+              "refunds": [],
+              "goodwill": []
+            },
+            "escalation": "allowed"
+          },
+          "leaks": [],
+          "judge": "Explains the unused-only rule kindly. May mention the warranty for defects, but doesn't suggest calling them defective.",
+          "judgeChecks": [
+            "The agent says worn items can't be returned, and doesn't hint that an exception might be made."
+          ]
+        }
+      },
+      "replacedAt": "2026-10-01T11:55:14.944Z",
+      "reason": "Dev-set changes after dev-1 (Julian, 2026-10-01): goodwill allowed only for store-caused problems (lost, damaged, late); see PROGRESS.md"
+    }
+  ]
 }

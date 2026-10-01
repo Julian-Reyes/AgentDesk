@@ -1,9 +1,9 @@
-import { and, asc, desc, eq, sql } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
 import { z } from "zod";
 import * as s from "../db/schema.ts";
 import { addDays } from "../domain/clock.ts";
 import { formatCents } from "../domain/money.ts";
-import { decideGoodwill } from "../policy/goodwill.ts";
+import { decideGoodwill, storeCausedProblem, type StoreCausedProblem } from "../policy/goodwill.ts";
 import { AGENT_REFUND_REASONS, decideRefund, type RefundItem } from "../policy/refunds.ts";
 import { checkReturnEligibility } from "../policy/returns.ts";
 import { RULES } from "../policy/rules.ts";
@@ -259,14 +259,16 @@ export const issueRefund = defineTool({
 
 export const issueGoodwillCoupon = defineTool({
   name: "issue_goodwill_coupon",
-  description: `Give the signed-in customer a one-time percent-off coupon as an apology. Up to ${RULES.goodwillMaxPercent}% and one per ${RULES.goodwillCooldownDays} days is immediate; anything more goes to a human for approval.`,
+  description: `Give the signed-in customer a one-time percent-off coupon as an apology for a problem the store or carrier caused with an order (lost, delayed or damaged), passing that order. Not for customer-side reasons such as a denied return. Up to ${RULES.goodwillMaxPercent}% and one per ${RULES.goodwillCooldownDays} days is immediate when the order has such a problem on record; anything else goes to a human for approval.`,
   agents: ["support"],
   args: z.object({
     customer: z.string().trim().toLowerCase().pipe(z.email()).describe("The signed-in customer's email."),
+    /** The order the apology is for. Without one, the request always goes to approval. */
+    orderId: orderNumberArg.optional(),
     percent: z.number().int().min(1).max(50),
     reason: z.string().min(3).max(500),
   }),
-  async run(ctx, { customer: email, percent, reason }) {
+  async run(ctx, { customer: email, orderId, percent, reason }) {
     return ctx.db.transaction(async (tx) => {
       const tctx = { ...ctx, db: tx };
       const customer = await loadSessionCustomer(tctx);
@@ -288,12 +290,24 @@ export const issueGoodwillCoupon = defineTool({
         .where(and(eq(s.approvals.customerId, customer.id), eq(s.approvals.kind, "goodwill_coupon"), eq(s.approvals.status, "pending")))
         .limit(1);
 
-      const decision = decideGoodwill(percent, { lastIssuedAt: last?.createdAt ?? null, hasPending: !!pending }, ctx.now);
+      // Whether the store caused a problem comes from the order's record, never from the model's `reason`.
+      let problem: StoreCausedProblem | null = null;
+      if (orderId !== undefined) {
+        const owned = await loadOwnedOrder(tctx, orderId);
+        if (!owned.ok) return owned;
+        const refunds = await tx
+          .select({ reason: s.refunds.reason })
+          .from(s.refunds)
+          .where(and(eq(s.refunds.orderNumber, orderId), inArray(s.refunds.status, ["issued", "pending_approval"])));
+        problem = storeCausedProblem({ status: owned.data.status, refundReasons: refunds.map((r) => r.reason) });
+      }
+
+      const decision = decideGoodwill(percent, problem, { lastIssuedAt: last?.createdAt ?? null, hasPending: !!pending }, ctx.now);
 
       if (decision.decision === "queued_for_approval") {
         const [approval] = await tx
           .insert(s.approvals)
-          .values({ kind: "goodwill_coupon", customerId: customer.id, payload: { percent, reason }, reason: decision.why, createdAt: ctx.now })
+          .values({ kind: "goodwill_coupon", customerId: customer.id, orderNumber: orderId ?? null, payload: { percent, reason }, reason: decision.why, createdAt: ctx.now })
           .returning();
         return ok(
           {

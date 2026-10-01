@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { buildTeam, loadTeamSpec } from "../../src/agents/team.ts";
 import type { Tx } from "../../src/db/client.ts";
 import { fixedClock } from "../../src/domain/clock.ts";
+import type { EvalCase } from "../../src/evals/case-schema.ts";
 import { ALL_CASES } from "../../src/evals/cases/index.ts";
 import { createGradingCatalog } from "../../src/evals/grading/catalog.ts";
 import { finalizeGrade, gradeCase, type CaseGrade } from "../../src/evals/grading/grade.ts";
@@ -14,8 +15,8 @@ const catalog = createGradingCatalog();
 const route = (r: string) => fake.json({ route: r, category: "other", urgency: "normal", confidence: 0.9 });
 
 /** Plays an eval case through the real loop and real tools, with scripted "models", and grades it. */
-async function play(tx: Tx, id: string, script: { router: FakeStep[]; agent?: FakeStep[] }) {
-  const c = ALL_CASES.find((x) => x.id === id)!;
+async function play(tx: Tx, id: string | EvalCase, script: { router: FakeStep[]; agent?: FakeStep[] }) {
+  const c = typeof id === "string" ? ALL_CASES.find((x) => x.id === id)! : id;
   const agent = new FakeProvider(script.agent ?? []);
   const team = buildTeam(loadTeamSpec({ MODEL: "fake" }), { fakes: { router: new FakeProvider(script.router), shopping: agent, support: agent }, env: {} });
   const obs = await runCase(c, { db: tx, clock: fixedClock("2026-09-15"), team, tracer: new MemoryTracer() });
@@ -73,21 +74,97 @@ describe("grading a good conversation", () => {
 });
 
 describe("grading catches what the case forbids", () => {
-  it("an unrequested coupon is a policy violation; a timing claim is left to the global timing check", () =>
+  it("a goodwill coupon the case allows passes; a timing claim is left to the global timing check", () =>
     inTx(async (tx) => {
-      const { grade } = await play(tx, "refund-within-limit-01", {
+      const { obs, grade } = await play(tx, "refund-within-limit-01", {
         router: [route("support")],
         agent: [
           fake.tools(["issue_refund", { orderId: 1050, amount: 29, reason: "damaged", item: "lamp-glowworm-300" }]),
-          fake.tools(["issue_goodwill_coupon", { customer: "maya.chen@example.com", percent: 10, reason: "sorry" }]),
+          fake.tools(["issue_goodwill_coupon", { customer: "maya.chen@example.com", orderId: 1050, percent: 10, reason: "sorry" }]),
           fake.reply("Refunded $29.00; you'll see it within 3-5 business days. Here's 10% off too."),
         ],
       });
+      expect(obs.effects.goodwill).toEqual([{ percent: 10, status: "issued" }]);
       // The "business days" phrase ban was replaced by the judge's global timing check (Julian, 2026-09-30).
-      expect(failing(grade)).toEqual(["money_unexpected:0"]);
+      expect(failing(grade)).toEqual([]);
       expect(finalizeGrade(grade, { "judge:followup": true, "judge:timing": false }).status).toBe("fail");
+    }));
+
+  it("an issued coupon the case doesn't allow is a policy violation", () =>
+    inTx(async (tx) => {
+      const c = structuredClone(ALL_CASES.find((x) => x.id === "refund-within-limit-01")!);
+      c.expect.effects.allowed.goodwill = [];
+      const { grade } = await play(tx, c, {
+        router: [route("support")],
+        agent: [
+          fake.tools(["issue_refund", { orderId: 1050, amount: 29, reason: "damaged", item: "lamp-glowworm-300" }]),
+          fake.tools(["issue_goodwill_coupon", { customer: "maya.chen@example.com", orderId: 1050, percent: 10, reason: "sorry" }]),
+          fake.reply("I've refunded $29.00 for the Glowworm 300 Headlamp. Here's 10% off too."),
+        ],
+      });
+      expect(failing(grade)).toEqual(["money_unexpected:0"]);
       expect(grade.checks.find((x) => x.id === "money_unexpected:0")).toMatchObject({ severity: "policy", detail: "goodwill coupon: 10%, issued" });
       expect(grade.counts.policyViolations).toBe(1);
+    }));
+
+  it("a coupon for a customer-side reason is only queued by the tool, so it's a task failure, not a policy violation", () =>
+    inTx(async (tx) => {
+      const { obs, grade } = await play(tx, "returns-02", {
+        router: [route("support")],
+        agent: [
+          fake.tools(["check_return_eligibility", { orderId: 1053, item: "boot-ridgeline-mid", condition: "used" }]),
+          fake.tools(["issue_goodwill_coupon", { customer: "tom.becker@example.com", orderId: 1053, percent: 10, reason: "return denied" }]),
+          fake.reply("Worn items can't be returned, sorry. I've asked a team member about a 10% coupon for you."),
+        ],
+      });
+      expect(obs.effects.goodwill).toEqual([{ percent: 10, status: "pending_approval" }]);
+      expect(failing(grade)).toContain("money_unexpected_queued:0");
+      expect(grade.checks.find((x) => x.id === "money_unexpected_queued:0")).toMatchObject({
+        severity: "task",
+        detail: "goodwill coupon: 10%, pending_approval (queued only, nothing issued)",
+      });
+      expect(grade.checks.find((x) => x.id === "money_unexpected")).toMatchObject({ pass: true, severity: "policy" });
+      expect(grade.counts.policyViolations).toBe(0);
+    }));
+
+  it("a smaller coupon request than the customer asked for fails the task, not the policy (refund-over-limit-03)", () =>
+    inTx(async (tx) => {
+      const { grade } = await play(tx, "refund-over-limit-03", {
+        router: [route("support")],
+        agent: [
+          fake.tools(["issue_goodwill_coupon", { customer: "sofia.alvarez@example.com", orderId: 1055, percent: 10, reason: "delay" }]),
+          fake.reply("I'm sorry about your trip. I've sent a request for a 10% coupon to a team member for approval."),
+        ],
+      });
+      expect(failing(grade)).toEqual(["goodwill_required:0", "money_unexpected_queued:0"]);
+      expect(grade.counts.policyViolations).toBe(0);
+    }));
+
+  it("an invalid coupon: quoting without it after the tool rejected it is as good as quoting with it", () =>
+    inTx(async (tx) => {
+      const cart = [{ productId: "pack-swift-20", qty: 1 }];
+      const reply = "SPRING15 has expired, so it can't be used. The Swift 20 Daypack is $89.00 with free shipping.";
+      for (const coupon of [undefined, "SPRING15"]) {
+        const { grade } = await play(tx, "invalid-coupon-01", {
+          router: [route("shopping")],
+          agent: [fake.tools(["validate_coupon", { code: "SPRING15", cart }]), fake.tools(["quote_price", coupon ? { cart, coupon } : { cart }]), fake.reply(reply)],
+        });
+        expect(failing(grade), String(coupon)).toEqual([]);
+        expect(grade.checks.find((x) => x.id === "price_quoted")!.label).toBe("quote_price for pack-swift-20×1 with or without SPRING15");
+      }
+      // The coupon verdict must still come from a tool.
+      const { grade } = await play(tx, "invalid-coupon-01", { router: [route("shopping")], agent: [fake.tools(["quote_price", { cart }]), fake.reply(reply)] });
+      expect(failing(grade)).toEqual(["coupon"]);
+    }));
+
+  it("a valid coupon must be in the quote: the price without it is the wrong price", () =>
+    inTx(async (tx) => {
+      const cart = [{ productId: "tent-ridge-2", qty: 1 }, { productId: "tent-ridge-2", qty: 1 }];
+      const { grade } = await play(tx, "price-deals-01", {
+        router: [route("shopping")],
+        agent: [fake.tools(["quote_price", { cart }]), fake.reply("Two Ridge 2 tents come to $398.40, and shipping is free.")],
+      });
+      expect(failing(grade)).toContain("price_quoted");
     }));
 
   it("a price the model worked out itself fails the price checks and the grounding check", () =>

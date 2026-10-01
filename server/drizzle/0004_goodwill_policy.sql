@@ -1,0 +1,1 @@
+ALTER TYPE "public"."policy_topic" ADD VALUE 'goodwill';

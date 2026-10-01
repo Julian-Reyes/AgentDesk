@@ -283,23 +283,70 @@ describe("issue_refund", () => {
 });
 
 describe("issue_goodwill_coupon", () => {
-  it("issues up to 10% immediately, as a single-use code for that customer", () =>
+  it("issues up to 10% immediately for a store-caused problem, as a single-use code for that customer", () =>
     inTx(async (tx) => {
-      const r = (await call(tx, "issue_goodwill_coupon", { customer: "maya.chen@example.com", percent: 10, reason: "late order" }, as(MAYA))) as any;
+      // #1054 is Tom's lost order.
+      const r = (await call(tx, "issue_goodwill_coupon", { customer: "tom.becker@example.com", orderId: "#1054", percent: 10, reason: "lost order" }, as(TOM))) as any;
       expect(r).toMatchObject({ ok: true, policyDecision: "auto_approved", data: { status: "issued", percentOff: 10 } });
       const [coupon] = await tx.select().from(s.coupons).where(eq(s.coupons.code, r.data.code));
-      expect(coupon).toMatchObject({ customerId: MAYA, singleUse: true, source: "goodwill", value: 10 });
+      expect(coupon).toMatchObject({ customerId: TOM, singleUse: true, source: "goodwill", value: 10 });
     }));
 
-  it("queues 15% for approval", () =>
+  it("queues a coupon for a customer-side reason, or with no order, however small (goodwill rule, 2026-10-01)", () =>
     inTx(async (tx) => {
-      const r = await call(tx, "issue_goodwill_coupon", { customer: "maya.chen@example.com", percent: 15, reason: "damaged gear" }, as(MAYA));
+      // #1053: boots worn once, return denied. The model's `reason` can't change this.
+      const worn = (await call(tx, "issue_goodwill_coupon", { customer: "tom.becker@example.com", orderId: 1053, percent: 5, reason: "store damaged the boots" }, as(TOM))) as any;
+      expect(worn).toMatchObject({ ok: true, policyDecision: "queued_for_approval", data: { status: "pending_approval" } });
+      const [approval] = await tx.select().from(s.approvals).where(eq(s.approvals.id, worn.data.approvalId));
+      expect(approval).toMatchObject({ kind: "goodwill_coupon", customerId: TOM, orderNumber: 1053 });
+      expect(approval!.reason).toMatch(/store-caused problem/);
+
+      const none = await call(tx, "issue_goodwill_coupon", { customer: "maya.chen@example.com", percent: 5, reason: "sorry" }, as(MAYA));
+      expect(none).toMatchObject({ policyDecision: "queued_for_approval" });
+      expect(await tx.select().from(s.coupons).where(eq(s.coupons.source, "goodwill"))).toHaveLength(1); // only Sofia's seeded one
+    }));
+
+  it("damage counts once a damaged-item refund is on record", () =>
+    inTx(async (tx) => {
+      const coupon = (orderId: number) => call(tx, "issue_goodwill_coupon", { customer: "maya.chen@example.com", orderId, percent: 10, reason: "sorry" }, as(MAYA));
+      // #1050 delivered with a cracked lamp, but nothing on record yet.
+      expect(await coupon(1050)).toMatchObject({ policyDecision: "queued_for_approval" });
+      await tx.delete(s.approvals); // otherwise the first request, still pending, queues the second
+      await call(tx, "issue_refund", { orderId: 1050, amount: 29, reason: "damaged", item: "lamp-glowworm-300" }, as(MAYA));
+      expect(await coupon(1050)).toMatchObject({ policyDecision: "auto_approved", data: { status: "issued" } });
+    }));
+
+  it("a damaged-item refund waiting for approval counts too", () =>
+    inTx(async (tx) => {
+      // Priya's $179.99 bag goes to approval: the damage is on record while it waits.
+      await call(tx, "issue_refund", { orderId: 1051, amount: 179.99, reason: "damaged", item: "bag-harbor-double" }, as(PRIYA));
+      const pending = await call(tx, "issue_goodwill_coupon", { customer: "priya.raman@example.com", orderId: 1051, percent: 10, reason: "sorry" }, as(PRIYA));
+      expect(pending).toMatchObject({ policyDecision: "auto_approved" });
+    }));
+
+  it("a rejected damaged-item refund isn't a store-caused problem", () =>
+    inTx(async (tx) => {
+      await tx.insert(s.refunds).values({ orderNumber: 1042, amountCents: 1000, reason: "damaged", status: "rejected", createdAt: TEST_NOW });
+      const r = await call(tx, "issue_goodwill_coupon", { customer: "maya.chen@example.com", orderId: 1042, percent: 10, reason: "sorry" }, as(MAYA));
+      expect(r).toMatchObject({ policyDecision: "queued_for_approval" });
+    }));
+
+  it("someone else's order looks like a missing one, and nothing is queued", () =>
+    inTx(async (tx) => {
+      const r = await call(tx, "issue_goodwill_coupon", { customer: "maya.chen@example.com", orderId: 1054, percent: 10, reason: "sorry" }, as(MAYA));
+      expect(r).toMatchObject({ ok: false, error: { code: "ORDER_NOT_FOUND" } });
+      expect(await tx.select().from(s.approvals)).toHaveLength(0);
+    }));
+
+  it("queues 15% for approval, even for a store-caused problem", () =>
+    inTx(async (tx) => {
+      const r = await call(tx, "issue_goodwill_coupon", { customer: "tom.becker@example.com", orderId: 1054, percent: 15, reason: "lost order" }, as(TOM));
       expect(r).toMatchObject({ policyDecision: "queued_for_approval", data: { status: "pending_approval" } });
     }));
 
   it("queues a second coupon within 30 days (Sofia got one 10 days ago)", () =>
     inTx(async (tx) => {
-      const r = await call(tx, "issue_goodwill_coupon", { customer: "sofia.alvarez@example.com", percent: 5, reason: "delay" }, as(SOFIA));
+      const r = await call(tx, "issue_goodwill_coupon", { customer: "sofia.alvarez@example.com", orderId: 1055, percent: 5, reason: "delay" }, as(SOFIA));
       expect(r).toMatchObject({ policyDecision: "queued_for_approval" });
     }));
 
@@ -311,7 +358,8 @@ describe("issue_goodwill_coupon", () => {
 
   it("the issued code works in quote_price for its owner only", () =>
     inTx(async (tx) => {
-      const issued = (await call(tx, "issue_goodwill_coupon", { customer: "maya.chen@example.com", percent: 10, reason: "sorry" }, as(MAYA))) as any;
+      await call(tx, "issue_refund", { orderId: 1050, amount: 29, reason: "damaged", item: "lamp-glowworm-300" }, as(MAYA));
+      const issued = (await call(tx, "issue_goodwill_coupon", { customer: "maya.chen@example.com", orderId: 1050, percent: 10, reason: "sorry" }, as(MAYA))) as any;
       const cart = [{ productId: "stove-quickboil", qty: 1 }];
       expect(await call(tx, "quote_price", { cart, coupon: issued.data.code }, as(MAYA))).toMatchObject({
         data: { coupon: { applied: true, discount: "-$12.90" } },

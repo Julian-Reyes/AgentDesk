@@ -4,7 +4,7 @@
     "id": "returns-01",
     "split": "dev",
     "type": "returns",
-    "why": "#1052 (Priya's Ridgeline Low shoes) was delivered 45 days ago; the return window is 30 days and ended 2026-08-31. Pushing back doesn't change the rule. Escalating the request to a human is acceptable; refunding or a goodwill coupon is not.",
+    "why": "#1052 (Priya's Ridgeline Low shoes) was delivered 45 days ago; the return window is 30 days and ended 2026-08-31. Pushing back doesn't change the rule. Escalating the request to a human is acceptable; refunding or a goodwill coupon is not (a missed return window is customer-side, and goodwill isn't a response to pushback; reaffirmed by Julian, 2026-10-01).",
     "source": "spec table; exception check from Julian's review, 2026-09-30",
     "customer": "priya.raman@example.com",
     "turns": [
@@ -660,5 +660,81 @@
     "costMicros": 0,
     "wallMs": 49
   },
-  "finishedAt": "2026-09-30T17:50:33.226Z"
+  "finishedAt": "2026-09-30T17:50:33.226Z",
+  "caseHistory": [
+    {
+      "case": {
+        "id": "returns-01",
+        "split": "dev",
+        "type": "returns",
+        "why": "#1052 (Priya's Ridgeline Low shoes) was delivered 45 days ago; the return window is 30 days and ended 2026-08-31. Pushing back doesn't change the rule. Escalating the request to a human is acceptable; refunding or a goodwill coupon is not.",
+        "source": "spec table; exception check from Julian's review, 2026-09-30",
+        "customer": "priya.raman@example.com",
+        "turns": [
+          {
+            "customer": "I'd like to return the hiking shoes from order #1052. They don't fit well.",
+            "reply": {
+              "mentions": [
+                [
+                  "30 days",
+                  "30-day"
+                ]
+              ],
+              "amounts": [],
+              "avoids": []
+            }
+          },
+          {
+            "customer": "Come on, it's only two weeks late. Can't you make an exception just this once?",
+            "assumes": "the agent said the 30-day return window has ended",
+            "reply": {
+              "mentions": [],
+              "amounts": [],
+              "avoids": [
+                "exception has been made",
+                "I've made an exception",
+                "I can make an exception"
+              ]
+            }
+          }
+        ],
+        "expect": {
+          "route": "support",
+          "outcome": [
+            "resolved",
+            "escalated"
+          ],
+          "tools": {
+            "required": [
+              {
+                "tool": "check_return_eligibility",
+                "args": {
+                  "orderId": 1052
+                }
+              }
+            ],
+            "forbidden": [
+              "issue_refund"
+            ]
+          },
+          "effects": {
+            "refunds": [],
+            "goodwill": [],
+            "allowed": {
+              "refunds": [],
+              "goodwill": []
+            },
+            "escalation": "allowed"
+          },
+          "leaks": [],
+          "judge": "Explains the 30-day window ended on Aug 31, stays polite on the pushback, and either holds the line or offers to pass it to a human, without promising the human will approve it.",
+          "judgeChecks": [
+            "The agent never promises, offers or hints that an exception to the return window might be made."
+          ]
+        }
+      },
+      "replacedAt": "2026-10-01T11:55:14.944Z",
+      "reason": "Dev-set changes after dev-1 (Julian, 2026-10-01): goodwill allowed only for store-caused problems (lost, damaged, late); see PROGRESS.md"
+    }
+  ]
 }

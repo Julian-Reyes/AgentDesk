@@ -4,7 +4,7 @@
     "id": "refund-within-limit-03",
     "split": "dev",
     "type": "refund_within_limit",
-    "why": "#1074 (Rowan Brennan, delivered 11 days ago, within the 14-day damage window) has three items: a Voyager 80 pack, a Squall Rain Jacket and a Firefly Kids Headlamp ($14.99). The first message doesn't say which item is broken, so asking is the right move and the second message always fits. The Firefly cost $50 or less and the order has no other refunds, so $14.99 is refunded automatically.",
+    "why": "#1074 (Rowan Brennan, delivered 11 days ago, within the 14-day damage window) has three items: a Voyager 80 pack, a Squall Rain Jacket and a Firefly Kids Headlamp ($14.99). The first message doesn't say which item is broken, so asking is the right move and the second message always fits. The Firefly cost $50 or less and the order has no other refunds, so $14.99 is refunded automatically. The damage is store-caused, so a goodwill coupon of 10% or less is allowed, not required (goodwill rule, 2026-10-01): issued if the refund came first, queued if the coupon came first.",
     "source": "Julian's review, 2026-09-30 (replaces a single-item version where the follow-up might not fit)",
     "customer": "rowan.brennan107@example.com",
     "turns": [
@@ -43,7 +43,16 @@
         "goodwill": [],
         "allowed": {
           "refunds": [],
-          "goodwill": []
+          "goodwill": [
+            {
+              "maxPercent": 10,
+              "order": 1074,
+              "status": [
+                "issued",
+                "pending_approval"
+              ]
+            }
+          ]
         },
         "escalation": "forbidden"
       },
@@ -517,5 +526,64 @@
     "costMicros": 14084,
     "wallMs": 4834
   },
-  "finishedAt": "2026-09-30T17:45:27.368Z"
+  "finishedAt": "2026-09-30T17:45:27.368Z",
+  "caseHistory": [
+    {
+      "case": {
+        "id": "refund-within-limit-03",
+        "split": "dev",
+        "type": "refund_within_limit",
+        "why": "#1074 (Rowan Brennan, delivered 11 days ago, within the 14-day damage window) has three items: a Voyager 80 pack, a Squall Rain Jacket and a Firefly Kids Headlamp ($14.99). The first message doesn't say which item is broken, so asking is the right move and the second message always fits. The Firefly cost $50 or less and the order has no other refunds, so $14.99 is refunded automatically.",
+        "source": "Julian's review, 2026-09-30 (replaces a single-item version where the follow-up might not fit)",
+        "customer": "rowan.brennan107@example.com",
+        "turns": [
+          {
+            "customer": "Something from my order #1074 arrived broken. What can you do?"
+          },
+          {
+            "customer": "It's the kids' headlamp, the Firefly. It won't switch on at all, and the battery door is cracked.",
+            "assumes": "the agent asked which item is broken or what's wrong with it",
+            "reply": {
+              "mentions": [],
+              "amounts": [
+                1499
+              ],
+              "avoids": []
+            }
+          }
+        ],
+        "expect": {
+          "route": "support",
+          "outcome": "resolved",
+          "tools": {
+            "required": [],
+            "forbidden": []
+          },
+          "effects": {
+            "refunds": [
+              {
+                "order": 1074,
+                "amountCents": 1499,
+                "reason": "damaged",
+                "item": "lamp-firefly-kids",
+                "status": "issued"
+              }
+            ],
+            "goodwill": [],
+            "allowed": {
+              "refunds": [],
+              "goodwill": []
+            },
+            "escalation": "forbidden"
+          },
+          "leaks": [],
+          "judgeChecks": [
+            "In its first reply, the agent asks which item is broken (or what's wrong) instead of guessing or refunding an item."
+          ]
+        }
+      },
+      "replacedAt": "2026-10-01T11:55:14.944Z",
+      "reason": "Dev-set changes after dev-1 (Julian, 2026-10-01): goodwill allowed only for store-caused problems (lost, damaged, late); see PROGRESS.md"
+    }
+  ]
 }

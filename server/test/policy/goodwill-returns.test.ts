@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { decideGoodwill } from "../../src/policy/goodwill.ts";
+import { decideGoodwill, STORE_CAUSED_PROBLEMS, storeCausedProblem } from "../../src/policy/goodwill.ts";
+import { RULES } from "../../src/policy/rules.ts";
+import { POLICY_DOCS } from "../../src/seed/policies.ts";
 import { checkReturnEligibility } from "../../src/policy/returns.ts";
 
 const now = new Date("2026-09-15T12:00:00Z");
@@ -8,21 +10,56 @@ const daysAgo = (n: number) => new Date(now.getTime() - n * 86_400_000);
 describe("decideGoodwill", () => {
   const fresh = { lastIssuedAt: null, hasPending: false };
 
-  it("auto-approves up to 10%", () => {
-    expect(decideGoodwill(10, fresh, now).decision).toBe("auto_approved");
+  it("auto-approves up to 10% for a store-caused problem", () => {
+    for (const problem of ["lost", "late", "damaged"] as const) expect(decideGoodwill(10, problem, fresh, now).decision).toBe("auto_approved");
   });
   it("queues 11% and above", () => {
-    expect(decideGoodwill(11, fresh, now).decision).toBe("queued_for_approval");
+    expect(decideGoodwill(11, "lost", fresh, now).decision).toBe("queued_for_approval");
+  });
+  it("queues any coupon without a store-caused problem, even 1%", () => {
+    expect(decideGoodwill(1, null, fresh, now)).toEqual({
+      decision: "queued_for_approval",
+      why: "Goodwill is automatic only for a store-caused problem with an order (lost, delayed or damaged); this request names none.",
+    });
   });
   it("queues a second coupon within 30 days", () => {
-    expect(decideGoodwill(5, { lastIssuedAt: daysAgo(29), hasPending: false }, now).decision).toBe("queued_for_approval");
+    expect(decideGoodwill(5, "late", { lastIssuedAt: daysAgo(29), hasPending: false }, now).decision).toBe("queued_for_approval");
   });
   it("allows one again after 30 days", () => {
-    expect(decideGoodwill(5, { lastIssuedAt: daysAgo(30), hasPending: false }, now).decision).toBe("auto_approved");
-    expect(decideGoodwill(5, { lastIssuedAt: daysAgo(31), hasPending: false }, now).decision).toBe("auto_approved");
+    expect(decideGoodwill(5, "late", { lastIssuedAt: daysAgo(30), hasPending: false }, now).decision).toBe("auto_approved");
+    expect(decideGoodwill(5, "late", { lastIssuedAt: daysAgo(31), hasPending: false }, now).decision).toBe("auto_approved");
   });
   it("queues when a request is already pending", () => {
-    expect(decideGoodwill(5, { lastIssuedAt: null, hasPending: true }, now).decision).toBe("queued_for_approval");
+    expect(decideGoodwill(5, "late", { lastIssuedAt: null, hasPending: true }, now).decision).toBe("queued_for_approval");
+  });
+});
+
+describe("storeCausedProblem", () => {
+  it("reads lost and delayed orders from their status", () => {
+    expect(storeCausedProblem({ status: "lost", refundReasons: [] })).toBe("lost");
+    expect(storeCausedProblem({ status: "delayed", refundReasons: [] })).toBe("late");
+  });
+  it("reads damage (and a late order since delivered) from the order's refunds", () => {
+    expect(storeCausedProblem({ status: "delivered", refundReasons: ["damaged"] })).toBe("damaged");
+    expect(storeCausedProblem({ status: "delivered", refundReasons: ["late"] })).toBe("late");
+  });
+  it("finds none for customer-side situations", () => {
+    for (const status of ["processing", "shipped", "delivered", "returned"] as const) {
+      expect(storeCausedProblem({ status, refundReasons: [] }), status).toBeNull();
+    }
+    // A return refund is the customer's own return, not a store problem.
+    expect(storeCausedProblem({ status: "returned", refundReasons: ["return"] })).toBeNull();
+  });
+});
+
+describe("the goodwill policy text", () => {
+  it("is generated from the same rule and limits the tool enforces", () => {
+    const body = POLICY_DOCS.find((d) => d.topic === "goodwill")!.body;
+    for (const label of Object.values(STORE_CAUSED_PROBLEMS)) expect(body).toContain(label);
+    expect(body).toContain(`up to ${RULES.goodwillMaxPercent}%`);
+    expect(body).toContain(`every ${RULES.goodwillCooldownDays} days`);
+    expect(body).toContain(`after ${RULES.goodwillExpiryDays} days`);
+    expect(body).toContain("don't qualify");
   });
 });
 

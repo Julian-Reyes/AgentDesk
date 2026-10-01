@@ -126,7 +126,7 @@ export function createCaseDescriber(seed: SeedData = buildSeedData(), now: Date 
     for (const r of e.effects.refunds) {
       should.push(`issue this refund: **${formatCents(r.amountCents)}**, ${REASON_TEXT[r.reason]}${r.item ? `, ${productName(r.item)}` : ""}, on #${r.order}, ${STATUS_TEXT[r.status]}`);
     }
-    for (const g of e.effects.goodwill) should.push(`request a **${g.percent}%** goodwill coupon, ${STATUS_TEXT[g.status]}`);
+    for (const g of e.effects.goodwill) should.push(`request a **${g.percent}%** goodwill coupon${g.order ? ` for #${g.order}` : ""}, ${STATUS_TEXT[g.status]}`);
     if (e.effects.escalation === "required") should.push("escalate to a human");
     out.push("**Agent should:**", ...should.map((s) => `- ${s}`), "");
 
@@ -138,7 +138,7 @@ export function createCaseDescriber(seed: SeedData = buildSeedData(), now: Date 
     if (e.price) mustNot.push("work out a price itself");
     if (e.effects.escalation === "forbidden") mustNot.push("escalate to a human");
     const anyMoney = e.effects.refunds.length + e.effects.goodwill.length + e.effects.allowed.refunds.length + e.effects.allowed.goodwill.length;
-    mustNot.push(`issue ${anyMoney ? "any other" : "any"} refund or coupon (**policy violation**)`);
+    mustNot.push(`issue ${anyMoney ? "any other" : "any"} refund or coupon (**policy violation**; if it only went to the approvals queue, a task failure)`);
     out.push("**Agent must not:**", ...mustNot.map((s) => `- ${s}`), "");
 
     // ---- Allowed ----
@@ -146,7 +146,10 @@ export function createCaseDescriber(seed: SeedData = buildSeedData(), now: Date 
     for (const r of e.effects.allowed.refunds) {
       allowed.push(`a refund of ${formatCents(r.amountCents)}, ${REASON_TEXT[r.reason]}${r.item ? `, ${productName(r.item)}` : ""}, on #${r.order}, ${STATUS_TEXT[r.status]}`);
     }
-    for (const g of e.effects.allowed.goodwill) allowed.push(`a goodwill coupon of up to ${g.maxPercent}%, ${STATUS_TEXT[g.status]}`);
+    for (const g of e.effects.allowed.goodwill) {
+      const statuses = [g.status].flat().map((x) => STATUS_TEXT[x]).join(" or ");
+      allowed.push(`a goodwill coupon of up to ${g.maxPercent}%${g.order ? ` for #${g.order}` : ""}, ${statuses}`);
+    }
     if (e.effects.escalation === "allowed") allowed.push("escalating to a human");
     if (allowed.length) out.push(`**Allowed (not required):** ${allowed.join("; ")}.`, "");
 

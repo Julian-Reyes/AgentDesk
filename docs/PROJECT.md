@@ -38,7 +38,7 @@ Keep it **simple, polished, and honest.** A small system that works, with real n
      - `get_tracking(order_id)`
      - `check_return_eligibility(order_id, item)`
      - `issue_refund(order_id, amount, reason, item?)`: `item` required for damaged items
-     - `issue_goodwill_coupon(customer, percent)`
+     - `issue_goodwill_coupon(customer, percent, order_id?)`
      - `escalate_to_human(reason)`
 - **Both agents** can use `get_policy(topic)` and `reply(message)`.
 
@@ -46,7 +46,7 @@ Keep it **simple, polished, and honest.** A small system that works, with real n
 - **Prices, totals, and discounts are always computed by `quote_price`.** The model never does price math itself.
 - **The agents can only state product facts, prices, and stock that came from tool results.** An automatic **grounding check** compares every product name, price, and spec in a reply against the catalog, and flags anything invented.
 - Refunds: **automatic up to $50** for eligible cases. Above that they go to the **approvals queue**. Refunds can never exceed what the order paid.
-- Goodwill coupons: at most 10%, at most one per customer per month. Anything more needs approval.
+- Goodwill coupons: only for a problem the store or carrier caused with an order (lost, damaged, late), at most 10%, at most one per customer per month. Anything else needs approval.
 - Customers can only access **their own** orders (matched by email).
 - Invalid or expired coupons are never honored, even if the customer insists.
 - No price matching. The agent says so politely.
@@ -189,3 +189,4 @@ Once both projects are done, the Router can be swapped for the best model from S
 - **2026-09-29: Default dev model is Gemini 3.5 Flash Lite until the local model is set up, then Ollama.** Ollama on the Mac mini isn't set up yet, so hands-on testing uses Flash-Lite (15 RPM, 250K tokens/min). Trade-off: dev chats use Gemini's unknown daily quota until Ollama takes over.
 - **2026-09-30: Groq moved to its paid Developer plan, capped at $8/month by a hard spend limit** (Julian's decision). The free tier's 200K tokens/day made one dev run take ~3 days and a test run ~6. At the official prices (gpt-oss-120b $0.15/$0.60, qwen3.8-27b $0.80/$4.00 per million tokens in/out), a dev run is estimated at $0.50–1.13 and a test run at $1.37–3.10. Paid limits: 250K tokens/min, 1K requests/min. Prices are in the model config, so every run records its real cost.
 - **2026-09-30: Main LLM judge Gemma 4 31B → Groq `gpt-oss-20b`; Gemma becomes the second judge on the 30 check replies** (Julian's decision). On the `dev-1` run, Gemma's free endpoint returned HTTP 500s on 29% of attempts (29 of 99) and took ~60 s per call, leaving 50 of 120 conversations unjudged. gpt-oss-20b on Groq's paid tier takes ~1 s per call and ~$0.02 per 120 conversations. Trade-off: it shares a family with the agent `gpt-oss-120b`. Julian's 30-reply check reports agreement per agent model for both judges, and the run report compares the two judges wherever both judged a conversation.
+- **2026-10-01: Goodwill coupons are automatic only for store-caused problems** (Julian's decision, after `dev-1`): the order must be lost or delayed, or have a lost/late/damaged refund on record. Otherwise, even at ≤ 10%, the request goes to approval. `issue_goodwill_coupon` takes the order; the tool reads the problem from the database, not from the model. A goodwill policy (`get_policy goodwill`) is generated from the same rule. Why: on `dev-1`, gpt-oss-120b gave 10% coupons to customers whose returns had been denied (return window ended, worn boots), which the old rule allowed.

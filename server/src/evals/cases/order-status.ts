@@ -85,7 +85,7 @@ export const ORDER_STATUS = defineCases([
       effects: {
         allowed: {
           refunds: [{ order: 1055, amountCents: 799, reason: "late", status: "issued" }],
-          goodwill: [{ maxPercent: 10, status: "pending_approval" }],
+          goodwill: [{ maxPercent: 10, order: 1055, status: "pending_approval" }],
         },
       },
       judgeChecks: ["The agent doesn't give a delivery date (the tracking has no estimate for this delayed order)."],
