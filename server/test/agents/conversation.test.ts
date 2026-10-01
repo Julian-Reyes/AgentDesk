@@ -11,6 +11,7 @@ import { fixedClock } from "../../src/domain/clock.ts";
 import { FakeProvider, fake, type FakeStep } from "../../src/llm/fake.ts";
 import type { ChatMessage } from "../../src/llm/types.ts";
 import { MemoryTracer } from "../../src/tracing/tracer.ts";
+import { toolCallHealth } from "../../src/tracing/tool-call-health.ts";
 import { MAYA, PRIYA, inTx } from "../helpers.ts";
 
 const CUSTOMERS: Record<number, { name: string; email: string }> = {
@@ -305,6 +306,62 @@ describe("agent loop: guardrails", () => {
       const t = await setup(tx, { customerId: MAYA, router: [route("shopping")], agent: [{ message: { role: "assistant", content: null } }, fake.reply("Hi!")] });
       expect((await t.convo.send("hi")).reply).toBe("Hi!");
       expect(t.agent.requests[1]!.messages.at(-1)).toMatchObject({ role: "user", content: expect.stringMatching(/reply tool/) });
+    }));
+});
+
+describe("agent loop: garbled replies (G13, dev-1)", () => {
+  const JUNK = "Both are tiny screw-on stoves: ←SKILL1←Kettle Pro Canister Stove";
+  const GOOD = "Both are tiny screw-on stoves for isobutane canisters; the Pocket Pro adds a piezo igniter.";
+
+  it("holds back a garbled reply, tells the model why, and delivers the retry", () =>
+    inTx(async (tx) => {
+      const t = await setup(tx, { customerId: MAYA, router: [route("shopping")], agent: [fake.reply(JUNK), fake.reply(GOOD)] });
+      const r = await t.convo.send("Pocket vs Pocket Pro?");
+
+      expect(r).toMatchObject({ reply: GOOD, outcome: "resolved" });
+      expect(t.kinds()).toEqual(["user_message", "router", "model_call", "tool_call", "reply_rejected", "model_call", "tool_call", "reply"]);
+      expect(lastToolResult(t.agent.requests[1]!.messages)).toEqual({
+        ok: false,
+        error: { code: "GARBLED_REPLY", message: 'Your reply was NOT sent to the customer: it contains garbled text "←SKILL1←". Send the complete reply again with the reply tool, in plain sentences.' },
+      });
+      expect(t.convo.transcript.map((e) => e.text)).not.toContain(JUNK);
+      expect(toolCallHealth(t.run().steps).fake).toMatchObject({ garbledReplies: 1, garbledFallbacks: 0, garbledDelivered: 0 });
+    }));
+
+  it("a second garbled reply ends the turn with the safe failure message", () =>
+    inTx(async (tx) => {
+      const cut = "Here's the quote for a Swift 30 Daypack ($119.00) + Pocket Pro Canister Stove ($55.00):";
+      const t = await setup(tx, { customerId: MAYA, router: [route("shopping")], agent: [fake.reply(JUNK), fake.reply(cut)] });
+      const r = await t.convo.send("Quote me a Swift 30 and a Pocket Pro.");
+
+      expect(r).toMatchObject({ reply: FAILURE_REPLY, outcome: "failed", error: "The reply was garbled twice, so the safe failure message was sent instead." });
+      expect(t.agent.requests).toHaveLength(2); // one retry, no more
+      expect(t.run().steps.filter((x) => x.kind === "reply_rejected").map((x) => (x.data as { reason: string; retry: boolean })))
+        .toMatchObject([{ reason: "junk", retry: true }, { reason: "cut_off", retry: false }]);
+      expect(toolCallHealth(t.run().steps).fake).toMatchObject({ garbledReplies: 2, garbledFallbacks: 1, garbledDelivered: 0 });
+    }));
+
+  it("the retry budget is per turn: the next message gets its own", () =>
+    inTx(async (tx) => {
+      const t = await setup(tx, { customerId: MAYA, router: [route("shopping")], agent: [fake.reply(JUNK), fake.reply(GOOD), fake.reply(JUNK), fake.reply("Yes, both fit a 230 g canister.")] });
+      await t.convo.send("Pocket vs Pocket Pro?");
+      const r = await t.convo.send("Do both fit a 230 g canister?");
+      expect(r).toMatchObject({ reply: "Yes, both fit a 230 g canister.", outcome: "resolved" });
+    }));
+
+  it("checks plain-text replies too, and output cut at the length limit", () =>
+    inTx(async (tx) => {
+      const t = await setup(tx, {
+        customerId: MAYA,
+        router: [route("shopping")],
+        agent: [{ ...fake.text("The Ridge 2 is our lightest two-person tent and it weighs"), finishReason: "length" }, fake.reply(GOOD)],
+      });
+      const r = await t.convo.send("Lightest 2-person tent?");
+      expect(r.reply).toBe(GOOD);
+      expect(t.agent.requests[1]!.messages.at(-1)).toEqual({
+        role: "user",
+        content: "(Your reply was NOT sent to the customer: it was cut off at the output length limit. Send the complete reply again with the reply tool, in plain sentences.)",
+      });
     }));
 });
 

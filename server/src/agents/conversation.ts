@@ -9,6 +9,7 @@ import { callTool, type AgentName, type Session, type ToolResult } from "../tool
 import { getTool } from "../tools/registry.ts";
 import type { RunOutcome, RunTrace, StepRecord, Tracer } from "../tracing/tracer.ts";
 import { sessionContext, type Prompt } from "./prompts.ts";
+import { checkReplyText, garbledReplyFeedback } from "./reply-check.ts";
 import { unwrapReplyText } from "./reply-text.ts";
 import type { Router } from "./router.ts";
 
@@ -209,6 +210,19 @@ export class Conversation {
   private async runAgent(): Promise<TurnOutput & { answeredBy: AgentName }> {
     let turnOutcome: RunOutcome = "resolved";
     let handoffs = 0;
+    /** Garbled replies held back this turn: the first gets one retry, the second ends the turn with FAILURE_REPLY. */
+    let garbled = 0;
+    const holdBack = async (agent: AgentName, message: string, check: { reason: string; detail: string }, implicit: boolean) => {
+      garbled += 1;
+      const final = garbled > 1;
+      await this.step({ kind: "reply_rejected", agent, data: { message, reason: check.reason, detail: check.detail, retry: !final, ...(implicit ? { implicit: true } : {}) } });
+      return final;
+    };
+    const garbledFailure = async (agent: AgentName) => {
+      const error = "The reply was garbled twice, so the safe failure message was sent instead.";
+      await this.step({ kind: "error", agent, data: { message: error } });
+      return { reply: FAILURE_REPLY, answeredBy: agent, outcome: "failed" as const, error };
+    };
 
     for (let stepNo = 1; stepNo <= this.limits.maxSteps; stepNo++) {
       const agent = this.currentAgent!;
@@ -249,6 +263,12 @@ export class Conversation {
           // The model answered in plain text instead of calling reply. Deliver it,
           // but mark it: the evals count how often a model skips the reply tool.
           const clean = unwrapReplyText(text);
+          const check = checkReplyText(clean.text, response.finishReason);
+          if (!check.ok) {
+            if (await holdBack(agent, clean.text, check, true)) return garbledFailure(agent);
+            this.working.push({ role: "user", content: `(${garbledReplyFeedback(check.detail)})` });
+            continue;
+          }
           await this.step({ kind: "reply", agent, data: { message: clean.text, implicit: true, ...(clean.unwrapped ? { unwrapped: true, raw: text } : {}) } });
           return { reply: clean.text, answeredBy: agent, outcome: turnOutcome };
         }
@@ -285,6 +305,21 @@ export class Conversation {
         }
 
         const result = await this.runTool(agent, call);
+        if (call.name === "reply" && result.ok) {
+          // Checked before the customer sees it. A garbled reply isn't delivered: the
+          // model is told why and gets one retry (the step limit still applies).
+          const message = unwrapReplyText((result.data as { message: string }).message).text;
+          const check = checkReplyText(message, response.finishReason);
+          if (!check.ok) {
+            const final = await holdBack(agent, message, check, false);
+            this.pushResult(call, { ok: false, error: { code: "GARBLED_REPLY", message: garbledReplyFeedback(check.detail) } });
+            if (final) {
+              for (const rest of calls.slice(calls.indexOf(call) + 1)) this.pushResult(rest, { ok: false, error: { code: "SKIPPED", message: "Not run: the turn already ended." } });
+              return garbledFailure(agent);
+            }
+            continue;
+          }
+        }
         this.pushResult(call, result);
         if (result.policyDecision === "queued_for_approval") turnOutcome = worse(turnOutcome, "approval_needed");
         if (call.name === "escalate_to_human" && result.ok) turnOutcome = worse(turnOutcome, "escalated");

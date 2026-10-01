@@ -635,3 +635,33 @@ Before any of today's changes it was 35/5/0, 28/11/1 and 23/16/1, with 5 policy 
 Verdicts weren't hand-edited; the numbers are what the pipeline gives. The likely effect is that Qwen's 64% is about 2 cases too high. Julian's blind check measures this. If it confirms the problem, options include asking each global check in its own call, or majority-of-3 judging.
 
 **Blind grading sample:** `server/eval-results/judge-check/dev-1/` holds 30 replies from 120 judged conversations, 10 per model. `sample.json` contains no model names (checked). Grade with `npm run judge:grade -- eval-results/judge-check/dev-1` (from `server/`); type `q` to stop and rerun to resume. Afterwards: `npm run judge:agreement -- eval-results/judge-check/dev-1 --second-judge gemini/gemma-4-31b`. **Not committed yet:** `key.json` holds the models and judge scores, so the folder stays out of git until the grading is done.
+
+### Reply sanity check: garbled replies are held back, retried once, then the failure message (2026-10-01)
+**Why:** Julian's grading found a reply cut off with junk text. qwen3.8-27b, `comparison-02`, sent: "…isobutane canisters: ←SKILL1←Kettle Pro Canister Stove". The junk was inside the `reply` tool's own arguments, so the existing checks passed it through.
+
+**The check** (`server/src/agents/reply-check.ts`, `checkReplyText`) is built for precision, because a false alarm costs a retry and, at worst, replaces a good reply with the failure message.
+- **Junk:** marker-like tokens (`←SKILL1←`, `[TOOL_CALLS]`, `<EOS>`), chat-template tokens (`<|im_end|>`), leaked `<think>`/tool-call tags, the replacement character `\uFFFD`, and control characters.
+- **Cut off:** the provider reports `finishReason: "length"`, or the text ends on a colon, comma, open bracket or dash. A reply ending on a word is never flagged ("…anything else I can help with").
+- **Not its job:** invented products (the "Kettle Pro") are the grounding check's.
+- **Tested on real data:** a test runs the check over every agent reply saved in `pilot-1` and `dev-1` (138). It flags exactly 2, both real:
+  - the `←SKILL1←` reply
+  - qwen's `price-deals-04` reply, which ended at "…Pocket Pro Canister Stove ($55.00):" with the quote it announced missing (it was already failing `price_stated`)
+
+**In the loop** (`conversation.ts`), both for `reply` tool calls and for plain-text replies:
+- A garbled reply is **not delivered**. It's recorded as a `reply_rejected` step.
+- For a `reply` tool call, the model gets a `GARBLED_REPLY` tool result saying what was wrong and asking for the full reply again. For a plain-text reply, it gets the same message as a user nudge.
+- **One retry per turn.** If the retry is garbled too, the turn ends with the standard `FAILURE_REPLY` and outcome `failed` (an `error` step says why), so the eval's "every message got an answer" check fails it. The step limit still applies.
+
+**Counted per model** (`tool-call-health.ts`, report row "Garbled replies: held back / ended in failure message / delivered"):
+- `garbledReplies`: held back
+- `garbledFallbacks`: ended in the failure message
+- `garbledDelivered`: delivered replies that fail the same check. This catches anything that slips past, and it's the only count for runs from before the check.
+- **`dev-1`:** Flash-Lite 0/0/0, gpt-oss-120b 0/0/0, **qwen3.8-27b 0/0/2**. The report was rebuilt with no model calls; nothing else in it changed. New runs will show the held-back and retried counts.
+
+**Tests:** 355 passing (10 new):
+- `test/agents/reply-check.test.ts`: the two real replies, junk and cut-off variants, ordinary replies left alone, and the 138-reply precision test
+- 4 loop tests: retry delivered; second garbled → failure message after exactly one retry; the budget resets each turn; plain text and the length limit
+- the per-model counts for delivered garbled replies (the router's own replies aren't counted)
+
+Sanity check: turning the checker off makes 9 tests fail; allowing unlimited retries makes 1 fail.
+

@@ -303,7 +303,7 @@ export const runSteps = pgTable(
       .references(() => runs.id, { onDelete: "cascade" }),
     seq: integer("seq").notNull(),
     turn: integer("turn").notNull(),
-    /** user_message | router | model_call | tool_call | handoff | reply | error */
+    /** user_message | router | model_call | tool_call | handoff | reply | reply_rejected | error */
     kind: text("kind").notNull(),
     agent: text("agent"),
     modelConfigId: text("model_config_id"),

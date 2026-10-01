@@ -42,6 +42,9 @@ describe("toolCallHealth: garbled and rejected tool calls, per model", () => {
           invalidRouterOutput: 1,
           implicitReplies: 1,
           unwrappedReplies: 1,
+          garbledReplies: 0,
+          garbledFallbacks: 0,
+          garbledDelivered: 0,
         },
       });
     }));
@@ -84,5 +87,20 @@ describe("toolCallHealth: garbled and rejected tool calls, per model", () => {
     });
     // The inputs are left alone.
     expect(a.m1.modelCalls).toBe(3);
+  });
+});
+
+describe("toolCallHealth: garbled replies that reached the customer", () => {
+  it("counts delivered replies that fail the reply check (runs from before the check), per model, ignoring the router", () => {
+    const steps = [
+      { kind: "model_call", modelConfigId: "groq/qwen", data: {} },
+      { kind: "reply", agent: "shopping", data: { message: "Both are stoves: ←SKILL1←Kettle Pro" } },
+      { kind: "model_call", modelConfigId: "gemini/lite", data: {} },
+      { kind: "reply", agent: "shopping", data: { message: "Both are stoves." } },
+      { kind: "reply", agent: "router", data: { message: "Is this about an order:" } },
+    ];
+    const h = toolCallHealth(steps);
+    expect(h["groq/qwen"]).toMatchObject({ garbledDelivered: 1, garbledReplies: 0 });
+    expect(h["gemini/lite"]).toMatchObject({ garbledDelivered: 0 });
   });
 });

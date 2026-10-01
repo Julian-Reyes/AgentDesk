@@ -15,7 +15,8 @@ import * as s from "../db/schema.ts";
 
 export type RunOutcome = (typeof s.RUN_OUTCOMES)[number];
 
-export type StepKind = "user_message" | "router" | "model_call" | "tool_call" | "handoff" | "reply" | "error";
+/** reply_rejected: a garbled reply held back before the customer saw it (agents/reply-check.ts). */
+export type StepKind = "user_message" | "router" | "model_call" | "tool_call" | "handoff" | "reply" | "reply_rejected" | "error";
 
 export type StepRecord = {
   turn: number;

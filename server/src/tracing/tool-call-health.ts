@@ -1,3 +1,4 @@
+import { checkReplyText } from "../agents/reply-check.ts";
 import { MODEL_OUTPUT_ERROR_CODES } from "../llm/openai-compatible.ts";
 
 /**
@@ -25,6 +26,15 @@ export type ToolCallHealth = {
   implicitReplies: number;
   /** Replies that contained the reply tool's JSON and had to be unwrapped. */
   unwrappedReplies: number;
+  /** Replies held back as garbled (junk text or cut off), retried or not. */
+  garbledReplies: number;
+  /** Turns that ended with the failure message because the retry was garbled too. */
+  garbledFallbacks: number;
+  /**
+   * Delivered replies that fail the same check: what reached the customer. For
+   * runs from before the check existed (dev-1), this is the only garbled count.
+   */
+  garbledDelivered: number;
 };
 
 export const emptyHealth = (): ToolCallHealth => ({
@@ -35,10 +45,14 @@ export const emptyHealth = (): ToolCallHealth => ({
   invalidRouterOutput: 0,
   implicitReplies: 0,
   unwrappedReplies: 0,
+  garbledReplies: 0,
+  garbledFallbacks: 0,
+  garbledDelivered: 0,
 });
 
 type TraceStep = {
   kind: string;
+  agent?: string | null | undefined;
   modelConfigId?: string | null | undefined;
   data: Record<string, unknown>;
 };
@@ -89,6 +103,11 @@ export function toolCallHealth(steps: TraceStep[]): Record<string, ToolCallHealt
         // Router replies (clarify / out of scope) come from JSON the router already validated.
         if (d.implicit) get(lastModel).implicitReplies += 1;
         if (d.unwrapped) get(lastModel).unwrappedReplies += 1;
+        if (step.agent !== "router" && typeof d.message === "string" && !checkReplyText(d.message).ok) get(lastModel).garbledDelivered += 1;
+        break;
+      case "reply_rejected":
+        get(lastModel).garbledReplies += 1;
+        if (d.retry === false) get(lastModel).garbledFallbacks += 1;
         break;
     }
   }

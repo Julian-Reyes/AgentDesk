@@ -206,6 +206,7 @@ export function renderReport(title: string, reports: ModelReport[], results: Con
     row("Cost", (r) => `$${r.costUsd.toFixed(2)}`),
     row("Tool-call health: rejected by provider / invalid args / unknown tool", (r) => `${r.health.rejectedByProvider} / ${r.health.invalidArgs} / ${r.health.unknownTool}`),
     row("Implicit / unwrapped replies; invalid router output", (r) => `${r.health.implicitReplies} / ${r.health.unwrappedReplies}; ${r.health.invalidRouterOutput}`),
+    row("Garbled replies: held back / ended in failure message / delivered", (r) => `${r.health.garbledReplies} / ${r.health.garbledFallbacks} / ${r.health.garbledDelivered}`),
     row("Quality: tone", (r) => mn(r.quality?.tone)),
     row("Quality: clarity", (r) => mn(r.quality?.clarity)),
     row("Quality: helpfulness", (r) => mn(r.quality?.helpfulness)),

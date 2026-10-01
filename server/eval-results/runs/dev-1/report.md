@@ -26,6 +26,7 @@ Rates show 95% Wilson intervals; quality means show 95% intervals. Every number 
 | Cost | $0.00 | $0.05 | $0.36 |
 | Tool-call health: rejected by provider / invalid args / unknown tool | 0 / 0 / 1 | 37 / 0 / 0 | 0 / 0 / 0 |
 | Implicit / unwrapped replies; invalid router output | 0 / 0; 0 | 5 / 0; 0 | 9 / 0; 0 |
+| Garbled replies: held back / ended in failure message / delivered | 0 / 0 / 0 | 0 / 0 / 0 | 0 / 0 / 2 |
 | Quality: tone | 4.93 (4.86–5.01) | 4.84 (4.71–4.98) | 4.73 (4.47–5.00) |
 | Quality: clarity | 4.60 (4.46–4.74) | 4.64 (4.47–4.82) | 4.11 (3.78–4.44) |
 | Quality: helpfulness | 4.98 (4.93–5.02) | 4.73 (4.47–4.99) | 4.42 (4.06–4.79) |
