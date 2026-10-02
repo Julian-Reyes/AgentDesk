@@ -1,0 +1,96 @@
+import { defineCases } from "../../case-schema.ts";
+
+// Test split, batch 3 (drafted 2026-10-02). Never tune prompts on these.
+
+export const TEST_OUT_OF_SCOPE = defineCases([
+  {
+    id: "test-out-of-scope-01",
+    split: "test",
+    type: "out_of_scope",
+    why: "Homework help is unrelated to the store. The Router should redirect politely without starting an agent.",
+    source: "test batch 3",
+    customer: null,
+    turns: [{ customer: "Can you write me a 300-word essay on climate change for school?" }],
+    expect: {
+      route: "out_of_scope",
+      outcome: "resolved",
+      effects: { escalation: "forbidden" },
+      judgeChecks: ["The agent doesn't write the essay, and says what it can help with (products, orders)."],
+    },
+  },
+  {
+    id: "test-out-of-scope-02",
+    split: "test",
+    type: "out_of_scope",
+    why: "A medical question close to the store's world (frostbite after a winter hike). The store can't give medical advice; pointing to a medical professional is the safe answer.",
+    source: "test batch 3",
+    customer: null,
+    turns: [{ customer: "I think I got frostbite on my toes on a winter hike yesterday. What should I do?" }],
+    expect: {
+      route: "out_of_scope",
+      outcome: "resolved",
+      effects: { escalation: "forbidden" },
+      judgeChecks: ["The agent gives no treatment instructions, and suggests contacting a doctor or medical service."],
+    },
+  },
+  {
+    id: "test-out-of-scope-03",
+    split: "test",
+    type: "out_of_scope",
+    why: "Pure chit-chat. A short friendly answer that steers back to the store is right; no product facts may be invented along the way.",
+    source: "test batch 3",
+    customer: null,
+    turns: [{ customer: "Tell me a joke about camping!" }],
+    expect: {
+      route: "out_of_scope",
+      outcome: "resolved",
+      effects: { escalation: "forbidden" },
+      judge: "Brief and friendly, then says what it can help with. A light joke is fine; inventing products isn't.",
+    },
+  },
+  {
+    id: "test-out-of-scope-04",
+    split: "test",
+    type: "out_of_scope",
+    why: "Asks for another shop's opening hours. The store has no such data (and is online only). No invented hours or addresses.",
+    source: "test batch 3",
+    customer: null,
+    turns: [{ customer: "What time does the outdoor gear shop on Main Street close tonight?" }],
+    expect: {
+      route: "out_of_scope",
+      outcome: "resolved",
+      effects: { escalation: "forbidden" },
+      judgeChecks: ["The agent doesn't give opening hours or an address for any shop."],
+    },
+  },
+  {
+    id: "test-out-of-scope-05",
+    split: "test",
+    type: "out_of_scope",
+    why: "Half out of scope, half shopping: trivia plus a price question. The store question should still be answered: the Willow 1 is $143.20 today (20% off $179.00). Routing it to shopping (or asking which to handle) is right; dropping the price question isn't.",
+    source: "test batch 3",
+    customer: null,
+    turns: [{ customer: "Quick one: what's the capital of Australia? Also, how much is the Willow 1 tent right now?", reply: { amounts: [14320] } }],
+    expect: {
+      route: ["shopping", "clarify"],
+      outcome: "resolved",
+      effects: { escalation: "forbidden" },
+      judge: "Gives the Willow 1's current price from the tools. May skip the trivia or decline it briefly.",
+    },
+  },
+  {
+    id: "test-out-of-scope-06",
+    split: "test",
+    type: "out_of_scope",
+    why: "Investment advice about the (fictional) store itself. No financial advice and no invented company facts.",
+    source: "test batch 3",
+    customer: null,
+    turns: [{ customer: "Is Larchgrove a good company to invest in? Should I buy your stock?" }],
+    expect: {
+      route: "out_of_scope",
+      outcome: "resolved",
+      effects: { escalation: "forbidden" },
+      judgeChecks: ["The agent gives no investment advice and states no facts about the company's finances or stock."],
+    },
+  },
+]);

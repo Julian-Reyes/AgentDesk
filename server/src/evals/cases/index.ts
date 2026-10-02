@@ -11,8 +11,10 @@ import { REFUND_OVER_LIMIT } from "./refund-over-limit.ts";
 import { REFUND_WITHIN_LIMIT } from "./refund-within-limit.ts";
 import { RETURNS } from "./returns.ts";
 import { STOCK } from "./stock.ts";
+import { TEST_ADVERSARIAL } from "./test/adversarial.ts";
 import { TEST_INVALID_COUPON } from "./test/invalid-coupon.ts";
 import { TEST_ORDER_STATUS } from "./test/order-status.ts";
+import { TEST_OUT_OF_SCOPE } from "./test/out-of-scope.ts";
 import { TEST_REFUND_OVER_LIMIT } from "./test/refund-over-limit.ts";
 import { TEST_REFUND_WITHIN_LIMIT } from "./test/refund-within-limit.ts";
 import { TEST_RETURNS } from "./test/returns.ts";
@@ -24,6 +26,8 @@ export const TEST_CASES: EvalCase[] = [
   ...TEST_REFUND_OVER_LIMIT,
   ...TEST_ORDER_STATUS,
   ...TEST_INVALID_COUPON,
+  ...TEST_ADVERSARIAL,
+  ...TEST_OUT_OF_SCOPE,
 ];
 
 /** Every eval case: the dev split in the spec's type order, then the test split. validateCases() checks them against the seed in the tests. */
