@@ -1356,3 +1356,36 @@ Sanity check: registering the guard after the routes makes 2 tests fail; pricing
 - labels: one per tool, and only for tool-running model calls and accepted handoffs
 
 Sanity check: disabling the token check, the one-turn-at-a-time check, hiding the cause, or freeing the chat after an error makes 1, 1, 3 and 2 tests fail.
+
+### Step 3: storefront and chat widget (2026-10-02)
+**Dependencies added** (confirmed by Julian): `react`, `react-dom`; dev: `vite`, `@vitejs/plugin-react`, `tailwindcss`, `@tailwindcss/vite`, `@types/react`, `@types/react-dom`, plus `typescript` and `vitest` at the server's versions. `npm audit`: no new issues.
+
+**Layout:** a new npm workspace `web/` (Vite 8 + React 19 + Tailwind 4). In development, Vite proxies `/api` to the API server.
+- `npm run dev` starts the API and Vite together (Ctrl-C stops both). Open http://localhost:5173.
+- `npm run build` builds the static site.
+- Root `npm run typecheck` and `npm test` now cover both workspaces, and so does the pre-commit hook (it prints both test counts).
+
+**Storefront** (`web/src/storefront/Storefront.tsx`): a demo banner ("every product, customer and order here is fictional"), category filter, and product cards (category, rating, current price with the list price struck through and "% off" on sale, availability). Read-only, no cart. Prices come from `/api/products`, i.e. the agents' own pricing.
+
+**Chat widget** (`ChatWidget.tsx`):
+- A persona picker ("This is a demo. Choose who you are…"; "The assistants can only see the chosen customer's orders"), then the chat.
+- Suggestion chips per persona, a typing bubble showing the latest progress label and the seconds elapsed, and a label for who answered ("Shopping assistant", "Orders & returns").
+- Badges for "Sent to our team for approval" and "Passed to a person".
+- "New chat", an expired-chat notice with a restart button, and errors shown above the input. A message that got no answer goes back into the input, so it can be resent.
+- Replies render as plain text, never HTML.
+- Enter sends, Shift+Enter adds a line, Escape closes and returns focus to the launcher. The log is an `aria-live` region.
+- Full-width bottom sheet on phones, a 400 px panel on desktop.
+- **Why the widget reads the stream with `fetch`:** the browser's `EventSource` can only make GET requests, and sending a message is a POST with a token header. `lib/sse.ts` parses the stream incrementally, because network chunks can split an event anywhere.
+- **The widget's logic is a pure reducer** (`chat-state.ts`). Per Julian's choice, there are no component-test libraries, so everything that decides behaviour is a plain function tested in Node. The components only render state and dispatch actions.
+
+**Checked in a real browser** (headless Chrome driven by a throwaway script, nothing added to the repo), against the dev DB on Flash-Lite (free):
+- storefront at 1280 px and 390 px
+- persona picker → "Just browsing" → "Best 2-person tent under $200?": the progress label "Looking up product details…" with a timer, then the Ridge 2 ($199.20), Canopy 2 ($151.20) and Creek 2 ($103.20), matching the cards
+- **Two fixes from looking at it:**
+  1. A long reply opened scrolled to its last line, so the start was hidden. The log now scrolls to where a new reply starts.
+  2. Vite's proxy now targets `127.0.0.1`, because the API listens on IPv4 only and "localhost" can resolve to IPv6 first.
+- **A reply-quality finding, not acted on** (prompts are frozen for `test-1`): the reply ended "…or add one to your cart!", but the agents can't add to a cart. It's the same kind of claim as the follow-up promises the judge already checks. Note it for the next tuning round.
+
+**Tests:** web 18 (`sse.test.ts`: every split point of a stream, CRLF, multi-line data, comments; `api.test.ts`: the request with the chat token, progress then reply, refused messages, server error events, a stream that ends or breaks before the reply, an unreachable server or a non-JSON error page; `chat-state.test.ts`: the turn cycle, no double send, late events ignored after a reset, a failed send restored, an expired chat; `format.test.ts`). Server 421, unchanged.
+
+Sanity check: an SSE parser that drops partial events makes 3 web tests fail; not taking back an unanswered message makes 1 fail.
