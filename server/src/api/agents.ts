@@ -8,6 +8,7 @@ import { TEAM_ROLES, type TeamRole } from "../db/schema.ts";
 import { loadModelConfigs, type ModelConfig } from "../llm/config.ts";
 import { fail, ok } from "../tools/define.ts";
 import type { AppDeps } from "./app.ts";
+import { comparisonDeps, defaultSet } from "./comparison.ts";
 
 /**
  * The Agents page: per role, the current model and prompt version, retired
@@ -15,7 +16,10 @@ import type { AppDeps } from "./app.ts";
  * conversations over the last 7 days. Switch / retire / reinstate live under
  * /api/admin/agents (admin guard) and always need a reason.
  *
- * The latest-eval numbers per model come with the comparison data (step 6).
+ * Next to the live numbers: each model's latest eval results, from the
+ * default comparison set (the first in config/comparison.json). Evals run one
+ * model in all three roles, so a role's number is that model's result on the
+ * cases for that role (routing accuracy for the router).
  */
 export type AgentsDeps = {
   /** config/team.json: the starting team, recorded on first use. */
@@ -66,8 +70,19 @@ export function agentRoutes(deps: AppDeps) {
         live: live.filter((l) => l.role === role),
       };
     });
+    const set = defaultSet(comparisonDeps(deps));
+    const evalBlock = set && {
+      set: { id: set.id, label: set.label, split: set.split },
+      models: set.models.map(({ model, report: r }) => ({
+        model,
+        taskSuccess: r.taskSuccess,
+        policyViolations: r.policyViolations,
+        byRole: { router: r.routing, shopping: r.byAgent.shopping ?? null, support: r.byAgent.support ?? null },
+      })),
+    };
     return c.json(
       ok({
+        eval: evalBlock,
         envOverride: a.envModel ?? null,
         liveWindowDays: LIVE_WINDOW_DAYS,
         reasonMinLength: REASON_MIN_LENGTH,

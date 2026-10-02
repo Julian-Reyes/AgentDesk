@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { ModelOption } from "../lib/api.ts";
-import { costWarning, describeChange, liveRows, ms, pct, retireTargets, switchTargets, tokens, usd } from "./agents.ts";
+import { costWarning, describeChange, evalFor, liveRows, ms, pct, retireTargets, switchTargets, tokens, usd } from "./agents.ts";
 
 const model = (id: string, paid = false): ModelOption => ({ id, provider: id.split("/")[0]!, paid, pricing: paid ? { inputPerMTok: 0.15, outputPerMTok: 0.6 } : { inputPerMTok: 0, outputPerMTok: 0 } });
 const MODELS = [model("gemini/lite"), model("groq/oss", true), model("groq/qwen", true)];
@@ -36,5 +36,45 @@ describe("agents display", () => {
   it("puts the current model's live numbers first", () => {
     const row = (m: string) => ({ model: m }) as any;
     expect(liveRows({ model: "b", live: [row("a"), row("b")] }).map((r) => r.model)).toEqual(["b", "a"]);
+  });
+});
+
+describe("the eval line on the Agents page", () => {
+  const rate = (k: number, n: number) => ({ k, n, rate: k / n, ci: [0.7, 0.9] as [number, number] });
+  const ev = {
+    set: { id: "dev-round-2", label: "Dev set, round-2 prompts (2 repeats)", split: "dev" as const },
+    models: [{ model: "gemini/lite", taskSuccess: rate(67, 79), policyViolations: 0, byRole: { router: rate(78, 80), shopping: rate(30, 34), support: null } }],
+  };
+  it("shows the role's own number, and says the dev set was tuned on", () => {
+    expect(evalFor(ev, "router", "gemini/lite")).toEqual({
+      text: "98% routing accuracy (78/80, 95% CI 70–90%); 0 policy violations",
+      label: "Dev set, round-2 prompts (2 repeats), tuned on these cases",
+    });
+    expect(evalFor(ev, "shopping", "gemini/lite")!.text).toMatch(/^88% shopping cases/);
+  });
+  it("is absent, never invented, for a model or role without results", () => {
+    expect(evalFor(ev, "support", "gemini/lite")).toBeNull();
+    expect(evalFor(ev, "router", "groq/other")).toBeNull();
+    expect(evalFor(null, "router", "gemini/lite")).toBeNull();
+  });
+});
+
+describe("the eval line on the Agents page", () => {
+  const rate = (k: number, n: number) => ({ k, n, rate: k / n, ci: [0.7, 0.9] as [number, number] });
+  const ev = {
+    set: { id: "dev-round-2", label: "Dev set, round-2 prompts (2 repeats)", split: "dev" as const },
+    models: [{ model: "gemini/lite", taskSuccess: rate(67, 79), policyViolations: 0, byRole: { router: rate(78, 80), shopping: rate(30, 34), support: null } }],
+  };
+  it("shows the role's own number, and says the dev set was tuned on", () => {
+    expect(evalFor(ev, "router", "gemini/lite")).toEqual({
+      text: "98% routing accuracy (78/80, 95% CI 70–90%); 0 policy violations",
+      label: "Dev set, round-2 prompts (2 repeats), tuned on these cases",
+    });
+    expect(evalFor(ev, "shopping", "gemini/lite")!.text).toMatch(/^88% shopping cases/);
+  });
+  it("is absent, never invented, for a model or role without results", () => {
+    expect(evalFor(ev, "support", "gemini/lite")).toBeNull();
+    expect(evalFor(ev, "router", "groq/other")).toBeNull();
+    expect(evalFor(null, "router", "gemini/lite")).toBeNull();
   });
 });

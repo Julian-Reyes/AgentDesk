@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { checkAdmin } from "../lib/api.ts";
 import { AgentsPage } from "./AgentsPage.tsx";
 import { ApprovalsPage } from "./ApprovalsPage.tsx";
+import { ComparisonPage } from "./ComparisonPage.tsx";
 
 /**
  * The ops dashboard shell: hash routing (no router library) and the admin
@@ -32,7 +33,9 @@ export function Ops() {
   const hash = useHash();
   const [token, setToken] = useState<string | null>(storedToken);
   const run = /^#\/runs\/([\w-]+)$/.exec(hash)?.[1];
-  const page = run ? "run" : hash === "#/agents" ? "agents" : "approvals";
+  const page = run ? "run" : hash === "#/agents" ? "agents" : hash === "#/comparison" ? "comparison" : "approvals";
+  // The comparison table is wide; the other pages read better narrower.
+  const width = page === "comparison" ? "max-w-7xl" : "max-w-5xl";
 
   const saveToken = (t: string | null) => {
     setToken(t);
@@ -47,22 +50,22 @@ export function Ops() {
   return (
     <div className="min-h-screen">
       <header className="border-b border-stone-200 bg-white">
-        <div className="mx-auto flex max-w-5xl flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className={`mx-auto flex ${width} flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between`}>
           <div>
             <p className="text-lg font-semibold text-forest-800">Switchyard ops</p>
             <p className="text-xs text-stone-500">Larchgrove Supply Co. demo · all customers and orders are fictional</p>
           </div>
           <nav aria-label="Dashboard" className="flex gap-3 text-sm">
-            {(["approvals", "agents"] as const).map((p) => (
+            {(["approvals", "agents", "comparison"] as const).map((p) => (
               <a key={p} href={`#/${p}`} aria-current={page === p ? "page" : undefined} className={page === p ? "font-semibold text-forest-800" : "text-stone-600 hover:text-forest-700"}>
-                {p === "approvals" ? "Approvals" : "Agents"}
+                {p === "approvals" ? "Approvals" : p === "agents" ? "Agents" : "Model comparison"}
               </a>
             ))}
           </nav>
         </div>
-        <AdminToken token={token} onChange={saveToken} />
+        <AdminToken token={token} onChange={saveToken} width={width} />
       </header>
-      <main className="mx-auto max-w-5xl px-4 py-6">
+      <main className={`mx-auto px-4 py-6 ${width}`}>
         {run ? (
           <section className="rounded-md border border-stone-200 bg-white p-4 text-sm">
             <h1 className="mb-2 font-semibold">Conversation {run.slice(0, 8)}</h1>
@@ -73,6 +76,8 @@ export function Ops() {
               Back to approvals
             </a>
           </section>
+        ) : page === "comparison" ? (
+          <ComparisonPage />
         ) : page === "agents" ? (
           <AgentsPage token={token} />
         ) : (
@@ -83,14 +88,14 @@ export function Ops() {
   );
 }
 
-function AdminToken({ token, onChange }: { token: string | null; onChange: (t: string | null) => void }) {
+function AdminToken({ token, onChange, width }: { token: string | null; onChange: (t: string | null) => void; width: string }) {
   const [draft, setDraft] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   if (token) {
     return (
-      <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 pb-3 text-xs text-stone-600">
+      <div className={`mx-auto flex ${width} items-center gap-3 px-4 pb-3 text-xs text-stone-600`}>
         <span className="rounded-full bg-forest-50 px-2 py-0.5 text-forest-800">Admin actions on</span>
         <button type="button" className="underline" onClick={() => onChange(null)}>
           Forget token
@@ -113,7 +118,7 @@ function AdminToken({ token, onChange }: { token: string | null; onChange: (t: s
     }
   };
   return (
-    <form onSubmit={submit} className="mx-auto flex max-w-5xl flex-wrap items-center gap-2 px-4 pb-3 text-xs">
+    <form onSubmit={submit} className={`mx-auto flex ${width} flex-wrap items-center gap-2 px-4 pb-3 text-xs`}>
       <label htmlFor="admin-token" className="w-full text-stone-600 sm:w-auto">
         Read-only. To make changes (approvals, agents), paste the admin token:
       </label>

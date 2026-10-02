@@ -1304,6 +1304,7 @@ git worktree remove ../agents-test-run
 ```
 
 **Then (next session):**
+- in `main`: `npm run eval:report -- --name test-1` (adds `report.json`; `report.md` should not change), add the test set to `server/config/comparison.json`, then `npm run eval:sets` (M4 step 6)
 - read `server/eval-results/runs/test-1/report.md`
 - record the results with confidence intervals and per-model tool-call health in PROGRESS.md
 - check follow-up promises (they rose 0 → 4 from r1 to r2 on dev)
@@ -1450,3 +1451,42 @@ Sanity check: removing the over-paid re-check makes 2 tests fail, so does droppi
 - a switch applying to the next chat through the real `teamFromDb`
 
 Sanity check: dropping the reason rule makes 3 tests fail; dropping the replacement rule, 2; not blocking retired models, 2; mounting the actions outside `/api/admin/*`, 1.
+
+### Step 6: Model comparison page (2026-10-02)
+**Data first, precomputed:**
+- **`report.json`**: `eval:report` now also writes `<run>/report.json`, the same `ModelReport[]` object that `report.md` renders (`runResults` in `finish.ts` is the single source). It was written for the 7 dev runs. Their `report.md` files regenerated **byte for byte**, so the committed reports and the current code agree. `pilot-1` doesn't: it was judged by Gemma with rubric@1, and today's default judge gives a different report. I restored its committed report and left it as history. It's in no comparison set.
+- **Comparison sets** (`server/config/comparison.json`, `evals/runner/comparison-sets.ts`): a set is a few runs of one configuration, and the first set is the default. There are two sets: dev round-2 (`dev-3-r2a/b`) and dev round-1 (`dev-3-r1a/b`). `npm run eval:sets` pools each set's conversations per model through `modelReport`, the same function behind `report.md`, and writes `eval-results/comparisons/sets/<id>.json`. The API only serves those files. The pooled task success matches the committed grouped comparison exactly: round 2 is 67/79, 61/80, 52/77; round 1 is 63/79, 65/79, 54/77.
+- **A change from the plan:** the plan had `eval:compare` write a `.json` next to its `.md`. That comparison is built on `RunModelSummary`, which has no latency, quality, cost or per-agent numbers, so it can't feed this page. The page uses `ModelReport` pooled per set instead, and `eval:compare` is unchanged.
+
+**Winner rule** (`pickWinner`, pure): the highest task success among models with **zero policy violations**, so a model that broke a business rule can't win. If the leader's 95% interval overlaps the runner-up's, the page says "leads, not significant". If every model broke a rule, there's no winner. Models with nothing scored take no part. Result today: **Flash-Lite leads round 2 and gpt-oss-120b leads round 1, neither significantly.**
+
+**Page** (`/ops/#/comparison`): a set picker, and a split banner that is always shown ("Dev set: these cases were used to tune the prompts, so the numbers are optimistic"; test: "held out"). Below that, the winner sentence, then one row per model. The columns are:
+- task success, with a plain-CSS interval bar plus the repeats and their gap
+- routing, shopping cases and support cases
+- policy and grounding violations, escalation
+- tone, clarity and helpfulness, with intervals
+- p50/p95 turn latency, cost, and bad tool calls
+
+Models missing from a set are simply absent. The page widens to 7xl, because the table doesn't fit in 5xl.
+
+**Agents page, the part deferred from step 5:** each role now shows its model's latest eval result from the default set: routing accuracy for the router, success on that agent's cases otherwise. The switch form shows the same for the target model, labelled with the set and "tuned on these cases" for dev. A model that isn't in the set gets "not in <set>", never a number.
+
+**A weakness found while checking the page, not fixed:** quality intervals can go past the 1–5 scale (Flash-Lite tone: 4.99, 4.97–5.01). `modelReport` uses a normal-approximation interval, which isn't bounded. The page shows exactly what `report.md` shows; fixing it means changing the report method and regenerating every report, so it's left for a later decision.
+
+**After `test-1`** (added to the plan's "Afterwards"): once its results are in `main`, run `npm run eval:report -- --name test-1`. Nothing in grading, judging or tracing has changed since `8540db4`, so `report.md` should come out identical and `report.json` is added. Then add a test set to `config/comparison.json` (e.g. `{ "id": "test-1", "label": "Test set, round-2 prompts", "split": "test", "runs": ["test-1"] }`) and run `npm run eval:sets`. A test fails while the committed set files don't match what the current code computes, so a forgotten regeneration can't reach the dashboard.
+
+**Checked by hand** (no model calls, scratch copy of the dev DB, ports 5181/8788): screenshots of the comparison page at 1440 px, adjusted until the whole table fits, and of the Agents page with the eval lines.
+
+**Tests:** server 471 (15 new: `test/evals/comparison-sets.test.ts`, `test/api/comparison.test.ts`). They use the committed runs as fixtures, so no model is called:
+- the winner rule: rule-breakers excluded, overlap, no winner, a single model
+- `report.json` and `report.md` agree row by row, and both match the committed files
+- a one-run set equals that run's `report.json`
+- repeats pool correctly, and the gap is right
+- wrong-split or missing runs are refused
+- the committed set files are current, and the config is validated
+- API: list, serve, 404, not generated
+- the Agents eval block
+
+Web 34 (7 new: `ops/comparison.test.ts`, the eval line in `ops/agents.test.ts`).
+
+Sanity check: letting rule-breakers win makes 2 tests fail, and so does ignoring interval overlap.

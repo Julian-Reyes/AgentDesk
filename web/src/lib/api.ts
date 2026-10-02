@@ -160,9 +160,52 @@ export type LiveMetrics = {
 };
 export type RoleView = { role: TeamRole; model: string; provider: string | null; prompt: string; since: string | null; retired: string[]; history: TeamChange[]; live: LiveMetrics[] };
 export type ModelOption = { id: string; provider: string; paid: boolean; pricing: { inputPerMTok: number; outputPerMTok: number } };
-export type AgentsView = { envOverride: string | null; liveWindowDays: number; reasonMinLength: number; roles: RoleView[]; models: ModelOption[] };
+export type AgentsView = { eval: AgentsEval; envOverride: string | null; liveWindowDays: number; reasonMinLength: number; roles: RoleView[]; models: ModelOption[] };
 
 export const getAgents = () => request<AgentsView>("/api/agents");
 
 export const changeTeam = (role: TeamRole, action: "switch" | "retire" | "reinstate", body: { model: string; reason: string; replacement?: string }, token: string) =>
   request<TeamChange>(`/api/admin/agents/${role}/${action}`, postJson(body, bearer(token)));
+
+// ---------- Ops dashboard: model comparison ----------
+
+export type Rate = { k: number; n: number; rate: number; ci: [number, number] };
+export type Mean = { mean: number; ci: [number, number]; n: number };
+/** The fields of the server's ModelReport the page shows. */
+export type ModelReport = {
+  model: string;
+  conversations: number;
+  statuses: Record<"pass" | "fail" | "script_mismatch" | "judge_pending" | "judge_failed" | "provider_error", number>;
+  taskSuccess: Rate;
+  routing: Rate;
+  byAgent: Partial<Record<"router" | "shopping" | "support", Rate>>;
+  policyViolations: number;
+  groundingViolations: number;
+  conversationsWithGrounding: Rate;
+  escalation: Rate;
+  turnLatencyMs: { p50: number | null; p95: number | null };
+  costUsd: number;
+  health: { rejectedByProvider: number; invalidArgs: number; unknownTool: number; garbledDelivered: number };
+  quality: { tone: Mean | null; clarity: Mean | null; helpfulness: Mean | null; lowShare: Rate } | null;
+};
+export type Winner = { kind: "none"; reason: string } | { kind: "significant" | "not_significant"; model: string; runnerUp: string | null };
+export type ComparisonSet = {
+  id: string;
+  label: string;
+  split: "dev" | "test";
+  runs: string[];
+  judge: string;
+  promptSets: string[];
+  models: { model: string; report: ModelReport; repeats: { run: string; taskSuccess: Rate }[]; repeatGap: number | null }[];
+  winner: Winner;
+};
+export type ComparisonList = { sets: { id: string; label: string; split: "dev" | "test"; runs: string[]; generated: boolean }[]; default: string | null };
+
+export const getComparisonList = () => request<ComparisonList>("/api/comparison");
+export const getComparisonSet = (id: string) => request<ComparisonSet>(`/api/comparison/${encodeURIComponent(id)}`);
+
+/** The default comparison set's results per model, shown on the Agents page. */
+export type AgentsEval = {
+  set: { id: string; label: string; split: "dev" | "test" };
+  models: { model: string; taskSuccess: Rate; policyViolations: number; byRole: Record<TeamRole, Rate | null> }[];
+} | null;

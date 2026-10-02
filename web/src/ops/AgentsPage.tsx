@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react";
-import { changeTeam, getAgents, type AgentsView, type ModelOption, type RoleView } from "../lib/api.ts";
-import { ROLE_LABEL, costWarning, describeChange, liveRows, ms, pct, retireTargets, switchTargets, tokens, usd } from "./agents.ts";
+import { changeTeam, getAgents, type AgentsView, type RoleView } from "../lib/api.ts";
+import { ROLE_LABEL, costWarning, describeChange, evalFor, liveRows, ms, pct, retireTargets, switchTargets, tokens, usd } from "./agents.ts";
 import { when } from "./approvals.ts";
 
 /** One card per role: current model, prompt version, live numbers, history, and (with the token) switch / retire / reinstate. */
@@ -35,7 +35,11 @@ export function AgentsPage({ token }: { token: string | null }) {
       ))}
       {data && (
         <p className="text-xs text-stone-500">
-          Live numbers: demo and CLI conversations in the last {data.liveWindowDays} days, from the traces (evals excluded). Latency is per model call. Eval results per model arrive with the comparison page.
+          Live numbers: demo and CLI conversations in the last {data.liveWindowDays} days, from the traces (evals excluded). Latency is per model call. Eval numbers: the first set on the{" "}
+          <a href="#/comparison" className="underline">
+            Model comparison
+          </a>{" "}
+          page; evals run one model in all three roles.
         </p>
       )}
     </div>
@@ -57,6 +61,9 @@ function RoleCard({ role: r, data, token, onChanged }: { role: RoleView; data: A
         {r.since && <span className="text-stone-500"> · since {when(r.since)}</span>}
       </p>
       {r.retired.length > 0 && <p className="text-xs text-stone-500">Retired here: {r.retired.join(", ")}</p>}
+
+      <h3 className="mt-4 mb-1 text-sm font-semibold">Latest eval</h3>
+      <EvalLine role={r} model={r.model} data={data} />
 
       <h3 className="mt-4 mb-1 text-sm font-semibold">Live, last {data.liveWindowDays} days</h3>
       {rows.length === 0 ? (
@@ -115,12 +122,23 @@ function RoleCard({ role: r, data, token, onChanged }: { role: RoleView; data: A
         </ol>
       </details>
 
-      {token && <ChangeForm role={r} models={data.models} minReason={data.reasonMinLength} token={token} onChanged={onChanged} />}
+      {token && <ChangeForm role={r} data={data} token={token} onChanged={onChanged} />}
     </section>
   );
 }
 
-function ChangeForm({ role: r, models, minReason, token, onChanged }: { role: RoleView; models: ModelOption[]; minReason: number; token: string; onChanged: () => Promise<void> }) {
+function EvalLine({ role, model, data }: { role: RoleView; model: string; data: AgentsView }) {
+  const e = evalFor(data.eval, role.role, model);
+  if (!e) return <p className="text-sm text-stone-500">{data.eval ? `${model} isn't in ${data.eval.set.label}.` : "No comparison data yet (npm run eval:sets)."}</p>;
+  return (
+    <p className="text-sm">
+      {e.text} <span className="text-xs text-stone-500">· {e.label}</span>
+    </p>
+  );
+}
+
+function ChangeForm({ role: r, data, token, onChanged }: { role: RoleView; data: AgentsView; token: string; onChanged: () => Promise<void> }) {
+  const { models, reasonMinLength: minReason } = data;
   const [action, setAction] = useState<"switch" | "retire" | "reinstate">("switch");
   const [model, setModel] = useState("");
   const [replacement, setReplacement] = useState("");
@@ -207,6 +225,12 @@ function ChangeForm({ role: r, models, minReason, token, onChanged }: { role: Ro
         Reason (kept in the history, at least {minReason} characters)
       </label>
       <textarea id={id("reason")} rows={2} value={reason} onChange={(e) => setReason(e.target.value)} className="w-full rounded border border-stone-300 px-2 py-1" />
+      {becomes && (
+        <div className="rounded bg-stone-50 p-2">
+          <p className="text-xs text-stone-500">Latest eval for {becomes}:</p>
+          <EvalLine role={r} model={becomes} data={data} />
+        </div>
+      )}
       {warning && (
         <label className="flex gap-2 rounded bg-rust-50 p-2 text-rust-600">
           <input type="checkbox" checked={paidOk} onChange={(e) => setPaidOk(e.target.checked)} />

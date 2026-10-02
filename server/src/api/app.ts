@@ -7,6 +7,7 @@ import type { Tracer } from "../tracing/tracer.ts";
 import { requireAdmin } from "./admin.ts";
 import { agentAdminRoutes, agentRoutes, type AgentsDeps } from "./agents.ts";
 import { approvalAdminRoutes, approvalRoutes } from "./approvals.ts";
+import { comparisonRoutes, type ComparisonDeps } from "./comparison.ts";
 import { ChatSessions, chatRoutes, type ChatLimits } from "./chat.ts";
 import { productRoutes } from "./products.ts";
 
@@ -33,6 +34,8 @@ export type AppDeps = {
   team: () => Team | Promise<Team>;
   /** For the Agents page; defaults read config/team.json and config/models.json. */
   agents?: Partial<AgentsDeps>;
+  /** For the Model comparison page; defaults read config/comparison.json and eval-results/comparisons/sets. */
+  comparison?: Partial<ComparisonDeps>;
   /** Where chat traces go (DbTracer in the server, MemoryTracer in tests). */
   tracer: Tracer;
   chatLimits?: Partial<ChatLimits>;
@@ -59,6 +62,7 @@ export function createApp(deps: AppDeps) {
     .route("/api/admin/approvals", approvalAdminRoutes(deps))
     .route("/api/agents", agentRoutes(deps))
     .route("/api/admin/agents", agentAdminRoutes(deps))
+    .route("/api/comparison", comparisonRoutes(deps))
     // The dashboard calls this to check a pasted token before showing actions.
     .get("/api/admin/check", (c) => c.json(ok({ admin: true })));
 

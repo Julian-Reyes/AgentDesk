@@ -1,4 +1,4 @@
-import type { LiveMetrics, ModelOption, RoleView, TeamChange } from "../lib/api.ts";
+import type { AgentsEval, LiveMetrics, ModelOption, RoleView, TeamChange, TeamRole } from "../lib/api.ts";
 
 /** The Agents page's display logic, as plain functions tested in Node. */
 
@@ -47,3 +47,19 @@ export function costWarning(model: ModelOption | undefined): string | null {
 
 /** The live rows with the role's current model first. */
 export const liveRows = (role: Pick<RoleView, "model" | "live">): LiveMetrics[] => [...role.live].sort((a, b) => Number(b.model === role.model) - Number(a.model === role.model));
+
+/**
+ * A model's latest eval result for one role, from the default comparison set:
+ * routing accuracy for the router, success on that agent's cases otherwise.
+ * null when the model wasn't evaluated (never a made-up number).
+ */
+export function evalFor(ev: AgentsEval, role: TeamRole, model: string): { text: string; label: string } | null {
+  const m = ev?.models.find((x) => x.model === model);
+  const r = m?.byRole[role];
+  if (!ev || !m || !r || !r.n) return null;
+  const what = role === "router" ? "routing accuracy" : `${role} cases`;
+  return {
+    text: `${Math.round(r.rate * 100)}% ${what} (${r.k}/${r.n}, 95% CI ${Math.round(r.ci[0] * 100)}–${Math.round(r.ci[1] * 100)}%); ${m.policyViolations} policy violations`,
+    label: `${ev.set.label}${ev.set.split === "dev" ? ", tuned on these cases" : ""}`,
+  };
+}
