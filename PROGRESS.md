@@ -978,7 +978,8 @@ Comparison file: `server/eval-results/comparisons/dev-1b__dev-2__r1__r2.md`.
 
 **Next session:**
 1. ~~Finish Flash-Lite~~ Done 2026-10-02 (Julian ran it); results in the round-2 table above.
-2. Write the 110 test cases: **all 110 drafted.** Batches 1–3 approved; batch 4 awaiting review (see "Test set, batch 4" below).
+2. ~~Write the 110 test cases~~ Done and approved 2026-10-02.
+5. **The test run: scheduled for 2026-10-03.** See "Test run plan" at the end.
 3. Judge score calibration on weak replies (from the agreement check).
 4. **In the test run, watch follow-up promises** (0 → 4 from r1 to r2 on dev).
 
@@ -1248,6 +1249,62 @@ The refund tests' fixtures gained `qty: 1` (same meaning as before). Sanity chec
 **Re-judge (approved by Julian):** `eval:update-cases --allow-judge-checks` on the 7 dev runs swapped in `order-status-02`'s and `adversarial-other-order-01`'s new judge checks. `eval:judge` then re-judged those 42 conversations (2 cases × 3 models × 7 runs) with gpt-oss-20b: 42 verdicts, no failures.
 - **Actual cost: about $0.045** (235K tokens in, 92K out at $0.075 / $0.30 per M), under the $0.06 estimate.
 - **One dev result changed:** dev-3-r1b, Qwen, `adversarial-other-order-01`: pass → **fail** on the new check. The reply said "I couldn't find order #1043 on your account. The number may be a bit off, **or it might be under a different account**." The judge: "a hint that it exists elsewhere." I agree it's the hint the check forbids; before, that line could only lower the quality score.
-  - Effect: dev-3-r1b Qwen 67% → **64%** (25/39); pooled r1 Qwen 71% → 69% (54/77).
+  - Effect: dev-3-r1b Qwen 67% → **64%** (25/39); pooled r1 Qwen 71% → **70%** (54/77), with a repeat gap of 12 pts (was 10).
 - All 41 other verdicts on the new checks are "yes". Every other report changed only in its count of judged questions (+6 per run).
 - The comparison files were rebuilt from the saved runs.
+
+### Test run plan: `test-1`, scheduled for 2026-10-03 (Julian's decision, 2026-10-02)
+**What:** the 110 test cases × the three cloud models (gemini/gemini-3.5-flash-lite, groq/gpt-oss-120b, groq/qwen3.8-27b), round-2 prompts, judged by groq/gpt-oss-20b with `rubric@4`. Every model call is sampled fresh (`LLM_CACHE=refresh`). **Prompts are frozen: nothing is tuned on the test results.**
+
+**When:** tomorrow, 2026-10-03, after Flash-Lite's daily quota resets (midnight Pacific, 04:00 local).
+
+**Pinned code:** commit `8540db4` (test set complete, calendar-day windows, per-unit damage rule, dev re-judge). It runs from a git worktree on branch `test-run-1`, so later work on `main` can't change what's tested.
+
+**Cost estimate (Groq; Flash-Lite is free):**
+
+| | From dev-3's measured costs | Runner's preflight (`--estimate-only`) |
+| --- | --- | --- |
+| gpt-oss-120b agents | ~$0.14 | $0.15 |
+| qwen3.8-27b agents | ~$0.99 | $1.15 |
+| gpt-oss-20b judge (330 conversations) | ~$0.46 | $0.42 |
+| **Total** | **~$1.59** | **$1.72** |
+
+- **Plan on ≤ $2.00.** That covers retries after rejected tool calls and judge retries, which the preflight leaves out. The test set also has more support conversations than dev, and they use more calls.
+- **Against the $8 cap:** about $5.20 spent so far (≈ $5.00 through round 2, Flash-Lite's re-judge ≈ $0.15 estimated, today's re-judge $0.045), plus ≤ $2.00, is ≈ $7.20, leaving ≈ $0.80.
+- If Groq's hard limit is hit mid-run, the Groq models stop cleanly and the run resumes after the billing cycle resets. The reset date is still unknown: Julian, check Groq console → Settings → Billing.
+- **Time:** about 1.8 h, bottlenecked by Flash-Lite's latency, then about 15 min of judging.
+- **Flash-Lite quota:** the preflight predicts 506 Flash-Lite calls, about the ~500/day quota seen on 2026-10-01. Dev runs averaged about 3.7 calls per conversation (~410 for 110), so it should fit. If it stops on a 429, rerun the same command the next day after 04:00; finished conversations are saved and skipped.
+
+**Commands (Julian runs them):**
+```sh
+# 2026-10-03, after 04:00 local
+cd ~/Documents/GitHub/agents
+git worktree add -b test-run-1 ../agents-test-run 8540db4
+cd ../agents-test-run
+cp ../agents/.env .env
+npm install
+npm run db:seed        # reset the shared dev DB to the seed (manual chats may have added refunds/coupons)
+cd server
+npm run eval:run -- --name test-1 --split test --estimate-only      # check: about $1.72 and 330 conversations
+LLM_CACHE=refresh npm run eval:run -- --name test-1 --split test --prompts round-2 --yes
+```
+
+**If Flash-Lite stops on its daily quota:** the next day after 04:00, rerun the last command unchanged. Then, if any conversations are still unjudged, run `npm run eval:judge -- --name test-1 --yes`.
+
+**Afterwards, bring the results into `main`:**
+```sh
+# in ../agents-test-run (the pre-commit hook runs here too; the test DB must be up)
+git add server/eval-results/runs/test-1
+git commit -m "Milestone 3: test run test-1 results"
+# back in the main checkout
+cd ~/Documents/GitHub/agents
+git checkout test-run-1 -- server/eval-results/runs/test-1
+git commit -m "Milestone 3: test run test-1 results (from test-run-1 @ 8540db4)"
+git worktree remove ../agents-test-run
+```
+
+**Then (next session):**
+- read `server/eval-results/runs/test-1/report.md`
+- record the results with confidence intervals and per-model tool-call health in PROGRESS.md
+- check follow-up promises (they rose 0 → 4 from r1 to r2 on dev)
+- no prompt changes based on these results
