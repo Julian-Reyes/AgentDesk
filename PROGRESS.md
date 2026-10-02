@@ -1308,3 +1308,26 @@ git worktree remove ../agents-test-run
 - record the results with confidence intervals and per-model tool-call health in PROGRESS.md
 - check follow-up promises (they rose 0 → 4 from r1 to r2 on dev)
 - no prompt changes based on these results
+
+## Milestone 4 — UI (in progress, started 2026-10-02)
+The plan (order of work, the approvals and team-history rules, what's tested) is in **`docs/M4_PLAN.md`**.
+
+**Started before M3 closed (Julian's decision, 2026-10-02).** An exception to "finish one milestone first": M4 began right after the 110 test cases were committed. **M3 stays in progress** with these items open: the `test-1` run (2026-10-03), recording its results, judge calibration on weak replies, and the 4th (small open) model. How the overlap is kept safe:
+- `test-1` runs from a worktree pinned at `8540db4`, so M4 work on `main` can't change what's tested.
+- It shares the dev database: during the test-run window (Julian says when it starts and ends), no migrations, no `db:seed` and no dev chats against the dev DB.
+- Groq budget and Flash-Lite's daily quota go to the test run first.
+
+### Step 1: API skeleton (2026-10-02)
+**Dependencies added** (in the approved plan): `hono` (listed in the spec) and `@hono/node-server`, its Node adapter (Hono itself doesn't open a port). `npm audit` shows only the 4 known drizzle-kit warnings from M1.
+
+**Code** (`server/src/api/`):
+- `createApp(deps)` builds the API from injected deps (database, store clock, wall clock, admin token, error logger). Tests call `app.request()` against a rolled-back transaction: no port and no extra test library.
+- Responses use the tools' shape, `{ ok: true, data } | { ok: false, error: { code, message } }`. Unknown routes return `NOT_FOUND`. A server error returns a generic `INTERNAL` message; the details go only to the server log.
+- `GET /api/products[?category=]` for the storefront grid. It goes through `presentProduct`, the function the agents' tools use, so a product card always shows the price the Shopping Assistant quotes ("was $249.00, now $199.20"), plus `onSale`.
+- **Admin guard:** every dashboard action will live under `/api/admin/*`, guarded by one middleware. M4 uses a shared `ADMIN_TOKEN` (`Authorization: Bearer …`, at least 24 characters, compared in constant time); M5 swaps in a real login behind the same guard. **No token configured means actions are disabled, never open.** `GET /api/admin/check` lets the dashboard check a pasted token.
+  - Why one prefix: Hono runs middleware in registration order, so a guard registered after a route silently doesn't protect it. The sanity check below shows exactly that.
+- `npm run serve` (port `PORT`, default 8787, bound to localhost until M5). `.env.example` has `PORT` and `ADMIN_TOKEN`. Tried against the dev DB (read-only requests): health, products and a 403 on `/api/admin/check` with no token set.
+
+**Tests:** 406 passing (12 new in `test/api/app.test.ts`): health, 404 shape; all 60 products priced exactly as `get_product` gives them; the Ridge 2 sale; the category filter and an unknown category; the admin guard (right token, 6 wrong/malformed ones, no token configured, unknown admin paths, short token refused); server errors hidden from the client and logged.
+
+Sanity check: registering the guard after the routes makes 2 tests fail; pricing the storefront at list price makes 2 fail.
