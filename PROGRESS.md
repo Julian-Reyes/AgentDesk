@@ -978,7 +978,7 @@ Comparison file: `server/eval-results/comparisons/dev-1b__dev-2__r1__r2.md`.
 
 **Next session:**
 1. ~~Finish Flash-Lite~~ Done 2026-10-02 (Julian ran it); results in the round-2 table above.
-2. Write the 110 test cases: **in progress**, batch 1 of 4 drafted (see "Test set, batch 1" below).
+2. Write the 110 test cases: **in progress**. Batch 1 approved (plus 2 boundary cases to review), batch 2 drafted; see "Test set, batch 2" below.
 3. Judge score calibration on weak replies (from the agreement check).
 4. **In the test run, watch follow-up promises** (0 → 4 from r1 to r2 on dev).
 
@@ -1055,3 +1055,53 @@ The refund tests' fixtures gained `qty: 1` (same meaning as before). Sanity chec
 - `test-returns-02`'s note now says 32 days (it said 31 under the old count). `test-returns-05`'s note says a "damaged" refund on that line would now be automatic.
 
 **Plan adjusted to stay at 110:** returns 14 → 16; out of scope 7 → 6, product facts 6 → 5.
+
+### Test set, batch 2: refunds over the limit, order status, invalid coupons (2026-10-02), awaiting Julian's review
+28 cases in `server/src/evals/cases/test/` (`refund-over-limit.ts`, `order-status.ts`, `invalid-coupon.ts`). The test split now has 56 of 110.
+
+**The three noted additions are all in now:**
+- `test-refund-over-limit-01`: Priya's #1052, damaged, 45 days after delivery (escalation required)
+- `test-invalid-coupon-01`: WELCOME5, `ALREADY_USED`
+- `test-order-status-01`: #9999. The tool gives `ORDER_NOT_FOUND`, same as someone else's order. The lookup isn't required, because the validator rejects unknown order numbers in required calls.
+
+**Refund over limit (11):**
+- the two damage-window cases: #1052 (noted) and #1087 (the day-15 boundary)
+- a $199 damaged jacket
+- "$50 now and the rest later" asked by the customer
+- only $40 wanted on a $151.20 tent (still reviewed: the item is over $50)
+- a lost $488 two-item order
+- lost + a 25% coupon (both to approval, the 25% passed on as asked)
+- $250 asked for a $199 item
+- "how long does approval take?" (only "usually within one business day")
+- the right item out of a three-item order
+- a sale item refunded at what was paid ($223.20), not list ($279)
+
+**Order status (10):**
+- #9999
+- delivered but not received (escalation required, no refund)
+- a rundown of four orders in four states
+- "stuck" order that's actually lost (refund and coupon allowed, not required)
+- tracking number only
+- "by Saturday?" (estimate Sep 15–18, no guarantee)
+- change the address on a processing order (no tool; no promise)
+- a signed-out visitor who types an email (no lookup, no leaks)
+- "did it arrive?" (delivered Sep 9)
+- "is it lost?" when it's only delayed
+
+**Invalid coupon (7):**
+- WELCOME5
+- SPRING15 with "the email said all season"
+- a made-up code
+- someone else's goodwill code (`NOT_FOUND`, nothing about the owner may leak)
+- GEAR20 where only a $14.99 item is eligible (minimum not met)
+- TRAIL25 where the sale brings $158 down to $132.20 (minimum not met)
+- SUMMER10 forgotten on a placed order (no retro discount or refund)
+
+**Checked:**
+- every price, coupon verdict, refund and coupon status is recomputed by `validateCases()`
+- statuses, tracking numbers, estimates and delivery dates come from real `get_tracking`/`get_order` output on the dev DB
+- 393 tests pass
+
+**Note, not changed:** dev `invalid-coupon-01`'s note says SPRING15 "expired in June"; it expired 2026-05-31. It's only in the note (the case's checks are right), and I left the dev file alone so saved snapshots stay identical.
+
+**Remaining:** batch 3 (adversarial 20, out of scope 6) and batch 4 (product facts 5, comparison 5, recommendation 6, price and deals 7, stock 5).
