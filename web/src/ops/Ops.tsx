@@ -78,9 +78,9 @@ export function Ops() {
       </header>
       <main className={`mx-auto px-4 py-6 ${width}`}>
         {route.page === "run" ? (
-          <LiveRunPage id={route.id} />
+          <LiveRunPage id={route.id} token={token} />
         ) : route.page === "runs" ? (
-          <LiveRunsPage />
+          <LiveRunsPage token={token} />
         ) : route.page === "evals" ? (
           <EvalRunsPage />
         ) : route.page === "evalRun" ? (
@@ -131,7 +131,7 @@ function AdminToken({ token, onChange, width }: { token: string | null; onChange
   return (
     <form onSubmit={submit} className={`mx-auto flex ${width} flex-wrap items-center gap-2 px-4 pb-3 text-xs`}>
       <label htmlFor="admin-token" className="w-full text-stone-600 sm:w-auto">
-        Read-only. To make changes (approvals, agents), paste the admin token:
+        Read-only. For changes (approvals, agents) and live conversations, paste the admin token:
       </label>
       <input
         id="admin-token"

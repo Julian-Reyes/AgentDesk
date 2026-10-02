@@ -66,7 +66,9 @@ export function createApp(deps: AppDeps) {
     .route("/api/agents", agentRoutes(deps))
     .route("/api/admin/agents", agentAdminRoutes(deps))
     .route("/api/comparison", comparisonRoutes(deps))
-    .route("/api/runs", runRoutes(deps))
+    // Live traces hold whatever a visitor typed, so they're admin-only (Julian,
+    // 2026-10-02). Eval traces are fixed, fictional scripts and stay public.
+    .route("/api/admin/runs", runRoutes(deps))
     .route("/api/eval-runs", evalRunRoutes(deps))
     // The dashboard calls this to check a pasted token before showing actions.
     .get("/api/admin/check", (c) => c.json(ok({ admin: true })));

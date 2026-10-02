@@ -15,12 +15,14 @@ import type { AppDeps } from "./app.ts";
 /**
  * The Runs page: every traced conversation, step by step.
  *  - Live: runs in the database (demo widget, CLI, and the eval runner's own
- *    traces), newest first, paged with a cursor.
+ *    traces), newest first, paged with a cursor. Mounted under /api/admin/runs:
+ *    a live trace shows what the visitor typed, so only an admin sees it
+ *    (Julian, 2026-10-02).
  *  - Eval: saved eval runs read from their files (RunStore), graded with the
  *    current grader and judged by the main judge, exactly as their reports
  *    are. Files, not the database, so eval traces work wherever the files are
  *    (the deployed DB won't have them, M5).
- * Public and read-only, like the rest of the dashboard.
+ * Eval runs are public and read-only, like the rest of the dashboard.
  */
 
 export type RunsDeps = { resultsDir: string; judge: () => { model: string; rubric: string } };

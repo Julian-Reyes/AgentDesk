@@ -56,7 +56,32 @@ const models = (team: LiveRun["team"]) => [...new Set(Object.values(team).map((m
 
 // ---------- Live ----------
 
-export function LiveRunsPage() {
+/** Live traces need the admin token; eval traces don't. */
+function NeedsToken() {
+  return (
+    <p className="rounded-md border border-stone-200 bg-white p-3 text-sm text-stone-600">
+      Live conversations are admin-only: they show what visitors typed. Paste the admin token above to see them. Eval runs (fictional, scripted) are on the{" "}
+      <a href="#/evals" className="text-forest-700 underline">
+        Eval
+      </a>{" "}
+      tab.
+    </p>
+  );
+}
+
+export function LiveRunsPage({ token }: { token: string | null }) {
+  if (!token) {
+    return (
+      <div>
+        <RunsTabs active="live" />
+        <NeedsToken />
+      </div>
+    );
+  }
+  return <LiveRunsList token={token} />;
+}
+
+function LiveRunsList({ token }: { token: string }) {
   // Real conversations by default; the eval runner's own traces are under "Eval runner" (and, graded, in the Eval tab).
   const [source, setSource] = useState("demo,cli");
   const [outcome, setOutcome] = useState("");
@@ -68,7 +93,7 @@ export function LiveRunsPage() {
   const load = async (before?: string) => {
     setLoading(true);
     try {
-      const page = await getLiveRuns({ source, outcome, ...(before ? { before } : {}) });
+      const page = await getLiveRuns({ source, outcome, ...(before ? { before } : {}) }, token);
       setRuns((r) => (before ? [...r, ...page.runs] : page.runs));
       setNext(page.next);
       setError(null);
@@ -80,7 +105,7 @@ export function LiveRunsPage() {
   };
   useEffect(() => {
     void load();
-  }, [source, outcome]);
+  }, [source, outcome, token]);
 
   return (
     <div>
@@ -118,8 +143,20 @@ export function LiveRunsPage() {
   );
 }
 
-export function LiveRunPage({ id }: { id: string }) {
-  const { data, error } = useLoad(() => getLiveRun(id), [id]);
+export function LiveRunPage({ id, token }: { id: string; token: string | null }) {
+  if (!token) {
+    return (
+      <div>
+        <RunsTabs active="live" />
+        <NeedsToken />
+      </div>
+    );
+  }
+  return <LiveRun id={id} token={token} />;
+}
+
+function LiveRun({ id, token }: { id: string; token: string }) {
+  const { data, error } = useLoad(() => getLiveRun(id, token), [id, token]);
   return (
     <div>
       <RunsTabs active="live" />

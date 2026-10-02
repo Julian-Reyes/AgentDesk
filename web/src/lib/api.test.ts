@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { ApiError, sendMessage } from "./api.ts";
+import { ApiError, getLiveRuns, sendMessage } from "./api.ts";
 
 const chat = { conversationId: "c1", token: "tok" };
 
@@ -62,5 +62,15 @@ describe("sendMessage", () => {
     await expect(sendMessage(chat, "hi", () => {})).rejects.toBeInstanceOf(ApiError);
     stubFetch(new Response("<html>502 Bad Gateway</html>", { status: 502 }));
     await expect(sendMessage(chat, "hi", () => {})).rejects.toMatchObject({ code: "NETWORK", status: 502 });
+  });
+});
+
+describe("live traces are admin-only", () => {
+  it("are requested from /api/admin with the token", async () => {
+    const fetchFn = stubFetch(new Response(JSON.stringify({ ok: true, data: { runs: [], next: null } }), { headers: { "content-type": "application/json" } }));
+    await getLiveRuns({ source: "demo,cli" }, "secret-token");
+    const [url, init] = fetchFn.mock.calls[0] as unknown as [string, RequestInit];
+    expect(url).toBe("/api/admin/runs?source=demo%2Ccli");
+    expect((init.headers as Record<string, string>).authorization).toBe("Bearer secret-token");
   });
 });

@@ -79,7 +79,7 @@ Listed in the spec: Hono, React, TypeScript, Vite, Tailwind, Vitest. Needed alon
 - **Winner rule in code** (pure, tested): highest pooled task success among models with 0 policy violations; if its CI overlaps the runner-up's, the highlight says "leads, not significant". The page also shows the repeat gap when a set has repeats. Missing models (e.g. the small open model before Modal) are simply absent, never placeholders with numbers.
 
 ### 7. Runs page
-- `GET /api/runs?source=&outcome=&model=&limit=&before=` (DB runs, paginated) and `GET /api/runs/:id` (run + steps).
+- `GET /api/runs?source=&outcome=&model=&limit=&before=` (DB runs, paginated) and `GET /api/runs/:id` (run + steps). **Changed at close (Julian, 2026-10-02):** live traces are admin-only, at `/api/admin/runs`; eval traces stay public.
 - `GET /api/eval-runs`, `GET /api/eval-runs/:run/conversations?model=&status=`, `GET /api/eval-runs/:run/conversations/:model/:case` (record + judge verdict + final status), read via `RunStore`, so eval traces work even where the DB doesn't have them (the deployed DB in M5).
 - UI: two tabs, **Live** and **Eval**. Trace view: a step timeline (customer message, router decision with confidence, model calls with tokens/latency/cached, tool calls with args, result and policy decision, handoffs, held-back replies, errors, replies), collapsed JSON for details. Eval view adds the case, each check with severity (policy / grounding / task), and the judge's answers and reasons.
 

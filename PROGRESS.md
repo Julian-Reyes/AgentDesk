@@ -1310,7 +1310,7 @@ git worktree remove ../agents-test-run
 - check follow-up promises (they rose 0 → 4 from r1 to r2 on dev)
 - no prompt changes based on these results
 
-## Milestone 4 — UI (in progress, started 2026-10-02)
+## Milestone 4 — UI ✅ Closed (2026-10-02)
 The plan (order of work, the approvals and team-history rules, what's tested) is in **`docs/M4_PLAN.md`**.
 
 **Started before M3 closed (Julian's decision, 2026-10-02).** An exception to "finish one milestone first": M4 began right after the 110 test cases were committed. **M3 stays in progress** with these items open: the `test-1` run (2026-10-03), recording its results, judge calibration on weak replies, and the 4th (small open) model. How the overlap is kept safe:
@@ -1320,7 +1320,8 @@ The plan (order of work, the approvals and team-history rules, what's tested) is
 
 ### Open items for later
 - **Quality intervals must stay within 1–5** (Julian, 2026-10-02). `modelReport`'s `mean()` uses a normal-approximation interval, which can go past the scale (Flash-Lite tone on dev round 2: 4.99, 4.97–5.01). Fix it by clamping or with a bounded method (e.g. a bootstrap, or an interval computed on the bounded scale), then regenerate the reports (`npm run eval:report` per run, then `npm run eval:sets`). This changes committed `report.md` files, so record which numbers moved. See step 6.
-- **Before the dashboard is public (M5): decide who sees live traces.** The Runs page shows every step of a live conversation, including what the visitor typed, the model's context (the signed-in customer's name and email; fictional, from the seed) and tool results. That's fine locally. On a public site, a visitor could type something personal. Options: live traces admin-only, redaction, or a short retention period. Eval traces are fixed, fictional scripts and can stay public. See step 7.
+- ~~Before the dashboard is public (M5): decide who sees live traces.~~ **Decided and done** (Julian, 2026-10-02): live traces (demo and CLI) are admin-only; eval traces stay public. It was small, so it went into M4's closing step (see "Closing M4"), not M5.
+- **For M5, with the other public-demo protections:** the Approvals page is public and shows each request's agent note and "queued because" text. Both are model-written and could repeat something a visitor typed. Decide whether they're admin-only too. Customer names there are seeded and fictional.
 
 ### Step 1: API skeleton (2026-10-02)
 **Dependencies added** (in the approved plan): `hono` (listed in the spec) and `@hono/node-server`, its Node adapter (Hono itself doesn't open a port). `npm audit` shows only the 4 known drizzle-kit warnings from M1.
@@ -1537,3 +1538,37 @@ Sanity check: letting rule-breakers win makes 2 tests fail, and so does ignoring
 Web 42 (8 new: `steps.test.ts` for every step kind, `route.test.ts` for the routes and encoding).
 
 Sanity check: dropping the run-name allowlist makes 1 test fail, and so does paging without the tie-break.
+
+### Closing M4 (2026-10-02)
+**Julian's decision: live traces are admin-only, eval traces stay public.** Live traces hold what visitors typed; eval traces are fixed, fictional scripts. It was small, so it's done now rather than in M5:
+- The live endpoints moved to `/api/admin/runs` and `/api/admin/runs/:id`, behind the same guard as every other admin action. `/api/runs` no longer exists.
+- The Live tab and the trace view say they're admin-only and point to the Eval tab until a token is pasted. The token prompt now mentions live conversations.
+- Aggregate live numbers on the Agents page (counts, latency, cost) stay public: they show no conversation content.
+- Tests: no token → 401, no token configured → 403, the old path → 404 (server); the web client calls `/api/admin/runs` with the token. Server 479, web 43.
+
+**End-to-end check from the plan** (real models, Flash-Lite, $0, about 10 of the day's free requests, dev DB, ports 5181/8788 because a `npm run dev` started at 12:45 still holds 5180/8787):
+- As Priya, through the widget API: "The Harbor double sleeping bag from order #1051 arrived with the zipper torn off." Progress streamed, then the reply: the $179.99 refund was sent for approval and a 10% goodwill coupon issued (allowed: the damage is store-caused). Outcome `approval_needed`.
+- As Tom: "My order #1054 never arrived…". The $199.00 refund was queued, with a 10% coupon. `approval_needed`.
+- Both appeared on the Approvals queue **with their conversation ids**. Approving Priya's issued the refund (`issued`, 17999). Rejecting Tom's with a note marked the refund `rejected`.
+- `npm run eval:draft-from-rejections` wrote the draft with Tom's message and the note in `why`, and the queue showed "Draft case: written". The draft came from a made-up test rejection, so it was deleted, not committed.
+- The live trace returned 401 without the token and 200 with it; the screenshot shows the locked Live tab.
+- The first team read recorded the starting team (3 `initial` rows from `config/team.json`) in the dev DB. That's the intended first use, and those rows stay.
+- The dev DB was reseeded afterwards; the traces and team history stay, as designed.
+- Not repeated here: switching a model on the real dev DB. Every switch adds a permanent history row, so it was checked on a scratch copy in step 5.
+
+**README.md** (new): how to run it locally, the storefront and dashboard, what needs the admin token, the ports, and the main commands. It has no numbers; the architecture diagram and results table come with the final milestone. `.env.example` already has `API_PORT`, `WEB_PORT` and `ADMIN_TOKEN`.
+
+**What M4 delivered:**
+- The storefront with the chat widget, streaming progress.
+- The approvals queue: human decisions re-checked against what was paid, and rejections turned into draft eval cases.
+- The team in the database, with switch/retire/reinstate history and live metrics.
+- The model comparison: precomputed from the same reports, with a winner rule that excludes rule-breakers and won't call a lead it can't support.
+- The Runs page: live traces (admin) and eval traces (public).
+- Migrations `0005` (`approvals.run_id`) and `0006` (`team_changes`), each checked against the pinned test run first.
+
+**Weaknesses and open items:** see "Open items for later" at the top of this section: quality intervals past 5, and what's public on the Approvals page. Also:
+- The phone-width check of the Agents and Runs pages wasn't possible in headless Chrome.
+- Live chats are kept in memory, so a restart ends them (fine for one instance; M5).
+- Approvals use one shared admin token, decided by "admin" (M5: a real login).
+
+**M3 is still in progress** (the approved exception): the `test-1` run is planned for 2026-10-03 from the pinned worktree, followed by recording its results with the M4 follow-ups listed in the test-run plan (`eval:report`, the test set in `comparison.json`, `eval:sets`). Judge calibration on weak replies and the 4th (small open) model are also still open.

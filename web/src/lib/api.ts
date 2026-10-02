@@ -274,11 +274,13 @@ export type EvalConversation = {
   providerError: string | null;
 };
 
-export const getLiveRuns = (q: { source?: string; outcome?: string; model?: string; before?: string }) => {
+/** Live traces are admin-only: they hold what visitors typed (Julian, 2026-10-02). */
+export const getLiveRuns = (q: { source?: string; outcome?: string; model?: string; before?: string }, token: string) => {
   const params = new URLSearchParams(Object.entries(q).filter((e): e is [string, string] => !!e[1]));
-  return request<{ runs: LiveRun[]; next: string | null }>(`/api/runs${params.size ? `?${params}` : ""}`);
+  return request<{ runs: LiveRun[]; next: string | null }>(`/api/admin/runs${params.size ? `?${params}` : ""}`, { headers: bearer(token) });
 };
-export const getLiveRun = (id: string) => request<{ run: LiveRun; steps: TraceStep[] }>(`/api/runs/${encodeURIComponent(id)}`);
+export const getLiveRun = (id: string, token: string) =>
+  request<{ run: LiveRun; steps: TraceStep[] }>(`/api/admin/runs/${encodeURIComponent(id)}`, { headers: bearer(token) });
 export const getEvalRuns = () => request<{ runs: EvalRunInfo[]; judge: { model: string; rubric: string } }>("/api/eval-runs");
 export const getEvalConversations = (run: string) =>
   request<{ run: string; models: string[]; conversations: EvalConversationRow[] }>(`/api/eval-runs/${encodeURIComponent(run)}/conversations`);
