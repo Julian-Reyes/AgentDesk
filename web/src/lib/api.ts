@@ -209,3 +209,78 @@ export type AgentsEval = {
   set: { id: string; label: string; split: "dev" | "test" };
   models: { model: string; taskSuccess: Rate; policyViolations: number; byRole: Record<TeamRole, Rate | null> }[];
 } | null;
+
+// ---------- Ops dashboard: runs ----------
+
+/** One trace step, as the live trace (database) and saved eval runs both store it. */
+export type TraceStep = {
+  seq?: number;
+  turn: number;
+  kind: "user_message" | "router" | "model_call" | "tool_call" | "handoff" | "reply" | "reply_rejected" | "error";
+  agent?: string | null;
+  modelConfigId?: string | null;
+  promptVersion?: string | null;
+  data: Record<string, unknown>;
+  inputTokens?: number | null;
+  outputTokens?: number | null;
+  latencyMs?: number | null;
+  cached?: boolean | null;
+  policyDecision?: string | null;
+  at?: string;
+};
+export type LiveRun = {
+  id: string;
+  source: string;
+  customerId: number | null;
+  labels: Record<string, unknown>;
+  team: Record<string, { model?: string }>;
+  startedAt: string;
+  endedAt: string | null;
+  outcome: Outcome | null;
+  turns: number;
+  inputTokens: number;
+  outputTokens: number;
+  costMicros: number;
+  firstMessage?: string | null;
+};
+export type EvalStatus = "pass" | "fail" | "script_mismatch" | "judge_pending" | "judge_failed" | "provider_error";
+export type EvalRunInfo = { name: string; split: string; promptSet: string | null; models: string[]; cases: number; createdAt: string };
+export type EvalConversationRow = {
+  caseId: string;
+  type: string;
+  model: string;
+  status: EvalStatus;
+  outcome: Outcome;
+  failedChecks: { id: string; severity: "policy" | "grounding" | "task" }[];
+  judgeNo: string[];
+  policyViolations: number;
+  groundingViolations: number;
+};
+export type JudgeAnswer = { id: string; answer: boolean; why: string; votes?: boolean[]; contradictions?: number[] };
+export type EvalConversation = {
+  run: string;
+  status: EvalStatus;
+  judge: { model: string; rubric: string };
+  case: { id: string; type: string; split: string; why: string; customer?: string | null; turns: { customer: string; assumes?: string }[]; expect: Record<string, unknown> };
+  model: string;
+  outcome: Outcome;
+  steps: TraceStep[];
+  grade: {
+    checks: { id: string; label: string; pass: boolean; severity: "policy" | "grounding" | "task"; detail?: string }[];
+    counts: { policyViolations: number; groundingViolations: number; forbiddenAttempts: number; failedChecks: number };
+    judgeQuestions: ({ id: string; kind: "judge_check"; statement: string } | { id: string; kind: "script_fit"; turn: number; assumes: string })[];
+  };
+  verdict: { ok: boolean; error: string | null; output: { replies: { reply: number; tone: number; clarity: number; helpfulness: number; why: string }[]; checks: JudgeAnswer[]; scriptFit: JudgeAnswer[] } | null } | null;
+  providerError: string | null;
+};
+
+export const getLiveRuns = (q: { source?: string; outcome?: string; model?: string; before?: string }) => {
+  const params = new URLSearchParams(Object.entries(q).filter((e): e is [string, string] => !!e[1]));
+  return request<{ runs: LiveRun[]; next: string | null }>(`/api/runs${params.size ? `?${params}` : ""}`);
+};
+export const getLiveRun = (id: string) => request<{ run: LiveRun; steps: TraceStep[] }>(`/api/runs/${encodeURIComponent(id)}`);
+export const getEvalRuns = () => request<{ runs: EvalRunInfo[]; judge: { model: string; rubric: string } }>("/api/eval-runs");
+export const getEvalConversations = (run: string) =>
+  request<{ run: string; models: string[]; conversations: EvalConversationRow[] }>(`/api/eval-runs/${encodeURIComponent(run)}/conversations`);
+export const getEvalConversation = (run: string, model: string, caseId: string) =>
+  request<EvalConversation>(`/api/eval-runs/${encodeURIComponent(run)}/conversation?${new URLSearchParams({ model, case: caseId })}`);

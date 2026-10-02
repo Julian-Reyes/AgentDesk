@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { decideApproval, getApprovals, type Approval } from "../lib/api.ts";
 import { DRAFT_LABEL, noteProblem, requestSummary, shortRun, when } from "./approvals.ts";
+import { href } from "./route.ts";
 
 /** Pending requests (oldest first) with approve / reject, then the decided history. */
 export function ApprovalsPage({ token }: { token: string | null }) {
@@ -113,7 +114,7 @@ function PendingCard({ approval: a, token, onDecided }: { approval: Approval; to
         {a.runId && (
           <>
             {" · "}
-            <a href={`#/runs/${a.runId}`} className="text-forest-700 underline">
+            <a href={href.run(a.runId)} className="text-forest-700 underline">
               conversation {shortRun(a.runId)}
             </a>
           </>

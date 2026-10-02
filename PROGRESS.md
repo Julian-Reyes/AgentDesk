@@ -1318,6 +1318,10 @@ The plan (order of work, the approvals and team-history rules, what's tested) is
 - It shares the dev database: during the test-run window (Julian says when it starts and ends), no migrations, no `db:seed` and no dev chats against the dev DB.
 - Groq budget and Flash-Lite's daily quota go to the test run first.
 
+### Open items for later
+- **Quality intervals must stay within 1–5** (Julian, 2026-10-02). `modelReport`'s `mean()` uses a normal-approximation interval, which can go past the scale (Flash-Lite tone on dev round 2: 4.99, 4.97–5.01). Fix it by clamping or with a bounded method (e.g. a bootstrap, or an interval computed on the bounded scale), then regenerate the reports (`npm run eval:report` per run, then `npm run eval:sets`). This changes committed `report.md` files, so record which numbers moved. See step 6.
+- **Before the dashboard is public (M5): decide who sees live traces.** The Runs page shows every step of a live conversation, including what the visitor typed, the model's context (the signed-in customer's name and email; fictional, from the seed) and tool results. That's fine locally. On a public site, a visitor could type something personal. Options: live traces admin-only, redaction, or a short retention period. Eval traces are fixed, fictional scripts and can stay public. See step 7.
+
 ### Step 1: API skeleton (2026-10-02)
 **Dependencies added** (in the approved plan): `hono` (listed in the spec) and `@hono/node-server`, its Node adapter (Hono itself doesn't open a port). `npm audit` shows only the 4 known drizzle-kit warnings from M1.
 
@@ -1490,3 +1494,46 @@ Models missing from a set are simply absent. The page widens to 7xl, because the
 Web 34 (7 new: `ops/comparison.test.ts`, the eval line in `ops/agents.test.ts`).
 
 Sanity check: letting rule-breakers win makes 2 tests fail, and so does ignoring interval overlap.
+
+### Step 7: Runs page (2026-10-02)
+**API** (`server/src/api/runs.ts`), public and read-only like the rest of the dashboard:
+- **Live:** `GET /api/runs?source=&outcome=&model=&limit=&before=` reads the database, newest first, with each run's first customer message. `source` takes a list (`demo,cli`). `model` matches any role using that model. Pages use a cursor of the last row's (start time, id), so runs started in the same millisecond aren't skipped. `GET /api/runs/:id` returns the run and its steps in order.
+- **Eval:** these endpoints read the saved files, graded with the current grader and judged by the main judge, exactly as the reports are.
+  - `GET /api/eval-runs` lists the runs.
+  - `GET /api/eval-runs/:run/conversations?model=&status=` lists the conversations with final status and failed checks (with severity).
+  - `GET /api/eval-runs/:run/conversation?model=&case=` returns one conversation: the case, its trace, each check with its severity, and the judge's answers with their reasons and the reply scores.
+  - Run names are matched against the folder listing, never used as a path directly, so `..%2F..` can't leave the results folder. Grading a run takes about 90 ms after warm-up, so it's done per request with no cache and is never stale.
+- **Two changes from the plan:**
+  1. One eval conversation is `/conversation?model=&case=`, not `/:model/:case`. Model ids contain "/", and a path parameter would need it encoded.
+  2. The Live tab defaults to demo and CLI conversations. The database also holds 935 eval-runner traces; they're one click away ("Eval runner"), and graded in the Eval tab.
+
+**Bug found by the tests:** drizzle writes a correlated subquery's columns unqualified, so `"id"` inside the first-message subquery meant `run_steps.id`, not the run's id (a 500). The subquery now names its table with an alias.
+
+**Page** (`/ops/#/runs`, `#/evals`):
+- **Live:** filters for source and outcome, "Load more", and a trace view per run. The trace view replaces step 4's placeholder, so the Approvals page's conversation link now opens the trace.
+- **Eval:** runs → conversations, filtered by model and status → one conversation with the case's `why` (full case collapsed), checks with severity badges, the judge's yes/no answers with their reasons and votes (contradictions flagged), the reply scores, and the trace.
+- **The timeline** is shared by live and eval traces and grouped by turn. Each kind of step has its own line:
+  - the customer message
+  - the router's decision with confidence, category and urgency (invalid output or a fallback is flagged)
+  - model calls, with the tools asked for, tokens, latency and whether the call was cached
+  - tool calls, with their arguments, result and the rules' decision ("sent for approval", "denied by the rules")
+  - handoffs
+  - held-back replies, errors and replies
+
+  Every step opens to its raw JSON. Hash routes are parsed by `ops/route.ts` and URI-encode model ids.
+
+**Checked by hand** (no model calls, scratch copy of the dev DB, ports 5181/8788): screenshots of the live list, a CLI trace (Priya's $179.99 bag, queued for approval) and an eval conversation (`dev-3-r2a`, gpt-oss-120b, `refund-over-limit-01`).
+
+**Tests:** server 478 (7 new in `test/api/runs.test.ts`):
+- live: order, first message, the source/outcome/model filters, a source list
+- paging through 5 runs in the same millisecond, 2 per page
+- a bad cursor or limit is refused
+- steps come back in order (inserted out of order)
+- eval: the run list
+- a run's conversations have exactly the statuses its `report.json` counts
+- one conversation has its severities and judge reasons
+- 404s, including the path-traversal attempt
+
+Web 42 (8 new: `steps.test.ts` for every step kind, `route.test.ts` for the routes and encoding).
+
+Sanity check: dropping the run-name allowlist makes 1 test fail, and so does paging without the tie-break.

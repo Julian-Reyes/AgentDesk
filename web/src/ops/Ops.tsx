@@ -3,6 +3,8 @@ import { checkAdmin } from "../lib/api.ts";
 import { AgentsPage } from "./AgentsPage.tsx";
 import { ApprovalsPage } from "./ApprovalsPage.tsx";
 import { ComparisonPage } from "./ComparisonPage.tsx";
+import { parseRoute } from "./route.ts";
+import { EvalConversationPage, EvalRunPage, EvalRunsPage, LiveRunPage, LiveRunsPage } from "./RunsPages.tsx";
 
 /**
  * The ops dashboard shell: hash routing (no router library) and the admin
@@ -32,8 +34,10 @@ function useHash() {
 export function Ops() {
   const hash = useHash();
   const [token, setToken] = useState<string | null>(storedToken);
-  const run = /^#\/runs\/([\w-]+)$/.exec(hash)?.[1];
-  const page = run ? "run" : hash === "#/agents" ? "agents" : hash === "#/comparison" ? "comparison" : "approvals";
+  const route = parseRoute(hash);
+  const page = route.page;
+  // Which nav item is current: the Runs pages all count as "runs".
+  const section = page === "run" || page === "evals" || page === "evalRun" || page === "evalConversation" ? "runs" : page;
   // The comparison table is wide; the other pages read better narrower.
   const width = page === "comparison" ? "max-w-7xl" : "max-w-5xl";
 
@@ -56,9 +60,16 @@ export function Ops() {
             <p className="text-xs text-stone-500">Larchgrove Supply Co. demo · all customers and orders are fictional</p>
           </div>
           <nav aria-label="Dashboard" className="flex gap-3 text-sm">
-            {(["approvals", "agents", "comparison"] as const).map((p) => (
-              <a key={p} href={`#/${p}`} aria-current={page === p ? "page" : undefined} className={page === p ? "font-semibold text-forest-800" : "text-stone-600 hover:text-forest-700"}>
-                {p === "approvals" ? "Approvals" : p === "agents" ? "Agents" : "Model comparison"}
+            {(
+              [
+                ["approvals", "Approvals"],
+                ["agents", "Agents"],
+                ["comparison", "Model comparison"],
+                ["runs", "Runs"],
+              ] as const
+            ).map(([p, label]) => (
+              <a key={p} href={`#/${p}`} aria-current={section === p ? "page" : undefined} className={section === p ? "font-semibold text-forest-800" : "text-stone-600 hover:text-forest-700"}>
+                {label}
               </a>
             ))}
           </nav>
@@ -66,16 +77,16 @@ export function Ops() {
         <AdminToken token={token} onChange={saveToken} width={width} />
       </header>
       <main className={`mx-auto px-4 py-6 ${width}`}>
-        {run ? (
-          <section className="rounded-md border border-stone-200 bg-white p-4 text-sm">
-            <h1 className="mb-2 font-semibold">Conversation {run.slice(0, 8)}</h1>
-            <p className="text-stone-600">
-              The trace viewer comes with the Runs page (M4 step 7). Until then, print it with <code className="rounded bg-stone-100 px-1">npm run trace -- {run}</code>
-            </p>
-            <a href="#/approvals" className="mt-3 inline-block text-forest-700 underline">
-              Back to approvals
-            </a>
-          </section>
+        {route.page === "run" ? (
+          <LiveRunPage id={route.id} />
+        ) : route.page === "runs" ? (
+          <LiveRunsPage />
+        ) : route.page === "evals" ? (
+          <EvalRunsPage />
+        ) : route.page === "evalRun" ? (
+          <EvalRunPage run={route.run} />
+        ) : route.page === "evalConversation" ? (
+          <EvalConversationPage run={route.run} model={route.model} caseId={route.caseId} />
         ) : page === "comparison" ? (
           <ComparisonPage />
         ) : page === "agents" ? (
