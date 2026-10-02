@@ -8,7 +8,7 @@
 
 ### Gates
 - **When:** after the M3 test run (`test-1`) and the retire decision, since they give the page its best content: held-out numbers, and a real decision to show.
-  - **Open question:** the spec puts "the real switch/retire decision" in M6 (Story). Either that decision moves earlier, or this page is built in M6 even though it's listed here. Decide when the M5 plan is agreed.
+  - **Order (Julian, 2026-10-02, a spec change):** the retire decision happens right after the `test-1` results and before this page is built. It's no longer in M6. The written case study stays in M6.
 - **Mockup or plan first:** show Julian a mockup (or a written layout) and get approval before building.
 - **Design:** use the `frontend-design` skill. It isn't installed in this environment as of 2026-10-02, so check at build time and ask Julian how to get it, or what to use instead, if it's still missing.
 

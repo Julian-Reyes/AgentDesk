@@ -158,8 +158,8 @@ Save each conversation as a **run** containing each **step**: messages, the rout
 2. **Agent loop.** The provider client (cloud + Ollama/vLLM), the hand-written loop, the router + 2 agents with handoffs, tracing, the fake provider, and the record/replay cache.
 3. **Evals.** The 150 conversations (I review them), the graders, the grounding checker, the rate-limit-aware runner with preflight estimates, and the first comparison run.
 4. **UI.** Storefront chat widget + ops dashboard (agents, comparison, runs, approvals).
-5. **Deploy.** Free hosting, the public demo limits, and admin login.
-6. **Story.** Final comparison runs, the real switch/retire decision, README, case study, and polish.
+5. **Deploy.** The real switch/retire decision (first, right after the test-run results), free hosting, the public demo limits, admin login, and the `/ops` overview page.
+6. **Story.** Final comparison runs, README, case study, and polish.
 
 **If the scope grows too big, cut in this order:** the goodwill coupon tool, then the stock-by-variant check, then the extra models (keep at least two). **Never cut:** the evals, the grounding check, the tracing, or deployment.
 
@@ -193,3 +193,4 @@ Once both projects are done, the Router can be swapped for the best model from S
 - **2026-10-01: Second judge (Gemma 4 31B) dropped** (Julian's decision). Its purpose was to detect family bias in `gpt-oss-20b`. Julian's 30 blind grades showed none: on gpt-oss-120b's replies, 2 of the judge's 3 yes/no errors were it being stricter than Julian, and its helpfulness gap there (+0.30) was smaller than on Qwen's (+0.60). Details in `docs/JUDGE_RUBRIC.md`.
 - **2026-10-02: Return and damage windows count calendar days** (Julian's decision). "Within 30 days of delivery" now compares dates, not 24-hour periods. Before, an order delivered after noon kept an extra day, and the tool could say "eligible until" a date that had already passed.
 - **2026-10-02: A damaged item's $50 automatic limit is judged on one unit's price** (Julian's decision), and the $50 total per order still applies. One damaged lamp from a pair of $49 lamps ($98 line) is refunded right away; refunding both still goes to approval.
+- **2026-10-02: The real switch/retire decision moves from milestone 6 to right after the `test-1` results** (Julian's decision), before the M5 `/ops` overview page is built. The overview page shows that decision and the held-out numbers behind it, so both must exist first. The decision is made on the Agents page (switch/retire with a reason, kept in `team_changes`). The written case study and the final polish stay in milestone 6.

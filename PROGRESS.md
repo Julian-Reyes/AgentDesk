@@ -1309,6 +1309,7 @@ git worktree remove ../agents-test-run
 - record the results with confidence intervals and per-model tool-call health in PROGRESS.md
 - check follow-up promises (they rose 0 → 4 from r1 to r2 on dev)
 - no prompt changes based on these results
+- **then the real switch/retire decision** (moved here from milestone 6, Julian 2026-10-02; see docs/PROJECT.md, "Changes from the original spec"). Made on the Agents page from the `test-1` numbers, with a reason, before the M5 overview page is built.
 
 ## Milestone 4 — UI ✅ Closed (2026-10-02)
 The plan (order of work, the approvals and team-history rules, what's tested) is in **`docs/M4_PLAN.md`**.
