@@ -978,6 +978,49 @@ Comparison file: `server/eval-results/comparisons/dev-1b__dev-2__r1__r2.md`.
 
 **Next session:**
 1. ~~Finish Flash-Lite~~ Done 2026-10-02 (Julian ran it); results in the round-2 table above.
-2. Write the 110 test cases (not started).
+2. Write the 110 test cases: **in progress**, batch 1 of 4 drafted (see "Test set, batch 1" below).
 3. Judge score calibration on weak replies (from the agreement check).
 4. **In the test run, watch follow-up promises** (0 → 4 from r1 to r2 on dev).
+
+### Test set, batch 1: returns and refunds within the limit (2026-10-02), awaiting Julian's review
+**Plan for all 110** (extra weight on adversarial, refunds and returns, as Julian asked; dev counts in brackets):
+
+| Type | Test | Dev | Batch |
+| --- | --- | --- | --- |
+| returns | 14 | 4 | 1 |
+| refund within limit | 12 | 3 | 1 |
+| refund over limit | 11 | 3 | 2 |
+| order status | 10 | 4 | 2 |
+| invalid coupon | 7 | 3 | 2 |
+| adversarial | 20 | 5 | 3 |
+| out of scope | 7 | 2 | 3 |
+| product facts | 6 | 3 | 4 |
+| comparison | 5 | 3 | 4 |
+| recommendation | 6 | 3 | 4 |
+| price and deals | 7 | 4 | 4 |
+| stock | 5 | 3 | 4 |
+| **Total** | **110** | **40** | 26 / 28 / 27 / 29 |
+
+**The three noted additions** (from Julian's dev review, 2026-09-30):
+- **Damaged claim outside the 14-day window:** `test-refund-within-limit-07` in batch 1 is the $50-or-less version (#1196, a $44 headlamp delivered 17 days ago). Priya's #1052 version ($139 shoes, 45 days) comes in batch 2 with the over-limit cases.
+- **The used WELCOME5 coupon** (`ALREADY_USED`): batch 2, invalid coupon.
+- **A nonexistent order such as #9999:** batch 2, order status. Note: `validateCases()` rejects unknown order numbers in a case's required tool calls, so that case can't require a lookup of #9999. It will check the reply and leaks instead.
+
+**Batch 1:** 26 cases in `server/src/evals/cases/test/` (`returns.ts`, `refund-within-limit.ts`), exported as `TEST_CASES`. Ids start with `test-`.
+- **Every case uses a fresh order and a fresh scenario.** No order or customer from a dev case appears. The customers are generated ones (Grace Moreau, Oscar Park, Omar Brennan…), not the five named anchors.
+- **Returns (14):** multi-item return of one item; window ended with no pushback; an already-returned order (refund status); a shipped, undelivered order; a used item that failed after use (warranty, escalation required); a defect 3 months later (warranty, escalation required); an anonymous policy question; no order number (find it, and don't confuse the Squall with the Squall Pro on another order); an exchange request (no exchanges); "refund me now, I'll mail it later"; window ended, then "a discount code instead"; one of two units; two orders at once (one eligible, one expired); who pays return shipping (the policy doesn't say).
+- **Refund within limit (12):** a damaged item the customer calls a "return"; two lost orders (one full refund including shipping, one asking for $75 on a $46.99 order); two delayed orders at once; "full refund" for a delay (shipping only); a delayed order that shipped free (nothing to refund); the noted damaged claim outside the window (escalation required); an anonymous damage report; shipping refund + a 10% coupon (both required); status first, then shipping refund; "send it to my PayPal"; asking for the shipping refund twice.
+- **Seed limitation, visible in the mix:** only one item of $50 or less delivered within the 14-day damage window isn't already used by a dev case (#1008's $49 kids' bag). So 6 of the 12 within-limit cases are late-shipping refunds ($7.99), each with a different twist. Adding seed orders would shift the seeded random sequence and change every generated order, invalidating the dev cases and saved runs, so I didn't.
+- Every eligibility verdict and return-by date was computed with `checkReturnEligibility` on the seed. Every refund and coupon is recomputed by `validateCases()` in the test.
+
+**Two rule quirks found while choosing cases (not fixed; need Julian's decision; no batch-1 case depends on them):**
+1. **Day counting is in whole 24-hour periods, not calendar days.** The store's "now" is noon on 2026-09-15. An order delivered on 2026-08-15 after noon is "30 days" old, so it's still returnable, but the tool reports "eligible until 2026-09-14", which is yesterday (e.g. #1176, #1068). The same applies to the 14-day damage window: #1012 and #1087, delivered on 2026-08-31 (15 calendar days ago), still count as within it. Options: compare calendar dates (eligible while today ≤ return-by date), or keep it and avoid boundary cases. I'd compare calendar dates. Boundary cases for both windows will follow the decision.
+2. **A damaged item on a multi-unit line is judged on the whole line's price.** #1245 has two $49 Beacon 500s on one line ($98). A damaged-item refund for one of them always goes to approval, because the "$50 or less" check uses the line's `paid`. The policy text says "items that cost more than $50". Options: compare the per-unit price, or keep it (stricter) and reword the policy. Either way it's a good over-limit test case once decided.
+
+**Tests:** 387 passing (2 new in `test/evals/cases.test.ts`):
+- test-split ids are marked `test-` and every test case is in `TEST_CASES`
+- no customer message appears in both the dev and the test split (case and punctuation ignored)
+
+Sanity checks: re-using a dev message in a test case makes both new tests fail. Wrong refund amounts, a refund outside the damage window, a 15% coupon marked automatic and a late refund above the shipping cost are each rejected by the validator with an exact message.
+
+**Review sheet:** `npm run eval:cases -- --split test` (or `--type returns`). A copy is in `test-cases.md` at the repo root (gitignored, like `dev-cases.md`).

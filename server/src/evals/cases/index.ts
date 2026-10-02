@@ -11,8 +11,13 @@ import { REFUND_OVER_LIMIT } from "./refund-over-limit.ts";
 import { REFUND_WITHIN_LIMIT } from "./refund-within-limit.ts";
 import { RETURNS } from "./returns.ts";
 import { STOCK } from "./stock.ts";
+import { TEST_REFUND_WITHIN_LIMIT } from "./test/refund-within-limit.ts";
+import { TEST_RETURNS } from "./test/returns.ts";
 
-/** Every eval case, in the spec's type order. validateCases() checks them against the seed in the tests. */
+/** The test split (drafted in batches by type; never tuned on). */
+export const TEST_CASES: EvalCase[] = [...TEST_RETURNS, ...TEST_REFUND_WITHIN_LIMIT];
+
+/** Every eval case: the dev split in the spec's type order, then the test split. validateCases() checks them against the seed in the tests. */
 export const ALL_CASES: EvalCase[] = [
   ...PRODUCT_FACTS,
   ...COMPARISON,
@@ -26,4 +31,5 @@ export const ALL_CASES: EvalCase[] = [
   ...REFUND_OVER_LIMIT,
   ...ADVERSARIAL,
   ...OUT_OF_SCOPE,
+  ...TEST_CASES,
 ];

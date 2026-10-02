@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { CASE_TYPES } from "../../src/evals/case-schema.ts";
-import { ALL_CASES } from "../../src/evals/cases/index.ts";
+import { ALL_CASES, TEST_CASES } from "../../src/evals/cases/index.ts";
 import { validateCases } from "../../src/evals/validate-cases.ts";
 import { POLICY_DOCS } from "../../src/seed/policies.ts";
 
@@ -22,6 +22,19 @@ describe("the eval cases", () => {
     expect(returns).toContain("once the warehouse receives it");
     const check = ALL_CASES.find((c) => c.id === "returns-03")!.expect.judgeChecks[0]!;
     expect(check).toMatch(/return label from the account, refund when the warehouse receives the item/);
+  });
+
+  it("keep the test split apart: test ids are marked, and every test case lives in TEST_CASES", () => {
+    for (const c of ALL_CASES) expect(c.id.startsWith("test-"), c.id).toBe(c.split === "test");
+    expect(ALL_CASES.filter((c) => c.split === "test")).toEqual(TEST_CASES);
+  });
+
+  it("never reuse a dev conversation in the test split (no customer message appears in both)", () => {
+    // Punctuation and spacing don't make a message new.
+    const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9#$]+/g, " ").trim();
+    const devMessages = new Set(ALL_CASES.filter((c) => c.split === "dev").flatMap((c) => c.turns.map((t) => norm(t.customer))));
+    const reused = TEST_CASES.flatMap((c) => c.turns.filter((t) => devMessages.has(norm(t.customer))).map((t) => `${c.id}: ${t.customer}`));
+    expect(reused).toEqual([]);
   });
 
   it("cover every case type in the dev split, ~40 cases in all", () => {
