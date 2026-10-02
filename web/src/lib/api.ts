@@ -140,3 +140,29 @@ export const checkAdmin = (token: string) => request<{ admin: true }>("/api/admi
 
 export const decideApproval = (id: number, action: "approve" | "reject", note: string, token: string) =>
   request<{ id: number; status: ApprovalStatus }>(`/api/admin/approvals/${id}/${action}`, postJson(note.trim() ? { note } : {}, bearer(token)));
+
+// ---------- Ops dashboard: agents ----------
+
+export type TeamRole = "router" | "shopping" | "support";
+export type TeamAction = "initial" | "switch" | "retire" | "reinstate";
+export type TeamChange = { id: number; role: TeamRole; action: TeamAction; model: string; fromModel: string | null; toModel: string; reason: string; decidedBy: string; at: string };
+export type LiveMetrics = {
+  role: TeamRole;
+  model: string;
+  conversations: number;
+  outcomes: Record<Outcome, number>;
+  failureRate: number | null;
+  calls: number;
+  latencyMs: { p50: number | null; p95: number | null };
+  inputTokens: number;
+  outputTokens: number;
+  costMicros: number | null;
+};
+export type RoleView = { role: TeamRole; model: string; provider: string | null; prompt: string; since: string | null; retired: string[]; history: TeamChange[]; live: LiveMetrics[] };
+export type ModelOption = { id: string; provider: string; paid: boolean; pricing: { inputPerMTok: number; outputPerMTok: number } };
+export type AgentsView = { envOverride: string | null; liveWindowDays: number; reasonMinLength: number; roles: RoleView[]; models: ModelOption[] };
+
+export const getAgents = () => request<AgentsView>("/api/agents");
+
+export const changeTeam = (role: TeamRole, action: "switch" | "retire" | "reinstate", body: { model: string; reason: string; replacement?: string }, token: string) =>
+  request<TeamChange>(`/api/admin/agents/${role}/${action}`, postJson(body, bearer(token)));

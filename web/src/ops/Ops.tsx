@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { checkAdmin } from "../lib/api.ts";
+import { AgentsPage } from "./AgentsPage.tsx";
 import { ApprovalsPage } from "./ApprovalsPage.tsx";
 
 /**
@@ -31,6 +32,7 @@ export function Ops() {
   const hash = useHash();
   const [token, setToken] = useState<string | null>(storedToken);
   const run = /^#\/runs\/([\w-]+)$/.exec(hash)?.[1];
+  const page = run ? "run" : hash === "#/agents" ? "agents" : "approvals";
 
   const saveToken = (t: string | null) => {
     setToken(t);
@@ -51,9 +53,11 @@ export function Ops() {
             <p className="text-xs text-stone-500">Larchgrove Supply Co. demo · all customers and orders are fictional</p>
           </div>
           <nav aria-label="Dashboard" className="flex gap-3 text-sm">
-            <a href="#/approvals" aria-current={!run ? "page" : undefined} className={!run ? "font-semibold text-forest-800" : "text-stone-600 hover:text-forest-700"}>
-              Approvals
-            </a>
+            {(["approvals", "agents"] as const).map((p) => (
+              <a key={p} href={`#/${p}`} aria-current={page === p ? "page" : undefined} className={page === p ? "font-semibold text-forest-800" : "text-stone-600 hover:text-forest-700"}>
+                {p === "approvals" ? "Approvals" : "Agents"}
+              </a>
+            ))}
           </nav>
         </div>
         <AdminToken token={token} onChange={saveToken} />
@@ -69,6 +73,8 @@ export function Ops() {
               Back to approvals
             </a>
           </section>
+        ) : page === "agents" ? (
+          <AgentsPage token={token} />
         ) : (
           <ApprovalsPage token={token} />
         )}
@@ -109,7 +115,7 @@ function AdminToken({ token, onChange }: { token: string | null; onChange: (t: s
   return (
     <form onSubmit={submit} className="mx-auto flex max-w-5xl flex-wrap items-center gap-2 px-4 pb-3 text-xs">
       <label htmlFor="admin-token" className="w-full text-stone-600 sm:w-auto">
-        Read-only. To approve or reject, paste the admin token:
+        Read-only. To make changes (approvals, agents), paste the admin token:
       </label>
       <input
         id="admin-token"

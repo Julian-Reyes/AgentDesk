@@ -6,7 +6,8 @@
  * Dashboard actions need ADMIN_TOKEN in .env (see api/admin.ts).
  */
 import { serve } from "@hono/node-server";
-import { buildTeam, loadTeamSpec } from "../agents/team.ts";
+import { teamFromDb } from "../agents/team-store.ts";
+import { buildTeam, readTeamFile, type TeamSpec } from "../agents/team.ts";
 import { createApp } from "../api/app.ts";
 import { connect } from "../db/client.ts";
 import { storeClock } from "../domain/clock.ts";
@@ -22,15 +23,27 @@ const { db, close } = connect();
 
 let app: ReturnType<typeof createApp>;
 try {
-  // Build once at startup so an unknown model id or a missing API key fails
-  // here, not on the first visitor's message. config/team.json (or MODEL)
-  // until step 5 moves the team into the database.
-  buildTeam(loadTeamSpec());
+  // The team comes from the database (the Agents page changes it), read per
+  // chat so a switch applies to the next conversation. MODEL in .env still
+  // overrides it. Built once at startup so an unknown model id or a missing
+  // API key fails here, not on the first visitor's message.
+  const team = teamFromDb(db, { fileSpec: readTeamFile, build: (spec) => buildTeam(spec), now: () => new Date() });
+  await team();
+  // The Agents page refuses a switch to a team that can't be built (e.g. no API key for it).
+  const canBuild = (spec: TeamSpec) => {
+    try {
+      buildTeam(spec);
+      return null;
+    } catch (e) {
+      return (e as Error).message;
+    }
+  };
   app = createApp({
     db,
     clock: storeClock(),
     now: () => new Date(),
-    team: () => buildTeam(loadTeamSpec()),
+    team,
+    agents: { envModel: process.env.MODEL || undefined, canBuild },
     // Traces get their own connection pool, like every other tracer user.
     tracer: new DbTracer(connect().db),
     adminToken: process.env.ADMIN_TOKEN || undefined,

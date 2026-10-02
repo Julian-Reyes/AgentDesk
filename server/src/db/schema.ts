@@ -322,3 +322,33 @@ export const runSteps = pgTable(
   },
   (t) => [index("run_steps_run_idx").on(t.runId, t.seq)],
 );
+
+// ---------------------------------------------------------------------------
+// The agent team (M4). Which model each role uses lives here, as an
+// append-only history: the current team is the latest row per role. Like the
+// traces, it's not store data, so `db:seed` never truncates it.
+
+export const TEAM_ROLES = ["router", "shopping", "support"] as const;
+export type TeamRole = (typeof TEAM_ROLES)[number];
+export const TEAM_ACTIONS = ["initial", "switch", "retire", "reinstate"] as const;
+export type TeamAction = (typeof TEAM_ACTIONS)[number];
+export const teamRoleEnum = pgEnum("team_role", TEAM_ROLES);
+export const teamActionEnum = pgEnum("team_action", TEAM_ACTIONS);
+
+export const teamChanges = pgTable(
+  "team_changes",
+  {
+    id: serial("id").primaryKey(),
+    role: teamRoleEnum("role").notNull(),
+    action: teamActionEnum("action").notNull(),
+    /** The model the action is about: the new one (initial, switch), the retired one, the reinstated one. */
+    model: text("model").notNull(),
+    /** The role's model before and after the action. to_model is never null, so the latest row always says what's current. */
+    fromModel: text("from_model"),
+    toModel: text("to_model").notNull(),
+    reason: text("reason").notNull(),
+    decidedBy: text("decided_by").notNull(),
+    at: ts("at").notNull(),
+  },
+  (t) => [index("team_changes_role_idx").on(t.role, t.id)],
+);

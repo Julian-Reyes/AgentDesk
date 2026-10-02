@@ -1413,3 +1413,40 @@ Sanity check: an SSE parser that drops partial events makes 3 web tests fail; no
 **Tests:** server 439 (18 new: `test/approvals/decide.test.ts`, `test/api/approvals.test.ts`), web 22 (4 new: `ops/approvals.test.ts`). Covered: approving $179.99 issues exactly that; over-paid at the item level and at the order level; a partial amount that fits exactly; a goodwill coupon usable by that customer only; rejecting needs a note and issues nothing; double decisions; `run_id` stored by both tools; a scripted conversation → reject → a draft that loads as a module, with quotes and newlines escaped, and isn't in `ALL_CASES`; the admin guard on both actions; status codes; draft status.
 
 Sanity check: removing the over-paid re-check makes 2 tests fail, so does dropping the note requirement, and mounting the actions outside `/api/admin/*` makes 1 fail.
+
+### Step 5: Agents page, team in the database (2026-10-02)
+**Migration `0006`:** a `team_changes` table, append-only. Each row has: role, action (`initial`, `switch`, `retire` or `reinstate`), `model` (what the action is about), `from_model` and `to_model` (the role's model before and after), a reason, who decided, and when. **I added `model` to the plan's columns** because a retire or reinstate is about a model that may not be current; with it, `to_model` always says what's current. Like the traces, `db:seed` never truncates it. Applied to the dev DB on 2026-10-02, before the test-run window; the dev DB has no rows yet.
+
+**Checked against tomorrow's test run** (`8540db4`): the pinned test suite passed (394/394) against `switchyard_test` at `0006`. On a scratch copy, the pinned `db:seed` left `team_changes` alone, its migrator was a no-op, and its tools worked. **One thing out of order:** `switchyard_test` was migrated to `0006` by my first test run, *before* this check (the test setup migrates automatically). The check passed, so nothing was affected, but this time the order was "migrate test DB, then check", not the other way round. The dev DB was migrated after the check.
+
+**Rules** (`agents/team-store.ts`): pure functions (`foldHistory`, `planChange`) plus a small DB layer. Every write takes one advisory lock, so a change is always checked against the state it's appended to.
+- The current team is the latest `to_model` per role. On first read, an `initial` row per role is recorded from `config/team.json`; after that, the database decides and later file edits are ignored.
+- A reason of at least 10 characters is always required. The target must be in `config/models.json`; the fake provider isn't offered.
+- Retiring the current model needs a replacement in the same action. Retiring another model takes no replacement. A retired (role, model) pair can't be switched to until it's reinstated, and reinstating doesn't switch to it.
+- A switch to a team the server can't build (e.g. no API key) is refused before anything is saved (`MODEL_UNAVAILABLE`).
+- **Who uses it:** the chat API builds each new chat's team from the database (`teamFromDb`), so a switch applies to the next conversation without a restart. `npm run chat` uses the database team unless `--model` is given. `MODEL` in `.env` still overrides everything, and the page says so. Evals are unchanged (`--models`).
+
+**API:** `GET /api/agents` gives, per role: the current model and provider, the prompt version, when it became current, retired models, the history, and live metrics. `POST /api/admin/agents/:role/switch|retire|reinstate` takes `{ model, reason, replacement? }`.
+
+**Live metrics** (`agents/live-metrics.ts`): demo and CLI conversations from the last 7 days, never evals, per (role, model). They include conversations, outcome mix, failure rate, model-call count, p50/p95 latency, tokens, and cost. Cost is computed from tokens × `models.json` pricing, and calls served from the cache count as $0. **A change from the plan:** latency is per model call, not per turn, because a turn can span two agents after a handoff, so turn time can't be split between roles. The page says so.
+
+**Not done in this step:** the plan's "latest eval" block and the comparison numbers next to the switch form. Both need step 6's comparison data, so they come with step 6. The page says eval results arrive with the comparison page.
+
+**Page** (`/ops/#/agents`): one card per role with the current model, the prompt version, a live table (current model first), and the history. With the admin token, it also shows a change form (switch, retire with replacement, reinstate) with a required reason. If the change makes a paid model current, it shows the model's price and the $8 Groq cap, and you must tick "I understand" before saving.
+
+**Checked by hand** ($0, no model calls) on a scratch copy of the dev DB, so test changes didn't enter the real history. The API ran on 8788 and Vite on 5181 via `API_PORT`/`WEB_PORT`, because a `npm run dev` started at 12:45 (not mine, left running) holds 5180/8787 with the API on pre-step-5 code. Restart it to get the Agents API.
+- The live block showed the past week's real chats: gpt-oss-120b handled 13 router conversations, Flash-Lite 7.
+- Switch, retiring the current model without a replacement (refused), retire with a replacement, and switching to a retired model (refused) all behaved as expected.
+- Desktop screenshot checked. The phone screenshot didn't work: headless Chrome rendered about 500 px and cropped it. The shell was confirmed at 390 px in step 4, and the tables scroll sideways inside their cards, but this page isn't verified at phone width.
+
+**Tests:** server 456 (17 new: `test/agents/team-store.test.ts`, `test/api/agents.test.ts`), web 27 (5 new: `ops/agents.test.ts`). Covered:
+- the pure rules: reason, replacement, retired blocking, reinstate, history fold
+- the initial seed, once, after which the file is ignored
+- the full switch → retire → blocked → reinstate → switch sequence, appended in order
+- the build check saves nothing
+- the `MODEL` override
+- live metrics: sources, window, open runs, cached calls costing $0, percentiles
+- the admin guard, status codes, `since` hidden for the starting model
+- a switch applying to the next chat through the real `teamFromDb`
+
+Sanity check: dropping the reason rule makes 3 tests fail; dropping the replacement rule, 2; not blocking retired models, 2; mounting the actions outside `/api/admin/*`, 1.

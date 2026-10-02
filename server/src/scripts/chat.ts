@@ -2,10 +2,10 @@
  * Chat with the agent team in the terminal, against the dev database:
  *   npm run chat -- --as maya.chen@example.com --model groq/gpt-oss-120b
  *   npm run chat -- --model gemini/gemini-3.5-flash-lite      (anonymous visitor)
- *   npm run chat                                              (config/team.json, or MODEL in .env)
+ *   npm run chat                                              (the dashboard's team from the DB, or MODEL in .env)
  *
  * --model <config-id> uses that model config (server/config/models.json) for
- * the router and both agents. It overrides MODEL and config/team.json.
+ * the router and both agents. It overrides MODEL and the team in the database.
  *
  * Every conversation is traced to Postgres; inspect one with
  *   npm run trace -- <run id>
@@ -15,7 +15,8 @@
 import { eq } from "drizzle-orm";
 import { createInterface } from "node:readline/promises";
 import { Conversation } from "../agents/conversation.ts";
-import { buildTeam, loadTeamSpec } from "../agents/team.ts";
+import { loadDbTeamSpec } from "../agents/team-store.ts";
+import { buildTeam, readTeamFile } from "../agents/team.ts";
 import { connect } from "../db/client.ts";
 import { customers } from "../db/schema.ts";
 import { storeClock } from "../domain/clock.ts";
@@ -35,10 +36,13 @@ const flag = (name: string) => {
 const asEmail = flag("--as");
 const modelId = flag("--model");
 
+const { db, close } = connect();
 let team: ReturnType<typeof buildTeam>;
 try {
+  // The dashboard's team (database), unless --model or MODEL overrides it.
+  const spec = await loadDbTeamSpec(db, readTeamFile(), new Date(), modelId ? { ...process.env, MODEL: modelId } : process.env);
   // Unknown ids and missing API keys fail here, before anything else starts.
-  team = buildTeam(loadTeamSpec(modelId ? { ...process.env, MODEL: modelId } : process.env), {
+  team = buildTeam(spec, {
     // Free tiers throttle hard (Groq: 8K tokens/min). Say so, instead of looking frozen.
     throttle: {
       onWait: (ms, reason, { label, limit }) =>
@@ -47,10 +51,10 @@ try {
   });
 } catch (e) {
   console.error((e as Error).message);
+  await close();
   process.exit(1);
 }
 
-const { db, close } = connect();
 try {
   let customer: { id: number; name: string; email: string } | null = null;
   if (asEmail) {

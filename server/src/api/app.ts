@@ -5,6 +5,7 @@ import type { Clock } from "../domain/clock.ts";
 import { fail, ok } from "../tools/define.ts";
 import type { Tracer } from "../tracing/tracer.ts";
 import { requireAdmin } from "./admin.ts";
+import { agentAdminRoutes, agentRoutes, type AgentsDeps } from "./agents.ts";
 import { approvalAdminRoutes, approvalRoutes } from "./approvals.ts";
 import { ChatSessions, chatRoutes, type ChatLimits } from "./chat.ts";
 import { productRoutes } from "./products.ts";
@@ -29,7 +30,9 @@ export type AppDeps = {
   /** Shared admin token for dashboard actions; unset disables them (see admin.ts). */
   adminToken?: string;
   /** The agent team for a new chat (built per chat, so a model switch applies to the next one). */
-  team: () => Team;
+  team: () => Team | Promise<Team>;
+  /** For the Agents page; defaults read config/team.json and config/models.json. */
+  agents?: Partial<AgentsDeps>;
   /** Where chat traces go (DbTracer in the server, MemoryTracer in tests). */
   tracer: Tracer;
   chatLimits?: Partial<ChatLimits>;
@@ -54,6 +57,8 @@ export function createApp(deps: AppDeps) {
     .route("/api/chat", chatRoutes(chats, logError))
     .route("/api/approvals", approvalRoutes(deps))
     .route("/api/admin/approvals", approvalAdminRoutes(deps))
+    .route("/api/agents", agentRoutes(deps))
+    .route("/api/admin/agents", agentAdminRoutes(deps))
     // The dashboard calls this to check a pasted token before showing actions.
     .get("/api/admin/check", (c) => c.json(ok({ admin: true })));
 

@@ -9,9 +9,11 @@ import { AGENT_PROMPTS, ROUTER_PROMPT, promptId, type Prompt } from "./prompts.t
 import { LlmRouter, type Router } from "./router.ts";
 
 /**
- * Which model config each role uses (config/team.json). M4's "Retire / Switch
- * model" action will move this into the database with a history; for now it's
- * a file. MODEL in .env overrides all three roles at once (handy in dev).
+ * Which model config each role uses. config/team.json is the starting team;
+ * since M4 the database holds the current one, with its history (see
+ * team-store.ts: the dashboard and the chat use loadDbTeamSpec). Evals pick
+ * models explicitly (--models). MODEL in .env overrides all three roles at
+ * once (handy in dev).
  */
 const Role = z.object({ model: z.string() });
 const TeamFile = z.object({ router: Role, shopping: Role, support: Role });
@@ -19,8 +21,11 @@ export type TeamSpec = z.infer<typeof TeamFile>;
 
 const TEAM_PATH = new URL("../../config/team.json", import.meta.url);
 
+/** config/team.json as written, without the MODEL override. */
+export const readTeamFile = (path: URL | string = TEAM_PATH): TeamSpec => TeamFile.parse(JSON.parse(readFileSync(path, "utf8")));
+
 export function loadTeamSpec(env = process.env, path: URL | string = TEAM_PATH): TeamSpec {
-  const spec = TeamFile.parse(JSON.parse(readFileSync(path, "utf8")));
+  const spec = readTeamFile(path);
   if (env.MODEL) return { router: { model: env.MODEL }, shopping: { model: env.MODEL }, support: { model: env.MODEL } };
   return spec;
 }

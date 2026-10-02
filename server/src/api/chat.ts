@@ -41,7 +41,7 @@ export type ChatDeps = {
   clock: Clock;
   now: () => Date;
   /** Built for each new chat, so a model switch applies to the next conversation. */
-  team: () => Team;
+  team: () => Team | Promise<Team>;
   tracer: Tracer;
   limits?: Partial<ChatLimits>;
   logError: (err: Error) => void;
@@ -88,7 +88,7 @@ export class ChatSessions {
       customer = { id: c.id, name: c.name, email: c.email };
     }
 
-    const team = this.deps.team();
+    const team = await this.deps.team();
     const tracer = new ObservingTracer(this.deps.tracer);
     const convo = await Conversation.start({
       db: this.deps.db,
