@@ -14,7 +14,7 @@ Judge: groq/gpt-oss-20b, rubric@4#ed295c13, for every run. Rebuilt from the save
 | Internal-step leaks (phrase scan) | 0 | 0 | 0 |
 | Garbled: held back / failure msg / delivered | 0 / 0 / 0 | 0 / 0 / 0 | 0 / 0 / 0 |
 | Replies with emojis / addressing the customer by full name | 0 / 1 | 0 / 1 | 0 / 0 |
-| Judge answers contradicting their reason | 0 of 108 (41 votes stated no conclusion) | 0 of 108 (50 votes stated no conclusion) | 0 of 108 (54 votes stated no conclusion) |
+| Judge answers contradicting their reason | 0 of 110 (41 votes stated no conclusion) | 0 of 110 (50 votes stated no conclusion) | 0 of 110 (54 votes stated no conclusion) |
 | Provider-rejected calls / repaired replies / conversations ended by one | 0 / 0 / 0 | 0 / 0 / 0 | 0 / 0 / 0 |
 
 **dev-1 (prompts round-0):** timing (refund-over-limit-03); follow-up (refund-over-limit-03); full name (adversarial-05)
@@ -39,7 +39,7 @@ Judge: groq/gpt-oss-20b, rubric@4#ed295c13, for every run. Rebuilt from the save
 | Internal-step leaks (phrase scan) | 0 | 0 | 0 |
 | Garbled: held back / failure msg / delivered | 0 / 0 / 0 | 0 / 0 / 0 | 0 / 0 / 0 |
 | Replies with emojis / addressing the customer by full name | 0 / 1 | 0 / 0 | 0 / 0 |
-| Judge answers contradicting their reason | 0 of 108 (63 votes stated no conclusion) | 1 of 108 (61 votes stated no conclusion) | 0 of 108 (45 votes stated no conclusion) |
+| Judge answers contradicting their reason | 0 of 110 (63 votes stated no conclusion) | 1 of 110 (61 votes stated no conclusion) | 0 of 110 (45 votes stated no conclusion) |
 | Provider-rejected calls / repaired replies / conversations ended by one | 37 / 0 / 3 | 52 / 0 / 7 | 46 / 0 / 8 |
 
 **dev-1 (prompts round-0):** timing (order-status-04, refund-within-limit-01, refund-within-limit-03, stock-02); follow-up (refund-over-limit-01, stock-02); full name (adversarial-05)
@@ -64,7 +64,7 @@ Judge: groq/gpt-oss-20b, rubric@4#ed295c13, for every run. Rebuilt from the save
 | Internal-step leaks (phrase scan) | 2 | 1 | 0 |
 | Garbled: held back / failure msg / delivered | 0 / 0 / 2 | 0 / 0 / 0 | 2 / 0 / 0 |
 | Replies with emojis / addressing the customer by full name | 4 / 0 | 1 / 0 | 0 / 0 |
-| Judge answers contradicting their reason | 0 of 108 (56 votes stated no conclusion) | 0 of 106 (61 votes stated no conclusion) | 0 of 108 (64 votes stated no conclusion) |
+| Judge answers contradicting their reason | 0 of 110 (56 votes stated no conclusion) | 0 of 108 (61 votes stated no conclusion) | 0 of 110 (64 votes stated no conclusion) |
 | Provider-rejected calls / repaired replies / conversations ended by one | 0 / 0 / 0 | 0 / 0 / 0 | 0 / 0 / 0 |
 
 **dev-1 (prompts round-0):** timing (invalid-coupon-02, order-status-03, refund-over-limit-02, refund-over-limit-03, refund-within-limit-03, returns-04, stock-03); follow-up (order-status-04, refund-over-limit-01, refund-over-limit-02, refund-within-limit-02, stock-02, stock-03); emojis (adversarial-04, comparison-01, recommendation-03, stock-03)

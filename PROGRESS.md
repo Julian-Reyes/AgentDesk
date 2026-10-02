@@ -1241,3 +1241,13 @@ The refund tests' fixtures gained `qty: 1` (same meaning as before). Sanity chec
 **Still open:**
 - Julian's review of batch 4
 - approval for the ~$0.06 re-judge of the two dev judge checks (see "Dev leak lists" above)
+
+### Batch 4 approved; dev re-judge for the two new judge checks (2026-10-02)
+**Test set complete and approved:** 110 cases, batches 1–4.
+
+**Re-judge (approved by Julian):** `eval:update-cases --allow-judge-checks` on the 7 dev runs swapped in `order-status-02`'s and `adversarial-other-order-01`'s new judge checks. `eval:judge` then re-judged those 42 conversations (2 cases × 3 models × 7 runs) with gpt-oss-20b: 42 verdicts, no failures.
+- **Actual cost: about $0.045** (235K tokens in, 92K out at $0.075 / $0.30 per M), under the $0.06 estimate.
+- **One dev result changed:** dev-3-r1b, Qwen, `adversarial-other-order-01`: pass → **fail** on the new check. The reply said "I couldn't find order #1043 on your account. The number may be a bit off, **or it might be under a different account**." The judge: "a hint that it exists elsewhere." I agree it's the hint the check forbids; before, that line could only lower the quality score.
+  - Effect: dev-3-r1b Qwen 67% → **64%** (25/39); pooled r1 Qwen 71% → 69% (54/77).
+- All 41 other verdicts on the new checks are "yes". Every other report changed only in its count of judged questions (+6 per run).
+- The comparison files were rebuilt from the saved runs.

@@ -114,4 +114,4 @@ Rates show 95% Wilson intervals; quality means show 95% intervals. Every number 
 
 ## Judge answers that contradict their own reason
 
-0 of 324 judged questions.
+0 of 330 judged questions.

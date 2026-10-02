@@ -115,6 +115,6 @@ Rates show 95% Wilson intervals; quality means show 95% intervals. Every number 
 
 ## Judge answers that contradict their own reason
 
-1 of 324 judged questions.
+1 of 330 judged questions.
 
 - refund-over-limit-03 (groq/gpt-oss-120b) judge:0: vote 1 reasoned the opposite of the answer; final answer no
