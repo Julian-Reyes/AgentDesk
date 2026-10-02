@@ -5,6 +5,7 @@ import type { Clock } from "../domain/clock.ts";
 import { fail, ok } from "../tools/define.ts";
 import type { Tracer } from "../tracing/tracer.ts";
 import { requireAdmin } from "./admin.ts";
+import { approvalAdminRoutes, approvalRoutes } from "./approvals.ts";
 import { ChatSessions, chatRoutes, type ChatLimits } from "./chat.ts";
 import { productRoutes } from "./products.ts";
 
@@ -32,6 +33,8 @@ export type AppDeps = {
   /** Where chat traces go (DbTracer in the server, MemoryTracer in tests). */
   tracer: Tracer;
   chatLimits?: Partial<ChatLimits>;
+  /** Where draft eval cases from rejections are written (default src/evals/cases/drafts). */
+  draftsDir?: string;
   /** Where server errors are reported (default console.error). Tests capture them. */
   logError?: (err: Error) => void;
 };
@@ -49,6 +52,8 @@ export function createApp(deps: AppDeps) {
     .get("/api/health", (c) => c.json(ok({ status: "up" })))
     .route("/api/products", productRoutes(deps))
     .route("/api/chat", chatRoutes(chats, logError))
+    .route("/api/approvals", approvalRoutes(deps))
+    .route("/api/admin/approvals", approvalAdminRoutes(deps))
     // The dashboard calls this to check a pasted token before showing actions.
     .get("/api/admin/check", (c) => c.json(ok({ admin: true })));
 

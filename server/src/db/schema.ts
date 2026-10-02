@@ -237,6 +237,8 @@ export const approvals = pgTable("approvals", {
   decidedBy: text("decided_by"),
   decidedAt: ts("decided_at"),
   decisionNote: text("decision_note"),
+  /** The conversation (runs.id) whose tool call queued this. No FK, like the traces: the seed truncates store tables, never runs. */
+  runId: text("run_id"),
 });
 
 export const refunds = pgTable(

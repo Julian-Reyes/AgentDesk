@@ -62,8 +62,6 @@ export function decideRefund(
     return deny("INVALID_AMOUNT", "Refund amount must be a positive number of cents.");
   }
 
-  let cap = order.totalPaidCents - order.issuedCents - order.pendingCents;
-
   switch (reason) {
     case "damaged": {
       if (order.status !== "delivered" || !order.deliveredAt) {
@@ -80,7 +78,6 @@ export function decideRefund(
       if (!item) {
         return deny("ITEM_REQUIRED", "A damaged-item refund must name the damaged item from the order.");
       }
-      cap = Math.min(cap, item.refundableCents);
       break;
     }
     case "lost":
@@ -92,11 +89,10 @@ export function decideRefund(
       if (order.status !== "delayed") {
         return deny("REASON_DOES_NOT_MATCH_ORDER", `The order's status is "${order.status}", not delayed.`);
       }
-      // A late delivery earns back the shipping cost, nothing more.
-      cap = Math.min(cap, order.shippingCents - order.issuedCents - order.pendingCents);
       break;
   }
 
+  const cap = refundCapCents(order, reason, item);
   if (cap <= 0) {
     return deny("NOTHING_REFUNDABLE", "There is nothing left to refund on this order.", {
       totalPaid: formatCents(order.totalPaidCents),
@@ -130,6 +126,25 @@ export function decideRefund(
     amountCents,
     why: `Refunds on this order would total ${formatCents(orderTotalAfter)}, above the ${formatCents(RULES.autoRefundLimitCents)} automatic limit.`,
   };
+}
+
+/**
+ * Rule 2 on its own: the most that can still be refunded for this reason,
+ * given what's already issued or pending. Also used when a human approves a
+ * queued refund (approvals/decide.ts), so nobody can approve above what was
+ * paid either.
+ */
+export function refundCapCents(
+  order: Pick<RefundOrderState, "totalPaidCents" | "shippingCents" | "issuedCents" | "pendingCents">,
+  reason: AgentRefundReason,
+  item?: Pick<RefundItem, "refundableCents">,
+): Cents {
+  let cap = order.totalPaidCents - order.issuedCents - order.pendingCents;
+  // A damaged-item refund covers that item only.
+  if (reason === "damaged" && item) cap = Math.min(cap, item.refundableCents);
+  // A late delivery earns back the shipping cost, nothing more.
+  if (reason === "late") cap = Math.min(cap, order.shippingCents - order.issuedCents - order.pendingCents);
+  return cap;
 }
 
 function deny(code: string, message: string, details?: Record<string, unknown>): RefundDecision {

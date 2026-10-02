@@ -105,3 +105,38 @@ export async function sendMessage(chat: { conversationId: string; token: string 
   }
   throw new ApiError("NETWORK", "The connection dropped before the reply arrived. Please try again.", 0);
 }
+
+// ---------- Ops dashboard: approvals ----------
+
+export type ApprovalStatus = "pending" | "approved" | "rejected";
+export type Approval = {
+  id: number;
+  kind: "refund" | "goodwill_coupon";
+  status: ApprovalStatus;
+  customer: { id: number; name: string };
+  orderNumber: number | null;
+  amountCents: number | null;
+  percent: number | null;
+  item: string | null;
+  refundReason: string | null;
+  agentNote: string | null;
+  queuedBecause: string;
+  createdAt: string;
+  decidedBy: string | null;
+  decidedAt: string | null;
+  decisionNote: string | null;
+  runId: string | null;
+  /** For rejections from a conversation: has `npm run eval:draft-from-rejections` written its draft case? */
+  draftCase: "written" | "not_yet" | null;
+};
+
+const bearer = (token: string) => ({ authorization: `Bearer ${token}` });
+
+export const getApprovals = (status?: ApprovalStatus) =>
+  request<{ approvals: Approval[] }>(`/api/approvals${status ? `?status=${status}` : ""}`).then((d) => d.approvals);
+
+/** Checks a pasted admin token (401/403 come back as ApiError). */
+export const checkAdmin = (token: string) => request<{ admin: true }>("/api/admin/check", { headers: bearer(token) });
+
+export const decideApproval = (id: number, action: "approve" | "reject", note: string, token: string) =>
+  request<{ id: number; status: ApprovalStatus }>(`/api/admin/approvals/${id}/${action}`, postJson(note.trim() ? { note } : {}, bearer(token)));

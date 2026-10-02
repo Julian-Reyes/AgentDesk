@@ -7,7 +7,7 @@ import { decideGoodwill, storeCausedProblem, type StoreCausedProblem } from "../
 import { AGENT_REFUND_REASONS, decideRefund, type RefundItem } from "../policy/refunds.ts";
 import { checkReturnEligibility } from "../policy/returns.ts";
 import { RULES } from "../policy/rules.ts";
-import { day, dollarsArg, findOrderItem, linePaidCents, loadOwnedOrder, orderNumberArg, toCents } from "./common.ts";
+import { day, dollarsArg, findOrderItem, itemRefundableCents, linePaidCents, loadOwnedOrder, orderNumberArg, orderRefundSums, toCents } from "./common.ts";
 import { defineTool, fail, ok, type ToolContext } from "./define.ts";
 
 const CARRIER = "Parcelway";
@@ -171,13 +171,7 @@ export const issueRefund = defineTool({
       await tx.execute(sql`select 1 from ${s.orders} where ${s.orders.number} = ${orderId} for update`);
       const order = owned.data;
 
-      const [sums] = await tx
-        .select({
-          issued: sql<number>`coalesce(sum(${s.refunds.amountCents}) filter (where ${s.refunds.status} = 'issued'), 0)::int`,
-          pending: sql<number>`coalesce(sum(${s.refunds.amountCents}) filter (where ${s.refunds.status} = 'pending_approval'), 0)::int`,
-        })
-        .from(s.refunds)
-        .where(eq(s.refunds.orderNumber, order.number));
+      const sums = await orderRefundSums(tx, order.number);
 
       // Damaged refunds are per item: find it, and work out what's still refundable for it.
       let refundItem: RefundItem | undefined;
@@ -186,19 +180,12 @@ export const issueRefund = defineTool({
         const found = await findOrderItem(tx, order.number, item);
         if (!found.ok) return { ...found, policyDecision: "denied" as const };
         const { item: line, name } = found.data;
-        const [itemSums] = await tx
-          .select({ refunded: sql<number>`coalesce(sum(${s.refunds.amountCents}) filter (where ${s.refunds.status} in ('issued', 'pending_approval')), 0)::int` })
-          .from(s.refunds)
-          .where(eq(s.refunds.orderItemId, line.id));
-        const paid = linePaidCents(line);
-        // Units already returned were refunded by the warehouse; only the rest can be refunded as damaged.
-        const keptPaid = Math.floor((paid * (line.qty - line.returnedQty)) / line.qty);
-        refundItem = { name, paidCents: paid, qty: line.qty, refundableCents: keptPaid - itemSums!.refunded };
+        refundItem = { name, paidCents: linePaidCents(line), qty: line.qty, refundableCents: await itemRefundableCents(tx, line) };
         orderItemId = line.id;
       }
 
       const decision = decideRefund(
-        { ...order, issuedCents: sums!.issued, pendingCents: sums!.pending },
+        { ...order, issuedCents: sums.issued, pendingCents: sums.pending },
         reason,
         amountCents,
         ctx.now,
@@ -232,6 +219,7 @@ export const issueRefund = defineTool({
           payload: { amountCents, reason, note: note ?? null, ...(refundItem ? { item: refundItem.name, orderItemId } : {}) },
           reason: decision.why,
           createdAt: ctx.now,
+          runId: ctx.runId ?? null,
         })
         .returning();
       await tx.insert(s.refunds).values({
@@ -307,7 +295,7 @@ export const issueGoodwillCoupon = defineTool({
       if (decision.decision === "queued_for_approval") {
         const [approval] = await tx
           .insert(s.approvals)
-          .values({ kind: "goodwill_coupon", customerId: customer.id, orderNumber: orderId ?? null, payload: { percent, reason }, reason: decision.why, createdAt: ctx.now })
+          .values({ kind: "goodwill_coupon", customerId: customer.id, orderNumber: orderId ?? null, payload: { percent, reason }, reason: decision.why, createdAt: ctx.now, runId: ctx.runId ?? null })
           .returning();
         return ok(
           {

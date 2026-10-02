@@ -33,6 +33,8 @@ export type ToolContext = {
   db: DbOrTx;
   now: Date;
   session: Session;
+  /** The conversation (trace) running the tool, stored on approvals so the dashboard can link to it. Unset outside a conversation (CLI, tests). */
+  runId?: string;
 };
 
 export type ToolDef<A extends z.ZodType = z.ZodType, T = unknown> = {

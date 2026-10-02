@@ -1361,7 +1361,7 @@ Sanity check: disabling the token check, the one-turn-at-a-time check, hiding th
 **Dependencies added** (confirmed by Julian): `react`, `react-dom`; dev: `vite`, `@vitejs/plugin-react`, `tailwindcss`, `@tailwindcss/vite`, `@types/react`, `@types/react-dom`, plus `typescript` and `vitest` at the server's versions. `npm audit`: no new issues.
 
 **Layout:** a new npm workspace `web/` (Vite 8 + React 19 + Tailwind 4). In development, Vite proxies `/api` to the API server.
-- `npm run dev` starts the API and Vite together (Ctrl-C stops both). Open http://localhost:5173.
+- `npm run dev` starts the API and Vite together (Ctrl-C stops both). Open http://localhost:5180 (5173 until step 4).
 - `npm run build` builds the static site.
 - Root `npm run typecheck` and `npm test` now cover both workspaces, and so does the pre-commit hook (it prints both test counts).
 
@@ -1389,3 +1389,27 @@ Sanity check: disabling the token check, the one-turn-at-a-time check, hiding th
 **Tests:** web 18 (`sse.test.ts`: every split point of a stream, CRLF, multi-line data, comments; `api.test.ts`: the request with the chat token, progress then reply, refused messages, server error events, a stream that ends or breaks before the reply, an unreachable server or a non-JSON error page; `chat-state.test.ts`: the turn cycle, no double send, late events ignored after a reset, a failed send restored, an expired chat; `format.test.ts`). Server 421, unchanged.
 
 Sanity check: an SSE parser that drops partial events makes 3 web tests fail; not taking back an unanswered message makes 1 fail.
+
+### Step 4: approvals queue (2026-10-02)
+**Migration `0005`:** `approvals.run_id` (text, nullable, no FK, like the traces). `ToolContext` has an optional `runId`; `Conversation.runTool` passes the trace id, and `issue_refund` / `issue_goodwill_coupon` store it. Applied to the dev DB on 2026-10-02, before the test-run window.
+
+**Checked against tomorrow's test run first** (pinned `8540db4`): on scratch databases migrated to `0005`, the pinned commit's full test suite passed (394/394), its `db:seed` ran twice, its migrator was a no-op (drizzle only applies migrations newer than the last one recorded, so old code ignores `0005`), and its `issue_refund` queued an approval. The old code only reads approvals through column lists (drizzle selects) or truncates them (the seed), so the extra nullable column is invisible to it. The scratch DBs and worktree were removed afterwards. `switchyard_test` is also at `0005` now (main's tests migrate it); the pinned hook's tests pass there too, as checked above.
+
+**Decisions** (`src/approvals/decide.ts`), one transaction each, the approval row locked first (two admins can't both decide it), then the order row, the same lock `issue_refund` takes:
+- **Approve refund:** the linked `pending_approval` refund becomes `issued`, after re-checking that it still fits what was paid, counting every other issued or pending refund on the order and on the item. The check is `refundCapCents`, now split out of `decideRefund` so the tool and the human use the same rule. If it doesn't fit: `OVER_REFUNDABLE`, and it stays pending. The item sums moved into `tools/common.ts` (`orderRefundSums`, `itemRefundableCents`) for the same reason.
+- **Approve goodwill:** creates `GOODWILL-<approvalId>`, single use, this customer only, at the requested percent, expiring 90 days from the store date (coupon dates are store dates, like the tools'). `decidedAt` is wall-clock time.
+- **Reject:** a note of at least 3 characters is required; a queued refund becomes `rejected`; nothing is issued. Deciding twice gives `ALREADY_DECIDED`.
+
+**API:** `GET /api/approvals?status=` (public, customer names only, no emails), `POST /api/admin/approvals/:id/approve|reject` `{ note? }`. **A change from the plan:** the plan said `/api/approvals/:id/…`; the actions live under `/api/admin/*` so step 1's single guard covers them. Status codes: 404 unknown, 409 already decided or over-refundable, 400 note problems. `decidedBy` is `"admin"` until M5's login.
+
+**Rejections become draft cases:** `npm run eval:draft-from-rejections` writes one file per rejected approval that came from a conversation to `server/src/evals/cases/drafts/rejection-<run>-<id>.ts`: the customer, their messages from the trace, the rejection note in `why`, and TODO expectations. Drafts are plain objects, not imported by `cases/index.ts`, so nothing runs until a draft is reviewed and moved into a case file. Files are named by run id because approval ids restart after `db:seed`. The page shows "Draft case: written / not yet" for each rejection.
+
+**Dashboard** (`web/ops/index.html`, http://localhost:5180/ops/): the approvals page lists pending requests (oldest first) with what was asked, the customer, the order, why it was queued, the agent's note, and a link to the conversation, plus approve / reject with a note; decided ones are listed below. Reading needs no token; to act, paste the admin token (it's checked with `/api/admin/check` and kept for the tab only). The conversation link opens a placeholder that says to use `npm run trace -- <id>` until the Runs page (step 7). It was checked at 1280 px and 390 px in headless Chrome.
+
+**Ports (Julian, 2026-10-02):** the web dev server moved from 5173 to **5180** with `strictPort`, so it fails rather than quietly moving to another port. Both ports come from `.env`: `WEB_PORT` (default 5180) and `API_PORT` (default 8787). `PORT` still works as a fallback for the API, since hosts set it (M5). Vite now loads the repo-root `.env` itself (`loadEnv`); before, the proxy read `API_PORT` while the server read `PORT`, so changing the port in `.env` would have broken the proxy. `.env.example` is updated.
+
+**Checked by hand** ($0, no model calls, dev DB): I queued #1051 ($179.99) and #1054 ($199) with `npm run tool`, then through the Vite proxy on 5180: listed them; approving without a token gave 401; approving #1051 with the token issued the refund; rejecting #1054 without a note was refused. A second Vite on 5180 stopped with "Port 5180 is already in use". The dev DB was reseeded afterwards.
+
+**Tests:** server 439 (18 new: `test/approvals/decide.test.ts`, `test/api/approvals.test.ts`), web 22 (4 new: `ops/approvals.test.ts`). Covered: approving $179.99 issues exactly that; over-paid at the item level and at the order level; a partial amount that fits exactly; a goodwill coupon usable by that customer only; rejecting needs a note and issues nothing; double decisions; `run_id` stored by both tools; a scripted conversation → reject → a draft that loads as a module, with quotes and newlines escaped, and isn't in `ALL_CASES`; the admin guard on both actions; status codes; draft status.
+
+Sanity check: removing the over-paid re-check makes 2 tests fail, so does dropping the note requirement, and mounting the actions outside `/api/admin/*` makes 1 fail.

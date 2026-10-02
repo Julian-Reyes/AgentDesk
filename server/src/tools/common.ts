@@ -1,4 +1,4 @@
-import { and, eq, gte, isNull, lte, or } from "drizzle-orm";
+import { and, eq, gte, inArray, isNull, lte, ne, or, sql } from "drizzle-orm";
 import { z } from "zod";
 import type { DbOrTx } from "../db/client.ts";
 import * as s from "../db/schema.ts";
@@ -177,3 +177,38 @@ export async function findOrderItem(db: DbOrTx, orderNumber: number, query: stri
 
 /** What the customer paid for a whole order line, after sales. */
 export const linePaidCents = (item: typeof s.orderItems.$inferSelect): Cents => item.unitPriceCents * item.qty - item.discountCents;
+
+/**
+ * Refunds on one order, issued and pending, optionally leaving one out (a
+ * human approving a queued refund checks it against everything else).
+ */
+export async function orderRefundSums(db: DbOrTx, orderNumber: number, excludeRefundId?: number) {
+  const [sums] = await db
+    .select({
+      issued: sql<number>`coalesce(sum(${s.refunds.amountCents}) filter (where ${s.refunds.status} = 'issued'), 0)::int`,
+      pending: sql<number>`coalesce(sum(${s.refunds.amountCents}) filter (where ${s.refunds.status} = 'pending_approval'), 0)::int`,
+    })
+    .from(s.refunds)
+    .where(and(eq(s.refunds.orderNumber, orderNumber), excludeRefundId === undefined ? undefined : ne(s.refunds.id, excludeRefundId)));
+  return sums!;
+}
+
+/**
+ * What's still refundable for a damaged item: what was paid for the units not
+ * returned (the warehouse refunded those), minus refunds already issued or
+ * pending for it, optionally leaving one out (see orderRefundSums).
+ */
+export async function itemRefundableCents(db: DbOrTx, line: typeof s.orderItems.$inferSelect, excludeRefundId?: number): Promise<Cents> {
+  const [itemSums] = await db
+    .select({ refunded: sql<number>`coalesce(sum(${s.refunds.amountCents}), 0)::int` })
+    .from(s.refunds)
+    .where(
+      and(
+        eq(s.refunds.orderItemId, line.id),
+        inArray(s.refunds.status, ["issued", "pending_approval"]),
+        excludeRefundId === undefined ? undefined : ne(s.refunds.id, excludeRefundId),
+      ),
+    );
+  const keptPaid = Math.floor((linePaidCents(line) * (line.qty - line.returnedQty)) / line.qty);
+  return keptPaid - itemSums!.refunded;
+}

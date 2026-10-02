@@ -1,6 +1,6 @@
 /**
  * The API server for the storefront widget and the ops dashboard:
- *   npm run serve            (http://localhost:8787, or PORT from .env)
+ *   npm run serve            (http://localhost:8787, or API_PORT from .env)
  *
  * In development, the web app's Vite dev server proxies /api here.
  * Dashboard actions need ADMIN_TOKEN in .env (see api/admin.ts).
@@ -12,7 +12,12 @@ import { connect } from "../db/client.ts";
 import { storeClock } from "../domain/clock.ts";
 import { DbTracer } from "../tracing/tracer.ts";
 
-const port = Number(process.env.PORT ?? 8787);
+// API_PORT, as in .env; PORT is the fallback because hosting platforms set that one (M5).
+const port = Number(process.env.API_PORT || process.env.PORT || 8787);
+if (!Number.isInteger(port) || port < 1 || port > 65535) {
+  console.error(`Invalid API_PORT: ${process.env.API_PORT || process.env.PORT}`);
+  process.exit(1);
+}
 const { db, close } = connect();
 
 let app: ReturnType<typeof createApp>;
