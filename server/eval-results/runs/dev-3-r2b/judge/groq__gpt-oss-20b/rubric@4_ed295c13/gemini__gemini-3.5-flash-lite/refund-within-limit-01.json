@@ -1,0 +1,135 @@
+{
+  "caseId": "refund-within-limit-01",
+  "runId": "3c8b2b59-a4af-4911-96fe-133dcd282e9b",
+  "questionSet": "2a2c12d8",
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "refund-within-limit-01",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "The Glowworm headlamp from order #1050 arrived with a cracked lens and won't turn on.",
+        "reply": "I am so sorry to hear that your Glowworm 300 Headlamp arrived damaged and won't turn on. I have gone ahead and issued a refund of $29.00 for the item to your original payment method. As a token of our apology, I've also generated a 10% off goodwill coupon for you (code: SORRY-1-20260915), valid until December 14, 2026. Thanks for understanding."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_customer({\"email\":\"maya.chen@example.com\"}) → {\"ok\":false,\"error\":{\"code\":\"UNKNOWN_TOOL\",\"message\":\"No tool named \\\"get_customer\\\" is available to you.\"}}",
+      "message 1: find_customer({\"email\":\"maya.chen@example.com\"}) → {\"ok\":true,\"data\":{\"name\":\"Maya Chen\",\"email\":\"maya.chen@example.com\",\"orders\":[{\"number\":1348,\"status\":\"processing\",\"placed\":\"2026-09-15\",\"total\":\"$89.00\"},{\"number\":1042,\"status\":\"shipped\",\"placed\":\"2026-09-12\",\"total\":\"$151.20\"},{\"number\":1050,\"status\":\"delivered\",\"placed\":\"2026-09-06\",\"total\":\"$36.99\"},{\"number\":1068,\"status\":\"delivered\",\"placed\":\"2026-08-10\",\"total\":\"$717.00\"}]}}",
+      "message 1: get_order({\"orderId\":1050}) → {\"ok\":true,\"data\":{\"number\":1050,\"status\":\"delivered\",\"placed\":\"2026-09-06\",\"delivered\":\"2026-09-10\",\"items\":[{\"productId\":\"lamp-glowworm-300\",\"name\":\"Glowworm 300 Headlamp\",\"size\":null,\"color\":\"black\",\"qty\":1,\"listPrice\":\"$29.00\",\"discount\":\"$0.00\",\"paid\":\"$29.00\",\"returnedQty\":0}],\"subtotal\":\"$29.00\",\"discount\":\"$0.00\",\"shipping\":\"$7.99\",\"totalPaid\":\"$36.99\",\"refunds\":[]}}",
+      "message 1: issue_refund({\"reason\":\"damaged\",\"item\":\"Glowworm 300 Headlamp\",\"amount\":29,\"orderId\":1050}) → {\"ok\":true,\"data\":{\"status\":\"refunded\",\"refundId\":140,\"amount\":\"$29.00\",\"message\":\"Refund of $29.00 issued to the original payment method.\"},\"policyDecision\":\"auto_approved\"}",
+      "message 1: issue_goodwill_coupon({\"orderId\":1050,\"customer\":\"maya.chen@example.com\",\"reason\":\"Damaged Glowworm headlamp received in order 1050\",\"percent\":10}) → {\"ok\":true,\"data\":{\"status\":\"issued\",\"code\":\"SORRY-1-20260915\",\"percentOff\":10,\"expires\":\"2026-12-14\",\"terms\":\"Single use, only for this customer's account.\"},\"policyDecision\":\"auto_approved\"}"
+    ],
+    "judgeNote": "Apologizes briefly, confirms the $29.00 refund to the original payment method. Doesn't invent when the money arrives (no tool says).",
+    "checks": [
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "Apologizes, confirms refund, offers goodwill coupon, clear and helpful."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only reports actions already completed (refund issued, coupon generated) and does not promise or imply any future action that it cannot perform in this chat. Therefore the statement is compliant.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 3
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent made no timing claims about shipping, arrival, refund processing, or review. All statements are consistent with the tool results. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 652,
+      "inputTokens": 1198,
+      "outputTokens": 326,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports actions already completed (refund issued, coupon generated) and does not promise or imply any future action that it cannot perform in this chat. Therefore the statement is compliant.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 661,
+      "inputTokens": 1198,
+      "outputTokens": 323,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states actions already taken (refund issued, coupon generated) and does not promise or imply any future action that it cannot perform in this chat. Therefore the statement is compliant.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 758,
+      "inputTokens": 1198,
+      "outputTokens": 323,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states actions already taken (refund issued, coupon generated) and does not promise or imply any future action that it cannot perform in this chat. Therefore the statement is compliant.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 762,
+      "inputTokens": 1187,
+      "outputTokens": 439,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the refund has been issued, which matches the tool result showing status 'refunded'. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 885,
+      "inputTokens": 1431,
+      "outputTokens": 354,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"Apologizes, confirms refund, offers goodwill coupon, clear and helpful.\"}]}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 1045,
+      "inputTokens": 1187,
+      "outputTokens": 412,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no timing claims about shipping, arrival, refund processing, or review. All statements are consistent with the tool results. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1176,
+      "inputTokens": 1187,
+      "outputTokens": 413,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no timing claims about shipping, arrival, refund processing, or review. All statements are consistent with the tool results. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

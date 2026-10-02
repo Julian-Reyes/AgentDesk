@@ -1,0 +1,149 @@
+{
+  "caseId": "order-status-03",
+  "runId": "7be2f961-2759-4d58-b96b-dffe54bad318",
+  "questionSet": "378b9f94",
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "order-status-03",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "When will my order #1056 ship?",
+        "reply": "Your order #1056 is currently being processed at our warehouse and will ship soon."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_tracking({\"orderId\":\"1056\"}) → {\"ok\":true,\"data\":{\"orderNumber\":1056,\"status\":\"processing\",\"carrier\":null,\"trackingNumber\":null,\"estimatedDelivery\":null,\"events\":[{\"at\":\"2026-09-14 16:00\",\"status\":\"order_placed\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":null}]}}"
+    ],
+    "judgeNote": "Says it's still being processed. May quote general shipping times from the shipping policy, clearly as general policy.",
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent doesn't give a specific ship date or delivery date (no tool provides one for a processing order)."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 4,
+        "why": "The reply confirms processing but lacks a specific shipping estimate, so it's helpful but not fully informative."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent’s reply states the order is being processed and will ship soon, but does not provide a specific ship date or delivery date. The tool data confirms the order status is \"processing\" with no estimated delivery. Therefore the statement is true. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent’s reply accurately reflects the order status and does not promise any future action beyond stating that shipping will occur soon, which is consistent with the tool data. This is allowed. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": false,
+        "why": "The agent claims the order will ship soon, but the tool result shows only that the order is processing with no estimated shipping date, and no shipping policy is provided in the conversation to support the vague timing. Therefore the timing claim is unsupported. Answer: no.",
+        "votes": [
+          false,
+          false,
+          false
+        ],
+        "noConclusion": 2
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": false
+  },
+  "calls": [
+    {
+      "purpose": "scores",
+      "latencyMs": 605,
+      "inputTokens": 915,
+      "outputTokens": 291,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":4,\"why\":\"The reply confirms processing but lacks a specific shipping estimate, so it's helpful but not fully informative.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 632,
+      "inputTokens": 682,
+      "outputTokens": 277,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply only states that the order is currently being processed and will ship soon, which is a factual statement about the order’s status and does not promise or imply any future action that the agent cannot perform. Therefore, it meets the judge check. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 759,
+      "inputTokens": 682,
+      "outputTokens": 351,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply accurately reflects the order status and does not promise any future action beyond stating that shipping will occur soon, which is consistent with the tool data. This is allowed. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 873,
+      "inputTokens": 671,
+      "outputTokens": 234,
+      "cached": false,
+      "raw": "{\"why\":\"The agent claimed the order will ship soon, which is a vague timing statement not supported by the tool result (which shows status \\\"processing\\\" with no estimated delivery) or any policy presented in the conversation. Therefore the timing claim does not match any provided evidence.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1399,
+      "inputTokens": 671,
+      "outputTokens": 236,
+      "cached": false,
+      "raw": "{\"why\":\"The agent claims the order will ship soon, but the tool result shows only that the order is processing with no estimated shipping date, and no shipping policy is provided in the conversation to support the vague timing. Therefore the timing claim is unsupported. Answer: no.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 1510,
+      "inputTokens": 605,
+      "outputTokens": 220,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply states the order is being processed and will ship soon, but does not provide a specific ship date or delivery date. The tool data confirms the order status is \\\"processing\\\" with no estimated delivery. Therefore the statement is true. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1525,
+      "inputTokens": 682,
+      "outputTokens": 279,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply only states that the order is currently being processed and will ship soon, which is a factual statement about the order’s status and does not promise or imply any future action that the agent cannot perform in this chat. Therefore, it meets the criteria. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 1525,
+      "inputTokens": 671,
+      "outputTokens": 234,
+      "cached": false,
+      "raw": "{\"why\":\"The agent claimed the order will ship soon, which is a vague timing statement not supported by the tool result (which shows status \\\"processing\\\" with no estimated delivery) or any policy presented in the conversation. Therefore the timing claim does not match any provided evidence.\",\"answer\":false}"
+    }
+  ]
+}

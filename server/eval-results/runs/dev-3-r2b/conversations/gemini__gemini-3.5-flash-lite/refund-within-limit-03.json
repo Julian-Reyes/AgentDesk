@@ -1,0 +1,730 @@
+{
+  "caseId": "refund-within-limit-03",
+  "case": {
+    "id": "refund-within-limit-03",
+    "split": "dev",
+    "type": "refund_within_limit",
+    "why": "#1074 (Rowan Brennan, delivered 11 days ago, within the 14-day damage window) has three items: a Voyager 80 pack, a Squall Rain Jacket and a Firefly Kids Headlamp ($14.99). The first message doesn't say which item is broken, so asking is the right move and the second message always fits. The Firefly cost $50 or less and the order has no other refunds, so $14.99 is refunded automatically. The damage is store-caused, so a goodwill coupon of 10% or less is allowed, not required (goodwill rule, 2026-10-01): issued if the refund came first, queued if the coupon came first.",
+    "source": "Julian's review, 2026-09-30 (replaces a single-item version where the follow-up might not fit)",
+    "customer": "rowan.brennan107@example.com",
+    "turns": [
+      {
+        "customer": "Something from my order #1074 arrived broken. What can you do?"
+      },
+      {
+        "customer": "It's the kids' headlamp, the Firefly. It won't switch on at all, and the battery door is cracked.",
+        "assumes": "the agent asked which item is broken or what's wrong with it",
+        "reply": {
+          "mentions": [],
+          "amounts": [
+            1499
+          ],
+          "avoids": []
+        }
+      }
+    ],
+    "expect": {
+      "route": "support",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [
+          {
+            "order": 1074,
+            "amountCents": 1499,
+            "reason": "damaged",
+            "item": "lamp-firefly-kids",
+            "status": "issued"
+          }
+        ],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": [
+            {
+              "maxPercent": 10,
+              "order": 1074,
+              "status": [
+                "issued",
+                "pending_approval"
+              ]
+            }
+          ]
+        },
+        "escalation": "forbidden"
+      },
+      "leaks": [],
+      "judgeChecks": [
+        "In its first reply, the agent asks which item is broken (or what's wrong) instead of guessing or refunding an item."
+      ]
+    }
+  },
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "team": {
+    "router": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "2eeccaab-133c-4c49-92ea-1255a1afb131",
+    "turns": [
+      {
+        "customer": "Something from my order #1074 arrived broken. What can you do?",
+        "reply": "Based on order #1074, you have three items: the Voyager 80 Expedition Pack ($329.00), the Squall Rain Jacket ($149.00), and the Firefly Kids Headlamp ($14.99). \n\nCould you please let me know which of these items arrived broken?",
+        "answeredBy": "support",
+        "outcome": "resolved"
+      },
+      {
+        "customer": "It's the kids' headlamp, the Firefly. It won't switch on at all, and the battery door is cracked.",
+        "reply": "I am so sorry to hear that the Firefly Kids Headlamp arrived with a cracked battery door and wouldn't switch on. \n\nI have gone ahead and issued a full refund of $14.99 to your original payment method, which has been approved right away. You don't need to send the damaged headlamp back to us. \n\nAs an apology for the trouble, I've also added a 10% off goodwill coupon to your account (code: SORRY-107-20260915), valid for a future purchase through December 14, 2026. \n\nThanks for understanding, and please let us know if you need anything else!",
+        "answeredBy": "support",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Something from my order #1074 arrived broken. What can you do?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"support\", \"category\": \"damaged_item\", \"urgency\": \"high\", \"confidence\": 1.0}",
+          "decision": {
+            "route": "support",
+            "category": "damaged_item",
+            "urgency": "high",
+            "confidence": 1
+          },
+          "fallback": false
+        },
+        "inputTokens": 349,
+        "outputTokens": 29,
+        "latencyMs": 1222,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Rowan Brennan (rowan.brennan107@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_69279",
+                "name": "get_order",
+                "arguments": "{\"orderId\":1074}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0Tn99nkctcisvxNcQTZOV21rBB3EJqqfK7c9thEI9tnY42pI/U39mVrhPOVPU5UyF0rs6tnsw31Upn1OiQO0k+0D5BUzph74Ma/5DuUSBFBVzAq9dj2lvzsIc="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2398,
+        "outputTokens": 18,
+        "latencyMs": 828,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_69279",
+          "name": "get_order",
+          "arguments": "{\"orderId\":1074}",
+          "result": {
+            "ok": true,
+            "data": {
+              "number": 1074,
+              "status": "delivered",
+              "placed": "2026-08-30",
+              "delivered": "2026-09-03",
+              "items": [
+                {
+                  "productId": "pack-voyager-80",
+                  "name": "Voyager 80 Expedition Pack",
+                  "size": "M/L",
+                  "color": "grey",
+                  "qty": 1,
+                  "listPrice": "$329.00",
+                  "discount": "$0.00",
+                  "paid": "$329.00",
+                  "returnedQty": 0
+                },
+                {
+                  "productId": "jacket-squall",
+                  "name": "Squall Rain Jacket",
+                  "size": "L",
+                  "color": "green",
+                  "qty": 1,
+                  "listPrice": "$149.00",
+                  "discount": "$0.00",
+                  "paid": "$149.00",
+                  "returnedQty": 0
+                },
+                {
+                  "productId": "lamp-firefly-kids",
+                  "name": "Firefly Kids Headlamp",
+                  "size": null,
+                  "color": "pink",
+                  "qty": 1,
+                  "listPrice": "$14.99",
+                  "discount": "$0.00",
+                  "paid": "$14.99",
+                  "returnedQty": 0
+                }
+              ],
+              "subtotal": "$492.99",
+              "discount": "$0.00",
+              "shipping": "$0.00",
+              "totalPaid": "$492.99",
+              "refunds": []
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Rowan Brennan (rowan.brennan107@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_63409",
+                "name": "get_tracking",
+                "arguments": "{\"orderId\":1074}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TesLSnm+6+kujs9WXL737+a4sii8MXU1Idrk2Bx5el24Km76XkMrltKdO/07Q6VX5iIBRrlHeVq4NZ3YcCyPu+DOrubjkEezMoiYAbZk23M94ULiEcmbBmpE="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2708,
+        "outputTokens": 18,
+        "latencyMs": 1051,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_63409",
+          "name": "get_tracking",
+          "arguments": "{\"orderId\":1074}",
+          "result": {
+            "ok": true,
+            "data": {
+              "orderNumber": 1074,
+              "status": "delivered",
+              "carrier": "Parcelway",
+              "trackingNumber": "PW0008505006",
+              "estimatedDelivery": null,
+              "events": [
+                {
+                  "at": "2026-08-30 18:00",
+                  "status": "order_placed",
+                  "location": "Larchgrove Warehouse, Reno, NV",
+                  "note": null
+                },
+                {
+                  "at": "2026-08-31 18:00",
+                  "status": "shipped",
+                  "location": "Larchgrove Warehouse, Reno, NV",
+                  "note": "Handed to Parcelway Ground"
+                },
+                {
+                  "at": "2026-09-01 18:00",
+                  "status": "in_transit",
+                  "location": "Dallas, TX",
+                  "note": null
+                },
+                {
+                  "at": "2026-09-03 09:00",
+                  "status": "out_for_delivery",
+                  "location": "Local delivery station",
+                  "note": null
+                },
+                {
+                  "at": "2026-09-03 15:00",
+                  "status": "delivered",
+                  "location": "Front door",
+                  "note": null
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Rowan Brennan (rowan.brennan107@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_66824",
+                "name": "get_policy",
+                "arguments": "{\"topic\":\"damaged_items\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0T3hF03RAJvAi6uNxm6hqTQBOVYwRmNnUlb8RFamAvyJZj57aMz5j8NoupSd2+QoPxzMHkrDwQKejll0va+ele1gOPxDRiBaWxmSioiw2heVCSWi97iONVdzc="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2974,
+        "outputTokens": 18,
+        "latencyMs": 752,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_66824",
+          "name": "get_policy",
+          "arguments": "{\"topic\":\"damaged_items\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "topic": "damaged_items",
+              "title": "Damaged items",
+              "text": "If an item arrives damaged, report it within 14 days of delivery.\nWe'll refund the item or send a replacement; you don't need to send the damaged item back unless we ask.\nA damaged item that cost $50.00 or less is refunded right away; pricier items are reviewed by a team member, usually within one business day.\nReports after 14 days are reviewed case by case by a team member."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 4,
+          "context": "The customer is signed in as Rowan Brennan (rowan.brennan107@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": "Based on order #1074, you have three items: the Voyager 80 Expedition Pack ($329.00), the Squall Rain Jacket ($149.00), and the Firefly Kids Headlamp ($14.99). \n\nCould you please let me know which of these items arrived broken?"
+          },
+          "finishReason": "stop"
+        },
+        "inputTokens": 3121,
+        "outputTokens": 71,
+        "latencyMs": 1171,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "Based on order #1074, you have three items: the Voyager 80 Expedition Pack ($329.00), the Squall Rain Jacket ($149.00), and the Firefly Kids Headlamp ($14.99). \n\nCould you please let me know which of these items arrived broken?",
+          "implicit": true
+        },
+        "turn": 1
+      },
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "It's the kids' headlamp, the Firefly. It won't switch on at all, and the battery door is cracked."
+        },
+        "turn": 2
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Rowan Brennan (rowan.brennan107@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_36062",
+                "name": "issue_refund",
+                "arguments": "{\"orderId\":1074,\"reason\":\"damaged\",\"amount\":14.99,\"item\":\"Firefly Kids Headlamp\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TO4PoHJnHLjMo5UHm5A8VM065G8/es6+xaH/6vCpHvi05ov2gScCzgCMxRSlEvEVGpJktCX13TF4P2bLQrj/K1OOd1qL2FMkCfspjt8g9TqHnb1kBQ+EAi3E="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3223,
+        "outputTokens": 42,
+        "latencyMs": 866,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 2
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_36062",
+          "name": "issue_refund",
+          "arguments": "{\"orderId\":1074,\"reason\":\"damaged\",\"amount\":14.99,\"item\":\"Firefly Kids Headlamp\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "status": "refunded",
+              "refundId": 142,
+              "amount": "$14.99",
+              "message": "Refund of $14.99 issued to the original payment method."
+            },
+            "policyDecision": "auto_approved"
+          }
+        },
+        "policyDecision": "auto_approved",
+        "turn": 2
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Rowan Brennan (rowan.brennan107@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_102368",
+                "name": "issue_goodwill_coupon",
+                "arguments": "{\"customer\":\"rowan.brennan107@example.com\",\"orderId\":1074,\"percent\":10,\"reason\":\"Apology for damaged Firefly Kids Headlamp in order 1074\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TcNxccL9yF6dI0e8e8mZlfnRhXHTz0Hn6Rv6b18Txbrfmike+jI+PzPo7Nz4OSAjVw/7eN0/Ke2YoTnD3pWfsjYTQ40OQRwKtvpEaLCvtP7R5Hv4jq+48Ovw="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3331,
+        "outputTokens": 65,
+        "latencyMs": 927,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 2
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_102368",
+          "name": "issue_goodwill_coupon",
+          "arguments": "{\"customer\":\"rowan.brennan107@example.com\",\"orderId\":1074,\"percent\":10,\"reason\":\"Apology for damaged Firefly Kids Headlamp in order 1074\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "status": "issued",
+              "code": "SORRY-107-20260915",
+              "percentOff": 10,
+              "expires": "2026-12-14",
+              "terms": "Single use, only for this customer's account."
+            },
+            "policyDecision": "auto_approved"
+          }
+        },
+        "policyDecision": "auto_approved",
+        "turn": 2
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Rowan Brennan (rowan.brennan107@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_21009",
+                "name": "reply",
+                "arguments": "{\"message\":\"I am so sorry to hear that the Firefly Kids Headlamp arrived with a cracked battery door and wouldn't switch on. \\n\\nI have gone ahead and issued a full refund of $14.99 to your original payment method, which has been approved right away. You don't need to send the damaged headlamp back to us. \\n\\nAs an apology for the trouble, I've also added a 10% off goodwill coupon to your account (code: SORRY-107-20260915), valid for a future purchase through December 14, 2026. \\n\\nThanks for understanding, and please let us know if you need anything else!\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TfZhrug5g+eBFuiz2OoL1sJGyONB8Ta/T0Rjr9hNk92WOdDm+Muc65mEEOPQINwxm35X2iCV7bgTapWlIhYIdwad4B/6kb+7IgW9EVtID6gWyowJ/Sh/xvWw="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3481,
+        "outputTokens": 163,
+        "latencyMs": 1225,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 2
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_21009",
+          "name": "reply",
+          "arguments": "{\"message\":\"I am so sorry to hear that the Firefly Kids Headlamp arrived with a cracked battery door and wouldn't switch on. \\n\\nI have gone ahead and issued a full refund of $14.99 to your original payment method, which has been approved right away. You don't need to send the damaged headlamp back to us. \\n\\nAs an apology for the trouble, I've also added a 10% off goodwill coupon to your account (code: SORRY-107-20260915), valid for a future purchase through December 14, 2026. \\n\\nThanks for understanding, and please let us know if you need anything else!\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "I am so sorry to hear that the Firefly Kids Headlamp arrived with a cracked battery door and wouldn't switch on. \n\nI have gone ahead and issued a full refund of $14.99 to your original payment method, which has been approved right away. You don't need to send the damaged headlamp back to us. \n\nAs an apology for the trouble, I've also added a 10% off goodwill coupon to your account (code: SORRY-107-20260915), valid for a future purchase through December 14, 2026. \n\nThanks for understanding, and please let us know if you need anything else!"
+            }
+          }
+        },
+        "turn": 2
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "I am so sorry to hear that the Firefly Kids Headlamp arrived with a cracked battery door and wouldn't switch on. \n\nI have gone ahead and issued a full refund of $14.99 to your original payment method, which has been approved right away. You don't need to send the damaged headlamp back to us. \n\nAs an apology for the trouble, I've also added a 10% off goodwill coupon to your account (code: SORRY-107-20260915), valid for a future purchase through December 14, 2026. \n\nThanks for understanding, and please let us know if you need anything else!"
+        },
+        "turn": 2
+      }
+    ],
+    "finalAgent": "support",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [
+        {
+          "order": 1074,
+          "amountCents": 1499,
+          "reason": "damaged",
+          "status": "issued",
+          "item": "lamp-firefly-kids"
+        }
+      ],
+      "goodwill": [
+        {
+          "percent": 10,
+          "status": "issued"
+        }
+      ],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "refund-within-limit-03",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to support",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to support"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "refund_required:0",
+        "label": "refund: $14.99 damaged refund on #1074 (lamp-firefly-kids), issued",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "goodwill_allowed:4",
+        "label": "allowed goodwill coupon: 10%, issued",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "reply2:amount:1499",
+        "label": "reply 2 states $14.99",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      },
+      {
+        "turn": 2,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "In its first reply, the agent asks which item is broken (or what's wrong) instead of guessing or refunding an item."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      },
+      {
+        "id": "script:2",
+        "kind": "script_fit",
+        "turn": 2,
+        "assumes": "the agent asked which item is broken or what's wrong with it",
+        "previousReply": "Based on order #1074, you have three items: the Voyager 80 Expedition Pack ($329.00), the Squall Rain Jacket ($149.00), and the Firefly Kids Headlamp ($14.99). \n\nCould you please let me know which of these items arrived broken?"
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 8,
+    "cachedCalls": 0,
+    "toolCalls": 5,
+    "inputTokens": 21585,
+    "outputTokens": 424,
+    "latencyMs": 8042,
+    "turnLatencyMs": [
+      5024,
+      3018
+    ],
+    "costMicros": 0,
+    "wallMs": 37960
+  },
+  "finishedAt": "2026-10-02T12:38:43.896Z"
+}

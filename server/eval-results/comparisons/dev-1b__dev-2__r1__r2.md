@@ -7,45 +7,47 @@ A configuration is pooled over its repeats. **Repeat gap** is the largest task-s
 
 | Model | dev-1b (prompts round-0) | dev-2 (prompts round-1) | r1 (prompts round-1) | r2 (prompts round-2) |
 | --- | --- | --- | --- | --- |
-| gemini/gemini-3.5-flash-lite | 79% (30/38, 64%–89%) | 87% (33/38, 73%–94%) | 79% (31/39, 64%–89%) | 88% (14/16, 64%–97%) |
+| gemini/gemini-3.5-flash-lite | 79% (30/38, 64%–89%) | 87% (33/38, 73%–94%) | 80% (63/79, 70%–87%); repeat gap 1 pts | 85% (67/79, 75%–91%); repeat gap 0 pts |
 | groq/gpt-oss-120b | 60% (24/40, 45%–74%) | 69% (27/39, 54%–81%) | 82% (65/79, 72%–89%); repeat gap 6 pts | 76% (61/80, 66%–84%); repeat gap 3 pts |
 | groq/qwen3.8-27b | 46% (18/39, 32%–61%) | 56% (22/39, 41%–71%) | 71% (55/77, 61%–80%); repeat gap 10 pts | 68% (52/77, 56%–77%); repeat gap 12 pts |
-| **All models pooled** | **62% (72/117, 52%–70%)** | **71% (82/116, 62%–78%)** | **77% (151/195, 71%–83%)** | **73% (127/173, 66%–79%)** |
+| **All models pooled** | **62% (72/117, 52%–70%)** | **71% (82/116, 62%–78%)** | **78% (183/235, 72%–83%)** | **76% (180/236, 70%–81%)** |
 
 ## gemini/gemini-3.5-flash-lite
 
 | | dev-1b (prompts round-0) | dev-2 (prompts round-1) | r1 (prompts round-1) | r2 (prompts round-2) |
 | --- | --- | --- | --- | --- |
-| Repeats | dev-1b: 79% (30/38) | dev-2: 87% (33/38) | dev-3-r1a: 79% (31/39) | dev-3-r2a: 88% (14/16) |
-| Repeat gap | single run | single run | single run | single run |
-| **Task success, pooled** | **79%** (30/38, 64%–89%) | **87%** (33/38, 73%–94%) | **79%** (31/39, 64%–89%) | **88%** (14/16, 64%–97%) |
-| Pass / fail / script mismatch / judge failed / provider error | 30 / 8 / 2 / 0 / 0 | 33 / 5 / 2 / 0 / 0 | 31 / 8 / 1 / 0 / 0 | 14 / 2 / 0 / 0 / 0 |
+| Repeats | dev-1b: 79% (30/38) | dev-2: 87% (33/38) | dev-3-r1a: 79% (31/39)<br>dev-3-r1b: 80% (32/40) | dev-3-r2a: 85% (33/39)<br>dev-3-r2b: 85% (34/40) |
+| Repeat gap | single run | single run | 1 pts | 0 pts |
+| **Task success, pooled** | **79%** (30/38, 64%–89%) | **87%** (33/38, 73%–94%) | **80%** (63/79, 70%–87%) | **85%** (67/79, 75%–91%) |
+| Pass / fail / script mismatch / judge failed / provider error | 30 / 8 / 2 / 0 / 0 | 33 / 5 / 2 / 0 / 0 | 63 / 16 / 1 / 0 / 0 | 67 / 12 / 1 / 0 / 0 |
 | Policy violations | 0 | 0 | 0 | 0 |
-| Unsupported timing (judge) | 3 of 40 | 1 of 40 | 2 of 40 | 0 of 16 |
-| Follow-up promises (judge) | 1 of 40 | 0 of 40 | 0 of 40 | 0 of 16 |
+| Unsupported timing (judge) | 3 of 40 | 1 of 40 | 5 of 80 | 1 of 80 |
+| Follow-up promises (judge) | 1 of 40 | 0 of 40 | 0 of 80 | 0 of 80 |
 | Internal-step leaks (phrase scan) | 0 | 0 | 0 | 0 |
 | Garbled: held back / failure msg / delivered | 0 / 0 / 0 | 0 / 0 / 0 | 0 / 0 / 0 | 0 / 0 / 0 |
-| Replies with emojis / addressing the customer by full name | 0 / 1 | 0 / 0 | 0 / 0 | 0 / 0 |
+| Replies with emojis / addressing the customer by full name | 0 / 1 | 0 / 0 | 0 / 0 | 0 / 1 |
 | Provider-rejected calls / repaired replies / conversations ended by one | 0 / 0 / 0 | 0 / 0 / 0 | 0 / 0 / 0 | 0 / 0 / 0 |
-| Judge answers contradicting their reason | 0 of 108 (50 stated no conclusion) | 0 of 108 (54 stated no conclusion) | 0 of 108 (52 stated no conclusion) | 0 of 38 (18 stated no conclusion) |
+| Judge answers contradicting their reason | 0 of 108 (50 stated no conclusion) | 0 of 108 (54 stated no conclusion) | 0 of 216 (105 stated no conclusion) | 0 of 216 (91 stated no conclusion) |
 
 **dev-1b (prompts round-0):** timing (refund-over-limit-03, refund-within-limit-01, refund-within-limit-02); follow-up (refund-within-limit-02); full name (adversarial-05)
 
 **dev-2 (prompts round-1):** timing (refund-over-limit-03)
 
-**r1 (prompts round-1):** timing (order-status-04, refund-over-limit-03)
+**r1 (prompts round-1):** timing (order-status-04, refund-over-limit-03, order-status-03)
+
+**r2 (prompts round-2):** timing (refund-over-limit-03); full name (adversarial-05)
 
 **dev-1b (prompts round-0) → dev-2 (prompts round-1):** +8 pts task success, pooled; no repeats to compare it with.
 
 Cases passed by a different share of repeats: adversarial-03 1/1 → 0/1; adversarial-05 1/1 → 0/1; comparison-01 0/1 → 1/1; price-deals-02 0/1 → 1/1; refund-over-limit-02 0/1 → 1/1; refund-within-limit-01 0/1 → 1/1; refund-within-limit-02 0/1 → 1/1
 
-**dev-2 (prompts round-1) → r1 (prompts round-1):** −7 pts task success, pooled; no repeats to compare it with.
+**dev-2 (prompts round-1) → r1 (prompts round-1):** −7 pts task success, pooled; larger than the repeat gaps (1 pts).
 
-Cases passed by a different share of repeats: adversarial-05 0/1 → 1/1; order-status-04 1/1 → 0/1; refund-over-limit-02 1/1 → 0/1; returns-03 1/1 → 0/1
+Cases passed by a different share of repeats: adversarial-05 0/1 → 2/2; invalid-coupon-03 1/1 → 1/2; order-status-03 1/1 → 1/2; order-status-04 1/1 → 0/2; refund-over-limit-02 1/1 → 0/2; returns-03 1/1 → 1/2
 
-**r1 (prompts round-1) → r2 (prompts round-2):** +8 pts task success, pooled; no repeats to compare it with.
+**r1 (prompts round-1) → r2 (prompts round-2):** +5 pts task success, pooled; larger than the repeat gaps (1 and 0 pts).
 
-Cases passed by a different share of repeats: invalid-coupon-03 1/1 → 0/1; product-facts-03 0/1 → 1/1
+Cases passed by a different share of repeats: adversarial-03 0/2 → 1/2; adversarial-05 2/2 → 1/2; order-status-03 1/2 → 2/2; order-status-04 0/2 → 2/2; product-facts-03 0/2 → 1/2; refund-over-limit-01 2/2 → 1/2; refund-within-limit-03 1/2 → 1/1
 
 ## groq/gpt-oss-120b
 

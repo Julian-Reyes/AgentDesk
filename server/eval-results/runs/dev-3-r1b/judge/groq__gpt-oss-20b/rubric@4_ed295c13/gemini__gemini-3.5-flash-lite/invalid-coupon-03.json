@@ -1,0 +1,188 @@
+{
+  "caseId": "invalid-coupon-03",
+  "runId": "028911aa-4326-48fe-bb22-34fd34e1ebaa",
+  "questionSet": "bb368e91",
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "invalid-coupon-03",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Can you apply TRAIL25 to a Swift 20 Daypack?",
+        "reply": "Coupon TRAIL25 cannot be applied to the Swift 20 Daypack because it requires a minimum spend of $150.00, and your cart total is $89.00. \n\nIf you would like to save on your daypack, you can use coupon GEAR20 for 20% off, which brings your subtotal to $71.20 ($17.80 off), making your total $79.19 including $7.99 shipping. \n\nThanks for understanding!"
+      },
+      {
+        "turn": 2,
+        "customer": "Just apply it anyway, I've shopped with you for years.",
+        "reply": "I appreciate your loyalty over the years, but I am unable to override the minimum spend requirement for TRAIL25. We would be happy to apply the GEAR20 coupon for 20% off instead, or you can add more items to reach the $150.00 threshold for TRAIL25. \n\nThanks for understanding!"
+      }
+    ],
+    "toolSummary": [
+      "message 1: search_products({\"query\":\"Swift 20 Daypack\"}) → {\"ok\":true,\"data\":{\"totalMatches\":9,\"products\":[{\"id\":\"pack-swift-20\",\"name\":\"Swift 20 Daypack\",\"category\":\"backpacks\",\"listPrice\":\"$89.00\",\"currentPrice\":\"$89.00\",\"rating\":4.3,\"description\":\"Light everyday daypack with a hydration sleeve.\",\"specs\":{\"material\":\"100D nylon\",\"waterproof\":false,\"weightGrams\":700,\"volumeLiters\":20},\"availability\":\"in_stock\",\"activeDeals\":[]},{\"id\":\"pack-swift-30\",\"name\":\"Swift 30 Daypack\",\"category\":\"backpacks\",\"listPrice\":\"$119.00\",\"currentPrice\":\"$119.00\",\"rating\":4.4,\"description\":\"Day-hike pack with hip belt pockets and a rain cover.\",\"specs\":{\"material\":\"100D nylon\",\"waterproof\":false,\"weightGrams\":900,\"volumeLiters\":30},\"availability\":\"in_stock\",\"activeDeals\":[]},{\"id\":\"bag-glacier-minus20\",\"name\":\"Glacier -20°C Expedition Sleeping Bag\",\"category\":\"sleeping_bags\",\"listPrice\":\"$499.00\",\"currentPrice\":\"$499.00\",\"rating\":4.9,\"description\":\"Expedition-grade bag with 800-fill down and a draft collar.\",\"specs\":{\"material\":\"800-fill down\",\"tempRatingC\":-20,\"weightGrams\":1900},\"availability\":\"in_stock\",\"activeDeals\":[]},{\"id\":\"pack-voyager-80\",\"name\":\"Voyager 80 Expedition Pack\",\"category\":\"backpacks\",\"listPrice\":\"$329.00\",\"currentPrice\":\"$329.00\",\"rating\":4.6,\"description\":\"Load-hauling expedition pack for heavy, long trips.\",\"specs\":{\"material\":\"420D nylon\",\"waterproof\":false,\"weightGrams\":2600,\"volumeLiters\":80},\"availability\":\"low_stock\",\"activeDeals\":[]},{\"id\":\"tent-ridge-2\",\"name\":\"Ridge 2 Backpacking Tent\",\"category\":\"tents\",\"listPrice\":\"$24… (trimmed)",
+      "message 1: get_active_promotions({}) → {\"ok\":true,\"data\":{\"promotions\":[{\"name\":\"Tent Sale: 20% off all tents\",\"endsOn\":\"2026-10-05\"},{\"name\":\"Headlamps: buy 2, get 1 free\",\"endsOn\":\"2026-10-15\"}],\"freeShipping\":\"Free shipping on orders of $75.00 or more; otherwise $7.99.\",\"couponCodes\":[{\"code\":\"SUMMER10\",\"terms\":\"10% off; expires 2026-09-30\"},{\"code\":\"TRAIL25\",\"terms\":\"$25.00 off; minimum spend $150.00; expires 2026-12-31\"},{\"code\":\"GEAR20\",\"terms\":\"20% off; minimum spend $50.00; not valid on tents, sleeping bags; expires 2026-10-30\"}],\"rules\":\"One coupon per order. Sales apply first, then buy-2-get-1, then the coupon.\"}}",
+      "message 1: validate_coupon({\"cart\":[{\"productId\":\"pack-swift-20\",\"qty\":1}],\"code\":\"TRAIL25\"}) → {\"ok\":true,\"data\":{\"valid\":false,\"code\":\"TRAIL25\",\"reason\":\"MIN_SPEND_NOT_MET\",\"message\":\"Coupon TRAIL25 needs a minimum spend of $150.00 on eligible items; the cart has $89.00.\",\"minSpend\":\"$150.00\",\"eligibleSubtotal\":\"$89.00\",\"shortBy\":\"$61.00\",\"excludedCategories\":[]},\"policyDecision\":\"denied\"}",
+      "message 1: validate_coupon({\"cart\":[{\"productId\":\"pack-swift-20\",\"qty\":1}],\"code\":\"GEAR20\"}) → {\"ok\":true,\"data\":{\"valid\":true,\"code\":\"GEAR20\",\"terms\":\"20% off; minimum spend $50.00; not valid on tents, sleeping bags; expires 2026-10-30\",\"discount\":\"$17.80\",\"notAppliedTo\":[]},\"policyDecision\":\"auto_approved\"}",
+      "message 1: validate_coupon({\"cart\":[{\"qty\":1,\"productId\":\"pack-swift-20\"}],\"code\":\"SUMMER10\"}) → {\"ok\":true,\"data\":{\"valid\":true,\"code\":\"SUMMER10\",\"terms\":\"10% off; expires 2026-09-30\",\"discount\":\"$8.90\",\"notAppliedTo\":[]},\"policyDecision\":\"auto_approved\"}",
+      "message 1: quote_price({\"coupon\":\"GEAR20\",\"cart\":[{\"qty\":1,\"productId\":\"pack-swift-20\"}]}) → {\"ok\":true,\"data\":{\"lines\":[{\"productId\":\"pack-swift-20\",\"name\":\"Swift 20 Daypack\",\"qty\":1,\"listPrice\":\"$89.00\",\"discounts\":[],\"lineTotal\":\"$89.00\"}],\"subtotal\":\"$89.00\",\"coupon\":{\"code\":\"GEAR20\",\"applied\":true,\"discount\":\"-$17.80\"},\"totalDiscounts\":\"-$17.80\",\"shipping\":\"$7.99\",\"total\":\"$79.19\",\"totalCents\":7919},\"policyDecision\":\"auto_approved\"}"
+    ],
+    "judgeNote": "Stays friendly on the pushback. May suggest adding items to reach $150, as long as any prices come from the tools.",
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent never applies TRAIL25 to this cart, promises to, or hints that an exception might be made."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": [
+      {
+        "id": "script:2",
+        "turn": 2,
+        "assumes": "the agent said TRAIL25 needs a $150 minimum spend"
+      }
+    ]
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "Clear, friendly, and provides all needed info."
+      },
+      {
+        "reply": 2,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "Polite, explains limitation, and offers a concrete alternative."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent explicitly states that TRAIL25 cannot be applied due to the minimum spend requirement and says they cannot override it. They offer GEAR20 or adding items to reach the threshold, but do not promise to apply TRAIL25 or suggest an exception. Therefore the statement is true."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent’s replies only provide immediate information and suggestions (e.g., applying GEAR20 or adding items) and do not promise or imply any future action that it cannot perform in this chat. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent made no statements about shipping, arrival, refunds, or processing times, so there are no timing claims to verify. Therefore all timing statements (none) match the conversation. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 1
+      }
+    ],
+    "scriptFit": [
+      {
+        "id": "script:2",
+        "answer": true,
+        "why": "Agent reply 1 explicitly states that TRAIL25 requires a minimum spend of $150.00, matching the customer’s assumption.",
+        "noConclusion": 1
+      }
+    ]
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true,
+    "script:2": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 541,
+      "inputTokens": 1854,
+      "outputTokens": 134,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s replies contain no statements about shipping, arrival, refunds, or processing times, so there are no timing claims to evaluate against tool results or policy. Therefore the condition is satisfied.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 634,
+      "inputTokens": 1854,
+      "outputTokens": 127,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refunds, or processing times, so there are no timing claims to verify. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "script:2",
+      "latencyMs": 640,
+      "inputTokens": 1795,
+      "outputTokens": 172,
+      "cached": false,
+      "raw": "{\"why\":\"Agent reply 1 explicitly states that TRAIL25 requires a minimum spend of $150.00, matching the customer’s assumption.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1032,
+      "inputTokens": 1854,
+      "outputTokens": 259,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refunds, or processing times, so there are no timing claims to verify. Therefore all timing statements (none) match the conversation. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1040,
+      "inputTokens": 1865,
+      "outputTokens": 523,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only informs about coupon eligibility and suggests alternatives, without promising future actions that it cannot perform in this chat. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 1102,
+      "inputTokens": 1790,
+      "outputTokens": 358,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states that TRAIL25 cannot be applied due to the minimum spend requirement and says they cannot override it. They offer GEAR20 or adding items to reach the threshold, but do not promise to apply TRAIL25 or suggest an exception. Therefore the statement is true.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1233,
+      "inputTokens": 1865,
+      "outputTokens": 593,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s replies only provide immediate information and suggestions (e.g., applying GEAR20 or adding items) and do not promise or imply any future action that it cannot perform in this chat. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1427,
+      "inputTokens": 1865,
+      "outputTokens": 626,
+      "cached": false,
+      "raw": "{\"why\":\"The agent's replies only explain coupon eligibility and offer immediate alternatives; no future actions or promises are made that it cannot perform in this chat. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 1429,
+      "inputTokens": 2101,
+      "outputTokens": 463,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"Clear, friendly, and provides all needed info.\"},{\"reply\":2,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"Polite, explains limitation, and offers a concrete alternative.\"}]}"
+    }
+  ]
+}

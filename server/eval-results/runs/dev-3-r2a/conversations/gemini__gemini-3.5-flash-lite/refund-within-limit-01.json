@@ -1,0 +1,499 @@
+{
+  "caseId": "refund-within-limit-01",
+  "case": {
+    "id": "refund-within-limit-01",
+    "split": "dev",
+    "type": "refund_within_limit",
+    "why": "The Glowworm 300 on #1050 cost $29.00 and was delivered 5 days ago (within the 14-day damage window), so a $29.00 damaged-item refund is issued automatically. The damage is store-caused, so a goodwill coupon of 10% or less is allowed, not required (Julian, 2026-10-01, after dev-1): issued if the refund came first, queued if the coupon came first.",
+    "source": "spec table; timing claim from manual testing 2026-09-29",
+    "customer": "maya.chen@example.com",
+    "turns": [
+      {
+        "customer": "The Glowworm headlamp from order #1050 arrived with a cracked lens and won't turn on.",
+        "reply": {
+          "mentions": [],
+          "amounts": [
+            2900
+          ],
+          "avoids": []
+        }
+      }
+    ],
+    "expect": {
+      "route": "support",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [
+          {
+            "order": 1050,
+            "amountCents": 2900,
+            "reason": "damaged",
+            "item": "lamp-glowworm-300",
+            "status": "issued"
+          }
+        ],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": [
+            {
+              "maxPercent": 10,
+              "order": 1050,
+              "status": [
+                "issued",
+                "pending_approval"
+              ]
+            }
+          ]
+        },
+        "escalation": "forbidden"
+      },
+      "leaks": [],
+      "judge": "Apologizes briefly, confirms the $29.00 refund to the original payment method. Doesn't invent when the money arrives (no tool says).",
+      "judgeChecks": []
+    }
+  },
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "team": {
+    "router": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "b1ca6a37-871a-4ec6-b7aa-f6e2b64cd522",
+    "turns": [
+      {
+        "customer": "The Glowworm headlamp from order #1050 arrived with a cracked lens and won't turn on.",
+        "reply": "I am so sorry to hear that your Glowworm 300 Headlamp arrived damaged and won't turn on. I have issued a refund of $29.00 to your original payment method, which was auto-approved. As an apology for the trouble, I've also added a 10% goodwill coupon to your account (code: SORRY-1-20260915, valid through December 14, 2026). If you would like a replacement headlamp, please let me know and I can escalate that to a human support agent for you. Thanks for understanding.",
+        "answeredBy": "support",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "The Glowworm headlamp from order #1050 arrived with a cracked lens and won't turn on."
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"support\", \"category\": \"damaged_item\", \"urgency\": \"high\", \"confidence\": 1.0}",
+          "decision": {
+            "route": "support",
+            "category": "damaged_item",
+            "urgency": "high",
+            "confidence": 1
+          },
+          "fallback": false
+        },
+        "inputTokens": 356,
+        "outputTokens": 29,
+        "latencyMs": 797,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Maya Chen (maya.chen@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_24057",
+                "name": "get_order",
+                "arguments": "{\"orderId\":\"1050\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TTwCN+SUuSsDR6M2/gW0UW12EyNLdrpu9ZUSqfArWrwPdnciZGRauFUvlc6wzTk0zGFEp8fnJG8a+CCI1z9DEmkJOQr5Ke0ExBeOiAKX0BV9/4Y9U3+19g74="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2399,
+        "outputTokens": 20,
+        "latencyMs": 841,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_24057",
+          "name": "get_order",
+          "arguments": "{\"orderId\":\"1050\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "number": 1050,
+              "status": "delivered",
+              "placed": "2026-09-06",
+              "delivered": "2026-09-10",
+              "items": [
+                {
+                  "productId": "lamp-glowworm-300",
+                  "name": "Glowworm 300 Headlamp",
+                  "size": null,
+                  "color": "black",
+                  "qty": 1,
+                  "listPrice": "$29.00",
+                  "discount": "$0.00",
+                  "paid": "$29.00",
+                  "returnedQty": 0
+                }
+              ],
+              "subtotal": "$29.00",
+              "discount": "$0.00",
+              "shipping": "$7.99",
+              "totalPaid": "$36.99",
+              "refunds": []
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Maya Chen (maya.chen@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_39394",
+                "name": "issue_refund",
+                "arguments": "{\"item\":\"Glowworm 300 Headlamp\",\"amount\":29,\"orderId\":\"1050\",\"reason\":\"damaged\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0T0mhk0uCFphbcpzV1JL/rK/vkLWi5499OHKq+PZf7ffqZwrtp294WeYeZW2gBuP553Pv9X0jJLD9OBUZwm63pmFyKf32EtAORSkDVNiBiAMZ3c5rMMzG1MIo="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2587,
+        "outputTokens": 45,
+        "latencyMs": 1074,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_39394",
+          "name": "issue_refund",
+          "arguments": "{\"item\":\"Glowworm 300 Headlamp\",\"amount\":29,\"orderId\":\"1050\",\"reason\":\"damaged\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "status": "refunded",
+              "refundId": 127,
+              "amount": "$29.00",
+              "message": "Refund of $29.00 issued to the original payment method."
+            },
+            "policyDecision": "auto_approved"
+          }
+        },
+        "policyDecision": "auto_approved",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Maya Chen (maya.chen@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_46774",
+                "name": "issue_goodwill_coupon",
+                "arguments": "{\"customer\":\"maya.chen@example.com\",\"reason\":\"Glowworm headlamp arrived damaged with a cracked lens\",\"percent\":10,\"orderId\":\"1050\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TRgs3AZmyusvYcgvT/E3Z3zvy8ClRkERKL954aLU6BLNTj7hvtnIzTUBWQ3FskvhLQcTqRpbRAQArjzNWdRChmeEPD9KERra3B+Pv1vCqFpN8ihBRUKb2gIQ="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2698,
+        "outputTokens": 56,
+        "latencyMs": 1242,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_46774",
+          "name": "issue_goodwill_coupon",
+          "arguments": "{\"customer\":\"maya.chen@example.com\",\"reason\":\"Glowworm headlamp arrived damaged with a cracked lens\",\"percent\":10,\"orderId\":\"1050\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "status": "issued",
+              "code": "SORRY-1-20260915",
+              "percentOff": 10,
+              "expires": "2026-12-14",
+              "terms": "Single use, only for this customer's account."
+            },
+            "policyDecision": "auto_approved"
+          }
+        },
+        "policyDecision": "auto_approved",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 4,
+          "context": "The customer is signed in as Maya Chen (maya.chen@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_29394",
+                "name": "reply",
+                "arguments": "{\"message\":\"I am so sorry to hear that your Glowworm 300 Headlamp arrived damaged and won't turn on. I have issued a refund of $29.00 to your original payment method, which was auto-approved. As an apology for the trouble, I've also added a 10% goodwill coupon to your account (code: SORRY-1-20260915, valid through December 14, 2026). If you would like a replacement headlamp, please let me know and I can escalate that to a human support agent for you. Thanks for understanding.\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TTo8ctebJAYK3CLwj9pETDF+L/VmsdVQ4roE7PB+eq38NtFN1BV0nHEXMHVbHfzMFIW0Vdz1AetU+IZAJFYHTMXjSNK276KhuyXiY6qTZY+9YqFj7vuIZ6lY="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2837,
+        "outputTokens": 144,
+        "latencyMs": 1062,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_29394",
+          "name": "reply",
+          "arguments": "{\"message\":\"I am so sorry to hear that your Glowworm 300 Headlamp arrived damaged and won't turn on. I have issued a refund of $29.00 to your original payment method, which was auto-approved. As an apology for the trouble, I've also added a 10% goodwill coupon to your account (code: SORRY-1-20260915, valid through December 14, 2026). If you would like a replacement headlamp, please let me know and I can escalate that to a human support agent for you. Thanks for understanding.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "I am so sorry to hear that your Glowworm 300 Headlamp arrived damaged and won't turn on. I have issued a refund of $29.00 to your original payment method, which was auto-approved. As an apology for the trouble, I've also added a 10% goodwill coupon to your account (code: SORRY-1-20260915, valid through December 14, 2026). If you would like a replacement headlamp, please let me know and I can escalate that to a human support agent for you. Thanks for understanding."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "I am so sorry to hear that your Glowworm 300 Headlamp arrived damaged and won't turn on. I have issued a refund of $29.00 to your original payment method, which was auto-approved. As an apology for the trouble, I've also added a 10% goodwill coupon to your account (code: SORRY-1-20260915, valid through December 14, 2026). If you would like a replacement headlamp, please let me know and I can escalate that to a human support agent for you. Thanks for understanding."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "support",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [
+        {
+          "order": 1050,
+          "amountCents": 2900,
+          "reason": "damaged",
+          "status": "issued",
+          "item": "lamp-glowworm-300"
+        }
+      ],
+      "goodwill": [
+        {
+          "percent": 10,
+          "status": "issued"
+        }
+      ],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "refund-within-limit-01",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to support",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to support"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "refund_required:0",
+        "label": "refund: $29.00 damaged refund on #1050 (lamp-glowworm-300), issued",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "goodwill_allowed:4",
+        "label": "allowed goodwill coupon: 10%, issued",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "reply1:amount:2900",
+        "label": "reply 1 states $29.00",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 5,
+    "cachedCalls": 0,
+    "toolCalls": 3,
+    "inputTokens": 10877,
+    "outputTokens": 294,
+    "latencyMs": 5016,
+    "turnLatencyMs": [
+      5016
+    ],
+    "costMicros": 0,
+    "wallMs": 7393
+  },
+  "finishedAt": "2026-10-02T11:55:34.322Z"
+}

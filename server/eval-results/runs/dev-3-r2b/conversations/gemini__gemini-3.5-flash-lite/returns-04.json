@@ -1,0 +1,474 @@
+{
+  "caseId": "returns-04",
+  "case": {
+    "id": "returns-04",
+    "split": "dev",
+    "type": "returns",
+    "why": "#1056 (Sofia) is still processing, so there's nothing to return yet (NOT_DELIVERED_YET). There is no cancel tool, so the agent can't promise a cancellation; escalating to a human who might is fine.",
+    "source": "manual testing 2026-09-29 (returns overpromise, undelivered order)",
+    "customer": "sofia.alvarez@example.com",
+    "turns": [
+      {
+        "customer": "I changed my mind about order #1056. Can I return it?"
+      }
+    ],
+    "expect": {
+      "route": "support",
+      "outcome": [
+        "resolved",
+        "escalated"
+      ],
+      "tools": {
+        "required": [
+          {
+            "anyOf": [
+              {
+                "tool": "check_return_eligibility",
+                "args": {
+                  "orderId": 1056
+                }
+              },
+              {
+                "tool": "get_order",
+                "args": {
+                  "orderId": 1056
+                }
+              }
+            ]
+          }
+        ],
+        "forbidden": [
+          "issue_refund"
+        ]
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "allowed"
+      },
+      "leaks": [],
+      "judgeChecks": [
+        "The agent says returns can start once the order is delivered, and doesn't promise to cancel the order or stop the shipment."
+      ]
+    }
+  },
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "team": {
+    "router": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "74dd6385-a011-49d5-8075-b55b53c96616",
+    "turns": [
+      {
+        "customer": "I changed my mind about order #1056. Can I return it?",
+        "reply": "Your order #1056 hasn't been delivered yet, so returns can start once it arrives. Once it is delivered, unused items in their original packaging can be returned within 30 days using the return label in your account. Thanks for understanding.",
+        "answeredBy": "support",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "I changed my mind about order #1056. Can I return it?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"support\", \"category\": \"returns\", \"urgency\": \"normal\", \"confidence\": 0.99}",
+          "decision": {
+            "route": "support",
+            "category": "returns",
+            "urgency": "normal",
+            "confidence": 0.99
+          },
+          "fallback": false
+        },
+        "inputTokens": 349,
+        "outputTokens": 28,
+        "latencyMs": 1073,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Sofia Alvarez (sofia.alvarez@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_37705",
+                "name": "get_order",
+                "arguments": "{\"orderId\":\"1056\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TeBKXvuDeZpbu4s0BJu6eBzf53ZMnDatqDSAa8C3kHqWjNn3Ym8BmGPfsZYHCkmYXddFQSpfh3UvZAOODdgjvYRsFrQNLaE1I5iOWwP01jqPF5TjFopLyz3g="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2394,
+        "outputTokens": 20,
+        "latencyMs": 930,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_37705",
+          "name": "get_order",
+          "arguments": "{\"orderId\":\"1056\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "number": 1056,
+              "status": "processing",
+              "placed": "2026-09-14",
+              "delivered": null,
+              "items": [
+                {
+                  "productId": "pack-traverse-65",
+                  "name": "Traverse 65 Trekking Pack",
+                  "size": "M/L",
+                  "color": "green",
+                  "qty": 1,
+                  "listPrice": "$259.00",
+                  "discount": "$0.00",
+                  "paid": "$259.00",
+                  "returnedQty": 0
+                }
+              ],
+              "subtotal": "$259.00",
+              "discount": "$0.00",
+              "shipping": "$0.00",
+              "totalPaid": "$259.00",
+              "refunds": []
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Sofia Alvarez (sofia.alvarez@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_105325",
+                "name": "check_return_eligibility",
+                "arguments": "{\"orderId\":\"1056\",\"item\":\"Traverse 65 Trekking Pack\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0T9TIreNJJP+4B8sqSVeNHAiVH0Ywa8Df848RhcUqamsjL/j5c91Q7r7qjcBbykJF6/dFMRXqnZXqSD1dwF1/36xI5NXCuUY4zvdbaal4yvKkhgw/braVR1Os="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2576,
+        "outputTokens": 36,
+        "latencyMs": 752,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_105325",
+          "name": "check_return_eligibility",
+          "arguments": "{\"orderId\":\"1056\",\"item\":\"Traverse 65 Trekking Pack\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "orderNumber": 1056,
+              "item": "Traverse 65 Trekking Pack",
+              "eligible": false,
+              "code": "NOT_DELIVERED_YET",
+              "message": "The order hasn't been delivered yet. Returns can start once it arrives."
+            },
+            "policyDecision": "denied"
+          }
+        },
+        "policyDecision": "denied",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Sofia Alvarez (sofia.alvarez@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_65917",
+                "name": "get_policy",
+                "arguments": "{\"topic\":\"returns\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TPIxkG4N4SYVM5BDB0sEPrzWxVm+/UWx9eIEUaWFhbn7+7QNlz7LqNWIC9ivXD2JB9qVCS44pQBR9JOBEY/k9P8yxTJMfnQiTJMrZHsM85Jmis2NxuHTTPi8="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2694,
+        "outputTokens": 16,
+        "latencyMs": 1872,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_65917",
+          "name": "get_policy",
+          "arguments": "{\"topic\":\"returns\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "topic": "returns",
+              "title": "Returns",
+              "text": "Unused items in original packaging can be returned within 30 days of delivery.\nUsed or worn items can't be returned. If a used item is defective, see the warranty policy.\nTo return an item, send it back using the return label from your account. The refund is issued to your original payment method once the warehouse receives it, usually within 5 business days.\nItems that arrived damaged follow the damaged-items policy instead."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 4,
+          "context": "The customer is signed in as Sofia Alvarez (sofia.alvarez@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_27310",
+                "name": "reply",
+                "arguments": "{\"message\":\"Your order #1056 hasn't been delivered yet, so returns can start once it arrives. Once it is delivered, unused items in their original packaging can be returned within 30 days using the return label in your account. Thanks for understanding.\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TEwnaIoFOQc9R5zmcwYiMwxIMOxqMus3knli3M3uU6+MG/VvM0j7XNsuozmflVHklBz1cSA8PIvXhk9BM4/9mchvdkNxcCu3bYDKKIWYiuDrz0jFaCggPNkU="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2833,
+        "outputTokens": 66,
+        "latencyMs": 962,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_27310",
+          "name": "reply",
+          "arguments": "{\"message\":\"Your order #1056 hasn't been delivered yet, so returns can start once it arrives. Once it is delivered, unused items in their original packaging can be returned within 30 days using the return label in your account. Thanks for understanding.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "Your order #1056 hasn't been delivered yet, so returns can start once it arrives. Once it is delivered, unused items in their original packaging can be returned within 30 days using the return label in your account. Thanks for understanding."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "Your order #1056 hasn't been delivered yet, so returns can start once it arrives. Once it is delivered, unused items in their original packaging can be returned within 30 days using the return label in your account. Thanks for understanding."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "support",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "returns-04",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to support",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to support"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved or escalated",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "tool_required:0",
+        "label": "calls check_return_eligibility {\"orderId\":1056} or get_order {\"orderId\":1056}",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "tool_forbidden:issue_refund",
+        "label": "never calls issue_refund",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent says returns can start once the order is delivered, and doesn't promise to cancel the order or stop the shipment."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 5,
+    "cachedCalls": 0,
+    "toolCalls": 3,
+    "inputTokens": 10846,
+    "outputTokens": 166,
+    "latencyMs": 5589,
+    "turnLatencyMs": [
+      5589
+    ],
+    "costMicros": 0,
+    "wallMs": 32922
+  },
+  "finishedAt": "2026-10-02T12:37:37.272Z"
+}

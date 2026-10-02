@@ -1,0 +1,165 @@
+{
+  "caseId": "stock-03",
+  "runId": "3a0c65a4-6f51-42f8-9a79-486ac7b27646",
+  "questionSet": "71a3f17b",
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "stock-03",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Is the Ridge 2 tent available in orange?",
+        "reply": "The Ridge 2 Backpacking Tent is available in green, but the orange colorway is currently out of stock."
+      },
+      {
+        "turn": 2,
+        "customer": "OK, thanks. Different question: has my order #1042 shipped yet?",
+        "reply": "Yes, order #1042 has shipped with Parcelway (tracking number PW0008251598) and is currently in transit, with an estimated delivery between September 16 and September 19, 2026."
+      }
+    ],
+    "toolSummary": [
+      "message 1: search_products({\"query\":\"Ridge 2 tent\"}) → {\"ok\":true,\"data\":{\"totalMatches\":13,\"products\":[{\"id\":\"tent-ridge-2\",\"name\":\"Ridge 2 Backpacking Tent\",\"category\":\"tents\",\"listPrice\":\"$249.00\",\"currentPrice\":\"$199.20\",\"rating\":4.6,\"description\":\"Freestanding two-person backpacking tent with two doors and two vestibules.\",\"specs\":{\"seasons\":3,\"material\":\"20D ripstop nylon\",\"waterproof\":true,\"weightGrams\":1900,\"capacityPersons\":2,\"waterproofRatingMm\":3000},\"availability\":\"in_stock\",\"activeDeals\":[\"Tent Sale: 20% off all tents\"]},{\"id\":\"tent-tundra-2\",\"name\":\"Tundra 2 Four-Season Tent\",\"category\":\"tents\",\"listPrice\":\"$549.00\",\"currentPrice\":\"$439.20\",\"rating\":4.8,\"description\":\"Two-person mountaineering tent built for snow load and high winds.\",\"specs\":{\"seasons\":4,\"material\":\"40D ripstop nylon\",\"waterproof\":true,\"weightGrams\":3300,\"capacityPersons\":2,\"waterproofRatingMm\":5000},\"availability\":\"in_stock\",\"activeDeals\":[\"Tent Sale: 20% off all tents\"]},{\"id\":\"boot-ridgeline-mid\",\"name\":\"Ridgeline Mid Hiking Boot\",\"category\":\"boots\",\"listPrice\":\"$179.00\",\"currentPrice\":\"$179.00\",\"rating\":4.5,\"description\":\"Waterproof mid-cut hiking boot with a membrane liner.\",\"specs\":{\"material\":\"suede and mesh\",\"waterproof\":true,\"weightGrams\":1200},\"availability\":\"in_stock\",\"activeDeals\":[]},{\"id\":\"tent-canopy-2\",\"name\":\"Canopy 2 Trail Tent\",\"category\":\"tents\",\"listPrice\":\"$189.00\",\"currentPrice\":\"$151.20\",\"rating\":4.5,\"description\":\"Lightweight two-person trail tent with a full-coverage fly.\",\"specs\":{\"seasons\":3,\"material\":\"20D ripstop polye… (trimmed)",
+      "message 1: check_stock({\"productId\":\"tent-ridge-2\"}) → {\"ok\":true,\"data\":{\"product\":\"Ridge 2 Backpacking Tent\",\"variants\":[{\"size\":null,\"color\":\"green\",\"inStock\":true,\"unitsAvailable\":8,\"availability\":\"in_stock\"},{\"size\":null,\"color\":\"orange\",\"inStock\":false,\"unitsAvailable\":0,\"availability\":\"out_of_stock\"}]}}",
+      "message 2: get_tracking({\"orderId\":\"1042\"}) → {\"ok\":true,\"data\":{\"orderNumber\":1042,\"status\":\"shipped\",\"carrier\":\"Parcelway\",\"trackingNumber\":\"PW0008251598\",\"estimatedDelivery\":\"2026-09-16 to 2026-09-19\",\"events\":[{\"at\":\"2026-09-12 15:00\",\"status\":\"order_placed\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":null},{\"at\":\"2026-09-13 15:00\",\"status\":\"shipped\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":\"Handed to Parcelway Ground\"},{\"at\":\"2026-09-14 15:00\",\"status\":\"in_transit\",\"location\":\"Atlanta, GA\",\"note\":null}]}}"
+    ],
+    "judgeNote": "Turn 1: orange is out, green is in stock. Turn 2: shipped, with tracking if looked up. The second reply doesn't repeat the stock answer.",
+    "checks": [
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": [
+      {
+        "id": "script:2",
+        "turn": 2,
+        "assumes": "the agent answered the stock question"
+      }
+    ]
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "Clear, friendly answer with correct stock info."
+      },
+      {
+        "reply": 2,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "Clear, complete shipping status with tracking."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only reports current stock and shipping status, with no future promises or actions beyond what the tools provide. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent’s only timing claim is the estimated delivery window of September 16–19, 2026, which exactly matches the tool’s estimatedDelivery field. No unsupported vague timing is present. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": [
+      {
+        "id": "script:2",
+        "answer": true,
+        "why": "The agent’s reply 1 correctly answered the stock question, and the customer’s reply 2 acknowledges that with “OK, thanks” before asking a new question. This is a natural and non‑redundant follow‑up. Answer: yes."
+      }
+    ]
+  },
+  "answers": {
+    "judge:followup": true,
+    "judge:timing": true,
+    "script:2": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 501,
+      "inputTokens": 1377,
+      "outputTokens": 211,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s only timing claim is the estimated delivery window of September 16–19, 2026, which exactly matches the tool’s estimatedDelivery field. No unsupported vague timing is present. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 580,
+      "inputTokens": 1377,
+      "outputTokens": 226,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s only timing claim is that order #1042 is in transit with an estimated delivery between September 16 and September 19, 2026, which exactly matches the get_tracking tool result. No other timing statements are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 847,
+      "inputTokens": 1388,
+      "outputTokens": 311,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports current stock status and shipping information; it does not promise future actions such as notifications, follow‑ups, or approvals that it cannot perform in this chat. Therefore the statement is correct.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 854,
+      "inputTokens": 1388,
+      "outputTokens": 371,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports current stock and shipping status, with no future promises or actions beyond what the tools provide. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 854,
+      "inputTokens": 1377,
+      "outputTokens": 211,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s only timing claim is the estimated delivery window of September 16–19, 2026, which exactly matches the tool’s estimatedDelivery field. No unsupported vague timing is present. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "script:2",
+      "latencyMs": 935,
+      "inputTokens": 1312,
+      "outputTokens": 305,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply 1 correctly answered the stock question, and the customer’s reply 2 acknowledges that with “OK, thanks” before asking a new question. This is a natural and non‑redundant follow‑up. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 1024,
+      "inputTokens": 1624,
+      "outputTokens": 487,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"Clear, friendly answer with correct stock info.\"},{\"reply\":2,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"Clear, complete shipping status with tracking.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1241,
+      "inputTokens": 1388,
+      "outputTokens": 411,
+      "cached": false,
+      "raw": "{\"why\":\"The agent's replies only provide current status information and do not promise future actions that cannot be performed in this chat. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

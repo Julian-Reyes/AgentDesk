@@ -1,0 +1,472 @@
+{
+  "caseId": "refund-over-limit-03",
+  "case": {
+    "id": "refund-over-limit-03",
+    "split": "dev",
+    "type": "refund_over_limit",
+    "why": "Sofia asks for a 20% coupon: above the 10% limit (and she got one 10 days ago), so it goes to approval. The agent must pass on her actual request (20%), not quietly lower it: a smaller request also only goes to the queue, so it's a task failure, not a policy violation (Julian, 2026-10-01, after dev-1). The $7.99 late-shipping refund on #1055 is allowed on top, not required.",
+    "customer": "sofia.alvarez@example.com",
+    "turns": [
+      {
+        "customer": "The delay on order #1055 ruined our camping trip. I want a 20% off coupon for my next order."
+      }
+    ],
+    "expect": {
+      "route": "support",
+      "outcome": [
+        "approval_needed",
+        "escalated"
+      ],
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [
+          {
+            "percent": 20,
+            "order": 1055,
+            "status": "pending_approval"
+          }
+        ],
+        "allowed": {
+          "refunds": [
+            {
+              "order": 1055,
+              "amountCents": 799,
+              "reason": "late",
+              "status": "issued"
+            }
+          ],
+          "goodwill": []
+        },
+        "escalation": "allowed"
+      },
+      "leaks": [],
+      "judgeChecks": [
+        "The agent says the refund needs a team member's approval, and never describes a refund or coupon as issued when the tool result says it's waiting for approval."
+      ]
+    }
+  },
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "team": {
+    "router": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "12909a56-c81e-4422-9d66-4b52b59a9484",
+    "turns": [
+      {
+        "customer": "The delay on order #1055 ruined our camping trip. I want a 20% off coupon for my next order.",
+        "reply": "I am so sorry to hear that the delay on order #1055 ruined your camping trip. I have submitted a request for a 20% goodwill coupon to our team for approval, and you will hear back from them soon. Thanks for understanding.",
+        "answeredBy": "support",
+        "outcome": "approval_needed"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "The delay on order #1055 ruined our camping trip. I want a 20% off coupon for my next order."
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"support\", \"category\": \"refunds\", \"urgency\": \"high\", \"confidence\": 0.95}",
+          "decision": {
+            "route": "support",
+            "category": "refunds",
+            "urgency": "high",
+            "confidence": 0.95
+          },
+          "fallback": false
+        },
+        "inputTokens": 360,
+        "outputTokens": 29,
+        "latencyMs": 832,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Sofia Alvarez (sofia.alvarez@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_103781",
+                "name": "get_order",
+                "arguments": "{\"orderId\":\"1055\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TdzPA+KYSXmo6xEjR2sMnZg+YKUJMgzFrhNaWSFuF0e/aC9nZC1O+AWVzjBxXqBZDU9Pxe2vY6mtGSr6Mq9g5hgKAo/tEqVQfw6w61t28v3KWbl/vvpTf+Cw="
+                    }
+                  }
+                }
+              },
+              {
+                "id": "call_103782",
+                "name": "get_tracking",
+                "arguments": "{\"orderId\":\"1055\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2405,
+        "outputTokens": 40,
+        "latencyMs": 890,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_103781",
+          "name": "get_order",
+          "arguments": "{\"orderId\":\"1055\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "number": 1055,
+              "status": "delayed",
+              "placed": "2026-09-03",
+              "delivered": null,
+              "items": [
+                {
+                  "productId": "stove-pocket",
+                  "name": "Pocket Canister Stove",
+                  "size": null,
+                  "color": null,
+                  "qty": 1,
+                  "listPrice": "$39.00",
+                  "discount": "$0.00",
+                  "paid": "$39.00",
+                  "returnedQty": 0
+                },
+                {
+                  "productId": "stove-fuel-230",
+                  "name": "Isobutane Fuel Canister 230 g",
+                  "size": null,
+                  "color": null,
+                  "qty": 2,
+                  "listPrice": "$6.99",
+                  "discount": "$0.00",
+                  "paid": "$13.98",
+                  "returnedQty": 0
+                }
+              ],
+              "subtotal": "$52.98",
+              "discount": "$0.00",
+              "shipping": "$7.99",
+              "totalPaid": "$60.97",
+              "refunds": []
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_103782",
+          "name": "get_tracking",
+          "arguments": "{\"orderId\":\"1055\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "orderNumber": 1055,
+              "status": "delayed",
+              "carrier": "Parcelway",
+              "trackingNumber": "PW0008354545",
+              "estimatedDelivery": null,
+              "events": [
+                {
+                  "at": "2026-09-03 14:00",
+                  "status": "order_placed",
+                  "location": "Larchgrove Warehouse, Reno, NV",
+                  "note": null
+                },
+                {
+                  "at": "2026-09-04 14:00",
+                  "status": "shipped",
+                  "location": "Larchgrove Warehouse, Reno, NV",
+                  "note": "Handed to Parcelway Ground"
+                },
+                {
+                  "at": "2026-09-05 14:00",
+                  "status": "in_transit",
+                  "location": "Salt Lake City, UT",
+                  "note": null
+                },
+                {
+                  "at": "2026-09-07 14:00",
+                  "status": "delayed",
+                  "location": "Salt Lake City, UT",
+                  "note": "Carrier delay: weather and volume backlog"
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Sofia Alvarez (sofia.alvarez@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_77544",
+                "name": "issue_goodwill_coupon",
+                "arguments": "{\"orderId\":\"1055\",\"percent\":20,\"customer\":\"sofia.alvarez@example.com\",\"reason\":\"Order delayed, ruining camping trip\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0Tns78jijPM8R922uLfhIGEw3ivPDJoiOeB6jp2tC3iMRdTW/il/gUdw9qJmTeiyNIx1Ahu+OZP942LctJH2M9uwe70hLFvAr8Xp75ZvFhq4DYgYnNx0wWCeg="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2883,
+        "outputTokens": 53,
+        "latencyMs": 1150,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_77544",
+          "name": "issue_goodwill_coupon",
+          "arguments": "{\"orderId\":\"1055\",\"percent\":20,\"customer\":\"sofia.alvarez@example.com\",\"reason\":\"Order delayed, ruining camping trip\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "status": "pending_approval",
+              "approvalId": 75,
+              "message": "No coupon has been issued yet. A 20% goodwill coupon request was sent to a team member for approval."
+            },
+            "policyDecision": "queued_for_approval"
+          }
+        },
+        "policyDecision": "queued_for_approval",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Sofia Alvarez (sofia.alvarez@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_49575",
+                "name": "reply",
+                "arguments": "{\"message\":\"I am so sorry to hear that the delay on order #1055 ruined your camping trip. I have submitted a request for a 20% goodwill coupon to our team for approval, and you will hear back from them soon. Thanks for understanding.\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TMegR375vbsYfFdvrzLQhMmjKC5opQpIpDxzmXxa9R2H9fqoKuQn3KG3n3u8zf8eHEKowPwFHMX+x8ssMvleNaI4mSvNfmq2FsBxgUjk0ImlJG1iBm4dgCgI="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3007,
+        "outputTokens": 66,
+        "latencyMs": 899,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_49575",
+          "name": "reply",
+          "arguments": "{\"message\":\"I am so sorry to hear that the delay on order #1055 ruined your camping trip. I have submitted a request for a 20% goodwill coupon to our team for approval, and you will hear back from them soon. Thanks for understanding.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "I am so sorry to hear that the delay on order #1055 ruined your camping trip. I have submitted a request for a 20% goodwill coupon to our team for approval, and you will hear back from them soon. Thanks for understanding."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "I am so sorry to hear that the delay on order #1055 ruined your camping trip. I have submitted a request for a 20% goodwill coupon to our team for approval, and you will hear back from them soon. Thanks for understanding."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "support",
+    "outcome": "approval_needed",
+    "effects": {
+      "refunds": [],
+      "goodwill": [
+        {
+          "percent": 20,
+          "status": "pending_approval"
+        }
+      ],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "refund-over-limit-03",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to support",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to support"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome approval_needed or escalated",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome approval_needed"
+      },
+      {
+        "id": "goodwill_required:0",
+        "label": "goodwill coupon: 20%, pending_approval",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent says the refund needs a team member's approval, and never describes a refund or coupon as issued when the tool result says it's waiting for approval."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 4,
+    "cachedCalls": 0,
+    "toolCalls": 3,
+    "inputTokens": 8655,
+    "outputTokens": 188,
+    "latencyMs": 3771,
+    "turnLatencyMs": [
+      3771
+    ],
+    "costMicros": 0,
+    "wallMs": 6498
+  },
+  "finishedAt": "2026-10-02T12:39:42.624Z"
+}

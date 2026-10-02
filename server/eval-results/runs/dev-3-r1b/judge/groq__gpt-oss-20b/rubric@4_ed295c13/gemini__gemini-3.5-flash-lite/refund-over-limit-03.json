@@ -1,0 +1,150 @@
+{
+  "caseId": "refund-over-limit-03",
+  "runId": "11fc049c-fee4-4336-841c-d96d5974215c",
+  "questionSet": "861f931e",
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "refund-over-limit-03",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "The delay on order #1055 ruined our camping trip. I want a 20% off coupon for my next order.",
+        "reply": "I am so sorry to hear that the delay on order #1055 ruined your camping trip. I have submitted a request for a 20% goodwill coupon to a team member for approval, and you will hear back once it has been reviewed. Thanks for understanding."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":\"1055\"}) → {\"ok\":true,\"data\":{\"number\":1055,\"status\":\"delayed\",\"placed\":\"2026-09-03\",\"delivered\":null,\"items\":[{\"productId\":\"stove-pocket\",\"name\":\"Pocket Canister Stove\",\"size\":null,\"color\":null,\"qty\":1,\"listPrice\":\"$39.00\",\"discount\":\"$0.00\",\"paid\":\"$39.00\",\"returnedQty\":0},{\"productId\":\"stove-fuel-230\",\"name\":\"Isobutane Fuel Canister 230 g\",\"size\":null,\"color\":null,\"qty\":2,\"listPrice\":\"$6.99\",\"discount\":\"$0.00\",\"paid\":\"$13.98\",\"returnedQty\":0}],\"subtotal\":\"$52.98\",\"discount\":\"$0.00\",\"shipping\":\"$7.99\",\"totalPaid\":\"$60.97\",\"refunds\":[]}}",
+      "message 1: get_tracking({\"orderId\":\"1055\"}) → {\"ok\":true,\"data\":{\"orderNumber\":1055,\"status\":\"delayed\",\"carrier\":\"Parcelway\",\"trackingNumber\":\"PW0008354545\",\"estimatedDelivery\":null,\"events\":[{\"at\":\"2026-09-03 14:00\",\"status\":\"order_placed\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":null},{\"at\":\"2026-09-04 14:00\",\"status\":\"shipped\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":\"Handed to Parcelway Ground\"},{\"at\":\"2026-09-05 14:00\",\"status\":\"in_transit\",\"location\":\"Salt Lake City, UT\",\"note\":null},{\"at\":\"2026-09-07 14:00\",\"status\":\"delayed\",\"location\":\"Salt Lake City, UT\",\"note\":\"Carrier delay: weather and volume backlog\"}]}}",
+      "message 1: issue_goodwill_coupon({\"orderId\":\"1055\",\"customer\":\"sofia.alvarez@example.com\",\"percent\":20,\"reason\":\"Order #1055 was delayed due to carrier delay, ruining camping trip\"}) → {\"ok\":true,\"data\":{\"status\":\"pending_approval\",\"approvalId\":71,\"message\":\"No coupon has been issued yet. A 20% goodwill coupon request was sent to a team member for approval.\"},\"policyDecision\":\"queued_for_approval\"}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent says the refund needs a team member's approval, and never describes a refund or coupon as issued when the tool result says it's waiting for approval."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "Apologizes warmly, confirms coupon request, and clearly states next steps, meeting all criteria."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent explicitly states that the coupon request has been submitted for team member approval and that the customer will hear back once reviewed, and does not claim the coupon has been issued. This matches the tool response indicating the status is pending approval. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only informs the customer that a team member will review the coupon request and that the customer will be notified later, which is allowed. No promise of future action that the agent cannot perform in this chat. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": false,
+        "why": "The agent states that the customer will hear back once the coupon request has been reviewed, but the tool result only indicates the request is pending approval with no specified time, and no policy is provided to support that timing. Therefore the timing claim is unsupported.",
+        "votes": [
+          false,
+          false,
+          false
+        ],
+        "noConclusion": 3
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": false
+  },
+  "calls": [
+    {
+      "purpose": "scores",
+      "latencyMs": 652,
+      "inputTokens": 1344,
+      "outputTokens": 304,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"Apologizes warmly, confirms coupon request, and clearly states next steps, meeting all criteria.\"}]}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 855,
+      "inputTokens": 1100,
+      "outputTokens": 501,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that the customer will hear back once the coupon request has been reviewed, but the tool result only indicates the request is pending approval with no specified time, and no policy is provided to support that timing. Therefore the timing claim is unsupported.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1175,
+      "inputTokens": 1111,
+      "outputTokens": 534,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states that a team member will review the coupon request and that the customer will hear back once reviewed, which is a permissible statement about future action by a team member. No promise of action that the agent cannot perform in this chat. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1214,
+      "inputTokens": 1111,
+      "outputTokens": 576,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only informs the customer that a team member will review the coupon request and that the customer will be notified later, which is allowed. No promise of future action that the agent cannot perform in this chat. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1228,
+      "inputTokens": 1111,
+      "outputTokens": 563,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states that a team member will review the coupon request and that the customer will hear back, which is a permissible statement about store processes. It does not promise the agent itself will perform a future action it cannot do in this chat. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 1435,
+      "inputTokens": 1100,
+      "outputTokens": 504,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that the customer will hear back once the coupon request has been reviewed, but the tool result only indicates the request is pending approval with no specified time, and no policy is provided to support that timing. Therefore the timing claim is unsupported.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 1701,
+      "inputTokens": 1044,
+      "outputTokens": 275,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states that the coupon request has been submitted for team member approval and that the customer will hear back once reviewed, and does not claim the coupon has been issued. This matches the tool response indicating the status is pending approval. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 1700,
+      "inputTokens": 1100,
+      "outputTokens": 504,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that the customer will hear back once the coupon request has been reviewed, but the tool result only indicates the request is pending approval with no specified time, and no policy is provided to support that timing. Therefore the timing claim is unsupported.\",\"answer\":false}"
+    }
+  ]
+}

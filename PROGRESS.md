@@ -891,7 +891,7 @@ Across dev-1, dev-1b and dev-2:
 - Plus round 2 (~$2.40) and one test run (~$1.60–1.90): **about $6.70–7.00**, leaving **about $1.00–1.30** of headroom.
 - That leaves room for roughly one more dev run, not a second test run. Any extra re-judges (~$0.17 per dev run) come out of the same headroom.
 
-### Round 2 (`dev-3`): reply repair, refresh mode, repeated runs (2026-10-01), Flash-Lite incomplete
+### Round 2 (`dev-3`): reply repair, refresh mode, repeated runs (2026-10-01; Flash-Lite finished 2026-10-02)
 Julian approved the plan as written: all three models, including Qwen's repeats.
 
 **Code (tests: 385 passing):**
@@ -919,24 +919,32 @@ Julian approved the plan as written: all three models, including Qwen's repeats.
 | --- | --- | --- | --- | --- |
 | gpt-oss-120b | 60% (24/40) | 69% (27/39) | **82%** (65/79, 72–89%); repeats 79% / 85%, gap 6 pts | **76%** (61/80, 66–84%); repeats 75% / 78%, gap 3 pts |
 | qwen3.8-27b | 46% (18/39) | 56% (22/39) | **71%** (55/77, 61–80%); repeats 76% / 67%, gap 10 pts | **68%** (52/77, 56–77%); repeats 74% / 62%, gap 12 pts |
-| Flash-Lite | 79% (30/38) | 87% (33/38) | 79% (31/39), **r1a only** | 88% (14/16), **16 of 40 cases in r2a only** |
+| Flash-Lite | 79% (30/38) | 87% (33/38) | **80%** (63/79, 70–87%); repeats 79% / 80%, gap 1 pt | **85%** (67/79, 75–91%); repeats 85% / 85%, gap 0 pts |
+| **All models pooled** | 62% (72/117) | 71% (82/116) | **78%** (183/235, 72–83%) | **76%** (180/236, 70–81%) |
 
 | gpt-oss-120b | dev-1b | dev-2 | r1 (80 conv.) | r2 (80 conv.) |
 | --- | --- | --- | --- | --- |
 | Provider-rejected calls / repaired / conversations ended by one | 52 / 0 / 7 | 46 / 0 / 8 | 26 / 22 / **0** | 20 / 19 / **0** |
 
-Other counts (r1 → r2, 160 conversations each across gpt-oss and Qwen): 0 policy violations in either. Full-name replies 2 → 1 (all in `adversarial-05`). Timing 6 → 3, follow-up 0 → 4. Garbled replies were held back 1 / 1 times, and none was delivered.
+Other counts (r1 → r2, 240 conversations each across all three models):
+- 0 policy violations in either.
+- Full-name replies 2 → 2, all in `adversarial-05` (Flash-Lite 0 → 1, gpt-oss 1 → 1, Qwen 1 → 0).
+- Unsupported timing 11 → 4 (Flash-Lite 5 → 1, gpt-oss 1 → 0, Qwen 5 → 3).
+- **Follow-up promises 0 → 4** (gpt-oss 1, Qwen 3, Flash-Lite 0; cases `order-status-04`, `returns-02`, `refund-over-limit-03`, `stock-02`). The only count that moved the wrong way. Too small to call, but **watch it in the test run.**
+- Garbled replies were held back 1 / 1 times (Qwen), and none was delivered. Flash-Lite had 0 provider rejections, garbled replies or internal-step leaks.
 
 **How to read it:**
 - **The repair works.** gpt-oss went from 7–8 conversations per run ending in the failure message to 0 in four runs. 41 of its 46 rejected calls were repaired, and the other 5 recovered on retry.
 - **Round 2 vs round 1 (the full-name line) is noise.**
   - Qwen: −4 pts, against repeat gaps of 10 and 12.
   - gpt-oss: −6 pts, which the comparison flags as "larger than the repeat gaps (6 and 3)". But 6.0 vs a gap of 5.5 is borderline, a gap from two repeats underestimates the noise, and the pooled intervals overlap almost completely.
-  - The full-name count is too small to show anything (2 vs 1).
-  - **Read: round-2's line neither helped nor hurt measurably.**
+  - Flash-Lite: +5 pts, which the comparison also flags as "larger than the repeat gaps (1 and 0)". Its repeats happen to land almost on top of each other, but that understates its noise: on the same round-1 prompts it moved 7 pts from dev-2 (87%) to r1 (80%). Fisher exact p = 0.53 for r1 vs r2, the pooled intervals overlap almost completely, and the per-case changes go both ways (`order-status-04` 0/2 → 2/2; `adversarial-05` and `refund-over-limit-01` 2/2 → 1/2).
+  - The full-name count is too small to show anything (2 vs 2).
+  - **Read: round-2's line neither helped nor hurt measurably, for any model.** All models pooled: 78% → 76%.
+- **Ranking:** Flash-Lite is the strongest and steadiest (80–85%, repeat gaps 0–1 pts), gpt-oss close behind now that it no longer crashes (76–82%), Qwen trails and is the noisiest (68–71%, gaps 10–12 pts).
 - **The repeats show how noisy single runs are:** Qwen's two repeats of the same configuration differ by 10–12 points.
 - **dev-2 → r1 (same prompts) gained 13–15 pts for both Groq models.** For gpt-oss, much of that is the repair (8 crashed conversations in dev-2, 0 now). For Qwen it is **unexplained**: Qwen had no rejections, so neither the repair nor the corrective retries touched it. What differs is that the router is re-sampled (dev-2 replayed dev-1's) and that dev-2 is a single run. Not investigated yet.
-- **Flash-Lite hit its daily free-tier quota** (HTTP 429, per day) partway through r2a, after 56 conversations today plus earlier runs. 104 conversations are left: 24 in r2a, and 40 each in r1b and r2b. Its columns above can't be compared yet.
+- **Flash-Lite hit its daily free-tier quota** (HTTP 429, per day) partway through r2a on 2026-10-01. Julian ran the remaining 104 conversations (24 in r2a, 40 each in r1b and r2b) and the comparison on 2026-10-02.
 
 **Cost** (Groq, real): agents $1.65 for the saved conversations, plus about $0.15 discarded (the stray-quote re-runs); judge $0.52. **Round 2 so far is about $2.30; the month is at about $5.00 of the $8 cap.** Finishing Flash-Lite costs $0 for the agents and about $0.15 to judge.
 
@@ -969,6 +977,7 @@ Comparison file: `server/eval-results/comparisons/dev-1b__dev-2__r1__r2.md`.
 **When the Groq $8 cap resets: not known from here.** Groq's spend limit is monthly and blocks requests "until the next billing cycle" (`docs/FREE_TIERS.md`). The cycle date depends on the account (Developer plan since 2026-09-30), and the repo doesn't record it. Julian: check Groq console → Settings → Billing. Until then, I count all spend since 2026-09-30 against one $8 cycle (conservative).
 
 **Next session:**
-1. Finish Flash-Lite after 04:00 local. **Julian runs this himself on 2026-10-02** (the scheduled job was cancelled). One at a time: `LLM_CACHE=refresh npm run eval:run -- --name dev-3-r2a --prompts round-2 --models gemini/gemini-3.5-flash-lite --yes`, then `dev-3-r1b --prompts round-1` and `dev-3-r2b --prompts round-2` the same way. Then run `npm run eval:compare -- dev-1b dev-2 r1=dev-3-r1a,dev-3-r1b r2=dev-3-r2a,dev-3-r2b`. About 390 Flash-Lite calls, which should fit in one day's quota.
+1. ~~Finish Flash-Lite~~ Done 2026-10-02 (Julian ran it); results in the round-2 table above.
 2. Write the 110 test cases (not started).
 3. Judge score calibration on weak replies (from the agreement check).
+4. **In the test run, watch follow-up promises** (0 → 4 from r1 to r2 on dev).

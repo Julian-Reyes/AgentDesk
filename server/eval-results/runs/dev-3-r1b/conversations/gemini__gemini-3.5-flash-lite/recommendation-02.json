@@ -1,0 +1,426 @@
+{
+  "caseId": "recommendation-02",
+  "case": {
+    "id": "recommendation-02",
+    "split": "dev",
+    "type": "recommendation",
+    "why": "Sleeping bags rated to -5°C or colder, under $150 today: only the Drift -5°C Synthetic ($139.00). The Ember -10°C ($349) and Glacier -20°C ($499) are warm enough but over budget.",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "I need a sleeping bag rated to at least -5°C, for under $150."
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "recommendation": {
+        "constraints": {
+          "category": "sleeping_bags",
+          "maxPriceCents": 15000,
+          "maxTempRatingC": -5
+        },
+        "acceptable": [
+          "bag-drift-minus5"
+        ]
+      },
+      "leaks": [],
+      "judge": "Recommends the Drift -5°C at $139.00 and says why it fits. Under the strict rule, naming a warmer but over-budget bag fails.",
+      "judgeChecks": []
+    }
+  },
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "team": {
+    "router": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "shopping@2#3e94b8f1"
+    },
+    "support": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "support@3#d7518dde"
+    }
+  },
+  "observation": {
+    "runId": "55083365-7db3-4f7a-b632-c73cef1a1bf9",
+    "turns": [
+      {
+        "customer": "I need a sleeping bag rated to at least -5°C, for under $150.",
+        "reply": "We have the Drift -5°C Synthetic Sleeping Bag, which is rated to -5°C and priced at $139.00 (available in regular and long sizes). It features synthetic fill and weighs 1,700 grams.",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "I need a sleeping bag rated to at least -5°C, for under $150."
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"shopping\", \"category\": \"recommendation\", \"urgency\": \"normal\", \"confidence\": 1.0}",
+          "decision": {
+            "route": "shopping",
+            "category": "recommendation",
+            "urgency": "normal",
+            "confidence": 1
+          },
+          "fallback": false
+        },
+        "inputTokens": 353,
+        "outputTokens": 28,
+        "latencyMs": 5817,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@2#3e94b8f1",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_35603",
+                "name": "search_products",
+                "arguments": "{\"filters\":{\"category\":\"sleeping_bags\",\"maxPrice\":150,\"maxTempRatingC\":-5}}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TXZ2VaPM3iFP1V1CVd8NW31vjb2SFkGkMLZEj6bDwyvxRgHFEcv4labHZszSqIcpJv8Py55yIGdx53GJt7jydFqK1bzKWLWeyMK/6Wt4VxnwWcgXZ57SZZ8Q="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1987,
+        "outputTokens": 34,
+        "latencyMs": 12527,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_35603",
+          "name": "search_products",
+          "arguments": "{\"filters\":{\"category\":\"sleeping_bags\",\"maxPrice\":150,\"maxTempRatingC\":-5}}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 1,
+              "products": [
+                {
+                  "id": "bag-drift-minus5",
+                  "name": "Drift -5°C Synthetic Sleeping Bag",
+                  "category": "sleeping_bags",
+                  "listPrice": "$139.00",
+                  "currentPrice": "$139.00",
+                  "rating": 4.3,
+                  "description": "Synthetic mummy bag for cold nights on a budget.",
+                  "specs": {
+                    "material": "synthetic fill",
+                    "tempRatingC": -5,
+                    "weightGrams": 1700
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@2#3e94b8f1",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_37908",
+                "name": "get_product",
+                "arguments": "{\"id\":\"bag-drift-minus5\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0Tru4Mgcs8JxQVrFgMH59RJMoOzsUMZ3d2qNzVtiYlKBow1LNh9RHuETKRjro2A2z9+mI/tKhxBXBFPrcHor7VHiU+x1nkqMJrVaqFykRdJazGFyrrmY19tb0="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "failedAttempts": [
+            {
+              "status": 503,
+              "message": "[{\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.\",\n    \"status\": \"UNAVAILABLE\"\n  }\n}\n]"
+            }
+          ],
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2183,
+        "outputTokens": 21,
+        "latencyMs": 6934,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_37908",
+          "name": "get_product",
+          "arguments": "{\"id\":\"bag-drift-minus5\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "id": "bag-drift-minus5",
+              "name": "Drift -5°C Synthetic Sleeping Bag",
+              "category": "sleeping_bags",
+              "listPrice": "$139.00",
+              "currentPrice": "$139.00",
+              "rating": 4.3,
+              "description": "Synthetic mummy bag for cold nights on a budget.",
+              "specs": {
+                "material": "synthetic fill",
+                "tempRatingC": -5,
+                "weightGrams": 1700
+              },
+              "availability": "in_stock",
+              "activeDeals": [],
+              "variants": [
+                {
+                  "size": "long",
+                  "color": null,
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "regular",
+                  "color": null,
+                  "availability": "in_stock"
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@2#3e94b8f1",
+        "data": {
+          "step": 3,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_81460",
+                "name": "reply",
+                "arguments": "{\"message\":\"We have the Drift -5°C Synthetic Sleeping Bag, which is rated to -5°C and priced at $139.00 (available in regular and long sizes). It features synthetic fill and weighs 1,700 grams.\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0T5lBrWNNclIbCRK7v2SdRfOGzqgEu/WF9q1gXnqPCC/OEnXAd+xYtXmXU4gmQdpc/igMnnY67VCSSY/FARjqcUb/N4wQazibz477lJmTBqkwC7/H/v1NWasQ="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2358,
+        "outputTokens": 65,
+        "latencyMs": 6380,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_81460",
+          "name": "reply",
+          "arguments": "{\"message\":\"We have the Drift -5°C Synthetic Sleeping Bag, which is rated to -5°C and priced at $139.00 (available in regular and long sizes). It features synthetic fill and weighs 1,700 grams.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "We have the Drift -5°C Synthetic Sleeping Bag, which is rated to -5°C and priced at $139.00 (available in regular and long sizes). It features synthetic fill and weighs 1,700 grams."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "We have the Drift -5°C Synthetic Sleeping Bag, which is rated to -5°C and priced at $139.00 (available in regular and long sizes). It features synthetic fill and weighs 1,700 grams."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "shopping",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "recommendation-02",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to shopping"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "recommendation",
+        "label": "recommends only products that meet every constraint",
+        "pass": true,
+        "severity": "task",
+        "detail": "named: bag-drift-minus5"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 4,
+    "cachedCalls": 0,
+    "toolCalls": 2,
+    "inputTokens": 6881,
+    "outputTokens": 148,
+    "latencyMs": 31658,
+    "turnLatencyMs": [
+      31658
+    ],
+    "costMicros": 0,
+    "wallMs": 58743
+  },
+  "finishedAt": "2026-10-02T12:13:24.385Z"
+}

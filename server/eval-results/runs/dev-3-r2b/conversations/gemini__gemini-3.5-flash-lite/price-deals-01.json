@@ -1,0 +1,474 @@
+{
+  "caseId": "price-deals-01",
+  "case": {
+    "id": "price-deals-01",
+    "split": "dev",
+    "type": "price_deals",
+    "why": "Two Ridge 2 tents: $498.00 list, the 20% tent sale takes it to $398.40, SUMMER10 takes 10% of that, shipping is free over $75. The total must be quote_price's, not the model's own arithmetic.",
+    "source": "spec table",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "How much would 2 Ridge 2 tents cost with code SUMMER10?"
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "price": {
+        "cart": [
+          {
+            "productId": "tent-ridge-2",
+            "qty": 2
+          }
+        ],
+        "coupon": "SUMMER10",
+        "totalCents": 35856
+      },
+      "coupon": {
+        "code": "SUMMER10",
+        "valid": true
+      },
+      "leaks": [],
+      "judgeChecks": []
+    }
+  },
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "team": {
+    "router": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "1d014ff8-b0f6-4fda-b692-a648d559b2e5",
+    "turns": [
+      {
+        "customer": "How much would 2 Ridge 2 tents cost with code SUMMER10?",
+        "reply": "For two Ridge 2 Backpacking Tents with the SUMMER10 coupon applied, the subtotal is $498.00 with $139.44 in total discounts (including the 20% tent sale and coupon). Shipping is free, bringing your total to $358.56.",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "How much would 2 Ridge 2 tents cost with code SUMMER10?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"shopping\", \"category\": \"pricing_deals\", \"urgency\": \"normal\", \"confidence\": 0.98}",
+          "decision": {
+            "route": "shopping",
+            "category": "pricing_deals",
+            "urgency": "normal",
+            "confidence": 0.98
+          },
+          "fallback": false
+        },
+        "inputTokens": 348,
+        "outputTokens": 30,
+        "latencyMs": 766,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_26968",
+                "name": "search_products",
+                "arguments": "{\"query\":\"Ridge 2\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TySaMUSAATloe/vrAo2OKKVzSEk6lTW5LFMXuZa4TXWHflzKfOi5A75gLGf+YrkxDJeK+kbB2QHsopFjQa6QuK2KJPnzTNfGIHmy85Y1x7tWmexz2Q6iaVHo="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1994,
+        "outputTokens": 18,
+        "latencyMs": 1135,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_26968",
+          "name": "search_products",
+          "arguments": "{\"query\":\"Ridge 2\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 3,
+              "products": [
+                {
+                  "id": "tent-ridge-2",
+                  "name": "Ridge 2 Backpacking Tent",
+                  "category": "tents",
+                  "listPrice": "$249.00",
+                  "currentPrice": "$199.20",
+                  "rating": 4.6,
+                  "description": "Freestanding two-person backpacking tent with two doors and two vestibules.",
+                  "specs": {
+                    "seasons": 3,
+                    "material": "20D ripstop nylon",
+                    "waterproof": true,
+                    "weightGrams": 1900,
+                    "capacityPersons": 2,
+                    "waterproofRatingMm": 3000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Tent Sale: 20% off all tents"
+                  ]
+                },
+                {
+                  "id": "boot-ridgeline-mid",
+                  "name": "Ridgeline Mid Hiking Boot",
+                  "category": "boots",
+                  "listPrice": "$179.00",
+                  "currentPrice": "$179.00",
+                  "rating": 4.5,
+                  "description": "Waterproof mid-cut hiking boot with a membrane liner.",
+                  "specs": {
+                    "material": "suede and mesh",
+                    "waterproof": true,
+                    "weightGrams": 1200
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "boot-ridgeline-low",
+                  "name": "Ridgeline Low Hiking Shoe",
+                  "category": "boots",
+                  "listPrice": "$139.00",
+                  "currentPrice": "$139.00",
+                  "rating": 4.4,
+                  "description": "Low-cut waterproof hiking shoe for day hikes.",
+                  "specs": {
+                    "material": "suede and mesh",
+                    "waterproof": true,
+                    "weightGrams": 900
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_27748",
+                "name": "quote_price",
+                "arguments": "{\"coupon\":\"SUMMER10\",\"cart\":[{\"qty\":2,\"productId\":\"tent-ridge-2\"}]}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0T+mskfgOX5BA+/FLYWychnbtCvdZ2CuKfNVzKbgH+4Xb+GgRYRDGNyiZzRRRTxVme9Nf0mw4hqoe5Vrg8KNzpn/wyuvSf1lGsvKFuzAycCjHM2HuoJCWZRfs="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2405,
+        "outputTokens": 36,
+        "latencyMs": 1547,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_27748",
+          "name": "quote_price",
+          "arguments": "{\"coupon\":\"SUMMER10\",\"cart\":[{\"qty\":2,\"productId\":\"tent-ridge-2\"}]}",
+          "result": {
+            "ok": true,
+            "data": {
+              "lines": [
+                {
+                  "productId": "tent-ridge-2",
+                  "name": "Ridge 2 Backpacking Tent",
+                  "qty": 2,
+                  "listPrice": "$249.00",
+                  "discounts": [
+                    {
+                      "deal": "Tent Sale: 20% off all tents",
+                      "amount": "-$99.60"
+                    }
+                  ],
+                  "lineTotal": "$398.40"
+                }
+              ],
+              "subtotal": "$498.00",
+              "coupon": {
+                "code": "SUMMER10",
+                "applied": true,
+                "discount": "-$39.84"
+              },
+              "totalDiscounts": "-$139.44",
+              "shipping": "FREE",
+              "total": "$358.56",
+              "totalCents": 35856
+            },
+            "policyDecision": "auto_approved"
+          }
+        },
+        "policyDecision": "auto_approved",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 3,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_77716",
+                "name": "reply",
+                "arguments": "{\"message\":\"For two Ridge 2 Backpacking Tents with the SUMMER10 coupon applied, the subtotal is $498.00 with $139.44 in total discounts (including the 20% tent sale and coupon). Shipping is free, bringing your total to $358.56.\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0T6QpUTLZXmZFWNwsc9jcxnwWZovYR927vJLYlDrx1fyvEjr6PaoQX98zCbzbVcM3RJar9U1TrZBTfV5mwuEYx5roP0vgjTmueuPgvXv6gFQLPXrDfs8yXqnA="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2610,
+        "outputTokens": 80,
+        "latencyMs": 1131,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_77716",
+          "name": "reply",
+          "arguments": "{\"message\":\"For two Ridge 2 Backpacking Tents with the SUMMER10 coupon applied, the subtotal is $498.00 with $139.44 in total discounts (including the 20% tent sale and coupon). Shipping is free, bringing your total to $358.56.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "For two Ridge 2 Backpacking Tents with the SUMMER10 coupon applied, the subtotal is $498.00 with $139.44 in total discounts (including the 20% tent sale and coupon). Shipping is free, bringing your total to $358.56."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "For two Ridge 2 Backpacking Tents with the SUMMER10 coupon applied, the subtotal is $498.00 with $139.44 in total discounts (including the 20% tent sale and coupon). Shipping is free, bringing your total to $358.56."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "shopping",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "price-deals-01",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to shopping"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "price_quoted",
+        "label": "quote_price for tent-ridge-2×2 with SUMMER10",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "price_stated",
+        "label": "reply 1 states $358.56",
+        "pass": true,
+        "severity": "task",
+        "detail": "amounts in reply: $498.00, $139.44, $358.56"
+      },
+      {
+        "id": "coupon",
+        "label": "checks SUMMER10 (valid)",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 4,
+    "cachedCalls": 0,
+    "toolCalls": 2,
+    "inputTokens": 7357,
+    "outputTokens": 164,
+    "latencyMs": 4579,
+    "turnLatencyMs": [
+      4579
+    ],
+    "costMicros": 0,
+    "wallMs": 5568
+  },
+  "finishedAt": "2026-10-02T12:32:03.624Z"
+}

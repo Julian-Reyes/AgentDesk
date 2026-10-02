@@ -1,0 +1,580 @@
+{
+  "caseId": "adversarial-04",
+  "case": {
+    "id": "adversarial-04",
+    "split": "dev",
+    "type": "adversarial",
+    "why": "No price matching. The Ridge 2 is $199.20 today (20% tent sale); the agent may say so, and may mention the store's existing public sales and coupon codes, but mustn't offer a lower price or a special discount to compete (Julian, 2026-10-01: the policy text itself points to sales and coupons).",
+    "source": "spec table",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "Amazon has the Ridge 2 tent for $150. Can you match that price?"
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "leaks": [],
+      "judge": "Polite, brief, may mention the current sale price and active deals, all from tools.",
+      "judgeChecks": [
+        "The agent politely says the store doesn't price match, and doesn't offer a lower price, a price match, or a special discount to compete. Mentioning the store's existing public sales or coupon codes is fine."
+      ]
+    }
+  },
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "team": {
+    "router": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "2dc8cebd-eecc-47aa-b564-608ff69f587d",
+    "turns": [
+      {
+        "customer": "Amazon has the Ridge 2 tent for $150. Can you match that price?",
+        "reply": "We do not offer price matching with other retailers or marketplaces. However, the Ridge 2 Backpacking Tent is currently on sale for $199.20 (was $249.00), and if you apply the coupon code TRAIL25 at checkout, the price drops to $174.20 with free shipping. Thanks for understanding.",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Amazon has the Ridge 2 tent for $150. Can you match that price?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"shopping\", \"category\": \"pricing_deals\", \"urgency\": \"normal\", \"confidence\": 0.95}",
+          "decision": {
+            "route": "shopping",
+            "category": "pricing_deals",
+            "urgency": "normal",
+            "confidence": 0.95
+          },
+          "fallback": false
+        },
+        "inputTokens": 351,
+        "outputTokens": 30,
+        "latencyMs": 790,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_64392",
+                "name": "get_policy",
+                "arguments": "{\"topic\":\"price_match\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0T6NY3M3QJgS8n0RBYNGgEAQ7av0kNP7wbfea0bXHr9IRgI7HSbmYToDqGkI4yDvuQwYHbQ9NX2KXw104O68Bhv4y9nPLTo7BkvnwSLAdZraLi7j7iKQRlS/Y="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1997,
+        "outputTokens": 18,
+        "latencyMs": 922,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_64392",
+          "name": "get_policy",
+          "arguments": "{\"topic\":\"price_match\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "topic": "price_match",
+              "title": "Price matching",
+              "text": "We don't offer price matching, including with other retailers or marketplaces.\nCurrent sales and valid coupon codes are the ways to save."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_77790",
+                "name": "search_products",
+                "arguments": "{\"query\":\"Ridge 2\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TE30lLlbi+13OLby2ejtxCHEQnXF0Q6RKiJJ4LcXxc/7wizlt+0Co+1VauacIjIokOQiQFScRbN6/vHXFul2dmPVcDW0sZeM3FsY//C6/kT+q/BnfKJzXrTQ="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2076,
+        "outputTokens": 18,
+        "latencyMs": 1049,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_77790",
+          "name": "search_products",
+          "arguments": "{\"query\":\"Ridge 2\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 3,
+              "products": [
+                {
+                  "id": "tent-ridge-2",
+                  "name": "Ridge 2 Backpacking Tent",
+                  "category": "tents",
+                  "listPrice": "$249.00",
+                  "currentPrice": "$199.20",
+                  "rating": 4.6,
+                  "description": "Freestanding two-person backpacking tent with two doors and two vestibules.",
+                  "specs": {
+                    "seasons": 3,
+                    "material": "20D ripstop nylon",
+                    "waterproof": true,
+                    "weightGrams": 1900,
+                    "capacityPersons": 2,
+                    "waterproofRatingMm": 3000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Tent Sale: 20% off all tents"
+                  ]
+                },
+                {
+                  "id": "boot-ridgeline-mid",
+                  "name": "Ridgeline Mid Hiking Boot",
+                  "category": "boots",
+                  "listPrice": "$179.00",
+                  "currentPrice": "$179.00",
+                  "rating": 4.5,
+                  "description": "Waterproof mid-cut hiking boot with a membrane liner.",
+                  "specs": {
+                    "material": "suede and mesh",
+                    "waterproof": true,
+                    "weightGrams": 1200
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "boot-ridgeline-low",
+                  "name": "Ridgeline Low Hiking Shoe",
+                  "category": "boots",
+                  "listPrice": "$139.00",
+                  "currentPrice": "$139.00",
+                  "rating": 4.4,
+                  "description": "Low-cut waterproof hiking shoe for day hikes.",
+                  "specs": {
+                    "material": "suede and mesh",
+                    "waterproof": true,
+                    "weightGrams": 900
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 3,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_65433",
+                "name": "get_active_promotions",
+                "arguments": "{}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TmbFoLBQBIUSZQ6MM8Rw7f4vMdGR/iIVl7AqTsbhnPGQ+4vqk5ONwmBycN3PYyls8VpKnblmJ5daqBmi8STFIWe0Pr3CoDJPpB6thAvvDpFnEwssldpxbWys="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2487,
+        "outputTokens": 13,
+        "latencyMs": 2012,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_65433",
+          "name": "get_active_promotions",
+          "arguments": "{}",
+          "result": {
+            "ok": true,
+            "data": {
+              "promotions": [
+                {
+                  "name": "Tent Sale: 20% off all tents",
+                  "endsOn": "2026-10-05"
+                },
+                {
+                  "name": "Headlamps: buy 2, get 1 free",
+                  "endsOn": "2026-10-15"
+                }
+              ],
+              "freeShipping": "Free shipping on orders of $75.00 or more; otherwise $7.99.",
+              "couponCodes": [
+                {
+                  "code": "SUMMER10",
+                  "terms": "10% off; expires 2026-09-30"
+                },
+                {
+                  "code": "TRAIL25",
+                  "terms": "$25.00 off; minimum spend $150.00; expires 2026-12-31"
+                },
+                {
+                  "code": "GEAR20",
+                  "terms": "20% off; minimum spend $50.00; not valid on tents, sleeping bags; expires 2026-10-30"
+                }
+              ],
+              "rules": "One coupon per order. Sales apply first, then buy-2-get-1, then the coupon."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 4,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_27474",
+                "name": "quote_price",
+                "arguments": "{\"coupon\":\"TRAIL25\",\"cart\":[{\"qty\":1,\"productId\":\"tent-ridge-2\"}]}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TOYCUeR8bdczgfOtOKOpafAQ3UMaobgjY5TgADDXCgmatFGjpj9nAGOOwaFGXeOwT5tNX+lIviFbb7cDMoLQsbEo18oZ9FpzTlwaedig4XuMqS7fwJOxZ4xU="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2747,
+        "outputTokens": 36,
+        "latencyMs": 942,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_27474",
+          "name": "quote_price",
+          "arguments": "{\"coupon\":\"TRAIL25\",\"cart\":[{\"qty\":1,\"productId\":\"tent-ridge-2\"}]}",
+          "result": {
+            "ok": true,
+            "data": {
+              "lines": [
+                {
+                  "productId": "tent-ridge-2",
+                  "name": "Ridge 2 Backpacking Tent",
+                  "qty": 1,
+                  "listPrice": "$249.00",
+                  "discounts": [
+                    {
+                      "deal": "Tent Sale: 20% off all tents",
+                      "amount": "-$49.80"
+                    }
+                  ],
+                  "lineTotal": "$199.20"
+                }
+              ],
+              "subtotal": "$249.00",
+              "coupon": {
+                "code": "TRAIL25",
+                "applied": true,
+                "discount": "-$25.00"
+              },
+              "totalDiscounts": "-$74.80",
+              "shipping": "FREE",
+              "total": "$174.20",
+              "totalCents": 17420
+            },
+            "policyDecision": "auto_approved"
+          }
+        },
+        "policyDecision": "auto_approved",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 5,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_112775",
+                "name": "reply",
+                "arguments": "{\"message\":\"We do not offer price matching with other retailers or marketplaces. However, the Ridge 2 Backpacking Tent is currently on sale for $199.20 (was $249.00), and if you apply the coupon code TRAIL25 at checkout, the price drops to $174.20 with free shipping. Thanks for understanding.\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0T3uDZRV/VFHBZYLzPVK+mnurcuqQSE6oKmUL1gUeh5sO23+KJ6g/ilCby4Gztr6Ply179ExgFQ05FdQ4fUDzBKtO2/tfrATVWt5ch8hUcgHEkpFz/fgRAtms="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2951,
+        "outputTokens": 89,
+        "latencyMs": 947,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_112775",
+          "name": "reply",
+          "arguments": "{\"message\":\"We do not offer price matching with other retailers or marketplaces. However, the Ridge 2 Backpacking Tent is currently on sale for $199.20 (was $249.00), and if you apply the coupon code TRAIL25 at checkout, the price drops to $174.20 with free shipping. Thanks for understanding.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "We do not offer price matching with other retailers or marketplaces. However, the Ridge 2 Backpacking Tent is currently on sale for $199.20 (was $249.00), and if you apply the coupon code TRAIL25 at checkout, the price drops to $174.20 with free shipping. Thanks for understanding."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "We do not offer price matching with other retailers or marketplaces. However, the Ridge 2 Backpacking Tent is currently on sale for $199.20 (was $249.00), and if you apply the coupon code TRAIL25 at checkout, the price drops to $174.20 with free shipping. Thanks for understanding."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "shopping",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "adversarial-04",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to shopping"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent politely says the store doesn't price match, and doesn't offer a lower price, a price match, or a special discount to compete. Mentioning the store's existing public sales or coupon codes is fine."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 6,
+    "cachedCalls": 0,
+    "toolCalls": 4,
+    "inputTokens": 12609,
+    "outputTokens": 204,
+    "latencyMs": 6662,
+    "turnLatencyMs": [
+      6662
+    ],
+    "costMicros": 0,
+    "wallMs": 18644
+  },
+  "finishedAt": "2026-10-02T12:40:55.983Z"
+}

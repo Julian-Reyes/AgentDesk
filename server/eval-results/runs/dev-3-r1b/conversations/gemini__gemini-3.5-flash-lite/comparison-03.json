@@ -1,0 +1,652 @@
+{
+  "caseId": "comparison-03",
+  "case": {
+    "id": "comparison-03",
+    "split": "dev",
+    "type": "comparison",
+    "why": "Ember 0°C (down, 850 g) vs Drift -5°C (synthetic, 1700 g). The Drift is rated warmer; the Ember is half the weight. A reasoning check on two specs pulling in opposite directions.",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "Ember 0°C down bag or the Drift -5°C synthetic: which is warmer, and which is lighter?",
+        "reply": {
+          "mentions": [
+            [
+              "850 g",
+              "850g",
+              "0.85 kg"
+            ],
+            [
+              "1.7 kg",
+              "1.7kg",
+              "1700 g",
+              "1700g",
+              "1,700 g"
+            ]
+          ],
+          "amounts": [],
+          "avoids": []
+        }
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "leaks": [],
+      "judge": "May add that synthetic fill stays warm when damp (from the Drift's description). No invented fill weights or comfort ratings.",
+      "judgeChecks": [
+        "The agent says the Drift -5°C is rated warmer (to -5°C vs 0°C) and the Ember 0°C is lighter."
+      ]
+    }
+  },
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "team": {
+    "router": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "shopping@2#3e94b8f1"
+    },
+    "support": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "support@3#d7518dde"
+    }
+  },
+  "observation": {
+    "runId": "76721dcd-f12b-41c6-bc19-f0cf9b965266",
+    "turns": [
+      {
+        "customer": "Ember 0°C down bag or the Drift -5°C synthetic: which is warmer, and which is lighter?",
+        "reply": "The Drift -5°C Synthetic Sleeping Bag is warmer, with a temperature rating of -5°C compared to the Ember 0°C Down Sleeping Bag's 0°C rating. \n\nThe Ember 0°C is lighter, weighing 850 grams compared to the Drift -5°C's 1,700 grams.",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Ember 0°C down bag or the Drift -5°C synthetic: which is warmer, and which is lighter?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"shopping\", \"category\": \"comparison\", \"urgency\": \"low\", \"confidence\": 0.99}",
+          "decision": {
+            "route": "shopping",
+            "category": "comparison",
+            "urgency": "low",
+            "confidence": 0.99
+          },
+          "fallback": false
+        },
+        "inputTokens": 358,
+        "outputTokens": 28,
+        "latencyMs": 18020,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@2#3e94b8f1",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_19833",
+                "name": "search_products",
+                "arguments": "{\"query\":\"Ember 0C down bag\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0T68Ub1Uc1g7tz/EL8If8f01BEsSXIh/wciV+bLMu7oHaTnKzA8o4tD4nUzza5erXQw2tBzui/UTdhGwvDHplnjdoOMWaNE8vbTuBGPEeJ7PjEwAP8Seb5tdU="
+                    }
+                  }
+                }
+              },
+              {
+                "id": "call_19834",
+                "name": "search_products",
+                "arguments": "{\"query\":\"Drift -5C synthetic\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1992,
+        "outputTokens": 43,
+        "latencyMs": 8109,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_19833",
+          "name": "search_products",
+          "arguments": "{\"query\":\"Ember 0C down bag\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 12,
+              "products": [
+                {
+                  "id": "bag-ember-0",
+                  "name": "Ember 0°C Down Sleeping Bag",
+                  "category": "sleeping_bags",
+                  "listPrice": "$259.00",
+                  "currentPrice": "$259.00",
+                  "rating": 4.7,
+                  "description": "Three-season mummy bag with 650-fill responsibly sourced down.",
+                  "specs": {
+                    "material": "650-fill down",
+                    "tempRatingC": 0,
+                    "weightGrams": 850
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "bag-ember-minus10",
+                  "name": "Ember -10°C Down Sleeping Bag",
+                  "category": "sleeping_bags",
+                  "listPrice": "$349.00",
+                  "currentPrice": "$349.00",
+                  "rating": 4.7,
+                  "description": "Warmer version of the Ember for shoulder-season and early winter trips.",
+                  "specs": {
+                    "material": "650-fill down",
+                    "tempRatingC": -10,
+                    "weightGrams": 1150
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "bag-glacier-minus20",
+                  "name": "Glacier -20°C Expedition Sleeping Bag",
+                  "category": "sleeping_bags",
+                  "listPrice": "$499.00",
+                  "currentPrice": "$499.00",
+                  "rating": 4.9,
+                  "description": "Expedition-grade bag with 800-fill down and a draft collar.",
+                  "specs": {
+                    "material": "800-fill down",
+                    "tempRatingC": -20,
+                    "weightGrams": 1900
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "bag-nightjar-quilt",
+                  "name": "Nightjar 2°C Down Quilt",
+                  "category": "sleeping_bags",
+                  "listPrice": "$229.00",
+                  "currentPrice": "$229.00",
+                  "rating": 4.6,
+                  "description": "Hoodless down quilt with pad straps, popular with ultralight hikers.",
+                  "specs": {
+                    "material": "800-fill down",
+                    "tempRatingC": 2,
+                    "weightGrams": 650
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "jacket-tundra-parka",
+                  "name": "Tundra Insulated Parka",
+                  "category": "jackets",
+                  "listPrice": "$329.00",
+                  "currentPrice": "$329.00",
+                  "rating": 4.8,
+                  "description": "Waterproof insulated parka for deep winter.",
+                  "specs": {
+                    "material": "down + waterproof shell",
+                    "waterproof": true,
+                    "tempRatingC": -25,
+                    "weightGrams": 1100,
+                    "waterproofRatingMm": 15000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "jacket-loft-down",
+                  "name": "Loft Down Jacket",
+                  "category": "jackets",
+                  "listPrice": "$199.00",
+                  "currentPrice": "$199.00",
+                  "rating": 4.6,
+                  "description": "Warm, packable down jacket for cold camps.",
+                  "specs": {
+                    "material": "800-fill down",
+                    "waterproof": false,
+                    "weightGrams": 350
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "bag-sprout-kids",
+                  "name": "Sprout 5°C Kids Sleeping Bag",
+                  "category": "sleeping_bags",
+                  "listPrice": "$49.00",
+                  "currentPrice": "$49.00",
+                  "rating": 4.4,
+                  "description": "Kid-sized synthetic bag for children up to 150 cm tall.",
+                  "specs": {
+                    "material": "synthetic fill",
+                    "tempRatingC": 5,
+                    "weightGrams": 900
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "bag-drift-minus5",
+                  "name": "Drift -5°C Synthetic Sleeping Bag",
+                  "category": "sleeping_bags",
+                  "listPrice": "$139.00",
+                  "currentPrice": "$139.00",
+                  "rating": 4.3,
+                  "description": "Synthetic mummy bag for cold nights on a budget.",
+                  "specs": {
+                    "material": "synthetic fill",
+                    "tempRatingC": -5,
+                    "weightGrams": 1700
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "bag-harbor-double",
+                  "name": "Harbor 3°C Double Sleeping Bag",
+                  "category": "sleeping_bags",
+                  "listPrice": "$179.99",
+                  "currentPrice": "$179.99",
+                  "rating": 4.3,
+                  "description": "Two-person rectangular bag for car camping couples.",
+                  "specs": {
+                    "material": "synthetic fill",
+                    "tempRatingC": 3,
+                    "weightGrams": 2800,
+                    "capacityPersons": 2
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "tent-willow-1",
+                  "name": "Willow 1 Solo Tent",
+                  "category": "tents",
+                  "listPrice": "$179.00",
+                  "currentPrice": "$143.20",
+                  "rating": 4.3,
+                  "description": "Compact one-person tent that packs down to the size of a water bottle.",
+                  "specs": {
+                    "seasons": 3,
+                    "material": "15D ripstop nylon",
+                    "waterproof": true,
+                    "weightGrams": 1100,
+                    "capacityPersons": 1,
+                    "waterproofRatingMm": 2000
+                  },
+                  "availability": "out_of_stock",
+                  "activeDeals": [
+                    "Tent Sale: 20% off all tents"
+                  ]
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_19834",
+          "name": "search_products",
+          "arguments": "{\"query\":\"Drift -5C synthetic\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 7,
+              "products": [
+                {
+                  "id": "bag-drift-minus5",
+                  "name": "Drift -5°C Synthetic Sleeping Bag",
+                  "category": "sleeping_bags",
+                  "listPrice": "$139.00",
+                  "currentPrice": "$139.00",
+                  "rating": 4.3,
+                  "description": "Synthetic mummy bag for cold nights on a budget.",
+                  "specs": {
+                    "material": "synthetic fill",
+                    "tempRatingC": -5,
+                    "weightGrams": 1700
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "bag-drift-5",
+                  "name": "Drift 5°C Synthetic Sleeping Bag",
+                  "category": "sleeping_bags",
+                  "listPrice": "$99.00",
+                  "currentPrice": "$99.00",
+                  "rating": 4.2,
+                  "description": "Budget-friendly synthetic mummy bag that stays warm when damp.",
+                  "specs": {
+                    "material": "synthetic fill",
+                    "tempRatingC": 5,
+                    "weightGrams": 1300
+                  },
+                  "availability": "low_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "bag-sprout-kids",
+                  "name": "Sprout 5°C Kids Sleeping Bag",
+                  "category": "sleeping_bags",
+                  "listPrice": "$49.00",
+                  "currentPrice": "$49.00",
+                  "rating": 4.4,
+                  "description": "Kid-sized synthetic bag for children up to 150 cm tall.",
+                  "specs": {
+                    "material": "synthetic fill",
+                    "tempRatingC": 5,
+                    "weightGrams": 900
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "jacket-loft-synthetic",
+                  "name": "Loft Synthetic Jacket",
+                  "category": "jackets",
+                  "listPrice": "$149.00",
+                  "currentPrice": "$149.00",
+                  "rating": 4.4,
+                  "description": "Synthetic insulated jacket that keeps insulating when wet.",
+                  "specs": {
+                    "material": "synthetic insulation",
+                    "waterproof": false,
+                    "weightGrams": 400
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "bag-harbor-double",
+                  "name": "Harbor 3°C Double Sleeping Bag",
+                  "category": "sleeping_bags",
+                  "listPrice": "$179.99",
+                  "currentPrice": "$179.99",
+                  "rating": 4.3,
+                  "description": "Two-person rectangular bag for car camping couples.",
+                  "specs": {
+                    "material": "synthetic fill",
+                    "tempRatingC": 3,
+                    "weightGrams": 2800,
+                    "capacityPersons": 2
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "boot-cub-kids",
+                  "name": "Cub Kids Hiking Boot",
+                  "category": "boots",
+                  "listPrice": "$69.00",
+                  "currentPrice": "$69.00",
+                  "rating": 4.3,
+                  "description": "Waterproof hiking boot for kids with easy hook-and-loop closure.",
+                  "specs": {
+                    "material": "synthetic",
+                    "waterproof": true,
+                    "weightGrams": 700
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "bag-balmy-12",
+                  "name": "Balmy 12°C Summer Sleeping Bag",
+                  "category": "sleeping_bags",
+                  "listPrice": "$59.00",
+                  "currentPrice": "$59.00",
+                  "rating": 4,
+                  "description": "Light rectangular bag for warm summer nights; unzips into a blanket.",
+                  "specs": {
+                    "material": "synthetic fill",
+                    "tempRatingC": 12,
+                    "weightGrams": 700
+                  },
+                  "availability": "out_of_stock",
+                  "activeDeals": []
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@2#3e94b8f1",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_75320",
+                "name": "reply",
+                "arguments": "{\"message\":\"The Drift -5°C Synthetic Sleeping Bag is warmer, with a temperature rating of -5°C compared to the Ember 0°C Down Sleeping Bag's 0°C rating. \\n\\nThe Ember 0°C is lighter, weighing 850 grams compared to the Drift -5°C's 1,700 grams.\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0Tn7dXF9n4I1/0qws6kVrvd8xllW1bEzph5p9zFDdhV6aFK1Us9AMRTDJu7HxNLZ6SfyIcd06etsHJaZ37NngvNsXBAD/SWi3t7q7ZTKtwAyxat0UMdWaQ04c="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3984,
+        "outputTokens": 88,
+        "latencyMs": 39402,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_75320",
+          "name": "reply",
+          "arguments": "{\"message\":\"The Drift -5°C Synthetic Sleeping Bag is warmer, with a temperature rating of -5°C compared to the Ember 0°C Down Sleeping Bag's 0°C rating. \\n\\nThe Ember 0°C is lighter, weighing 850 grams compared to the Drift -5°C's 1,700 grams.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "The Drift -5°C Synthetic Sleeping Bag is warmer, with a temperature rating of -5°C compared to the Ember 0°C Down Sleeping Bag's 0°C rating. \n\nThe Ember 0°C is lighter, weighing 850 grams compared to the Drift -5°C's 1,700 grams."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "The Drift -5°C Synthetic Sleeping Bag is warmer, with a temperature rating of -5°C compared to the Ember 0°C Down Sleeping Bag's 0°C rating. \n\nThe Ember 0°C is lighter, weighing 850 grams compared to the Drift -5°C's 1,700 grams."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "shopping",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "comparison-03",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to shopping"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "reply1:mentions:0",
+        "label": "reply 1 mentions \"850 g\" or \"850g\" or \"0.85 kg\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:mentions:1",
+        "label": "reply 1 mentions \"1.7 kg\" or \"1.7kg\" or \"1700 g\" or \"1700g\" or \"1,700 g\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent says the Drift -5°C is rated warmer (to -5°C vs 0°C) and the Ember 0°C is lighter."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 3,
+    "cachedCalls": 0,
+    "toolCalls": 2,
+    "inputTokens": 6334,
+    "outputTokens": 159,
+    "latencyMs": 65531,
+    "turnLatencyMs": [
+      65531
+    ],
+    "costMicros": 0,
+    "wallMs": 65631
+  },
+  "finishedAt": "2026-10-02T12:12:02.573Z"
+}

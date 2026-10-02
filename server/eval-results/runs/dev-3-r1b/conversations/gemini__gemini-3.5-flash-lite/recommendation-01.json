@@ -1,0 +1,393 @@
+{
+  "caseId": "recommendation-01",
+  "case": {
+    "id": "recommendation-01",
+    "split": "dev",
+    "type": "recommendation",
+    "why": "Tents for 2+ people whose price today (with the 20% tent sale) is ≤ $200: Ridge 2 ($199.20), Canopy 2 ($151.20), Creek 2 ($103.20). Recommending any other tent breaks a constraint.",
+    "source": "spec table",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "What's the best 2-person tent under $200?"
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "recommendation": {
+        "constraints": {
+          "category": "tents",
+          "maxPriceCents": 20000,
+          "minCapacityPersons": 2
+        },
+        "acceptable": [
+          "tent-ridge-2",
+          "tent-canopy-2",
+          "tent-creek-2"
+        ]
+      },
+      "leaks": [],
+      "judge": "Picks one (or compares the three) with a reason based on real specs (weight, rating, waterproofing). Shows the sale price; may mention the list price.",
+      "judgeChecks": []
+    }
+  },
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "team": {
+    "router": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "shopping@2#3e94b8f1"
+    },
+    "support": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "support@3#d7518dde"
+    }
+  },
+  "observation": {
+    "runId": "6fe385b5-1f1e-4c70-b18a-f73b1a493cc3",
+    "turns": [
+      {
+        "customer": "What's the best 2-person tent under $200?",
+        "reply": "We have three 2-person tents under $200 right now (all currently on sale for 20% off):\n\n1. **Ridge 2 Backpacking Tent** – $199.20 (was $249.00), rated 4.6/5. A freestanding 3-season tent with two doors, two vestibules, and a weight of 1,900g.\n2. **Canopy 2 Trail Tent** – $151.20 (was $189.00), rated 4.5/5. A lightweight 3-season trail tent featuring a full-coverage fly and weighing 2,000g.\n3. **Creek 2 Budget Tent** – $103.20 (was $129.00), rated 3.9/5. An affordable 3-season tent for fair-weather weekends, weighing 2,400g.\n\nThe Ridge 2 is our highest-rated option in this price range. Would you like to check out details or stock for any of these?",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "What's the best 2-person tent under $200?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"shopping\", \"category\": \"recommendation\", \"urgency\": \"normal\", \"confidence\": 0.95}",
+          "decision": {
+            "route": "shopping",
+            "category": "recommendation",
+            "urgency": "normal",
+            "confidence": 0.95
+          },
+          "fallback": false
+        },
+        "inputTokens": 348,
+        "outputTokens": 29,
+        "latencyMs": 7276,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@2#3e94b8f1",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_121791",
+                "name": "search_products",
+                "arguments": "{\"filters\":{\"maxPrice\":200,\"minCapacityPersons\":2,\"inStockOnly\":true,\"category\":\"tents\"},\"query\":\"2-person tent\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TdALKUQVliMcagdNGNrDAmKMCHUJQpmpCQSS3pC7OqgSVBFX/OfGAPYkkumoSPctaZgL5HeJ4Tcm1BfxA3L2uRgDIWVVS5KFeA3rHrzwPyFCMQEpb8buH5yA="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1982,
+        "outputTokens": 47,
+        "latencyMs": 10127,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_121791",
+          "name": "search_products",
+          "arguments": "{\"filters\":{\"maxPrice\":200,\"minCapacityPersons\":2,\"inStockOnly\":true,\"category\":\"tents\"},\"query\":\"2-person tent\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 3,
+              "products": [
+                {
+                  "id": "tent-ridge-2",
+                  "name": "Ridge 2 Backpacking Tent",
+                  "category": "tents",
+                  "listPrice": "$249.00",
+                  "currentPrice": "$199.20",
+                  "rating": 4.6,
+                  "description": "Freestanding two-person backpacking tent with two doors and two vestibules.",
+                  "specs": {
+                    "seasons": 3,
+                    "material": "20D ripstop nylon",
+                    "waterproof": true,
+                    "weightGrams": 1900,
+                    "capacityPersons": 2,
+                    "waterproofRatingMm": 3000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Tent Sale: 20% off all tents"
+                  ]
+                },
+                {
+                  "id": "tent-canopy-2",
+                  "name": "Canopy 2 Trail Tent",
+                  "category": "tents",
+                  "listPrice": "$189.00",
+                  "currentPrice": "$151.20",
+                  "rating": 4.5,
+                  "description": "Lightweight two-person trail tent with a full-coverage fly.",
+                  "specs": {
+                    "seasons": 3,
+                    "material": "20D ripstop polyester",
+                    "waterproof": true,
+                    "weightGrams": 2000,
+                    "capacityPersons": 2,
+                    "waterproofRatingMm": 2500
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Tent Sale: 20% off all tents"
+                  ]
+                },
+                {
+                  "id": "tent-creek-2",
+                  "name": "Creek 2 Budget Tent",
+                  "category": "tents",
+                  "listPrice": "$129.00",
+                  "currentPrice": "$103.20",
+                  "rating": 3.9,
+                  "description": "Affordable two-person tent for fair-weather weekends.",
+                  "specs": {
+                    "seasons": 3,
+                    "material": "polyester",
+                    "waterproof": true,
+                    "weightGrams": 2400,
+                    "capacityPersons": 2,
+                    "waterproofRatingMm": 1200
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Tent Sale: 20% off all tents"
+                  ]
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@2#3e94b8f1",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_39594",
+                "name": "reply",
+                "arguments": "{\"message\":\"We have three 2-person tents under $200 right now (all currently on sale for 20% off):\\n\\n1. **Ridge 2 Backpacking Tent** – $199.20 (was $249.00), rated 4.6/5. A freestanding 3-season tent with two doors, two vestibules, and a weight of 1,900g.\\n2. **Canopy 2 Trail Tent** – $151.20 (was $189.00), rated 4.5/5. A lightweight 3-season trail tent featuring a full-coverage fly and weighing 2,000g.\\n3. **Creek 2 Budget Tent** – $103.20 (was $129.00), rated 3.9/5. An affordable 3-season tent for fair-weather weekends, weighing 2,400g.\\n\\nThe Ridge 2 is our highest-rated option in this price range. Would you like to check out details or stock for any of these?\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TUhbQNc2Xm+0uFDrxpm+BLyOUzfth0ldOmqCXtu7mC/YFhQV+TdUcpaoZYJW75C2G/1bYpQsTK2sHx04+xwK3qthYj5APVFQ9TImF8h+J9/8Xj/JDH02Zp58="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2486,
+        "outputTokens": 254,
+        "latencyMs": 5590,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_39594",
+          "name": "reply",
+          "arguments": "{\"message\":\"We have three 2-person tents under $200 right now (all currently on sale for 20% off):\\n\\n1. **Ridge 2 Backpacking Tent** – $199.20 (was $249.00), rated 4.6/5. A freestanding 3-season tent with two doors, two vestibules, and a weight of 1,900g.\\n2. **Canopy 2 Trail Tent** – $151.20 (was $189.00), rated 4.5/5. A lightweight 3-season trail tent featuring a full-coverage fly and weighing 2,000g.\\n3. **Creek 2 Budget Tent** – $103.20 (was $129.00), rated 3.9/5. An affordable 3-season tent for fair-weather weekends, weighing 2,400g.\\n\\nThe Ridge 2 is our highest-rated option in this price range. Would you like to check out details or stock for any of these?\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "We have three 2-person tents under $200 right now (all currently on sale for 20% off):\n\n1. **Ridge 2 Backpacking Tent** – $199.20 (was $249.00), rated 4.6/5. A freestanding 3-season tent with two doors, two vestibules, and a weight of 1,900g.\n2. **Canopy 2 Trail Tent** – $151.20 (was $189.00), rated 4.5/5. A lightweight 3-season trail tent featuring a full-coverage fly and weighing 2,000g.\n3. **Creek 2 Budget Tent** – $103.20 (was $129.00), rated 3.9/5. An affordable 3-season tent for fair-weather weekends, weighing 2,400g.\n\nThe Ridge 2 is our highest-rated option in this price range. Would you like to check out details or stock for any of these?"
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "We have three 2-person tents under $200 right now (all currently on sale for 20% off):\n\n1. **Ridge 2 Backpacking Tent** – $199.20 (was $249.00), rated 4.6/5. A freestanding 3-season tent with two doors, two vestibules, and a weight of 1,900g.\n2. **Canopy 2 Trail Tent** – $151.20 (was $189.00), rated 4.5/5. A lightweight 3-season trail tent featuring a full-coverage fly and weighing 2,000g.\n3. **Creek 2 Budget Tent** – $103.20 (was $129.00), rated 3.9/5. An affordable 3-season tent for fair-weather weekends, weighing 2,400g.\n\nThe Ridge 2 is our highest-rated option in this price range. Would you like to check out details or stock for any of these?"
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "shopping",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "recommendation-01",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to shopping"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "recommendation",
+        "label": "recommends only products that meet every constraint",
+        "pass": true,
+        "severity": "task",
+        "detail": "named: tent-ridge-2, tent-canopy-2, tent-creek-2"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 3,
+    "cachedCalls": 0,
+    "toolCalls": 1,
+    "inputTokens": 4816,
+    "outputTokens": 330,
+    "latencyMs": 22993,
+    "turnLatencyMs": [
+      22993
+    ],
+    "costMicros": 0,
+    "wallMs": 23065
+  },
+  "finishedAt": "2026-10-02T12:12:25.639Z"
+}
