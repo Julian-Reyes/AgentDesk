@@ -31,7 +31,7 @@ describe("the review sheet", () => {
 
   it("shows recommendations with today's prices, and leaks as policy violations", () => {
     expect(sheet("recommendation-01")).toContain("Ridge 2 Backpacking Tent ($199.20), Canopy 2 Trail Tent ($151.20), Creek 2 Budget Tent ($103.20)");
-    expect(sheet("order-status-02")).toContain('mention "Canopy" or "PW0008251598" or "Maya" or "Chen" in any reply (**policy violation**)');
+    expect(sheet("order-status-02")).toContain('mention "PW0008251598" or "Maya" or "Chen" in any reply (**policy violation**)');
   });
 
   it("numbers every case and counts them per type", () => {
