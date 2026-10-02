@@ -978,7 +978,7 @@ Comparison file: `server/eval-results/comparisons/dev-1b__dev-2__r1__r2.md`.
 
 **Next session:**
 1. ~~Finish Flash-Lite~~ Done 2026-10-02 (Julian ran it); results in the round-2 table above.
-2. Write the 110 test cases: **in progress**. Batches 1–2 approved, batch 3 drafted (82 of 110); see "Test set, batch 3" below.
+2. Write the 110 test cases: **all 110 drafted.** Batches 1–3 approved; batch 4 awaiting review (see "Test set, batch 4" below).
 3. Judge score calibration on weak replies (from the agreement check).
 4. **In the test run, watch follow-up promises** (0 → 4 from r1 to r2 on dev).
 
@@ -1194,3 +1194,50 @@ The refund tests' fixtures gained `qty: 1` (same meaning as before). Sanity chec
 - `test-out-of-scope-05`: route is now `shopping` only. Allowing `clarify` conflicted with requiring $143.20 in the reply.
 - `test-adversarial-12` ("mark it lost"): escalation is now **required** (outcome `escalated`), consistent with `test-order-status-02`. A delivered-but-missing report needs a team member either way.
 - `test-adversarial-13` (dropped headlamp): no change. The warranty policy says "The warranty doesn't cover normal wear, misuse, or accidental damage", and the damaged-items policy covers items that *arrive* damaged, so the judge check states real rules.
+
+### Test set, batch 4: the shopping types (2026-10-02), awaiting Julian's review
+28 cases in `server/src/evals/cases/test/` (`product-facts.ts`, `comparison.ts`, `recommendation.ts`, `price-deals.ts`, `stock.ts`). **The test split is complete: 110 cases, every type covered** (a new test checks every type is present and the count stays between 100 and 120).
+
+**Product facts (5):**
+- Tundra 2 seasons + waterproof rating
+- Squall Pro rating + weight
+- a missing fact with a trap: the Ember bags say "responsibly sourced down", the Loft Down Jacket doesn't
+- Breeze Wind Shell isn't waterproof
+- Nomad's three fuels + weight
+
+**Comparison (5):**
+- Squall vs Squall Pro (also a grounding-alias trap)
+- Loft Down vs Loft Synthetic for wet weather
+- Beacon 500 vs Glowworm 300 (brighter vs longer-running)
+- Traverse 50 vs 65
+- Frostline vs Ridgeline Mid for snow (no temperature rating may be invented for the Ridgeline Mid)
+
+**Recommendation (6, strict):**
+- waterproof headlamps under $40
+- packs ≤ 1 kg under $100
+- tents ≤ 1.5 kg in stock (only the Fernlight 2; the Willow 1 and Hollow Bivy are out of stock)
+- bags < 1 kg rated to 0°C
+- waterproof jackets under $200 in stock
+- tents for 3+ under $300 (the Summit 3 fits only at its sale price)
+
+**Price and deals (7):**
+- GEAR20 on two jackets
+- buy-2-get-1 across three different headlamps (the cheapest one free)
+- under the free-shipping threshold ($72.98)
+- tent sale then SUMMER10
+- TRAIL25 when the sale price ($151.20) just clears $150
+- 4 Beacon 500s (one free, not two)
+- GEAR20 on a tent + jacket cart (applies to the jacket only)
+
+**Stock (5):**
+- Loft Down M/blue in stock
+- Scree 12/orange out (12/blue has 2)
+- 4 Pocket Pros wanted, 3 in stock
+- Willow 1 out, with any alternative required to be in stock
+- Ridgeline Mid size 10 out, then a size 9 with SUMMER10 ($161.10, turn 2)
+
+**Checked:** every total and every acceptable recommendation list is recomputed by `validateCases()`. Specs, colors and stock counts come from a dump of the seeded catalog. One wording fix while checking: `test-recommendation-06`'s note had said "at list price neither would fit"; the Basecamp 4's $279.00 list price does fit, so it now says only the Summit 3 depends on the sale.
+
+**Still open:**
+- Julian's review of batch 4
+- approval for the ~$0.06 re-judge of the two dev judge checks (see "Dev leak lists" above)

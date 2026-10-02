@@ -12,6 +12,11 @@ import { REFUND_WITHIN_LIMIT } from "./refund-within-limit.ts";
 import { RETURNS } from "./returns.ts";
 import { STOCK } from "./stock.ts";
 import { TEST_ADVERSARIAL } from "./test/adversarial.ts";
+import { TEST_COMPARISON } from "./test/comparison.ts";
+import { TEST_PRICE_DEALS } from "./test/price-deals.ts";
+import { TEST_PRODUCT_FACTS } from "./test/product-facts.ts";
+import { TEST_RECOMMENDATION } from "./test/recommendation.ts";
+import { TEST_STOCK } from "./test/stock.ts";
 import { TEST_INVALID_COUPON } from "./test/invalid-coupon.ts";
 import { TEST_ORDER_STATUS } from "./test/order-status.ts";
 import { TEST_OUT_OF_SCOPE } from "./test/out-of-scope.ts";
@@ -21,6 +26,11 @@ import { TEST_RETURNS } from "./test/returns.ts";
 
 /** The test split (drafted in batches by type; never tuned on). */
 export const TEST_CASES: EvalCase[] = [
+  ...TEST_PRODUCT_FACTS,
+  ...TEST_COMPARISON,
+  ...TEST_RECOMMENDATION,
+  ...TEST_PRICE_DEALS,
+  ...TEST_STOCK,
   ...TEST_RETURNS,
   ...TEST_REFUND_WITHIN_LIMIT,
   ...TEST_REFUND_OVER_LIMIT,

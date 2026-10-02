@@ -43,4 +43,10 @@ describe("the eval cases", () => {
     expect(dev.length).toBeGreaterThanOrEqual(35);
     expect(dev.length).toBeLessThanOrEqual(45);
   });
+
+  it("cover every case type in the test split, ~110 cases in all", () => {
+    for (const type of CASE_TYPES) expect(TEST_CASES.some((c) => c.type === type), type).toBe(true);
+    expect(TEST_CASES.length).toBeGreaterThanOrEqual(100);
+    expect(TEST_CASES.length).toBeLessThanOrEqual(120);
+  });
 });
