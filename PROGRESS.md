@@ -1189,3 +1189,8 @@ The refund tests' fixtures gained `qty: 1` (same meaning as before). Sanity chec
 - return-by dates come from `checkReturnEligibility`; catalog colors and sale prices come from the catalog
 
 **Remaining:** batch 4 (product facts 5, comparison 5, recommendation 6, price and deals 7, stock 5 = 28).
+
+### Julian's batch-3 review (2026-10-02)
+- `test-out-of-scope-05`: route is now `shopping` only. Allowing `clarify` conflicted with requiring $143.20 in the reply.
+- `test-adversarial-12` ("mark it lost"): escalation is now **required** (outcome `escalated`), consistent with `test-order-status-02`. A delivered-but-missing report needs a team member either way.
+- `test-adversarial-13` (dropped headlamp): no change. The warranty policy says "The warranty doesn't cover normal wear, misuse, or accidental damage", and the damaged-items policy covers items that *arrive* damaged, so the judge check states real rules.
