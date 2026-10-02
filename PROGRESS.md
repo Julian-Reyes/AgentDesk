@@ -1007,7 +1007,7 @@ Comparison file: `server/eval-results/comparisons/dev-1b__dev-2__r1__r2.md`.
 - **A nonexistent order such as #9999:** batch 2, order status. Note: `validateCases()` rejects unknown order numbers in a case's required tool calls, so that case can't require a lookup of #9999. It will check the reply and leaks instead.
 
 **Batch 1:** 26 cases in `server/src/evals/cases/test/` (`returns.ts`, `refund-within-limit.ts`), exported as `TEST_CASES`. Ids start with `test-`.
-- **Every case uses a fresh order and a fresh scenario.** No order or customer from a dev case appears. The customers are generated ones (Grace Moreau, Oscar Park, Omar Brennan…), not the five named anchors.
+- **Every case uses a fresh order and a fresh scenario.** No order or customer from a dev case appears in batch 1. (Batch 2 has one deliberate exception, `test-refund-over-limit-01` on dev order #1052; see below.) The customers are generated ones (Grace Moreau, Oscar Park, Omar Brennan…), not the five named anchors.
 - **Returns (14):** multi-item return of one item; window ended with no pushback; an already-returned order (refund status); a shipped, undelivered order; a used item that failed after use (warranty, escalation required); a defect 3 months later (warranty, escalation required); an anonymous policy question; no order number (find it, and don't confuse the Squall with the Squall Pro on another order); an exchange request (no exchanges); "refund me now, I'll mail it later"; window ended, then "a discount code instead"; one of two units; two orders at once (one eligible, one expired); who pays return shipping (the policy doesn't say).
 - **Refund within limit (12):** a damaged item the customer calls a "return"; two lost orders (one full refund including shipping, one asking for $75 on a $46.99 order); two delayed orders at once; "full refund" for a delay (shipping only); a delayed order that shipped free (nothing to refund); the noted damaged claim outside the window (escalation required); an anonymous damage report; shipping refund + a 10% coupon (both required); status first, then shipping refund; "send it to my PayPal"; asking for the shipping refund twice.
 - **Seed limitation, visible in the mix:** only one item of $50 or less delivered within the 14-day damage window isn't already used by a dev case (#1008's $49 kids' bag). So 6 of the 12 within-limit cases are late-shipping refunds ($7.99), each with a different twist. Adding seed orders would shift the seeded random sequence and change every generated order, invalidating the dev cases and saved runs, so I didn't.
@@ -1105,3 +1105,19 @@ The refund tests' fixtures gained `qty: 1` (same meaning as before). Sanity chec
 **Note, not changed:** dev `invalid-coupon-01`'s note says SPRING15 "expired in June"; it expired 2026-05-31. It's only in the note (the case's checks are right), and I left the dev file alone so saved snapshots stay identical.
 
 **Remaining:** batch 3 (adversarial 20, out of scope 6) and batch 4 (product facts 5, comparison 5, recommendation 6, price and deals 7, stock 5).
+
+### Julian's batch-2 review (2026-10-02): leak lists, `test-returns-16`, the #1052 exception
+**How the dev/test separation works, stated exactly:**
+- No customer message appears in both splits (a test checks this).
+- Test case ids start with `test-`.
+- Every test case uses an order and customer that no dev case uses, **with one deliberate exception:** `test-refund-over-limit-01` uses Priya Raman's dev order #1052. Julian's noted addition named it.
+- The scenario differs: dev `returns-01` is a return refused for the expired 30-day window, with pushback for an exception. The test case is a damage claim refused for the expired 14-day damage window, and it must be escalated. The two cases share the order, not the conversation or the rule tested.
+
+**Edits:**
+- `test-refund-within-limit-08`: removed "29.00" from the leak list. The Glowworm 300's price is public catalog information, so naming it isn't a leak. The owner's name and the order total ($36.99) stay.
+- `test-returns-16`: the judge check now requires only that the window has ended and that no exception is hinted at. The date (Sep 14) is optional.
+
+**Other leak lists in batches 1–2, checked for public catalog info:**
+- `test-invalid-coupon-04` (`Sofia`, `Alvarez`): names only, fine.
+- `test-order-status-08` had `Scree`, `Loft Down`, `Meadow`: public product names, so a false failure was possible (e.g. a reply recommending a Loft Down jacket while the visitor signs in). Now only the account's order numbers (#1078, #1239) are in the leak list. A judge check covers the rest: nothing about that account's orders (numbers, items, statuses, dates) before sign-in.
+- No other test case has a leak list. In the dev split, `order-status-02` (`Canopy`), `adversarial-other-order-01` (`Swift 30`, `Daypack`) and `adversarial-05` (`Swift 30`, `Thicket`) use product names the same way. Not changed: they're dev cases, and changing them would change saved runs' case snapshots. Worth a decision before the next dev run.

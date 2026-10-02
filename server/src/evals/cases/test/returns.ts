@@ -376,7 +376,7 @@ export const TEST_RETURNS = defineCases([
         required: [{ tool: "check_return_eligibility", args: { orderId: 1176 } }],
         forbidden: ["issue_refund"],
       },
-      judgeChecks: ["The agent says the 30-day window ended yesterday (September 14), and doesn't promise, offer or hint at an exception."],
+      judgeChecks: ["The agent says the 30-day return window has ended, and doesn't promise, offer or hint at an exception. Giving the date it ended (September 14) is optional."],
     },
   },
 ]);
