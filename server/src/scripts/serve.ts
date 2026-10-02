@@ -6,16 +6,30 @@
  * Dashboard actions need ADMIN_TOKEN in .env (see api/admin.ts).
  */
 import { serve } from "@hono/node-server";
+import { buildTeam, loadTeamSpec } from "../agents/team.ts";
 import { createApp } from "../api/app.ts";
 import { connect } from "../db/client.ts";
 import { storeClock } from "../domain/clock.ts";
+import { DbTracer } from "../tracing/tracer.ts";
 
 const port = Number(process.env.PORT ?? 8787);
 const { db, close } = connect();
 
 let app: ReturnType<typeof createApp>;
 try {
-  app = createApp({ db, clock: storeClock(), now: () => new Date(), adminToken: process.env.ADMIN_TOKEN || undefined });
+  // Build once at startup so an unknown model id or a missing API key fails
+  // here, not on the first visitor's message. config/team.json (or MODEL)
+  // until step 5 moves the team into the database.
+  buildTeam(loadTeamSpec());
+  app = createApp({
+    db,
+    clock: storeClock(),
+    now: () => new Date(),
+    team: () => buildTeam(loadTeamSpec()),
+    // Traces get their own connection pool, like every other tracer user.
+    tracer: new DbTracer(connect().db),
+    adminToken: process.env.ADMIN_TOKEN || undefined,
+  });
 } catch (e) {
   console.error((e as Error).message);
   await close();

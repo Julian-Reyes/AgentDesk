@@ -1,8 +1,11 @@
 import { Hono } from "hono";
+import type { Team } from "../agents/team.ts";
 import type { DbOrTx } from "../db/client.ts";
 import type { Clock } from "../domain/clock.ts";
 import { fail, ok } from "../tools/define.ts";
+import type { Tracer } from "../tracing/tracer.ts";
 import { requireAdmin } from "./admin.ts";
+import { ChatSessions, chatRoutes, type ChatLimits } from "./chat.ts";
 import { productRoutes } from "./products.ts";
 
 /**
@@ -24,6 +27,11 @@ export type AppDeps = {
   now: () => Date;
   /** Shared admin token for dashboard actions; unset disables them (see admin.ts). */
   adminToken?: string;
+  /** The agent team for a new chat (built per chat, so a model switch applies to the next one). */
+  team: () => Team;
+  /** Where chat traces go (DbTracer in the server, MemoryTracer in tests). */
+  tracer: Tracer;
+  chatLimits?: Partial<ChatLimits>;
   /** Where server errors are reported (default console.error). Tests capture them. */
   logError?: (err: Error) => void;
 };
@@ -31,6 +39,7 @@ export type AppDeps = {
 export function createApp(deps: AppDeps) {
   const admin = requireAdmin(deps.adminToken);
   const logError = deps.logError ?? ((err: Error) => console.error(err));
+  const chats = new ChatSessions({ ...deps, logError, ...(deps.chatLimits ? { limits: deps.chatLimits } : {}) });
 
   const app = new Hono()
     // Every dashboard action lives under /api/admin/*, so one rule guards them
@@ -39,6 +48,7 @@ export function createApp(deps: AppDeps) {
     .use("/api/admin/*", admin)
     .get("/api/health", (c) => c.json(ok({ status: "up" })))
     .route("/api/products", productRoutes(deps))
+    .route("/api/chat", chatRoutes(chats, logError))
     // The dashboard calls this to check a pasted token before showing actions.
     .get("/api/admin/check", (c) => c.json(ok({ admin: true })));
 

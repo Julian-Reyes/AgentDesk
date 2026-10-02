@@ -19,6 +19,9 @@ export const MIN_ADMIN_TOKEN_LENGTH = 24;
 // matched) through response timing.
 const digest = (s: string) => createHash("sha256").update(s, "utf8").digest();
 
+/** Compares two secrets in constant time (admin token, chat tokens). */
+export const sameSecret = (a: string, b: string) => timingSafeEqual(digest(a), digest(b));
+
 export function requireAdmin(token: string | undefined): MiddlewareHandler {
   if (token !== undefined && token !== "" && token.length < MIN_ADMIN_TOKEN_LENGTH) {
     throw new Error(`ADMIN_TOKEN must be at least ${MIN_ADMIN_TOKEN_LENGTH} characters (e.g. \`openssl rand -hex 24\`).`);

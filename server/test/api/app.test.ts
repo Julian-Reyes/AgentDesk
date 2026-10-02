@@ -1,16 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { MIN_ADMIN_TOKEN_LENGTH, requireAdmin } from "../../src/api/admin.ts";
-import { createApp, type AppDeps } from "../../src/api/app.ts";
+import { requireAdmin } from "../../src/api/admin.ts";
+import type { AppDeps } from "../../src/api/app.ts";
 import type { Tx } from "../../src/db/client.ts";
-import { fixedClock } from "../../src/domain/clock.ts";
 import { call, inTx } from "../helpers.ts";
+import { TOKEN, json, testApp } from "./helpers.ts";
 
-const TOKEN = "t".repeat(MIN_ADMIN_TOKEN_LENGTH);
-
-const appFor = (tx: Tx, over: Partial<AppDeps> = {}) =>
-  createApp({ db: tx, clock: fixedClock("2026-09-15"), now: () => new Date("2026-10-02T12:00:00Z"), adminToken: TOKEN, ...over });
-
-const json = async (res: Response) => (await res.json()) as any;
+const appFor = (tx: Tx, over: Partial<AppDeps> = {}) => testApp(tx, { over }).app;
 
 describe("API basics", () => {
   it("health check", () =>
@@ -115,10 +110,10 @@ describe("admin guard", () => {
 
 describe("server errors", () => {
   it("hide the details from the client and log them", async () => {
-    const logged: Error[] = [];
     // A database that fails on every query.
     const broken = new Proxy({}, { get: () => () => { throw new Error("connection to db lost: secret detail"); } }) as unknown as Tx;
-    const res = await createApp({ db: broken, clock: fixedClock("2026-09-15"), now: () => new Date(), logError: (e) => logged.push(e) }).request("/api/products");
+    const { app, errors: logged } = testApp(broken);
+    const res = await app.request("/api/products");
     expect(res.status).toBe(500);
     const body = await json(res);
     expect(body).toEqual({ ok: false, error: { code: "INTERNAL", message: "Something went wrong on our side." } });

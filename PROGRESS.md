@@ -1331,3 +1331,28 @@ The plan (order of work, the approvals and team-history rules, what's tested) is
 **Tests:** 406 passing (12 new in `test/api/app.test.ts`): health, 404 shape; all 60 products priced exactly as `get_product` gives them; the Ridge 2 sale; the category filter and an unknown category; the admin guard (right token, 6 wrong/malformed ones, no token configured, unknown admin paths, short token refused); server errors hidden from the client and logged.
 
 Sanity check: registering the guard after the routes makes 2 tests fail; pricing the storefront at list price makes 2 fail.
+
+### Step 2: chat API (2026-10-02)
+**Endpoints** (`server/src/api/chat.ts`):
+- `GET /api/chat/personas`: who a visitor can be. There are no real accounts, so the widget offers the seeded eval customers (Maya, Priya, Tom, Sofia; all fictional) or an anonymous visitor, each with suggestions that hit the interesting anchor orders (`api/personas.ts`). **The app sets the customer from this choice, never the model**, like `--as` in `npm run chat`. No emails are sent to the browser.
+- `POST /api/chat` `{ persona }` starts a `Conversation` (traced with source `demo` and the persona as a label) and returns `{ conversationId, token }`. The conversation id is the run id, so the dashboard can link to its trace.
+- `POST /api/chat/:id/messages` `{ text }` with header `x-chat-token` answers as **Server-Sent Events**: `progress` events while the turn runs, then one `reply` event `{ reply, answeredBy, outcome }`.
+
+**Decisions:**
+- **Why stream progress:** a turn can take 10–60 s (the real test below took 19.6 s; Flash-Lite's p95 is ~50 s per call). The labels come from the `model_call` step, recorded when the model asks for tools and before they run, so "Checking tracking…" shows while tracking is actually being checked. `ObservingTracer` wraps the real tracer, so traces are unchanged.
+- **Labels come from a fixed table by tool name** (`api/progress.ts`), never from tool arguments or results. Those are model-written or internal (an order number that isn't the customer's, a refund decision before the reply explains it). Refund and goodwill labels are neutral ("Reviewing the refund request…"), since the tool may only queue it. A test fails if a tool is added without a label.
+- **Live chats are kept in memory.** A `Conversation` holds its state in memory, so the server keeps a map of open chats. Each gets a random token, so knowing a conversation id isn't enough to write into someone else's chat. Chats idle for 30 minutes are dropped, at most 200 are open at once (then `CHAT_FULL`), messages are capped at 1,000 characters, and a chat runs one turn at a time (`TURN_IN_PROGRESS`). A server restart ends open chats; their traces stay. M5 revisits this for hosting.
+- **A turn finishes even if the browser leaves**, so a refund is never left half-done by a closed tab.
+- **Failures:** a failed turn sends the standard failure reply; the cause (`TurnResult.error`) stays in the trace, never the browser. An infrastructure failure (e.g. the trace database) sends a generic `error` event, is logged, and frees the chat.
+- **The team is built per chat** (`config/team.json` for now; step 5 moves it to the database), so a model switch applies to the next conversation. Rate limiters are shared per provider and model across builds, so per-chat teams share one quota. `npm run serve` builds the team once at startup, so a bad model id or missing key fails at startup, not on the first visitor's message.
+
+**Real test** (Flash-Lite, free, dev DB, read-only tools): as Maya, "where is my order #1042?". It streamed "Looking up your account…" and "Checking tracking…", then a correct reply from `get_tracking` (shipped, Parcelway, in Atlanta, Sep 16–19 window) after 19.6 s. Run `accb282c` is traced as `demo`.
+
+**Tests:** 421 passing (15 new in `test/api/chat.test.ts`; `test/api/helpers.ts` builds the API with scripted models and parses SSE):
+- personas: no emails; every suggested order belongs to that persona, except the deliberate someone-else's-order one
+- start: the app sets the customer; trace source and label; anonymous; unknown persona or bad body
+- send: progress then reply, with no tool names, arguments or order numbers in the stream; multi-turn keeps the agent (one routing call); a failed turn hides the cause; an infrastructure failure becomes an `error` event and frees the chat
+- access: wrong, missing or another chat's token; unknown chat; empty or too-long message (nothing reaches the loop); a second message during a turn (a model call held open by the test) gets 409; idle expiry and the open-chat limit
+- labels: one per tool, and only for tool-running model calls and accepted handoffs
+
+Sanity check: disabling the token check, the one-turn-at-a-time check, hiding the cause, or freeing the chat after an error makes 1, 1, 3 and 2 tests fail.
