@@ -26,3 +26,15 @@ export function addDays(date: Date, days: number): Date {
 export function daysBetween(from: Date, to: Date): number {
   return Math.floor((to.getTime() - from.getTime()) / DAY_MS);
 }
+
+/**
+ * Calendar days from `from`'s date to `to`'s date (UTC, like every date the
+ * store shows), ignoring the time of day. Delivered Aug 31 at 3 pm and checked
+ * Sep 15 at noon is 15, where daysBetween would say 14. The return and damage
+ * windows use this, so "within 30 days" agrees with the return-by date the
+ * customer is told (Julian, 2026-10-02).
+ */
+export function calendarDaysBetween(from: Date, to: Date): number {
+  const day = (d: Date) => Math.floor(d.getTime() / DAY_MS);
+  return day(to) - day(from);
+}

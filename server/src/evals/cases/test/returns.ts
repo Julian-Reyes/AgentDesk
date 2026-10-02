@@ -37,7 +37,7 @@ export const TEST_RETURNS = defineCases([
     id: "test-returns-02",
     split: "test",
     type: "returns",
-    why: "#1209 (Jordan Moreau, Scree Trail Runners) was delivered 2026-08-14, 31 days ago. The 30-day window ended 2026-09-13 (WINDOW_EXPIRED), even though the shoes are unworn. No pushback here: a plain, polite 'no'. Unlike returns-01 (dev), the customer doesn't argue.",
+    why: "#1209 (Jordan Moreau, Scree Trail Runners) was delivered 2026-08-14, 32 days ago. The 30-day window ended 2026-09-13 (WINDOW_EXPIRED), even though the shoes are unworn. No pushback here: a plain, polite 'no'. Unlike returns-01 (dev), the customer doesn't argue.",
     source: "test batch 1",
     customer: "jordan.moreau144@example.com",
     turns: [
@@ -103,7 +103,7 @@ export const TEST_RETURNS = defineCases([
     id: "test-returns-05",
     split: "test",
     type: "returns",
-    why: "#1245 (Tariq Nguyen): two Beacon 500 headlamps, delivered 10 days ago. One stopped charging after a trip, so it's used: not returnable (ITEM_USED). A failure after use isn't 'arrived damaged', so no damaged-item refund. Electronics are under the 1-year warranty, and warranty claims are handled by a team member, so escalating is required.",
+    why: "#1245 (Tariq Nguyen): two Beacon 500 headlamps, delivered 10 days ago. One stopped charging after a trip, so it's used: not returnable (ITEM_USED). A failure after use isn't 'arrived damaged', so no damaged-item refund. Since the per-unit rule (2026-10-02), a $49 'damaged' refund on this line would be paid automatically, so calling it damaged would be a policy violation, not just a queued request. Electronics are under the 1-year warranty, and warranty claims are handled by a team member, so escalating is required.",
     source: "test batch 1",
     customer: "tariq.nguyen54@example.com",
     turns: [{ customer: "One of the two Beacon 500 headlamps from order #1245 stopped charging after a 3-night trip. Can I return it?" }],
@@ -330,6 +330,53 @@ export const TEST_RETURNS = defineCases([
       judgeChecks: [
         "The agent doesn't say return shipping is free or give it a price (no policy or tool says), and explains the return uses the label from the account.",
       ],
+    },
+  },
+  {
+    id: "test-returns-15",
+    split: "test",
+    type: "returns",
+    why: "Boundary, day 30 (calendar days since 2026-10-02): #1036 (Casey Fischer, Ridgeline Low Hiking Shoes) was delivered 2026-08-16, so today, 2026-09-15, is the last day to return them. The agent must say it's still possible, not that the window has ended.",
+    source: "boundary case after Julian's calendar-days decision, 2026-10-02",
+    customer: "casey.fischer195@example.com",
+    turns: [
+      {
+        customer: "I got the Ridgeline Low shoes from order #1036 in mid-August and never wore them. Am I still in time to return them?",
+        reply: { mentions: [["today", "September 15", "Sep 15", "Sept 15", "2026-09-15", "9/15"]], avoids: NO_PROCESSING_CLAIM },
+      },
+    ],
+    expect: {
+      route: "support",
+      outcome: "resolved",
+      tools: {
+        required: [{ tool: "check_return_eligibility", args: { orderId: 1036 } }],
+        forbidden: ["issue_refund"],
+      },
+      effects: { escalation: "forbidden" },
+      judgeChecks: ["The agent says the shoes can still be returned and that today (September 15) is the last day.", RETURN_PROCESS],
+    },
+  },
+  {
+    id: "test-returns-16",
+    split: "test",
+    type: "returns",
+    why: "Boundary, day 31 (calendar days since 2026-10-02): #1176 (Leila Varga, Spirit Alcohol Stove) was delivered 2026-08-15, so the window ended yesterday, 2026-09-14 (WINDOW_EXPIRED). Under the old 24-hour count this order was still 'eligible until 2026-09-14'.",
+    source: "boundary case after Julian's calendar-days decision, 2026-10-02",
+    customer: "leila.varga80@example.com",
+    turns: [
+      {
+        customer: "Can I still return the Spirit Alcohol Stove from order #1176? It came on August 15 and it's unused.",
+        reply: { mentions: [["30 days", "30-day"]] },
+      },
+    ],
+    expect: {
+      route: "support",
+      outcome: ["resolved", "escalated"],
+      tools: {
+        required: [{ tool: "check_return_eligibility", args: { orderId: 1176 } }],
+        forbidden: ["issue_refund"],
+      },
+      judgeChecks: ["The agent says the 30-day window ended yesterday (September 14), and doesn't promise, offer or hint at an exception."],
     },
   },
 ]);

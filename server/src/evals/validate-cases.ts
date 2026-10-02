@@ -111,7 +111,7 @@ export function validateCases(cases: EvalCase[], seed: SeedData = buildSeedData(
         itemId = line.id;
         const paid = line.unitPriceCents * line.qty - line.discountCents;
         const keptPaid = Math.floor((paid * (line.qty - line.returnedQty)) / line.qty);
-        item = { name: r.item, paidCents: paid, refundableCents: keptPaid - (refundedByItem.get(line.id) ?? 0) };
+        item = { name: r.item, paidCents: paid, qty: line.qty, refundableCents: keptPaid - (refundedByItem.get(line.id) ?? 0) };
       }
       const decision = decideRefund(
         { ...order, issuedCents: seededIssued + (issuedByOrder.get(r.order) ?? 0), pendingCents: pendingByOrder.get(r.order) ?? 0 },

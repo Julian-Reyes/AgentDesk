@@ -1,5 +1,5 @@
 import type { OrderStatus } from "../db/schema.ts";
-import { addDays, daysBetween } from "../domain/clock.ts";
+import { addDays, calendarDaysBetween } from "../domain/clock.ts";
 import { RULES } from "./rules.ts";
 
 export type ItemCondition = "unused" | "used" | "damaged";
@@ -41,7 +41,7 @@ export function checkReturnEligibility(input: ReturnCheckInput): ReturnCheck {
     return { eligible: false, code: "NOT_DELIVERED_YET", message: "The order hasn't been delivered yet. Returns can start once it arrives." };
   }
 
-  const daysSince = daysBetween(deliveredAt, now);
+  const daysSince = calendarDaysBetween(deliveredAt, now);
   const returnBy = addDays(deliveredAt, RULES.returnWindowDays).toISOString().slice(0, 10);
 
   if (condition === "damaged") {

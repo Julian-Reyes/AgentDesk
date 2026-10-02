@@ -1,5 +1,5 @@
 import type { OrderStatus } from "../db/schema.ts";
-import { daysBetween } from "../domain/clock.ts";
+import { calendarDaysBetween } from "../domain/clock.ts";
 import { formatCents, type Cents } from "../domain/money.ts";
 import { RULES } from "./rules.ts";
 
@@ -23,6 +23,8 @@ export type RefundItem = {
   name: string;
   /** What the customer paid for the whole line, after sales. */
   paidCents: Cents;
+  /** Units on the line. The $50 automatic limit is judged on one unit's price (paidCents / qty). */
+  qty: number;
   /** What's still refundable for this item: paid for units not returned, minus refunds already issued or pending for it. */
   refundableCents: Cents;
 };
@@ -41,10 +43,12 @@ export type RefundDecision =
  *  3. automatic only if
  *     - the order's refunds in total (issued + pending + this one) stay at or
  *       under $50, which stops a big refund being split into small ones, and
- *     - for "damaged", the item itself cost $50 or less. So a $179.99 item always
- *       goes to approval, even when the agent asks for "just $50 now" (found on
- *       2026-09-29: an agent split a $179.99 claim into an automatic $50 plus an
- *       escalation, bypassing the approvals queue).
+ *     - for "damaged", one unit of the item cost $50 or less. So a $179.99 item
+ *       always goes to approval, even when the agent asks for "just $50 now" (found
+ *       on 2026-09-29: an agent split a $179.99 claim into an automatic $50 plus an
+ *       escalation, bypassing the approvals queue). A pair of $49 headlamps on one
+ *       line counts as $49 items (Julian, 2026-10-02); refunding both still goes to
+ *       approval through the $50 order total.
  *  4. otherwise it goes to the approvals queue
  */
 export function decideRefund(
@@ -65,7 +69,7 @@ export function decideRefund(
       if (order.status !== "delivered" || !order.deliveredAt) {
         return deny("REASON_DOES_NOT_MATCH_ORDER", "A damaged-item refund needs a delivered order.");
       }
-      const days = daysBetween(order.deliveredAt, now);
+      const days = calendarDaysBetween(order.deliveredAt, now);
       if (days > RULES.damageReportWindowDays) {
         return deny(
           "DAMAGE_REPORT_WINDOW_EXPIRED",
@@ -108,11 +112,13 @@ export function decideRefund(
     );
   }
 
-  if (reason === "damaged" && item && item.paidCents > RULES.autoRefundLimitCents) {
+  // paid / qty > limit, without dividing (a line's discount needn't split evenly into cents).
+  if (reason === "damaged" && item && item.paidCents > RULES.autoRefundLimitCents * item.qty) {
+    const each = item.qty > 1 ? " each" : "";
     return {
       decision: "queued_for_approval",
       amountCents,
-      why: `The damaged item (${item.name}) cost ${formatCents(item.paidCents)}, above the ${formatCents(RULES.autoRefundLimitCents)} automatic limit.`,
+      why: `The damaged item (${item.name}) cost ${formatCents(Math.round(item.paidCents / item.qty))}${each}, above the ${formatCents(RULES.autoRefundLimitCents)} automatic limit.`,
     };
   }
   const orderTotalAfter = order.issuedCents + order.pendingCents + amountCents;

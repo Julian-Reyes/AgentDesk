@@ -73,6 +73,15 @@ describe("checkReturnEligibility", () => {
   it("is not eligible on day 31", () => {
     expect(checkReturnEligibility(deliveredDaysAgo(31))).toMatchObject({ eligible: false, code: "WINDOW_EXPIRED" });
   });
+  it("counts the return window in calendar days, so it agrees with the return-by date", () => {
+    // Store "now" is noon on Sep 15. Delivered Aug 15 in the afternoon: 31 calendar days,
+    // window ended Sep 14 (it used to say "eligible until 2026-09-14", a date already past).
+    const aug15 = checkReturnEligibility({ orderStatus: "delivered", deliveredAt: new Date("2026-08-15T15:00:00Z"), item, now });
+    expect(aug15).toMatchObject({ eligible: false, code: "WINDOW_EXPIRED", details: { returnBy: "2026-09-14", daysSinceDelivery: 31 } });
+    // Delivered Aug 16 late at night: day 30, today is the last day.
+    const aug16 = checkReturnEligibility({ orderStatus: "delivered", deliveredAt: new Date("2026-08-16T23:30:00Z"), item, now });
+    expect(aug16).toMatchObject({ eligible: true, returnBy: "2026-09-15" });
+  });
   it("rejects used items", () => {
     expect(checkReturnEligibility({ ...deliveredDaysAgo(5), condition: "used" })).toMatchObject({ code: "ITEM_USED" });
   });

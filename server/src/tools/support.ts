@@ -193,7 +193,7 @@ export const issueRefund = defineTool({
         const paid = linePaidCents(line);
         // Units already returned were refunded by the warehouse; only the rest can be refunded as damaged.
         const keptPaid = Math.floor((paid * (line.qty - line.returnedQty)) / line.qty);
-        refundItem = { name, paidCents: paid, refundableCents: keptPaid - itemSums!.refunded };
+        refundItem = { name, paidCents: paid, qty: line.qty, refundableCents: keptPaid - itemSums!.refunded };
         orderItemId = line.id;
       }
 

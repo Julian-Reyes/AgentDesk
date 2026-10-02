@@ -1024,3 +1024,34 @@ Comparison file: `server/eval-results/comparisons/dev-1b__dev-2__r1__r2.md`.
 Sanity checks: re-using a dev message in a test case makes both new tests fail. Wrong refund amounts, a refund outside the damage window, a 15% coupon marked automatic and a late refund above the shipping cost are each rejected by the validator with an exact message.
 
 **Review sheet:** `npm run eval:cases -- --split test` (or `--type returns`). A copy is in `test-cases.md` at the repo root (gitignored, like `dev-cases.md`).
+
+### Julian's batch-1 review and rule decisions (2026-10-02)
+**Batch 1 approved.** The one check: `test-returns-05/06` require escalation for warranty claims. The warranty policy says "Warranty claims are handled by a team member: we repair, replace, or refund at our discretion", so escalation stays **required**.
+
+**Rule 1: return and damage windows count calendar days** (`calendarDaysBetween()` in `domain/clock.ts`, used by `checkReturnEligibility` and `decideRefund`).
+- "Within N days" now compares UTC dates, the same dates the customer is shown, instead of 24-hour periods. The goodwill cooldown keeps its rolling 30 × 24 hours (not part of the decision).
+- **What changed in the seed** (every delivered item's return and damage verdict, diffed before/after): 8 items on 4 orders, all exactly on a boundary.
+  - #1068 and #1176 (delivered Aug 15): returnable → `WINDOW_EXPIRED` (the tool used to say "eligible until 2026-09-14").
+  - #1012 and #1087 (delivered Aug 31): inside the damage window → `DAMAGE_REPORT_WINDOW_EXPIRED`.
+- **Dev cases: no expected answer changes.** None uses those four orders, and `validateCases()` passes unchanged. One note text is now off by a day: `refund-within-limit-03` says #1074 was "delivered 11 days ago"; the tool now reports 12 (still inside the 14 days). I left the dev file untouched, so saved runs' case snapshots stay identical.
+- **Saved runs:** tool results for other orders now show `daysSinceDelivery` one higher where delivery was after noon. No verdict changes, but new runs aren't byte-identical to dev-3's tool outputs.
+
+**Rule 2: a damaged item's $50 automatic limit is judged on one unit's price**, and the $50 total per order still applies. `RefundItem` gains the line's `qty`; the check is `paid > $50 × qty`, with no division, so uneven discounts can't round across the line. The approval reason names the unit price ("$50.01 each").
+- Policy text (refunds, damaged items) now says "per unit" and "as long as the order's refunds stay within $50.00 in total". The dev DB is reseeded.
+- Dev cases: unchanged (every dev damaged item is on a one-unit line).
+
+**Tests:** 393 passing (6 new):
+- calendar boundaries for both windows (afternoon delivery on day 15/31 is out; late-night delivery on day 14/30 is in)
+- per-unit: one $49 lamp of a $98 pair automatic; both queued by the order total; $50.01 each queued; exactly $50 each automatic
+- the tool on the real #1245 pair: $49 issued, $98 queued
+- the policy text names both limits
+
+The refund tests' fixtures gained `qty: 1` (same meaning as before). Sanity check: putting back 24-hour counting and the line-price check makes the 3 new policy tests fail.
+
+**Boundary cases** (added to batch 1's returns file for review):
+- `test-returns-15`: #1036, delivered Aug 16, today is the last day
+- `test-returns-16`: #1176, delivered Aug 15, ended yesterday
+- The damage-window boundary (#1087, day 15, a $69 fleece) goes in batch 2 with the over-limit cases. No seeded order was delivered exactly 14 days ago (Sep 1), so the day-14 side can't be tested with a real order.
+- `test-returns-02`'s note now says 32 days (it said 31 under the old count). `test-returns-05`'s note says a "damaged" refund on that line would now be automatic.
+
+**Plan adjusted to stay at 110:** returns 14 → 16; out of scope 7 → 6, product facts 6 → 5.

@@ -292,6 +292,21 @@ describe("issue_refund", () => {
     }));
 });
 
+describe("a damaged item on a two-unit line (#1245: two Beacon 500 headlamps, $98.00 for the line)", () => {
+  const owner = async (tx: Tx) => (await tx.select({ id: s.orders.customerId }).from(s.orders).where(eq(s.orders.number, 1245)))[0]!.id;
+  const refund = async (tx: Tx, amount: number) => call(tx, "issue_refund", { orderId: 1245, amount, reason: "damaged", item: "lamp-beacon-500" }, as(await owner(tx)));
+
+  it("one damaged $49 lamp is refunded automatically: the limit is judged per unit (Julian, 2026-10-02)", () =>
+    inTx(async (tx) => {
+      expect(await refund(tx, 49)).toMatchObject({ ok: true, policyDecision: "auto_approved", data: { status: "refunded", amount: "$49.00" } });
+    }));
+
+  it("both lamps ($98) go to approval through the $50 order total", () =>
+    inTx(async (tx) => {
+      expect(await refund(tx, 98)).toMatchObject({ ok: true, policyDecision: "queued_for_approval" });
+    }));
+});
+
 describe("finding the item in a multi-item order (#1074: Voyager 80 pack, Squall jacket, Firefly Kids Headlamp)", () => {
   /** Rowan Brennan's id, from the seed. */
   const owner = async (tx: Tx) => (await tx.select({ id: s.orders.customerId }).from(s.orders).where(eq(s.orders.number, 1074)))[0]!.id;
