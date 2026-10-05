@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import type { ComparisonSet, ModelReport, Rate, TeamChange } from "../lib/api.ts";
-import { devGap, headline, kpiTiles, latestDecision, shortModel, teamModel } from "./overview.ts";
+import { devGap, kpiTiles, latestDecision, shortModel, teamModel } from "./overview.ts";
 
 const rate = (k: number, n: number, ci: [number, number] = [0, 1]): Rate => ({ k, n, rate: n ? k / n : 0, ci });
 
@@ -39,27 +39,6 @@ const change = (over: Partial<TeamChange>): TeamChange => ({
   decidedBy: "admin",
   at: "2026-10-02T00:00:00Z",
   ...over,
-});
-
-describe("the headline sentence", () => {
-  it("a tie, with every model breaking a rule: nobody is recommended", () => {
-    const s = set([report("a/x", 79, 109, 1), report("a/y", 79, 110, 2), report("a/z", 71, 109, 1)], { kind: "none", reason: "Every model had at least one policy violation." });
-    expect(headline(s)).toBe("Three models ran 109–110 held-out conversations each. x and y tied at 72% task success, and every model broke a business rule at least once, so none is recommended yet.");
-  });
-
-  it("a lead that isn't significant, on dev", () => {
-    const s = set([report("a/x", 67, 79), report("a/y", 61, 80)], { kind: "not_significant", model: "a/x", runnerUp: "a/y" }, "dev");
-    expect(headline(s)).toBe("Two models ran 79–80 dev (tuned-on) conversations each. x led at 85% task success. x leads among models with no policy violations, but not significantly ahead of y.");
-  });
-
-  it("a significant winner is recommended; a sole clean model is named as such", () => {
-    expect(headline(set([report("a/x", 90, 100), report("a/y", 50, 100)], { kind: "significant", model: "a/x", runnerUp: "a/y" }))).toMatch(/x is recommended: no policy violations, and ahead of y beyond the 95% intervals\.$/);
-    expect(headline(set([report("a/x", 50, 100, 3), report("a/y", 40, 100)], { kind: "not_significant", model: "a/y", runnerUp: null }))).toMatch(/x led at 50% task success\. y is the only model with no policy violations\.$/);
-  });
-
-  it("nothing scored yet", () => {
-    expect(headline(set([report("a/x", 0, 0)], { kind: "none", reason: "No scored conversations." }))).toBe("One model ran 0 held-out conversations. None has a scored result yet.");
-  });
 });
 
 describe("the tiles", () => {
@@ -111,11 +90,8 @@ describe("against the committed test-1 set: every number is the file's", () => {
   const test1 = file("test-1");
   const flash = test1.models.find((m) => m.model === "gemini/gemini-3.5-flash-lite")!.report;
 
-  it("headline and tiles", () => {
+  it("tiles", () => {
     const pctOf = (r: Rate) => `${Math.round(r.rate * 100)}%`;
-    expect(headline(test1)).toContain(`ran ${flash.conversations} held-out conversations each`);
-    const top = Math.max(...test1.models.map((m) => Math.round(m.report.taskSuccess.rate * 100)));
-    expect(headline(test1)).toContain(`tied at ${top}% task success`);
     const tiles = kpiTiles(test1, "gemini/gemini-3.5-flash-lite");
     expect(tiles[0]!.value).toBe(pctOf(flash.taskSuccess));
     expect(tiles[0]!.detail).toContain(`${flash.taskSuccess.k} of ${flash.taskSuccess.n}`);

@@ -16,7 +16,6 @@ export const SPLIT_LABEL: Record<ComparisonSet["split"], string> = { test: "test
 
 const scored = (set: ComparisonSet) => set.models.filter((m) => m.report.taskSuccess.n > 0);
 const percent = (rate: number) => Math.round(rate * 100);
-const listWords = (xs: string[]) => (xs.length <= 1 ? xs.join("") : `${xs.slice(0, -1).join(", ")} and ${xs.at(-1)}`);
 
 /** "110" when every model had the same number of conversations, else "100–110". */
 function conversationCount(set: ComparisonSet): string {
@@ -25,40 +24,6 @@ function conversationCount(set: ComparisonSet): string {
   const hi = Math.max(...ns);
   return lo === hi ? `${lo}` : `${lo}–${hi}`;
 }
-
-/**
- * One honest sentence (or two) about the set: who ran, who did best, and
- * whether any model can be recommended. The recommendation follows the
- * comparison's winner rule: a model that broke a business rule is never
- * named.
- */
-export function headline(set: ComparisonSet): string {
-  const models = scored(set);
-  const kind = set.split === "test" ? "held-out" : "dev (tuned-on)";
-  const ran = `${set.models.length === 1 ? "One model" : `${capitalize(numberWord(set.models.length))} models`} ran ${conversationCount(set)} ${kind} conversations${set.models.length > 1 ? " each" : ""}.`;
-  if (models.length === 0) return `${ran} None has a scored result yet.`;
-
-  const top = Math.max(...models.map((m) => percent(m.report.taskSuccess.rate)));
-  const leaders = models.filter((m) => percent(m.report.taskSuccess.rate) === top).map((m) => shortModel(m.model));
-  const best = leaders.length > 1 ? `${listWords(leaders)} tied at ${top}% task success` : `${leaders[0]} led at ${top}% task success`;
-
-  const w = set.winner;
-  if (w.kind === "none") {
-    const allBroke = set.models.every((m) => m.report.policyViolations > 0);
-    return allBroke ? `${ran} ${best}, and every model broke a business rule at least once, so none is recommended yet.` : `${ran} ${best}. No model can be recommended: ${w.reason}`;
-  }
-  const verdict =
-    w.kind === "significant"
-      ? `${shortModel(w.model)} is recommended: no policy violations, and ahead of ${shortModel(w.runnerUp!)} beyond the 95% intervals.`
-      : w.runnerUp
-        ? `${shortModel(w.model)} leads among models with no policy violations, but not significantly ahead of ${shortModel(w.runnerUp)}.`
-        : `${shortModel(w.model)} is the only model with no policy violations.`;
-  return `${ran} ${best}. ${verdict}`;
-}
-
-const NUMBER_WORDS = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
-const numberWord = (n: number) => NUMBER_WORDS[n] ?? String(n);
-const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 /** The model the team runs for support (it moves money), or null before the team is known. */
 export const teamModel = (roles: Pick<RoleView, "role" | "model">[]) => roles.find((r) => r.role === "support")?.model ?? null;

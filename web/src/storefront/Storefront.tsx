@@ -31,7 +31,7 @@ export function Storefront() {
           </div>
           <div className="flex flex-col gap-1 text-sm sm:items-end">
             <p className="text-stone-600">{IS_STATIC ? "See how the agents handle real questions: recorded chats, bottom right." : "Questions about gear or an order? Use the chat, bottom right."}</p>
-            <a href={`${SITE_ROOT}ops/`} className="font-medium text-forest-700 underline-offset-2 hover:underline">
+            <a href={`${SITE_ROOT}ops/#/agents`} className="font-medium text-forest-700 underline-offset-2 hover:underline">
               Ops dashboard: see how the agents work →
             </a>
           </div>

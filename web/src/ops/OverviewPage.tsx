@@ -2,7 +2,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { getAgents, getComparisonList, getComparisonSet, getOverview, type AgentsView, type ComparisonSet, type Finding, type SafetyFact } from "../lib/api.ts";
 import { ROLE_LABEL } from "./agents.ts";
 import { ciBar, ciText, winnerText } from "./comparison.ts";
-import { SPLIT_LABEL, devGap, headline, kpiTiles, latestDecision, shortModel, teamModel } from "./overview.ts";
+import { SPLIT_LABEL, devGap, kpiTiles, latestDecision, shortModel, teamModel } from "./overview.ts";
 import { IS_STATIC, SITE_ROOT } from "../lib/static.ts";
 import { href } from "./route.ts";
 
@@ -44,10 +44,10 @@ export function OverviewPage() {
       <section aria-labelledby="overview-headline" className="space-y-3">
         <p className="text-xs font-semibold tracking-widest text-forest-600 uppercase">A team of AI agents running a store's chat, measured</p>
         <h1 id="overview-headline" className="max-w-4xl text-2xl leading-tight font-semibold text-forest-900 sm:text-3xl">
-          {headline(set)}
+          A router hands each customer chat to a shopping agent or an orders &amp; returns agent. The rules live in code, and every reply is traced and tested.
         </h1>
         <p className="text-sm text-stone-600">
-          From {set.runs.map((r, i) => (
+          Results below: {set.runs.map((r, i) => (
             <span key={r}>
               {i > 0 && ", "}
               <a className="text-forest-700 underline-offset-2 hover:underline" href={href.evalRun(r)}>
