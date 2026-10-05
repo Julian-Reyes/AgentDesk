@@ -1,82 +1,88 @@
-# Milestone 5 plan: deploy
+# Milestone 5 plan: the public site
 
-**Status: proposed 2026-10-05, waiting for Julian's decisions (marked ❓).** The spec's M5 covers:
-- the real switch/retire decision (first)
-- free hosting
-- the public demo limits
-- admin login
-- the `/ops` overview page (built; see the last section)
+**Status: proposed 2026-10-05, waiting for Julian's review. Nothing built yet.**
 
-Free-tier terms were checked 2026-10-05 and recorded in `docs/FREE_TIERS.md`.
+**The change (Julian, 2026-10-05): no hosted server.**
+- The public site is a **static, read-only snapshot** of the dashboard and storefront on **GitHub Pages**, with no API and no database.
+- All real work (chats, evals, approvals, switch/retire) stays on Julian's machine. Admin features exist only locally, and the shared `ADMIN_TOKEN` stays for local use. No login is needed on the public site.
+- Live chat on the public site is a separate, later option (section 6, plan only).
 
-## 1. Hosting (all $0, no card anywhere)
+This replaces the Render/Neon hosting plan proposed earlier the same day.
 
-| Piece | Choice | Free terms (checked 2026-10-05) | Why |
-| --- | --- | --- | --- |
-| Postgres | **Neon** free plan | 100 CU-hours/project/month, 1 GB storage, 5 GB egress, scales to zero after 5 min; at a limit it **suspends, never bills** | Render's free Postgres **expires after 30 days**; Supabase **pauses after 7 idle days** and must be un-paused by hand |
-| API | **Render** free web service | 750 instance-hours/month, one instance, **spins down after 15 min idle, ~1 min to wake**, no persistent disk; **without a card on file, going over suspends instead of billing** | The spec's choice; no billing account needed (Cloud Run requires linking one) |
-| Web (storefront + dashboard) | ❓ see the decision below | Render static sites are free and don't spin down | |
-| Model for the public chat | **Gemini 3.5 Flash-Lite, free tier, on a separate Google project/API key for the demo** | Quota is per project, so the demo can't use up the dev/eval quota. Free-tier prompts may be read by Google: fine for fictional data, but the widget must tell visitors not to type personal information | Already the team's model; $0 |
+## 1. Before anything: GitHub Pages and the private repo ❓
+GitHub Pages is available "in public repositories with GitHub Free … and in public and private repositories with GitHub Pro, Team, Enterprise" ([GitHub Docs](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits)). `Julian-Reyes/AgentDesk` is private on the Free plan, so it can't publish Pages as it is. Options:
+- **(a) Make `AgentDesk` public, recommended.** It's a portfolio project, and recruiters will want the code too. The full history has no secrets: checked on 2026-10-05 for API-key patterns, and `.env` was never committed. Everything is fictional.
+- **(b) Keep the code private, and publish only the built site to a separate public repo** (e.g. `Julian-Reyes/agentdesk-demo`, served at `julian-reyes.github.io/agentdesk-demo`). The workflow pushes there with a deploy key stored as a repo secret: more setup, and one secret to manage.
+- **(c) GitHub Pro** (about $4/month; Pages from private repos). Spending, so only with Julian's approval.
 
-- **No card on Render, Neon or Google AI Studio.** Every limit is then a hard stop, not a bill. Render's docs say exceeding limits *bills if a payment method exists*, so don't add one.
-- **Groq stays dev/eval only:** see the paid-model guard in section 3.
+**Limits:** a published site may be up to 1 GB, with a soft 100 GB/month bandwidth limit. The snapshot is well under that (all saved eval runs are 44 MB on disk).
 
-**❓ Decision A: one service or two.**
-- **(Recommended) Two services:** a Render static site for the web app, and the Render API service.
-  - The page loads instantly even when the API is asleep. The widget and dashboard show "waking the server up (up to a minute)" while the API starts.
-  - The web app calls the API's URL directly. That needs CORS, using Hono's built-in middleware, so no new dependency.
-  - A Render rewrite (`/api/*` → the API) would avoid CORS, but whether it passes the chat's streaming progress through isn't documented, so I'd use direct calls.
-- **One service:** the API also serves the built web app. It's simpler (same origin, no CORS), but after 15 idle minutes the *whole page* takes about a minute to appear: a poor first impression for a recruiter.
+## 2. Export script: `npm run export:static`
+- **Runs on Julian's machine against the local dev DB.** It calls the **real API in-process** (`createApp(...).app.request(...)`, as the API tests do: no port, no network). So the snapshot is exactly what the API returns, with no second code path to drift.
+- **Writes `site-data/`, committed to git**, so the Pages workflow can build without a database:
+  - `api/overview.json`, `api/comparison.json`, `api/comparison/<set>.json`
+  - `api/agents.json`: the team, its history, and the switch/retire decision, as of export. Live metrics come from local chats.
+  - `api/eval-runs.json`, `api/eval-runs/<run>/conversations.json`, `api/eval-runs/<run>/conversation/<model>/<case>.json`
+  - `api/products.json`, `api/chat/personas.json` (storefront)
+  - `replays.json` (section 4)
+  - `meta.json`: `{ exportedAt, commit }`
+- **Which eval runs:** ❓ recommended: the runs in the comparison sets (`test-1`, `dev-3-r1a/b`, `dev-3-r2a/b`), the ones every dashboard number cites, about 25 MB. Alternative: all saved runs (44 MB).
+- **Refuses to run with uncommitted changes**, so the commit in the footer really produced the data.
+- **Left out:** live traces (admin-only), and the admin token check. ❓ The Approvals page: recommended **left out of the snapshot**. Its items come from Julian's own local chats, and their notes are model-written (the M4 open item). Alternative: include it with the notes removed.
 
-## 2. Admin login (replaces the shared token)
-- **❓ Decision B (recommended): a password login, using no new dependencies.**
-  - `ADMIN_PASSWORD_HASH` (scrypt, from `node:crypto`) and `SESSION_SECRET` are set as Render environment variables.
-  - `POST /api/admin/login` returns a signed session token (HMAC, 12 h expiry). The dashboard keeps it for the tab and sends it as `Authorization: Bearer …`, exactly where the admin token goes today. No cookies, so the two-service setup has no cross-site cookie problems.
-  - Login attempts are rate-limited (e.g. 5 per 15 min per IP). Everything under `/api/admin/*` stays behind one guard, as now.
-  - Alternative: keep the long shared token. It's already safe enough for one admin, but the spec says "admin login".
-- **Admin-only on the public site:** live traces (already admin-only), and, recommended, the Approvals page's model-written notes ("agent note", "queued because"), which can echo what a visitor typed (M4 open item).
+## 3. Static build mode (`VITE_STATIC=1`)
+- **One switch in `web/src/lib/api.ts`:** in static mode, `request(path)` reads `data/<path>.json` from the site instead of calling `/api/...`. Query strings map to path segments (e.g. `conversation?model=…&case=…` → `conversation/<model>/<case>.json`). Any POST is refused with "This is a read-only snapshot". Pages and components stay the same code.
+- **Hidden in static mode:**
+  - the admin token box
+  - Approvals actions
+  - the Agents page's switch/retire/reinstate controls
+  - the live Runs tab
+  - (if left out of the snapshot) Approvals in the nav
+- **Footer on every page:** "Data as of 2026-10-05, commit `abc1234`. A read-only snapshot; the agents run on the author's machine." The commit links to GitHub if the repo is public.
+- **Base path:** Vite `base` set to the Pages path (e.g. `/AgentDesk/`). Absolute links (`/ops/`, `/`, the storefront ↔ dashboard links) become base-relative. Hash routing already works on Pages.
 
-## 3. Public demo limits (spec: "small daily cap and per-visitor rate limit; when the cap is reached, replay saved example conversations")
-- **Per visitor (in memory; one instance):** at most 3 new chats per hour and 20 messages per chat per IP, with the existing 1,000-character message limit. The IP comes from Render's forwarded header.
-- **❓ Decision C: daily cap.** A global cap of **N live chats per day**, counted in a small `demo_usage` table so restarts don't reset it.
-  - I suggest **N = 40**. That's about 160 Gemini calls/day at the 4.4 calls per conversation measured in test-1, well inside the free quota, and leaves room if a cap is mis-set.
-- **When the cap is hit:** the widget switches to **replay mode**. It plays saved example conversations, clearly labelled "replay of a saved conversation (the live demo's daily limit is reached)", with a link to the full trace.
-  - The examples are curated like the overview's safety examples (`server/config/demo-replays.json`), from passed `test-1` conversations. The server re-checks that each one passed.
-- **Paid-model guard:** in demo mode (`DEMO_MODE=1`), the server refuses to run the public chat on a model whose config is `paid` unless `DEMO_ALLOW_PAID=1` is set.
-  - So switching the team to gpt-oss-120b on the public site can't silently spend Groq money.
-  - Cost if Julian later allows it: about $0.0013 per gpt-oss-120b conversation (test-1: $0.14 / 110), so 40/day ≈ $1.60/month, inside the $8 cap.
-- **Demo data:**
-  - Seed once into Neon (`npm run db:migrate && npm run db:seed` with Neon's URL, from the laptop).
-  - Add the decided **demo-only example approvals** (pending and decided, on customers and orders no eval case uses), so the queue isn't empty. These stay out of the eval seed (`db:seed --demo`).
-  - **❓ Decision D:** whether visitors' refunds and coupons are reset. Options:
-    - (recommended) an admin "Reset demo store" button: reseeds store tables, keeps the team history
-    - reseed on every deploy
-    - never reset
+## 4. Storefront chat: replays of saved eval conversations
+- In static mode, the chat widget offers **recordings** instead of a live chat. A short list (e.g. "Order lost in the mail", "Damaged headlamp refund", "Expired coupon", "Asks about another customer's order") plays one saved eval conversation turn by turn, with the same progress labels ("Looking up your order…").
+- **Clearly labelled:** "Recording of a saved test conversation (`test-1`, gemini-3.5-flash-lite). Not live; nothing you type is sent anywhere." There's no free-text input in static mode, so nothing a visitor types goes anywhere. Each recording links to its full trace in the dashboard.
+- **The list is curated** in `server/config/replays.json`, like the overview's safety examples. The export includes a recording only if its conversation **passed**, re-checked with the same `evalResults` helper, and a test fails if one drops out.
 
-## 4. Changes needed before it can run on a free host
-- `serve.ts` listens on `127.0.0.1`. It needs `HOST=0.0.0.0` in production.
-- **Run migrations at server start** (`runMigrations` exists), so a deploy can't run old code against a new schema. Render's pre-deploy step isn't on the free plan.
-- **Cache graded eval runs in memory.** The files never change while the server runs, so the overview and Runs pages stop re-grading all 330 test-1 conversations on every request. Render's free instance has 0.1 CPU.
-- `VITE_API_URL` for the static site (two-service option), plus CORS limited to that origin.
-- A `render.yaml` blueprint in the repo with **no secrets**. Secrets go in Render's dashboard:
-  - `DATABASE_URL`
-  - `GEMINI_API_KEY` (the demo key)
-  - `ADMIN_PASSWORD_HASH`
-  - `SESSION_SECRET`
-- **Auto-deploy from `main`** after CI passes (Render's "after CI checks pass" option).
+## 5. GitHub Actions: deploy to Pages
+- **New `.github/workflows/pages.yml`, on push to `main`:**
+  1. `npm ci`
+  2. `VITE_STATIC=1 npm run build -w web`
+  3. copy `site-data/` into the build as `data/`
+  4. `actions/upload-pages-artifact` and `actions/deploy-pages` (permissions `pages: write`, `id-token: write`)
+- **CI first:** the deploy job needs the existing CI job to pass first, so a red build never deploys.
+- **Julian's one-time setup:** repo Settings → Pages → Source: **GitHub Actions**. With option (b), it's set on the public repo instead, plus the deploy key.
+- **Cost:** $0. Building the site takes a minute or two of Actions time, within the free 2,000 minutes/month.
 
-## 5. Order of work
-1. **Julian:** the switch/retire decision (spec: first in M5). It's made locally on the Agents page, and the team history is copied into Neon by the seed (`team_changes` is kept).
-2. Production basics (section 4), with tests.
-3. Admin login (section 2), with tests: wrong password, expired or forged token, rate limit, every admin route still guarded.
-4. Demo limits and replay mode (section 3), with tests: cap reached → replay, per-IP limits, the paid-model guard.
-5. Demo-only example approvals and the reset (section 3).
-6. Deploy. **Julian creates the accounts** (Neon, Render, a demo Google AI Studio key), with **no card**. I write `render.yaml` and the step-by-step instructions, and walk through each setting.
-7. Check the live site: storefront chat, the cap and replay (with a temporary cap of 1), admin login, phone width.
+**Tests:**
+- **Export:** each file equals the matching API response; it refuses a dirty tree; it drops a failing replay.
+- **The static `request` mapping:** paths, query strings, POST refused.
+- **Static mode hides admin and live UI:** a pure function decides what's shown, tested like the other dashboard logic.
+- **The CI build:** CI runs a static build so it can't silently break.
 
-**Cost: $0.** No card is on any platform, every free limit suspends instead of billing, and the public chat uses a free model with a hard daily cap. CI stays within GitHub's free 2,000 minutes.
+**Order:**
+1. Julian picks option (a), (b) or (c).
+2. Export script.
+3. Static mode and footer.
+4. Replays.
+5. Pages workflow.
+6. Julian enables Pages, and we check the live site at desktop and phone width.
+7. Then the switch/retire decision (Julian, locally), re-export, and push.
 
-**Not in this plan:** serving the small open model on Modal for the demo (the 4th model isn't chosen yet; M3 open item).
+## 6. Later, plan only: optional live chat through Cloudflare Tunnel
+- **What:** when Julian's machine is on, the static storefront offers **live chat** through a Cloudflare Tunnel to a local server. When the tunnel is unreachable, it falls back to the recordings automatically.
+- **A separate demo server process (`DEMO_MODE=1`):**
+  - it mounts **only the public chat routes**: no `/api/admin/*`, no traces, no approvals
+  - it uses its **own database, `agentdesk_demo`**, never `agentdesk_dev` or the test DB, so visitors can't touch dev or eval data
+  - its team is **Flash-Lite only**: paid models are refused
+  - limits: **40 live chats/day** (counted in `agentdesk_demo`), 3 new chats/hour and 20 messages/chat per visitor, 1,000-character messages
+  - a separate Gemini demo key, so the demo can't use the eval quota
+- **Reset:** an admin-only "Reset demo store" action (from the local dashboard) reseeds `agentdesk_demo`'s store tables and keeps its team history, plus an automatic nightly reset (a local scheduled job).
+- **Fallback:** the static site checks `GET <tunnel>/api/health` with a short timeout before offering live chat. It also switches to recordings when the daily cap is reached.
+- **Open issue to settle then:** a free "quick tunnel" gets a **new random URL each start**, so the static site would need a re-deploy, or a small published pointer file, each time. A fixed URL needs a domain on Cloudflare (~$10/year, spending, so approval first). I'll check Cloudflare's current terms when we get there.
+- The widget tells visitors not to type personal information. Gemini's free tier may use prompts to improve Google's products (`docs/FREE_TIERS.md`).
 
 ## Item: the `/ops` overview page (Julian, 2026-10-02)
 

@@ -38,7 +38,7 @@ _Last updated 2026-10-05._
 
 ## Next
 1. **GitHub:** private repo `Julian-Reyes/AgentDesk`. CI (`.github/workflows/ci.yml`) runs typecheck + tests against a Postgres 17 service on every push to `main` and every PR; no secrets, no model calls.
-2. **M5 plan** (`docs/M5_PLAN.md`): proposed 2026-10-05; waiting for Julian's decisions A–D (one or two services, login, daily cap, demo reset). Then the switch/retire decision (Julian), which comes first in M5.
+2. **M5 plan** (`docs/M5_PLAN.md`), changed by Julian 2026-10-05: **a static, read-only snapshot on GitHub Pages, with no server or database**. It has an export script, a static build mode, replays of saved eval conversations, and a Pages workflow. Live chat through Cloudflare Tunnel comes later. Waiting for Julian's review, including how to publish from a private repo (make it public / a separate public repo / GitHub Pro). Then the switch/retire decision (Julian, locally).
 3. **Re-measure the damage-cause rule:** the 6 dev damage cases on gpt-oss-120b + Flash-Lite. About $0.03 per run, or about $0.10 for 3 repeats. Optionally the 13 test damage cases (about $0.05), reported as a check after the change, not a new held-out score.
 4. **Phone-width check** of the overview, Agents and Runs pages (headless Chrome hangs; check by hand).
 

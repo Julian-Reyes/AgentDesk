@@ -85,6 +85,13 @@ Every number below comes from the provider's **official docs**. Third-party blog
 - The OpenAI-compatible endpoint can't set the context size per request, so the server must be started with `OLLAMA_CONTEXT_LENGTH` (we use 16384). Otherwise long prompts are silently truncated at 4096 tokens.
 - Sources: [OpenAI compatibility](https://docs.ollama.com/api/openai-compatibility), [FAQ](https://docs.ollama.com/faq), [macOS requirements](https://docs.ollama.com/macos), [tools models](https://ollama.com/search?c=tools).
 
+### GitHub Pages (checked 2026-10-05): the chosen host for the public site
+- **Available in public repositories on GitHub Free**; Pages from private repositories need GitHub Pro, Team or Enterprise ([GitHub Docs](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits)).
+- Published sites up to 1 GB; soft bandwidth limit 100 GB/month; source repos recommended under 1 GB.
+- Deploying with Actions uses Actions minutes (free: 2,000/month for private repos; free and unlimited for public repos on standard runners).
+
+The Render/Neon/Supabase/Cloud Run notes below were checked for the earlier server-hosting plan, which Julian replaced with the static site on 2026-10-05. They're kept for the later live-chat option.
+
 ### Hosting for M5 (checked 2026-10-05; nothing signed up)
 - **Render, free web service** ([docs](https://render.com/docs/free)):
   - 750 instance-hours/month per workspace, one instance
