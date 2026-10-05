@@ -161,6 +161,20 @@ export function evalResults(r: RunsDeps, name: string) {
   return { ...runResults(store, judge), judge };
 }
 
+/**
+ * Looks up saved conversations by run, model and case, grading each run once
+ * (a page of examples may point into the same run many times). Returns the
+ * conversation only if it passed, graded and judged as the Runs page shows it.
+ */
+export function passedConversations(r: RunsDeps) {
+  const runs = new Map<string, ReturnType<typeof evalResults>>();
+  return (run: string, model: string, caseId: string) => {
+    if (!runs.has(run)) runs.set(run, evalResults(r, run));
+    const x = runs.get(run)?.results.find((y) => y.record.agentModel === model && y.record.caseId === caseId);
+    return x?.status === "pass" ? x : null;
+  };
+}
+
 const STATUSES = ["pass", "fail", "script_mismatch", "judge_pending", "judge_failed", "provider_error"] as const;
 const ConvQuery = z.object({ model: z.string().optional(), status: z.enum(STATUSES).optional() });
 const OneQuery = z.object({ model: z.string().min(1), case: z.string().min(1) });

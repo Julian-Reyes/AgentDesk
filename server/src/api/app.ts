@@ -9,6 +9,7 @@ import { agentAdminRoutes, agentRoutes, type AgentsDeps } from "./agents.ts";
 import { approvalAdminRoutes, approvalRoutes } from "./approvals.ts";
 import { comparisonRoutes, type ComparisonDeps } from "./comparison.ts";
 import { overviewRoutes, type OverviewDeps } from "./overview.ts";
+import { replayRoutes, type ReplaysDeps } from "./replays.ts";
 import { evalRunRoutes, runRoutes, type RunsDeps } from "./runs.ts";
 import { ChatSessions, chatRoutes, type ChatLimits } from "./chat.ts";
 import { productRoutes } from "./products.ts";
@@ -42,6 +43,8 @@ export type AppDeps = {
   runs?: Partial<RunsDeps>;
   /** For the ops overview's examples and findings; defaults read config/overview.json. */
   overview?: Partial<OverviewDeps>;
+  /** For the public site's chat recordings; defaults read config/replays.json. */
+  replays?: Partial<ReplaysDeps>;
   /** Where chat traces go (DbTracer in the server, MemoryTracer in tests). */
   tracer: Tracer;
   chatLimits?: Partial<ChatLimits>;
@@ -74,6 +77,7 @@ export function createApp(deps: AppDeps) {
     .route("/api/admin/runs", runRoutes(deps))
     .route("/api/eval-runs", evalRunRoutes(deps))
     .route("/api/overview", overviewRoutes(deps))
+    .route("/api/replays", replayRoutes(deps))
     // The dashboard calls this to check a pasted token before showing actions.
     .get("/api/admin/check", (c) => c.json(ok({ admin: true })));
 

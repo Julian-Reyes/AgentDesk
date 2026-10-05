@@ -4,7 +4,7 @@ import { Hono } from "hono";
 import { z } from "zod";
 import { ok } from "../tools/define.ts";
 import type { AppDeps } from "./app.ts";
-import { evalResults, runsDeps } from "./runs.ts";
+import { passedConversations, runsDeps } from "./runs.ts";
 
 /**
  * The ops overview page's hand-written parts: the "safety by design" examples
@@ -39,13 +39,7 @@ export function overviewRoutes(deps: AppDeps) {
   const r = runsDeps(deps);
   return new Hono().get("/", (c) => {
     const { safety, findings } = config();
-    // Grade each run once, however many examples point into it.
-    const runs = new Map<string, ReturnType<typeof evalResults>>();
-    const passed = (f: z.infer<typeof SafetyFact>) => {
-      if (!runs.has(f.run)) runs.set(f.run, evalResults(r, f.run));
-      const x = runs.get(f.run)?.results.find((y) => y.record.agentModel === f.model && y.record.caseId === f.caseId);
-      return x?.status === "pass";
-    };
-    return c.json(ok({ safety: safety.filter(passed), findings }));
+    const passed = passedConversations(r);
+    return c.json(ok({ safety: safety.filter((f) => passed(f.run, f.model, f.caseId)), findings }));
   });
 }

@@ -1,4 +1,5 @@
 import { SseParser } from "./sse.ts";
+import { IS_STATIC, READ_ONLY_MESSAGE, SITE_ROOT, snapshotUrl, type SnapshotMeta } from "./static.ts";
 
 /**
  * The browser side of the API. Every response is `{ ok, data }` or
@@ -29,6 +30,7 @@ async function unwrap<T>(res: Response): Promise<T> {
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  if (IS_STATIC) return snapshot<T>(path, init);
   let res: Response;
   try {
     res = await fetch(path, init);
@@ -36,6 +38,30 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     throw new ApiError("NETWORK", "We couldn't reach the store. Please check your connection.", 0);
   }
   return unwrap<T>(res);
+}
+
+/** Static mode: read the exported response; refuse anything that isn't a plain GET. */
+async function snapshot<T>(path: string, init?: RequestInit): Promise<T> {
+  if (init?.method && init.method !== "GET") throw new ApiError("READ_ONLY", READ_ONLY_MESSAGE, 0);
+  let res: Response;
+  try {
+    res = await fetch(snapshotUrl(path));
+  } catch {
+    throw new ApiError("NETWORK", "We couldn't load this page's data. Please check your connection.", 0);
+  }
+  if (res.status === 404) throw new ApiError("NOT_FOUND", "This isn't part of the snapshot.", 404);
+  return unwrap<T>(res);
+}
+
+/** The snapshot's date and commit (static mode only). */
+export async function getSnapshotMeta(): Promise<SnapshotMeta | null> {
+  if (!IS_STATIC) return null;
+  try {
+    const res = await fetch(`${SITE_ROOT}data/meta.json`);
+    return res.ok ? ((await res.json()) as SnapshotMeta) : null;
+  } catch {
+    return null;
+  }
 }
 
 const postJson = (body: unknown, headers: Record<string, string> = {}): RequestInit => ({
@@ -78,6 +104,7 @@ export const startChat = (persona: string) => request<ChatStarted>("/api/chat", 
  * JSON errors and are thrown as ApiError.
  */
 export async function sendMessage(chat: { conversationId: string; token: string }, text: string, onProgress: (label: string) => void): Promise<Reply> {
+  if (IS_STATIC) throw new ApiError("READ_ONLY", READ_ONLY_MESSAGE, 0);
   let res: Response;
   try {
     res = await fetch(`/api/chat/${encodeURIComponent(chat.conversationId)}/messages`, postJson({ text }, { "x-chat-token": chat.token }));
