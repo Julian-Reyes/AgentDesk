@@ -160,6 +160,7 @@ Save each conversation as a **run** containing each **step**: messages, the rout
 4. **UI.** Storefront chat widget + ops dashboard (agents, comparison, runs, approvals).
 5. **Deploy.** The real switch/retire decision (first, right after the test-run results), free hosting, the public demo limits, admin login, and the `/ops` overview page.
 6. **Story.** Final comparison runs, README, case study, and polish.
+7. **Live chat on the public site (optional).** The static site offers live chat when the author's setup is reachable, with per-visitor and daily limits, a separate demo database, a free model, and automatic fallback to the recordings. Starting plan: `docs/M5_PLAN.md`, section 6.
 
 **If the scope grows too big, cut in this order:** the goodwill coupon tool, then the stock-by-variant check, then the extra models (keep at least two). **Never cut:** the evals, the grounding check, the tracing, or deployment.
 
@@ -196,3 +197,10 @@ Once both projects are done, the Router can be swapped for the best model from S
 - **2026-10-02: The real switch/retire decision moves from milestone 6 to right after the `test-1` results** (Julian's decision), before the M5 `/ops` overview page is built. The overview page shows that decision and the held-out numbers behind it, so both must exist first. The decision is made on the Agents page (switch/retire with a reason, kept in `team_changes`). The written case study and the final polish stay in milestone 6.
 - **2026-10-05: The project is renamed from "Switchyard Lite" to "AgentDesk"** (Julian's decision), to match the GitHub repo. Everything in the repo was renamed: package names (`agentdesk`, `@agentdesk/server`, `@agentdesk/web`), the local databases (`agentdesk_dev`, `agentdesk_test`), the ops admin-token storage key, and the Ollama LaunchAgent label in the docs.
 - **2026-10-05: The `/ops` overview page's gate is relaxed** (Julian's decision): the mockup is drafted before the switch/retire decision. Until that decision is made, the decision card shows that none exists yet and links to the Agents history. The page is built in the existing dashboard style; the `frontend-design` skill isn't used.
+- **2026-10-05: No hosted server; the public site is a static, read-only snapshot on GitHub Pages** (Julian's decision). The spec's deploy (a backend on Render or Cloud Run, Postgres on Neon or Supabase, "a live demo URL" with a live chat) is replaced by:
+  - a snapshot exported from the local app
+  - a storefront that plays recordings of saved eval conversations
+  - all admin actions local only, so the public site needs no login
+
+  Why: all real work stays on Julian's machine, at $0, with no database or server to run. The repo is public so Pages is free. Live at https://julianreyes.dev/AgentDesk/.
+- **2026-10-05: Live chat on the public site becomes a new, optional Milestone 7** (Julian's decision). Milestone 6 is unchanged.

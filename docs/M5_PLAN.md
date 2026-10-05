@@ -77,7 +77,11 @@ GitHub Pages is available "in public repositories with GitHub Free … and in pu
 6. Julian enables Pages, and we check the live site at desktop and phone width.
 7. Then the switch/retire decision (Julian, locally), re-export, and push.
 
-## 6. Later, plan only: optional live chat through Cloudflare Tunnel
+## 6. Moved to Milestone 7 (Julian, 2026-10-05): optional live chat on the public site
+
+Not part of M5. Kept here as the starting plan for M7. Julian already uses Render, Cloudflare and Fly.io, so M7 may use one of those instead of, or alongside, a Cloudflare Tunnel. Choose when M7 starts, after checking each one's current free terms.
+
+### The original sketch: live chat through Cloudflare Tunnel
 - **What:** when Julian's machine is on, the static storefront offers **live chat** through a Cloudflare Tunnel to a local server. When the tunnel is unreachable, it falls back to the recordings automatically.
 - **A separate demo server process (`DEMO_MODE=1`):**
   - it mounts **only the public chat routes**: no `/api/admin/*`, no traces, no approvals

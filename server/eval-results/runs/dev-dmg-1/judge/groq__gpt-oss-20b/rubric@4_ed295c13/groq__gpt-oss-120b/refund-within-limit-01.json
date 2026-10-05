@@ -1,0 +1,131 @@
+{
+  "caseId": "refund-within-limit-01",
+  "runId": "c01f9ecb-b68b-47d8-9400-d1dec5099631",
+  "questionSet": "2a2c12d8",
+  "agentModel": "groq/gpt-oss-120b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "refund-within-limit-01",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "The Glowworm headlamp from order #1050 arrived with a cracked lens and won't turn on.",
+        "reply": "Your Glowworm 300 Headlamp was reported as arrived damaged, and a refund of $29.00 has been issued to your original payment method (Refund ID 123). The refund will appear on your payment account according to your bank’s processing time. If you’d like to place a new order or need further assistance, please let us know. Thanks for your understanding."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1050}) → {\"ok\":true,\"data\":{\"number\":1050,\"status\":\"delivered\",\"placed\":\"2026-09-06\",\"delivered\":\"2026-09-10\",\"items\":[{\"productId\":\"lamp-glowworm-300\",\"name\":\"Glowworm 300 Headlamp\",\"size\":null,\"color\":\"black\",\"qty\":1,\"listPrice\":\"$29.00\",\"discount\":\"$0.00\",\"paid\":\"$29.00\",\"returnedQty\":0}],\"subtotal\":\"$29.00\",\"discount\":\"$0.00\",\"shipping\":\"$7.99\",\"totalPaid\":\"$36.99\",\"refunds\":[]}}",
+      "message 1: issue_refund({\"amount\":29,\"cause\":\"arrived_damaged\",\"item\":\"Glowworm 300 Headlamp\",\"note\":\"Cracked lens and non-functional on delivery\",\"orderId\":1050,\"reason\":\"damaged\"}) → {\"ok\":true,\"data\":{\"status\":\"refunded\",\"refundId\":123,\"amount\":\"$29.00\",\"message\":\"Refund of $29.00 issued to the original payment method.\"},\"policyDecision\":\"auto_approved\"}"
+    ],
+    "judgeNote": "Apologizes briefly, confirms the $29.00 refund to the original payment method. Doesn't invent when the money arrives (no tool says).",
+    "checks": [
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 4,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "Tone is professional but missing a brief apology; clarity is good but a bit long; helpfulness is high as it confirms the refund and offers next steps."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only reports the refund that has already been issued and informs the customer about the expected timing per bank processing, which is a factual statement. It does not promise or imply any future action beyond what the tool result indicates. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": false,
+        "why": "The agent states that the refund will appear on the payment account according to the bank's processing time, which is a timing claim not supported by the tool results or any provided store policy. Therefore the statement does not match a documented timing. Answer: no.",
+        "votes": [
+          false,
+          false,
+          false
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:followup": true,
+    "judge:timing": false
+  },
+  "calls": [
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 774,
+      "inputTokens": 904,
+      "outputTokens": 400,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that the refund will appear on the payment account according to the bank's processing time, which is a timing claim not supported by the tool result or any stated store policy. Therefore the claim does not match a tool result or policy. Answer: no.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 806,
+      "inputTokens": 915,
+      "outputTokens": 445,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports the refund that has already been issued and informs the customer about the expected timing per bank processing; it does not promise any future action beyond that. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 807,
+      "inputTokens": 915,
+      "outputTokens": 470,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports the refund that has already been issued and informs the customer about the expected timing per bank processing, which is a factual statement. It does not promise or imply any future action beyond what the tool result indicates. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 827,
+      "inputTokens": 904,
+      "outputTokens": 498,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that the refund will appear on the payment account according to the bank's processing time, which is a timing claim not supported by the tool results or any provided store policy. Therefore the statement does not match a documented timing. Answer: no.\",\"answer\":false}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 849,
+      "inputTokens": 1148,
+      "outputTokens": 443,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":4,\"clarity\":4,\"helpfulness\":5,\"why\":\"Tone is professional but missing a brief apology; clarity is good but a bit long; helpfulness is high as it confirms the refund and offers next steps.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 880,
+      "inputTokens": 915,
+      "outputTokens": 470,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports the refund that has already been issued and informs the customer about the expected timing per bank processing, which is a factual statement. It does not promise or imply any future action beyond what the tool result indicates. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 1041,
+      "inputTokens": 904,
+      "outputTokens": 677,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that the refund will appear on the payment account according to the bank's processing time, which is a timing claim not supported by the tool results or any explicit store policy shown in the conversation. Therefore the statement does not match a supported timing. Answer: no.\",\"answer\":false}"
+    }
+  ]
+}

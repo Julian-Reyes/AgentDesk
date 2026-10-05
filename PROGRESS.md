@@ -12,7 +12,8 @@ _Last updated 2026-10-05._
 | M3 Evals | In progress (approved overlap with M4/M5) | [M3](docs/history/M3.md) |
 | M4 UI | ✅ Closed 2026-10-02 | [M4](docs/history/M4.md) |
 | M5 Deploy | In progress: overview page built; plan in `docs/M5_PLAN.md` (draft) | [M5](docs/history/M5.md) |
-| M6 Case study, polish | Not started | |
+| M6 Story: final comparison runs, README, case study, polish | Not started | |
+| M7 Live chat on the public site (optional) | Not started; starting plan in `docs/M5_PLAN.md` §6 (Render, Cloudflare or Fly.io, which Julian already uses) | |
 
 ## Where things stand
 - **Held-out results (`test-1`, 2026-10-05, 110 cases × 3 models; judge gpt-oss-20b, `rubric@4`).** Task success:
@@ -31,16 +32,25 @@ _Last updated 2026-10-05._
 - **Rename:** "Switchyard Lite" is now **AgentDesk**. The local databases are `agentdesk_dev` / `agentdesk_test`.
 
 ## Budget
-- **Groq:** ≈ $6.76 of the $8 cycle spent, counted from 2026-09-30. The reset date is unknown (Julian: Groq console → Settings → Billing).
+- **Groq:** ≈ $6.82 of the $8 cycle spent, counted from 2026-09-30. The reset date is unknown (Julian: Groq console → Settings → Billing).
 - **Flash-Lite:** free, ~500 requests/day, resets at 04:00 local.
 - **Modal:** unused.
 - Any run costs: give an estimate first.
 
 ## Next
-1. **GitHub:** private repo `Julian-Reyes/AgentDesk`. CI (`.github/workflows/ci.yml`) runs typecheck + tests against a Postgres 17 service on every push to `main` and every PR; no secrets, no model calls.
-2. **M5, the public site is live: https://julianreyes.dev/AgentDesk/** (dashboard: `/AgentDesk/ops/`), deployed 2026-10-05 from snapshot `d50fa53`. It's a static, read-only snapshot on GitHub Pages; the repo is public. To update it: commit, `npm run export:static`, commit `site-data/`, push; CI rebuilds and deploys. **Not checked in a real browser yet:** the chat recordings playing, and phone width. Next: the switch/retire decision (Julian, locally), then re-export and push.
-3. **Re-measure the damage-cause rule:** the 6 dev damage cases on gpt-oss-120b + Flash-Lite. About $0.03 per run, or about $0.10 for 3 repeats. Optionally the 13 test damage cases (about $0.05), reported as a check after the change, not a new held-out score.
-4. **Phone-width check** of the overview, Agents and Runs pages (headless Chrome hangs; check by hand).
+1. **The public site is live: https://julianreyes.dev/AgentDesk/** (dashboard: `/AgentDesk/ops/`), deployed 2026-10-05 from snapshot `d50fa53`. It's a static, read-only snapshot on GitHub Pages; the repo is public.
+   - To update it: commit, `npm run export:static`, commit `site-data/`, push. CI rebuilds and deploys.
+   - **Julian checks it on his phone.**
+   - The favicon was added 2026-10-05 (a router node handing off to two agents).
+2. **The damage-cause rule, re-measured 2026-10-05** (`dev-dmg-1`…`3`, $0.063; details in M3 history).
+   - gpt-oss-120b, 18 conversations: **0 refunds for dropped or failed-after-use lamps (0/6; test-1 refunded both), and 12/12 legitimate damage refunds made.** 0 policy violations. The 6 failures are reply wording: timing/follow-up claims, and escalating instead of explaining.
+   - **Flash-Lite hit its daily quota after 3** (all pass). Rerun the same commands after 04:00 to finish its 15.
+   - Worth a look: one `refund-within-limit-03` outcome was recorded as `approval_needed` although the refund was issued.
+3. **Then M3's open items:**
+   - judge calibration on weak replies
+   - **the 4th (small open) model:** Ollama on the Mac mini for development, Modal for the official runs (cost estimate and spending limit first)
+   - maybe another model
+4. **The switch/retire decision (Julian), after 3:** Julian wants the Ollama model and maybe another model in the comparison first. Then re-export and push, so the public decision card fills in.
 
 ## Open items
 - **M3:**
