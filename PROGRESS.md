@@ -38,11 +38,7 @@ _Last updated 2026-10-05._
 
 ## Next
 1. **GitHub:** private repo `Julian-Reyes/AgentDesk`. CI (`.github/workflows/ci.yml`) runs typecheck + tests against a Postgres 17 service on every push to `main` and every PR; no secrets, no model calls.
-2. **M5, the public site: built, not deployed** (`docs/M5_PLAN.md`; details in docs/history/M5.md). It's a static, read-only snapshot on GitHub Pages. To deploy:
-   - Julian approves the 5 example approval texts
-   - Julian makes the repo public and sets Settings → Pages → Source: **GitHub Actions**
-   - then commit `site-data/` (from `npm run export:static`) and push; CI builds and deploys.
-   Then the switch/retire decision (Julian, locally), re-export, push.
+2. **M5, the public site is live: https://julianreyes.dev/AgentDesk/** (dashboard: `/AgentDesk/ops/`), deployed 2026-10-05 from snapshot `d50fa53`. It's a static, read-only snapshot on GitHub Pages; the repo is public. To update it: commit, `npm run export:static`, commit `site-data/`, push; CI rebuilds and deploys. **Not checked in a real browser yet:** the chat recordings playing, and phone width. Next: the switch/retire decision (Julian, locally), then re-export and push.
 3. **Re-measure the damage-cause rule:** the 6 dev damage cases on gpt-oss-120b + Flash-Lite. About $0.03 per run, or about $0.10 for 3 repeats. Optionally the 13 test damage cases (about $0.05), reported as a check after the change, not a new held-out score.
 4. **Phone-width check** of the overview, Agents and Runs pages (headless Chrome hangs; check by hand).
 
