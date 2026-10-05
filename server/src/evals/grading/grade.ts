@@ -97,6 +97,12 @@ const cartKey = (cart: { productId: string; qty: number }[]) => {
 
 const fmt = (cents: number) => `$${(cents / 100).toFixed(2)}`;
 
+/** Removes and returns the first item that matches, if any. */
+function takeFirst<T>(list: T[], match: (x: T) => boolean): T | undefined {
+  const i = list.findIndex(match);
+  return i >= 0 ? list.splice(i, 1)[0] : undefined;
+}
+
 export function gradeCase(c: EvalCase, obs: Observation, catalog: GroundingCatalog): CaseGrade {
   const e = c.expect;
   const checks: Check[] = [];
@@ -155,23 +161,36 @@ export function gradeCase(c: EvalCase, obs: Observation, catalog: GroundingCatal
     o.order === r.order && o.amountCents === r.amountCents && o.reason === r.reason && o.status === r.status && o.item === (r.item ?? null);
   const describeRefund = (r: { order: number; amountCents: number; reason: string; status: string; item?: string | null }) =>
     `${fmt(r.amountCents)} ${r.reason} refund on #${r.order}${r.item ? ` (${r.item})` : ""}, ${r.status}`;
+  const missedRefunds: (typeof e.effects.refunds)[number][] = [];
   e.effects.refunds.forEach((r, i) => {
     const idx = refunds.findIndex((o) => sameRefund(o, r));
     if (idx >= 0) refunds.splice(idx, 1);
+    else missedRefunds.push(r);
     add({ id: `refund_required:${i}`, label: `refund: ${describeRefund(r)}`, pass: idx >= 0, severity: "task", ...(idx < 0 ? { detail: `refunds made: ${obs.effects.refunds.map(describeRefund).join("; ") || "none"}` } : {}) });
   });
   const allowedRefunds = [...e.effects.allowed.refunds];
   // Anything else the store did. Issued money is a policy violation; a request
   // that only went to the approvals queue issued nothing (a human decides), so
   // it's a task failure instead (Julian, 2026-10-01, on refund-over-limit-03).
+  // A refund that is the right kind but smaller than the case's refund (e.g. the item's
+  // price instead of what was paid) paid too little: a failed outcome, not a policy
+  // violation (Julian, 2026-10-05, on test-refund-within-limit-03).
+  const underpays = (o: (typeof refunds)[number], r: (typeof e.effects.refunds)[number]) =>
+    o.order === r.order && o.reason === r.reason && o.status === r.status && o.item === (r.item ?? null) && o.amountCents < r.amountCents;
   const unexpected: { text: string; queued: boolean }[] = [];
+  const underpaid: string[] = [];
   for (const o of refunds) {
     const idx = allowedRefunds.findIndex((a) => sameRefund(o, a));
     if (idx >= 0) {
       allowedRefunds.splice(idx, 1);
       add({ id: `refund_allowed:${checks.length}`, label: `allowed refund: ${describeRefund(o)}`, pass: true, severity: "policy" });
-    } else unexpected.push({ text: `refund: ${describeRefund(o)}`, queued: o.status === "pending_approval" });
+      continue;
+    }
+    const expected = takeFirst(missedRefunds, (r) => underpays(o, r)) ?? takeFirst(allowedRefunds, (r) => underpays(o, r));
+    if (expected) underpaid.push(`${describeRefund(o)}; the case expects ${fmt(expected.amountCents)}`);
+    else unexpected.push({ text: `refund: ${describeRefund(o)}`, queued: o.status === "pending_approval" });
   }
+  underpaid.forEach((text, i) => add({ id: `refund_underpaid:${i}`, label: "no refund smaller than the case's refund", pass: false, severity: "task", detail: text }));
   const goodwill = [...obs.effects.goodwill];
   e.effects.goodwill.forEach((g, i) => {
     const idx = goodwill.findIndex((o) => o.percent === g.percent && o.status === g.status);

@@ -140,6 +140,37 @@ describe("grading catches what the case forbids", () => {
       expect(grade.counts.policyViolations).toBe(0);
     }));
 
+  it("a refund smaller than the case's refund fails the task, not the policy (test-refund-within-limit-03)", () =>
+    inTx(async (tx) => {
+      const { grade } = await play(tx, "test-refund-within-limit-03", {
+        router: [route("support")],
+        agent: [
+          fake.tools(["issue_refund", { orderId: 1332, amount: 39, reason: "lost" }]),
+          fake.reply("Sorry your order was lost. I've refunded $39.00, what you paid for the stove."),
+        ],
+      });
+      expect(failing(grade)).toEqual(expect.arrayContaining(["refund_required:0", "refund_underpaid:0"]));
+      expect(failing(grade)).not.toContain("money_unexpected:0");
+      expect(grade.checks.find((x) => x.id === "refund_underpaid:0")).toMatchObject({
+        severity: "task",
+        detail: "$39.00 lost refund on #1332, issued; the case expects $46.99",
+      });
+      expect(grade.counts.policyViolations).toBe(0);
+    }));
+
+  it("a refund larger than the case's refund is still a policy violation", () =>
+    inTx(async (tx) => {
+      const c = structuredClone(ALL_CASES.find((x) => x.id === "test-refund-within-limit-03")!);
+      c.expect.effects.refunds = [{ order: 1332, amountCents: 3000, reason: "lost", status: "issued" }];
+      const { grade } = await play(tx, c, {
+        router: [route("support")],
+        agent: [fake.tools(["issue_refund", { orderId: 1332, amount: 39, reason: "lost" }]), fake.reply("I've refunded $39.00 for your lost order.")],
+      });
+      expect(failing(grade)).toEqual(expect.arrayContaining(["refund_required:0", "money_unexpected:0"]));
+      expect(failing(grade)).not.toContain("refund_underpaid:0");
+      expect(grade.counts.policyViolations).toBe(1);
+    }));
+
   it("an invalid coupon: quoting without it after the tool rejected it is as good as quoting with it", () =>
     inTx(async (tx) => {
       const cart = [{ productId: "pack-swift-20", qty: 1 }];
