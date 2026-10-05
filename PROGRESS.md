@@ -37,7 +37,7 @@ _Last updated 2026-10-05._
 - Any run costs: give an estimate first.
 
 ## Next
-1. **Push to GitHub:** Julian created the private repo `AgentDesk`; push `main` once he gives the URL. A CI workflow (typecheck + tests with Postgres) is proposed and awaits approval.
+1. **GitHub:** private repo `Julian-Reyes/AgentDesk`. CI (`.github/workflows/ci.yml`) runs typecheck + tests against a Postgres 17 service on every push to `main` and every PR; no secrets, no model calls.
 2. **Julian:** the switch/retire decision on the Agents page.
 3. **Re-measure the damage-cause rule:** the 6 dev damage cases on gpt-oss-120b + Flash-Lite. About $0.03 per run, or about $0.10 for 3 repeats. Optionally the 13 test damage cases (about $0.05), reported as a check after the change, not a new held-out score.
 4. **Phone-width check** of the overview, Agents and Runs pages (headless Chrome hangs; check by hand).
