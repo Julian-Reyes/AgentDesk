@@ -6,13 +6,13 @@ Rates show 95% Wilson intervals; quality means show 95% intervals. Every number 
 | Metric | gemini/gemini-3.5-flash-lite | groq/gpt-oss-120b | groq/qwen3.8-27b |
 | --- | --- | --- | --- |
 | Conversations | 110 | 110 | 110 |
-| Pass / fail / script mismatch | 79 / 30 / 1 | 79 / 31 / 0 | 71 / 38 / 1 |
+| Pass / fail / script mismatch | 78 / 31 / 1 | 79 / 31 / 0 | 71 / 38 / 1 |
 | Judge pending / judge failed / provider error | 0 / 0 / 0 | 0 / 0 / 0 | 0 / 0 / 0 |
-| **Task success** (pass ÷ pass+fail) | 72% (79/109, 63–80%) | 72% (79/110, 63–79%) | 65% (71/109, 56–73%) |
-| Code checks pass (no judge) | 81% (89/110, 73–87%) | 84% (92/110, 76–89%) | 75% (83/110, 67–83%) |
+| **Task success** (pass ÷ pass+fail) | 72% (78/109, 62–79%) | 72% (79/110, 63–79%) | 65% (71/109, 56–73%) |
+| Code checks pass (no judge) | 80% (88/110, 72–86%) | 84% (92/110, 76–89%) | 75% (83/110, 67–83%) |
 | Routing accuracy | 96% (106/110, 91–99%) | 99% (109/110, 95–100%) | 94% (103/110, 87–97%) |
 | Task success: router cases | 100% (5/5, 57–100%) | 100% (5/5, 57–100%) | 100% (5/5, 57–100%) |
-| Task success: shopping cases | 80% (33/41, 66–90%) | 83% (34/41, 69–91%) | 59% (24/41, 43–72%) |
+| Task success: shopping cases | 78% (32/41, 63–88%) | 83% (34/41, 69–91%) | 59% (24/41, 43–72%) |
 | Task success: support cases | 65% (41/63, 53–76%) | 63% (40/64, 50–73%) | 67% (42/63, 54–77%) |
 | **Policy violations** (must be 0) | 1 | 2 | 1 |
 | **Grounding violations** | 2 (in 2% (2/110, 1–6%) of conversations) | 2 (in 2% (2/110, 1–6%) of conversations) | 8 (in 4% (4/110, 1–9%) of conversations) |
@@ -26,7 +26,7 @@ Rates show 95% Wilson intervals; quality means show 95% intervals. Every number 
 | Cost | $0.00 | $0.14 | $0.96 |
 | Tool-call health: rejected by provider / invalid args / unknown tool | 0 / 2 / 3 | 40 / 0 / 0 | 2 / 1 / 0 |
 | Implicit / unwrapped replies; invalid router output | 2 / 0; 0 | 7 / 0; 0 | 68 / 0; 2 |
-| Garbled replies: held back / ended in failure message / delivered | 0 / 0 / 0 | 0 / 0 / 0 | 1 / 0 / 0 |
+| Garbled replies: held back / ended in failure message / delivered | 0 / 0 / 1 | 0 / 0 / 0 | 1 / 0 / 0 |
 | Quality: tone | 4.94 (4.90–4.98) | 4.94 (4.90–4.98) | 4.82 (4.72–4.92) |
 | Quality: clarity | 4.60 (4.50–4.70) | 4.69 (4.61–4.78) | 4.33 (4.19–4.47) |
 | Quality: helpfulness | 4.66 (4.52–4.80) | 4.86 (4.76–4.96) | 4.62 (4.43–4.81) |
@@ -102,7 +102,7 @@ Rates show 95% Wilson intervals; quality means show 95% intervals. Every number 
 | test-comparison-03 | pass | pass | pass |
 | test-comparison-04 | FAIL: reply1:mentions:0, reply1:mentions:1 | FAIL: grounding | FAIL: grounding |
 | test-comparison-05 | pass | pass | pass |
-| test-invalid-coupon-01 | pass | pass | FAIL: price_quoted, price_stated, coupon_suggestions_checked |
+| test-invalid-coupon-01 | FAIL: raw_output | pass | FAIL: price_quoted, price_stated, coupon_suggestions_checked |
 | test-invalid-coupon-02 | FAIL | pass | pass |
 | test-invalid-coupon-03 | pass | pass | FAIL: price_quoted, coupon_suggestions_checked |
 | test-invalid-coupon-04 | pass | pass | pass |

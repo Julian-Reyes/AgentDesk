@@ -11,12 +11,15 @@
  * too, replaces a fine reply with the failure message. So it only looks for
  * things no good reply contains:
  *  - junk: marker-like tokens (←SKILL1←, <|im_end|>, [TOOL_CALLS], <think>),
- *    the Unicode replacement character, control characters
+ *    the Unicode replacement character, control characters, and a tool call
+ *    written out as text (test-1, 2026-10-05: Flash-Lite delivered
+ *    "Ibruf:default_api:reply{message:Coupon WELCOME5 could not be applied…")
  *  - cut off: the provider says the output hit its length limit, or the text
  *    ends on a colon, comma, open bracket or dash (announcing something that
  *    never comes)
  * A reply that ends on a word ("…anything else I can help with") is not cut off.
- * On every saved reply in pilot-1 and dev-1 (138) it flags exactly the two above.
+ * On every saved reply in pilot-1 and dev-1 (138) it flags exactly the two above; on all
+ * 1,305 saved replies through test-1, the tool-call patterns flag only the test-1 one.
  *
  * Invented products (the "Kettle Pro" above) are the grounding check's job, not this one's.
  */
@@ -33,6 +36,11 @@ const JUNK: RegExp[] = [
   /<\/?(?:think|tool_call|function_call|function|im_start|im_end)\b/i,
   // The replacement character (broken encoding) and control characters other than tab/newline
   /\uFFFD|[\u0000-\u0008\u000B\u000C\u000E-\u001F]/u,
+  // A tool call written out as text: a provider's tool namespace ("default_api:", "functions.";
+  // not "functions:", which is prose: "two functions: red and white"),
+  // or name{key: …} with unquoted keys. Each matched only that one reply among the 1,305 saved ones.
+  /\bdefault_api\s*[.:]\s*\w+|\bfunctions\.\w+/,
+  /\b[A-Za-z_]\w*\s*\{\s*[A-Za-z_]\w*\s*:/,
 ];
 
 const CUT_OFF_END = /[:,([—–]\s*$/u;

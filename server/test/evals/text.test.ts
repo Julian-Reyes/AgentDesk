@@ -42,4 +42,9 @@ describe("rawOutputProblems", () => {
     expect(rawOutputProblems("Let me run get_order for you.")).toEqual(["a tool name"]);
     expect(rawOutputProblems('reply(message="hi")')).toEqual(["a tool call"]);
   });
+
+  it("flags the tool call Flash-Lite delivered as text in test-1 (test-invalid-coupon-01)", () => {
+    expect(rawOutputProblems("Ibruf:default_api:reply{message:Coupon WELCOME5 could not be applied because it was single-use and has already been used. \n\nHowever, you can use our SUMMER10 coupon for 10% off. With that code, the Glowworm 300 Headlamp ($29.00) comes to a total of $34.09, which includes a $2.90 discount and $7.99 shipping. \n\nThanks for understanding!}")).toEqual(["a function-call prefix", "a tool call", "an unquoted tool-call object"]);
+    expect(rawOutputProblems("handoff{to:support}")).toEqual(expect.arrayContaining(["a tool call", "an unquoted tool-call object"]));
+  });
 });

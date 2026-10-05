@@ -54,8 +54,10 @@ const RAW_OUTPUT_PATTERNS: Array<[RegExp, string]> = [
   [/```\s*(?:json)?\s*[{[]/i, "a fenced JSON block"],
   [/<\|[a-z_]+\|>/i, "a model control token"],
   [/<\/?(?:tool_call|tool|function)[^>]*>/i, "a tool-call tag"],
-  [/\bfunctions\.[a-z_]+|\bto=functions\b/, "a function-call prefix"],
-  [/\b(?:reply|handoff)\s*\(/, "a tool call"],
+  [/\bfunctions\.[a-z_]+|\bto=functions\b|\bdefault_api\s*[.:]/, "a function-call prefix"],
+  [/\b(?:reply|handoff)\s*[({]/, "a tool call"],
+  // name{key: …}: a tool call written out with unquoted keys (test-1, Flash-Lite: "Ibruf:default_api:reply{message:…")
+  [/\b[A-Za-z_]\w*\s*\{\s*[A-Za-z_]\w*\s*:/, "an unquoted tool-call object"],
   [new RegExp(`\\b(?:${TOOL_NAMES.join("|")})\\b`), "a tool name"],
 ];
 

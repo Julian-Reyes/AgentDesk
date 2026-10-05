@@ -1321,15 +1321,16 @@ git worktree remove ../agents-test-run
 
 | | gemini-3.5-flash-lite | gpt-oss-120b | qwen3.8-27b |
 | --- | --- | --- | --- |
-| **Task success, test (held out)** | 72% (79/109, 63–80%) | 72% (79/110, 63–79%) | 65% (71/109, 56–73%) |
+| **Task success, test (held out)** | 72% (78/109, 62–79%)¹ | 72% (79/110, 63–79%) | 65% (71/109, 56–73%) |
 | Task success, dev round 2 (tuned on) | 85% (67/79, 75–91%) | 76% (61/80, 66–84%) | 68% (52/77, 56–77%) |
-| Shopping / support (test) | 80% / 65% | 83% / 63% | 59% / 67% |
+| Shopping / support (test) | 78%¹ / 65% | 83% / 63% | 59% / 67% |
 | Routing accuracy | 96% | 99% | 94% |
 | **Policy violations** (must be 0) | **1** (2 before the underpaid-refund rule) | **2** | **1** |
 | Grounding violations | 2 (in 2 conversations) | 2 (in 2) | 8 (in 4) |
 | Follow-up promises (judge) | 0 | 5 | 0 |
 | Tool-call health: provider rejections / invalid args / unknown tool | 0 / 2 / 3 | 40 / 0 / 0 | 2 / 1 / 0 |
 | Implicit replies; invalid router output | 2; 0 | 7; 0 | 68; 2 |
+| Garbled replies delivered | 1¹ | 0 | 0 |
 | Latency per turn p50 / p95 | 4.4 / 24.4 s | 3.5 / 8.4 s | 2.6 / 5.1 s |
 | Quality (tone / clarity / helpfulness) | 4.94 / 4.60 / 4.66 | 4.94 / 4.69 / 4.86 | 4.82 / 4.33 / 4.62 |
 | Cost for 110 conversations | $0.00 | $0.14 | $0.96 |
@@ -1354,7 +1355,25 @@ git worktree remove ../agents-test-run
 
 **Next:** Julian's switch/retire decision on the Agents page (Julian does it himself). The damaged-reason gap: see below.
 
-**Grading miss, found 2026-10-05 (not fixed yet):** in test-1, Flash-Lite's reply on `test-invalid-coupon-01` begins with raw tool syntax: "Ibruf:default_api:reply{message:Coupon WELCOME5 could not be applied…". The customer would have seen that, yet the case passed and the report counts 0 garbled replies for Flash-Lite. The global "no raw JSON or tool syntax" check and the reply sanity check both missed this shape. Next: add it to the garbled-reply detector's tests, re-grade (`eval:report` per run, `eval:sets`), and record which numbers move.
+¹ After the garbled-reply fix below (2026-10-05). Before it: 79/109 (63–80%), shopping 80%, 0 garbled delivered.
+
+**Grading miss, found and fixed 2026-10-05.** In test-1, Flash-Lite's reply on `test-invalid-coupon-01` begins with a tool call written out as text: "Ibruf:default_api:reply{message:Coupon WELCOME5 could not be applied…". The customer saw it, yet the case passed, and the report counted 0 garbled replies.
+- **Fix:** both checks now catch it.
+  - The grader's `raw_output` check (`grading/text.ts`): `reply{`/`handoff{` as well as `(`, the `default_api:` prefix, and a `name{key:` object with unquoted keys.
+  - The live check before a reply is sent (`agents/reply-check.ts`), which the report's "garbled delivered" count uses: `default_api:`/`functions.` prefixes and `name{key:`. Live, such a reply is now held back and retried instead of being sent.
+- **Precision:** across all 1,305 saved replies, the new patterns flag only this one. A test scans every saved run to keep it that way. Prose like "two functions: red and white" stays fine.
+- **Re-grade** (`eval:report` for every run except `pilot-1`, which uses the retired Gemma judge setup; then `eval:sets`; no model calls). **Only test-1, Flash-Lite, changed:**
+
+  | Flash-Lite, test-1 | Before | After |
+  | --- | --- | --- |
+  | Pass / fail | 79 / 30 | 78 / 31 |
+  | Task success | 72% (79/109, 63–80%) | 72% (78/109, 62–79%) |
+  | Code checks pass | 81% (89/110, 73–87%) | 80% (88/110, 72–86%) |
+  | Shopping cases | 80% (33/41, 66–90%) | 78% (32/41, 63–88%) |
+  | Garbled replies delivered | 0 | 1 |
+  | `test-invalid-coupon-01` | pass | FAIL: raw_output |
+
+- **Unchanged:** policy violations, grounding, everything for gpt-oss-120b and Qwen, and every dev run. The comparison still names no winner. The overview headline still says Flash-Lite and gpt-oss-120b "tied at 72%" (71.6% vs 71.8%, both round to 72%). The overview's Flash-Lite interval is now 62–79%.
 
 ### Renamed to AgentDesk; GitHub (2026-10-05)
 - **Rename** (Julian): "Switchyard Lite" became "AgentDesk" everywhere in the repo. That includes package names, `.env.example`, and the test DB fallbacks. The local Postgres databases were renamed with `ALTER DATABASE … RENAME TO` to `agentdesk_dev` / `agentdesk_test`, and the two DB lines in `.env` were updated.

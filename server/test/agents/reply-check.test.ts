@@ -23,6 +23,16 @@ describe("checkReplyText: garbled replies", () => {
     }
   });
 
+  it("flags a tool call written out as text: the reply Flash-Lite delivered in test-1 (test-invalid-coupon-01)", () => {
+    expect(checkReplyText("Ibruf:default_api:reply{message:Coupon WELCOME5 could not be applied because it was single-use and has already been used. \n\nHowever, you can use our SUMMER10 coupon for 10% off. With that code, the Glowworm 300 Headlamp ($29.00) comes to a total of $34.09, which includes a $2.90 discount and $7.99 shipping. \n\nThanks for understanding!}")).toEqual({ ok: false, reason: "junk", detail: 'contains garbled text "default_api:reply"' });
+    expect(checkReplyText("reply{message:Your order shipped.}")).toMatchObject({ ok: false, reason: "junk" });
+    expect(checkReplyText("functions.get_order")).toMatchObject({ ok: false, reason: "junk" });
+    // Prose that looks a little like it stays fine.
+    for (const text of ["The Nightowl has two functions: red and white light.", "Prices are {as quoted} today.", "Use code SUMMER10: 10% off."]) {
+      expect(checkReplyText(text), text).toEqual({ ok: true });
+    }
+  });
+
   it("flags output the provider cut at its length limit, and text ending on a comma, bracket or dash", () => {
     expect(checkReplyText("Your order shipped on Sep 12 and", "length")).toMatchObject({ ok: false, reason: "cut_off", detail: "was cut off at the output length limit" });
     for (const text of ["The Ridge 2 costs $199.20,", "Two options (", "Totals —"]) {
@@ -64,5 +74,27 @@ describe("checkReplyText: garbled replies", () => {
     }
     expect(replies).toBeGreaterThan(100);
     expect(flagged.sort()).toEqual(["dev-1/groq__qwen3.8-27b/comparison-02.json", "dev-1/groq__qwen3.8-27b/price-deals-04.json"]);
+  });
+
+  it("the tool-call-as-text patterns flag only test-1's delivered reply among every saved run's replies", () => {
+    const runs = join(import.meta.dirname, "../../eval-results/runs");
+    const flagged: string[] = [];
+    let replies = 0;
+    for (const run of readdirSync(runs)) {
+      const dir = join(runs, run, "conversations");
+      for (const model of readdirSync(dir)) {
+        for (const file of readdirSync(join(dir, model))) {
+          const record = JSON.parse(readFileSync(join(dir, model, file), "utf8"));
+          for (const step of record.observation.steps) {
+            if (step.kind !== "reply" || step.agent === "router") continue;
+            replies += 1;
+            const check = checkReplyText(step.data.message);
+            if (!check.ok && /default_api|functions\.|\w\s*\{\s*\w+\s*:/.test(check.detail)) flagged.push(`${run}/${model}/${file}`);
+          }
+        }
+      }
+    }
+    expect(replies).toBeGreaterThan(1000);
+    expect(flagged).toEqual(["test-1/gemini__gemini-3.5-flash-lite/test-invalid-coupon-01.json"]);
   });
 });
