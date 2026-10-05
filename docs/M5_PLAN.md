@@ -1,6 +1,12 @@
 # Milestone 5 plan: the public site
 
-**Status: proposed 2026-10-05, waiting for Julian's review. Nothing built yet.**
+**Status: built 2026-10-05 (sections 2–5), not deployed yet.** Julian's decisions, 2026-10-05:
+- (a) the repo will be made public
+- the snapshot has **all** eval runs, one JSON file per conversation, deterministic
+- pilot-1 is labelled as judged by the older Gemma/rubric@1 setup
+- Approvals is shown read-only, with the 5 demo-only example approvals, marked as examples
+
+**The first deploy waits for Julian's approval of the example approval texts.** Section 6 is still plan only.
 
 **The change (Julian, 2026-10-05): no hosted server.**
 - The public site is a **static, read-only snapshot** of the dashboard and storefront on **GitHub Pages**, with no API and no database.
