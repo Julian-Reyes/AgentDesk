@@ -1,4 +1,4 @@
-# Switchyard Lite — working rules
+# AgentDesk — working rules
 Full spec: docs/PROJECT.md. Progress: PROGRESS.md.
 
 ## How to work with me

@@ -13,7 +13,7 @@ export const PRIYA = 3;
 export const TOM = 4;
 export const SOFIA = 5;
 
-const { db, close } = connect(process.env.TEST_DATABASE_URL ?? "postgres://localhost:5432/switchyard_test");
+const { db, close } = connect(process.env.TEST_DATABASE_URL ?? "postgres://localhost:5432/agentdesk_test");
 afterAll(close);
 export { db };
 

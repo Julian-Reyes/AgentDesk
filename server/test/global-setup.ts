@@ -8,7 +8,7 @@ import { seed } from "../src/seed/index.ts";
  * back, so every test sees this exact seed.
  */
 export default async function setup() {
-  const url = process.env.TEST_DATABASE_URL ?? "postgres://localhost:5432/switchyard_test";
+  const url = process.env.TEST_DATABASE_URL ?? "postgres://localhost:5432/agentdesk_test";
   if (!/_test\b/.test(url)) throw new Error(`Refusing to run tests against a non-test database: ${url}`);
   process.env.TEST_DATABASE_URL = url;
   await runMigrations(url);

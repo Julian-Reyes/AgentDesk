@@ -17,7 +17,7 @@ M4 starts once the other session's 110 test cases are written and committed, **w
 What the overlap means in practice:
 - **The M3 test run (`test-1`) runs from a git worktree pinned at `8540db4`** (branch `test-run-1`, planned for 2026-10-03), so M4 work on `main` can't change what's tested.
 - **It shares the dev database.** During the test-run window (Julian says when it starts and ends): no migrations, no `db:seed` and no dev chats against the dev DB. Steps that need a migration (4 and 5) wait for the window to end if they reach that point during it.
-- **The test DB is shared too:** the worktree's pre-commit hook runs the old tests against `switchyard_test`. M4's migrations only add a nullable column and a new table, which the old code ignores.
+- **The test DB is shared too:** the worktree's pre-commit hook runs the old tests against `agentdesk_test`. M4's migrations only add a nullable column and a new table, which the old code ignores.
 - **Groq budget is shared:** the test run (~$1.90) has priority; M4 dev chats use Flash-Lite (free).
 - **Flash-Lite's ~500 requests/day** is shared too: no Flash-Lite dev chatting on the day of the test run.
 - The comparison page (step 6) starts with the dev sets; the test-run set is added to `comparison.json` when the run exists.

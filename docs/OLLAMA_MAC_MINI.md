@@ -31,12 +31,12 @@ Why each one:
 
 **`launchctl setenv` doesn't survive a reboot.** To make it permanent, create a login agent that sets the variables at every login. On the Mac mini:
 ```sh
-cat > ~/Library/LaunchAgents/com.switchyard.ollama-env.plist <<'EOF'
+cat > ~/Library/LaunchAgents/com.agentdesk.ollama-env.plist <<'EOF'
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-  <key>Label</key><string>com.switchyard.ollama-env</string>
+  <key>Label</key><string>com.agentdesk.ollama-env</string>
   <key>ProgramArguments</key>
   <array>
     <string>/bin/sh</string><string>-c</string>
@@ -46,7 +46,7 @@ cat > ~/Library/LaunchAgents/com.switchyard.ollama-env.plist <<'EOF'
 </dict>
 </plist>
 EOF
-launchctl load ~/Library/LaunchAgents/com.switchyard.ollama-env.plist
+launchctl load ~/Library/LaunchAgents/com.agentdesk.ollama-env.plist
 ```
 Also set Ollama to open at login (System Settings → General → Login Items → add Ollama). A reboot then comes back fully configured.
 

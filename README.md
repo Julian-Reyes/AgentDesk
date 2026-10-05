@@ -1,4 +1,4 @@
-# Switchyard Lite
+# AgentDesk
 
 A customer-support and shopping assistant for **Larchgrove Supply Co.**, a fictional outdoor-gear store. A router hands each conversation to one of two agents (shopping, or orders & returns). Business rules are enforced in code, not in prompts. Everything is traced and evaluated across several models.
 
@@ -11,7 +11,7 @@ You need Node 24+ and Postgres (Postgres.app works; it connects as your Mac user
 ```sh
 npm install
 cp .env.example .env            # then fill in GEMINI_API_KEY (free tier) and, for dashboard actions, ADMIN_TOKEN
-createdb switchyard_dev && createdb switchyard_test
+createdb agentdesk_dev && createdb agentdesk_test
 npm run db:migrate
 npm run db:seed                 # the fictional store: 60 products, 200 customers, 400 orders
 git config core.hooksPath .githooks   # pre-commit: typecheck + tests

@@ -11,7 +11,7 @@ import { EvalConversationPage, EvalRunPage, EvalRunsPage, LiveRunPage, LiveRunsP
  * token. Reading is public; actions need the token, which the server checks
  * on every request. The token is kept for this browser tab only.
  */
-const TOKEN_KEY = "switchyard-admin-token";
+const TOKEN_KEY = "agentdesk-admin-token";
 
 function storedToken(): string | null {
   try {
@@ -56,7 +56,7 @@ export function Ops() {
       <header className="border-b border-stone-200 bg-white">
         <div className={`mx-auto flex ${width} flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between`}>
           <div>
-            <p className="text-lg font-semibold text-forest-800">Switchyard ops</p>
+            <p className="text-lg font-semibold text-forest-800">AgentDesk ops</p>
             <p className="text-xs text-stone-500">Larchgrove Supply Co. demo · all customers and orders are fictional</p>
           </div>
           <nav aria-label="Dashboard" className="flex gap-3 text-sm">

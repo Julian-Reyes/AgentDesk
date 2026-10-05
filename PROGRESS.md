@@ -42,7 +42,7 @@
 ### How to run
 ```sh
 cp .env.example .env            # Postgres.app on localhost:5432
-createdb switchyard_dev && createdb switchyard_test   # Postgres.app's bin dir
+createdb agentdesk_dev && createdb agentdesk_test   # Postgres.app's bin dir
 npm install
 npm run db:migrate && npm run db:seed
 npm test && npm run typecheck
@@ -1354,6 +1354,14 @@ git worktree remove ../agents-test-run
 
 **Next:** Julian's switch/retire decision on the Agents page (Julian does it himself). The damaged-reason gap: see below.
 
+### Renamed to AgentDesk; GitHub (2026-10-05)
+- **Rename** (Julian): "Switchyard Lite" became "AgentDesk" everywhere in the repo. That includes package names, `.env.example`, and the test DB fallbacks. The local Postgres databases were renamed with `ALTER DATABASE … RENAME TO` to `agentdesk_dev` / `agentdesk_test`, and the two DB lines in `.env` were updated.
+  - **On another clone or machine:** rename the databases the same way (or `createdb agentdesk_dev && createdb agentdesk_test`, then migrate and seed), and update `.env`.
+  - The ops admin token is stored under a new browser key (`agentdesk-admin-token`), so paste it again once.
+  - If the Ollama LaunchAgent is already installed on the Mac mini, it keeps its old `com.switchyard.ollama-env` label. Only the doc changed.
+- **GitHub:** Julian created a private repo, AgentDesk. Pushing `main` is next.
+- **Overview page:** mockup first, before the switch/retire decision (gate relaxed; see docs/PROJECT.md, "Changes from the original spec"). Built in the existing dashboard style.
+
 ### The damage-cause rule (Julian's decision, 2026-10-05)
 **Why:** in test-1, agents refunded a *dropped* headlamp and one that *stopped charging after a trip* as "damaged" (violations 1 and 2 above). The tools only had one word, "damaged", so the model picked the nearest one, and code paid out anything ≤ $50. Julian: keep the $50 automatic refunds; make the tools ask when the damage happened, enforced in code. Not done: requiring a quote of the customer's words (option 3).
 
@@ -1495,7 +1503,7 @@ Sanity check: an SSE parser that drops partial events makes 3 web tests fail; no
 ### Step 4: approvals queue (2026-10-02)
 **Migration `0005`:** `approvals.run_id` (text, nullable, no FK, like the traces). `ToolContext` has an optional `runId`; `Conversation.runTool` passes the trace id, and `issue_refund` / `issue_goodwill_coupon` store it. Applied to the dev DB on 2026-10-02, before the test-run window.
 
-**Checked against tomorrow's test run first** (pinned `8540db4`): on scratch databases migrated to `0005`, the pinned commit's full test suite passed (394/394), its `db:seed` ran twice, its migrator was a no-op (drizzle only applies migrations newer than the last one recorded, so old code ignores `0005`), and its `issue_refund` queued an approval. The old code only reads approvals through column lists (drizzle selects) or truncates them (the seed), so the extra nullable column is invisible to it. The scratch DBs and worktree were removed afterwards. `switchyard_test` is also at `0005` now (main's tests migrate it); the pinned hook's tests pass there too, as checked above.
+**Checked against tomorrow's test run first** (pinned `8540db4`): on scratch databases migrated to `0005`, the pinned commit's full test suite passed (394/394), its `db:seed` ran twice, its migrator was a no-op (drizzle only applies migrations newer than the last one recorded, so old code ignores `0005`), and its `issue_refund` queued an approval. The old code only reads approvals through column lists (drizzle selects) or truncates them (the seed), so the extra nullable column is invisible to it. The scratch DBs and worktree were removed afterwards. `agentdesk_test` is also at `0005` now (main's tests migrate it); the pinned hook's tests pass there too, as checked above.
 
 **Decisions** (`src/approvals/decide.ts`), one transaction each, the approval row locked first (two admins can't both decide it), then the order row, the same lock `issue_refund` takes:
 - **Approve refund:** the linked `pending_approval` refund becomes `issued`, after re-checking that it still fits what was paid, counting every other issued or pending refund on the order and on the item. The check is `refundCapCents`, now split out of `decideRefund` so the tool and the human use the same rule. If it doesn't fit: `OVER_REFUNDABLE`, and it stays pending. The item sums moved into `tools/common.ts` (`orderRefundSums`, `itemRefundableCents`) for the same reason.
@@ -1519,7 +1527,7 @@ Sanity check: removing the over-paid re-check makes 2 tests fail, so does droppi
 ### Step 5: Agents page, team in the database (2026-10-02)
 **Migration `0006`:** a `team_changes` table, append-only. Each row has: role, action (`initial`, `switch`, `retire` or `reinstate`), `model` (what the action is about), `from_model` and `to_model` (the role's model before and after), a reason, who decided, and when. **I added `model` to the plan's columns** because a retire or reinstate is about a model that may not be current; with it, `to_model` always says what's current. Like the traces, `db:seed` never truncates it. Applied to the dev DB on 2026-10-02, before the test-run window; the dev DB has no rows yet.
 
-**Checked against tomorrow's test run** (`8540db4`): the pinned test suite passed (394/394) against `switchyard_test` at `0006`. On a scratch copy, the pinned `db:seed` left `team_changes` alone, its migrator was a no-op, and its tools worked. **One thing out of order:** `switchyard_test` was migrated to `0006` by my first test run, *before* this check (the test setup migrates automatically). The check passed, so nothing was affected, but this time the order was "migrate test DB, then check", not the other way round. The dev DB was migrated after the check.
+**Checked against tomorrow's test run** (`8540db4`): the pinned test suite passed (394/394) against `agentdesk_test` at `0006`. On a scratch copy, the pinned `db:seed` left `team_changes` alone, its migrator was a no-op, and its tools worked. **One thing out of order:** `agentdesk_test` was migrated to `0006` by my first test run, *before* this check (the test setup migrates automatically). The check passed, so nothing was affected, but this time the order was "migrate test DB, then check", not the other way round. The dev DB was migrated after the check.
 
 **Rules** (`agents/team-store.ts`): pure functions (`foldHistory`, `planChange`) plus a small DB layer. Every write takes one advisory lock, so a change is always checked against the state it's appended to.
 - The current team is the latest `to_model` per role. On first read, an `initial` row per role is recorded from `config/team.json`; after that, the database decides and later file edits are ignored.

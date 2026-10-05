@@ -64,7 +64,7 @@ export function Storefront() {
       </main>
 
       <footer className="mx-auto max-w-6xl px-4 pb-24 pt-4 text-xs text-stone-500">
-        Larchgrove Supply Co. is fictional, part of Switchyard Lite, a portfolio project on building and measuring AI agents.
+        Larchgrove Supply Co. is fictional, part of AgentDesk, a portfolio project on building and measuring AI agents.
       </footer>
       <ChatWidget />
     </div>

@@ -1,4 +1,4 @@
-# Project: "Switchyard Lite", an AI agent team for an online store (built, measured, and managed)
+# Project: "AgentDesk", an AI agent team for an online store (built, measured, and managed)
 
 ## Why this exists
 This is a portfolio project for **AI Agent Engineer / Applied AI** roles. Those jobs ask for someone who can **build agents that do real work through tools, run them, measure them, compare models, and retire the ones that underperform.** This project shows exactly that, in a domain everyone understands: **customer chat for an online store.**
@@ -194,3 +194,5 @@ Once both projects are done, the Router can be swapped for the best model from S
 - **2026-10-02: Return and damage windows count calendar days** (Julian's decision). "Within 30 days of delivery" now compares dates, not 24-hour periods. Before, an order delivered after noon kept an extra day, and the tool could say "eligible until" a date that had already passed.
 - **2026-10-02: A damaged item's $50 automatic limit is judged on one unit's price** (Julian's decision), and the $50 total per order still applies. One damaged lamp from a pair of $49 lamps ($98 line) is refunded right away; refunding both still goes to approval.
 - **2026-10-02: The real switch/retire decision moves from milestone 6 to right after the `test-1` results** (Julian's decision), before the M5 `/ops` overview page is built. The overview page shows that decision and the held-out numbers behind it, so both must exist first. The decision is made on the Agents page (switch/retire with a reason, kept in `team_changes`). The written case study and the final polish stay in milestone 6.
+- **2026-10-05: The project is renamed from "Switchyard Lite" to "AgentDesk"** (Julian's decision), to match the GitHub repo. Everything in the repo was renamed: package names (`agentdesk`, `@agentdesk/server`, `@agentdesk/web`), the local databases (`agentdesk_dev`, `agentdesk_test`), the ops admin-token storage key, and the Ollama LaunchAgent label in the docs.
+- **2026-10-05: The `/ops` overview page's gate is relaxed** (Julian's decision): the mockup is drafted before the switch/retire decision. Until that decision is made, the decision card shows that none exists yet and links to the Agents history. The page is built in the existing dashboard style; the `frontend-design` skill isn't used.
