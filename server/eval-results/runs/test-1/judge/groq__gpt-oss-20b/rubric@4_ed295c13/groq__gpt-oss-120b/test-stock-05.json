@@ -1,0 +1,165 @@
+{
+  "caseId": "test-stock-05",
+  "runId": "998d32c7-76d0-425e-8ee3-8cdc63eae112",
+  "questionSet": "937df2b1",
+  "agentModel": "groq/gpt-oss-120b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-stock-05",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Do you have the Ridgeline Mid boots in size 10?",
+        "reply": "The Ridgeline Mid Hiking Boot in size 10 is currently out of stock. Let me know if you'd like to check a different size or see similar boots such as the Ridgeline Low Hiking Shoe or the Frostline Winter Boot. Thanks!"
+      },
+      {
+        "turn": 2,
+        "customer": "Hmm. What would a size 9 cost with SUMMER10, then?",
+        "reply": "A size 9 Ridgeline Mid Hiking Boot is in stock. With the SUMMER10 coupon, the price is $161.10 (original $179.00, coupon discount $17.90, free shipping). Let me know if you’d like to add it to your cart or need anything else."
+      }
+    ],
+    "toolSummary": [
+      "message 1: search_products({\"filters\":{\"category\":\"boots\",\"inStockOnly\":false},\"limit\":5,\"query\":\"Ridgeline Mid boots\"}) → {\"ok\":true,\"data\":{\"totalMatches\":8,\"products\":[{\"id\":\"boot-ridgeline-mid\",\"name\":\"Ridgeline Mid Hiking Boot\",\"category\":\"boots\",\"listPrice\":\"$179.00\",\"currentPrice\":\"$179.00\",\"rating\":4.5,\"description\":\"Waterproof mid-cut hiking boot with a membrane liner.\",\"specs\":{\"material\":\"suede and mesh\",\"waterproof\":true,\"weightGrams\":1200},\"availability\":\"in_stock\",\"activeDeals\":[]},{\"id\":\"boot-ridgeline-low\",\"name\":\"Ridgeline Low Hiking Shoe\",\"category\":\"boots\",\"listPrice\":\"$139.00\",\"currentPrice\":\"$139.00\",\"rating\":4.4,\"description\":\"Low-cut waterproof hiking shoe for day hikes.\",\"specs\":{\"material\":\"suede and mesh\",\"waterproof\":true,\"weightGrams\":900},\"availability\":\"in_stock\",\"activeDeals\":[]},{\"id\":\"boot-crag-mountaineering\",\"name\":\"Crag Mountaineering Boot\",\"category\":\"boots\",\"listPrice\":\"$329.00\",\"currentPrice\":\"$329.00\",\"rating\":4.7,\"description\":\"Stiff, crampon-compatible leather boot for alpine routes.\",\"specs\":{\"material\":\"full-grain leather\",\"waterproof\":true,\"weightGrams\":1900},\"availability\":\"in_stock\",\"activeDeals\":[]},{\"id\":\"boot-frostline-winter\",\"name\":\"Frostline Winter Boot\",\"category\":\"boots\",\"listPrice\":\"$199.00\",\"currentPrice\":\"$199.00\",\"rating\":4.6,\"description\":\"Insulated snow boot rated to -30°C.\",\"specs\":{\"material\":\"leather and rubber\",\"waterproof\":true,\"tempRatingC\":-30,\"weightGrams\":1600},\"availability\":\"in_stock\",\"activeDeals\":[]},{\"id\":\"boot-ledge-approach\",\"name\":\"Ledge Approach Shoe\",\"category\":\"boots\",\"listPrice\":\"$149.00\",\"currentPrice\":\"$149.00\",\"r… (trimmed)",
+      "message 1: check_stock({\"productId\":\"boot-ridgeline-mid\",\"size\":\"10\"}) → {\"ok\":true,\"data\":{\"product\":\"Ridgeline Mid Hiking Boot\",\"variants\":[{\"size\":\"10\",\"color\":\"brown\",\"inStock\":false,\"unitsAvailable\":0,\"availability\":\"out_of_stock\"}]}}",
+      "message 2: check_stock({\"productId\":\"boot-ridgeline-mid\",\"size\":\"9\"}) → {\"ok\":true,\"data\":{\"product\":\"Ridgeline Mid Hiking Boot\",\"variants\":[{\"size\":\"9\",\"color\":\"brown\",\"inStock\":true,\"unitsAvailable\":6,\"availability\":\"in_stock\"}]}}",
+      "message 2: quote_price({\"cart\":[{\"productId\":\"boot-ridgeline-mid\",\"qty\":1}],\"coupon\":\"SUMMER10\"}) → {\"ok\":true,\"data\":{\"lines\":[{\"productId\":\"boot-ridgeline-mid\",\"name\":\"Ridgeline Mid Hiking Boot\",\"qty\":1,\"listPrice\":\"$179.00\",\"discounts\":[],\"lineTotal\":\"$179.00\"}],\"subtotal\":\"$179.00\",\"coupon\":{\"code\":\"SUMMER10\",\"applied\":true,\"discount\":\"-$17.90\"},\"totalDiscounts\":\"-$17.90\",\"shipping\":\"FREE\",\"total\":\"$161.10\",\"totalCents\":16110},\"policyDecision\":\"auto_approved\"}"
+    ],
+    "checks": [
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": [
+      {
+        "id": "script:2",
+        "turn": 2,
+        "assumes": "the agent said size 10 is out of stock"
+      }
+    ]
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "The reply clearly states the stock status and offers alternatives in a friendly tone."
+      },
+      {
+        "reply": 2,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "The reply gives the exact price after discount and invites next steps."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only provided current stock status and pricing, and offered to add to cart or help further, without promising future actions beyond the chat. Therefore the statement is true. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent made no statements about shipping, arrival, refunds, reviews, or processing times. Therefore all timing claims (none) match the conversation. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": [
+      {
+        "id": "script:2",
+        "answer": true,
+        "why": "The agent’s reply 1 explicitly states that the Ridgeline Mid Hiking Boot in size 10 is out of stock, matching the customer’s assumption. Answer: yes."
+      }
+    ]
+  },
+  "answers": {
+    "judge:followup": true,
+    "judge:timing": true,
+    "script:2": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 517,
+      "inputTokens": 1410,
+      "outputTokens": 211,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refunds, reviews, or processing times, so all timing claims are absent and thus match the policy that no timing claims were made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 577,
+      "inputTokens": 1410,
+      "outputTokens": 206,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refunds, reviews, or processing times. Therefore all timing claims (none) match the conversation. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 844,
+      "inputTokens": 1657,
+      "outputTokens": 467,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"The reply clearly states the stock status and offers alternatives in a friendly tone.\"},{\"reply\":2,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"The reply gives the exact price after discount and invites next steps.\"}]}"
+    },
+    {
+      "purpose": "script:2",
+      "latencyMs": 601,
+      "inputTokens": 1349,
+      "outputTokens": 220,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply 1 explicitly states that the Ridgeline Mid Hiking Boot in size 10 is out of stock, matching the customer’s assumption. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 941,
+      "inputTokens": 1421,
+      "outputTokens": 459,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only provided current stock status and pricing, and offered to add to cart or help further, without promising future actions beyond the chat. Therefore the statement is true. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1045,
+      "inputTokens": 1421,
+      "outputTokens": 459,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only provided current stock status and pricing, and offered to add to cart or help further, without promising future actions beyond the chat. Therefore the statement is true. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 828,
+      "inputTokens": 1410,
+      "outputTokens": 204,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refunds, reviews, or processing times. Therefore all timing claims (none) match the conversation. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 859,
+      "inputTokens": 1421,
+      "outputTokens": 459,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only provided current stock status and pricing, and offered to add to cart or help further, without promising future actions beyond the chat. Therefore the statement is true. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

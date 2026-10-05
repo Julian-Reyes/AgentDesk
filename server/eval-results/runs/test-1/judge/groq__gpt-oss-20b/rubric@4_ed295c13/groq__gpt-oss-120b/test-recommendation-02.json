@@ -1,0 +1,129 @@
+{
+  "caseId": "test-recommendation-02",
+  "runId": "6312a0a7-c6d4-4c39-9449-09055ba16f30",
+  "questionSet": "2a2c12d8",
+  "agentModel": "groq/gpt-oss-120b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-recommendation-02",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "What's a good backpack that weighs under 1 kg and costs less than $100?",
+        "reply": "Here are three backpacks that meet your criteria (under 1 kg and under $100):\n\n1. **Swift 20 Daypack** – $89.00, weight 700 g, 20 L capacity, lightweight everyday pack.\n2. **Cub 15 Kids Pack** – $45.00, weight 400 g, 15 L capacity, sized for children.\n3. **Rill 12 Hydration Pack** – $69.00, weight 500 g, 12 L capacity, includes a 2‑liter reservoir for running or biking.\n\nAll are in stock. Let me know if you’d like more details or want to add one to a cart."
+      }
+    ],
+    "toolSummary": [
+      "message 1: search_products({\"filters\":{\"category\":\"backpacks\",\"maxPrice\":100,\"maxWeightGrams\":1000},\"limit\":10}) → {\"ok\":true,\"data\":{\"totalMatches\":3,\"products\":[{\"id\":\"pack-swift-20\",\"name\":\"Swift 20 Daypack\",\"category\":\"backpacks\",\"listPrice\":\"$89.00\",\"currentPrice\":\"$89.00\",\"rating\":4.3,\"description\":\"Light everyday daypack with a hydration sleeve.\",\"specs\":{\"material\":\"100D nylon\",\"waterproof\":false,\"weightGrams\":700,\"volumeLiters\":20},\"availability\":\"in_stock\",\"activeDeals\":[]},{\"id\":\"pack-cub-15\",\"name\":\"Cub 15 Kids Pack\",\"category\":\"backpacks\",\"listPrice\":\"$45.00\",\"currentPrice\":\"$45.00\",\"rating\":4.2,\"description\":\"Small daypack sized for kids, with a chest strap and whistle.\",\"specs\":{\"material\":\"polyester\",\"waterproof\":false,\"weightGrams\":400,\"volumeLiters\":15},\"availability\":\"in_stock\",\"activeDeals\":[]},{\"id\":\"pack-rill-12\",\"name\":\"Rill 12 Hydration Pack\",\"category\":\"backpacks\",\"listPrice\":\"$69.00\",\"currentPrice\":\"$69.00\",\"rating\":4.1,\"description\":\"Running and biking pack with a 2-liter reservoir included.\",\"specs\":{\"material\":\"nylon mesh\",\"waterproof\":false,\"weightGrams\":500,\"volumeLiters\":12},\"availability\":\"in_stock\",\"activeDeals\":[]}],\"note\":\"currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping.\"}}"
+    ],
+    "checks": [
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "The reply is friendly, clear, and fully addresses the customer's request with options and next steps."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only lists available products and invites the customer to request more details or add to cart, without promising future actions it cannot perform in this chat. This complies with the rule. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent made no statements about shipping, arrival, refunds, reviews, or processing times, so all timing claims are absent and thus match the policy. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 752,
+      "inputTokens": 1036,
+      "outputTokens": 119,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refunds, reviews, or processing times. Therefore all timing claims (none) match the conversation. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 957,
+      "inputTokens": 1036,
+      "outputTokens": 115,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refunds, reviews, or processing times, so all timing claims are absent and thus match the policy. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1034,
+      "inputTokens": 1047,
+      "outputTokens": 331,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only lists available products and invites the customer to request more details or add to cart, without promising future actions it cannot perform in this chat. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1082,
+      "inputTokens": 1047,
+      "outputTokens": 331,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only lists available products and invites the customer to request more details or add to cart, without promising future actions it cannot perform in this chat. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 1189,
+      "inputTokens": 1280,
+      "outputTokens": 172,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"The reply is friendly, clear, and fully addresses the customer's request with options and next steps.\"}]}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1234,
+      "inputTokens": 1036,
+      "outputTokens": 115,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refunds, reviews, or processing times, so all timing claims are absent and thus match the policy. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1717,
+      "inputTokens": 1047,
+      "outputTokens": 331,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only lists available products and invites the customer to request more details or add to cart, without promising future actions it cannot perform in this chat. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

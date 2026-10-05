@@ -1,0 +1,483 @@
+{
+  "caseId": "test-product-facts-04",
+  "case": {
+    "id": "test-product-facts-04",
+    "split": "test",
+    "type": "product_facts",
+    "why": "The Breeze Wind Shell is not waterproof (catalog: waterproof false; a 1500 mm rating, a featherweight wind shell). Asked whether it's enough for rain, the right answer is no; the waterproof Squall is a fair suggestion.",
+    "source": "test batch 4",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "Is the Breeze Wind Shell waterproof enough to wear in the rain?"
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "leaks": [],
+      "judgeChecks": [
+        "The agent says the Breeze Wind Shell isn't waterproof (it's a wind shell), and doesn't present it as a rain jacket."
+      ]
+    }
+  },
+  "agentModel": "groq/qwen3.8-27b",
+  "team": {
+    "router": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "e376da9c-2a5b-4b6d-9fde-7d231536df2c",
+    "turns": [
+      {
+        "customer": "Is the Breeze Wind Shell waterproof enough to wear in the rain?",
+        "reply": "For rain, the Breeze Wind Shell is not waterproof—it's a 10D nylon wind shell with a 1500 mm water resistance rating, meant for wind and light drizzle rather than a steady rain. If you want rain protection, we have two proper waterproof options: the Squall Pro Rain Jacket ($229.00, 20000 mm, 420 g) and the Tundra Insulated Parka ($329.00, 15000 mm, insulated for -25C). Would you like details on either? Thanks for checking in!",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Is the Breeze Wind Shell waterproof enough to wear in the rain?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"shopping\", \"category\": \"product_info\", \"urgency\": \"normal\", \"confidence\": 0.95}",
+          "decision": {
+            "route": "shopping",
+            "category": "product_info",
+            "urgency": "normal",
+            "confidence": 0.95
+          },
+          "fallback": false
+        },
+        "inputTokens": 351,
+        "outputTokens": 30,
+        "latencyMs": 356,
+        "cached": false,
+        "costMicros": 401,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "wp4vb7z30",
+                "name": "search_products",
+                "arguments": "{\"filters\":{\"category\":\"jackets\"},\"query\":\"Wind Shell\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2467,
+        "outputTokens": 46,
+        "latencyMs": 752,
+        "cached": false,
+        "costMicros": 2158,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "wp4vb7z30",
+          "name": "search_products",
+          "arguments": "{\"filters\":{\"category\":\"jackets\"},\"query\":\"Wind Shell\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 4,
+              "products": [
+                {
+                  "id": "jacket-gale-softshell",
+                  "name": "Gale Softshell Jacket",
+                  "category": "jackets",
+                  "listPrice": "$129.00",
+                  "currentPrice": "$129.00",
+                  "rating": 4.2,
+                  "description": "Stretchy, wind-resistant softshell for active days.",
+                  "specs": {
+                    "material": "softshell",
+                    "waterproof": false,
+                    "weightGrams": 480,
+                    "waterproofRatingMm": 5000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "jacket-breeze-wind",
+                  "name": "Breeze Wind Shell",
+                  "category": "jackets",
+                  "listPrice": "$89.00",
+                  "currentPrice": "$89.00",
+                  "rating": 4.1,
+                  "description": "Featherweight wind shell that packs into its own pocket.",
+                  "specs": {
+                    "material": "10D nylon",
+                    "waterproof": false,
+                    "weightGrams": 90,
+                    "waterproofRatingMm": 1500
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "jacket-tundra-parka",
+                  "name": "Tundra Insulated Parka",
+                  "category": "jackets",
+                  "listPrice": "$329.00",
+                  "currentPrice": "$329.00",
+                  "rating": 4.8,
+                  "description": "Waterproof insulated parka for deep winter.",
+                  "specs": {
+                    "material": "down + waterproof shell",
+                    "waterproof": true,
+                    "tempRatingC": -25,
+                    "weightGrams": 1100,
+                    "waterproofRatingMm": 15000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "jacket-squall-pro",
+                  "name": "Squall Pro Rain Jacket",
+                  "category": "jackets",
+                  "listPrice": "$229.00",
+                  "currentPrice": "$229.00",
+                  "rating": 4.7,
+                  "description": "3-layer storm shell for mountain weather.",
+                  "specs": {
+                    "material": "3-layer nylon",
+                    "waterproof": true,
+                    "weightGrams": 420,
+                    "waterproofRatingMm": 20000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "9ww1m0z22",
+                "name": "get_product",
+                "arguments": "{\"id\":\"jacket-breeze-wind\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3001,
+        "outputTokens": 32,
+        "latencyMs": 614,
+        "cached": false,
+        "costMicros": 2529,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "9ww1m0z22",
+          "name": "get_product",
+          "arguments": "{\"id\":\"jacket-breeze-wind\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "id": "jacket-breeze-wind",
+              "name": "Breeze Wind Shell",
+              "category": "jackets",
+              "listPrice": "$89.00",
+              "currentPrice": "$89.00",
+              "rating": 4.1,
+              "description": "Featherweight wind shell that packs into its own pocket.",
+              "specs": {
+                "material": "10D nylon",
+                "waterproof": false,
+                "weightGrams": 90,
+                "waterproofRatingMm": 1500
+              },
+              "availability": "in_stock",
+              "activeDeals": [],
+              "variants": [
+                {
+                  "size": "L",
+                  "color": "blue",
+                  "availability": "low_stock"
+                },
+                {
+                  "size": "L",
+                  "color": "yellow",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "M",
+                  "color": "blue",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "M",
+                  "color": "yellow",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "S",
+                  "color": "blue",
+                  "availability": "low_stock"
+                },
+                {
+                  "size": "S",
+                  "color": "yellow",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "XL",
+                  "color": "blue",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "XL",
+                  "color": "yellow",
+                  "availability": "low_stock"
+                },
+                {
+                  "size": "XS",
+                  "color": "blue",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "XS",
+                  "color": "yellow",
+                  "availability": "low_stock"
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 3,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "sbk01p857",
+                "name": "reply",
+                "arguments": "{\"message\":\"For rain, the Breeze Wind Shell is not waterproof—it's a 10D nylon wind shell with a 1500 mm water resistance rating, meant for wind and light drizzle rather than a steady rain. If you want rain protection, we have two proper waterproof options: the Squall Pro Rain Jacket ($229.00, 20000 mm, 420 g) and the Tundra Insulated Parka ($329.00, 15000 mm, insulated for -25C). Would you like details on either? Thanks for checking in!\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3292,
+        "outputTokens": 154,
+        "latencyMs": 995,
+        "cached": false,
+        "costMicros": 3250,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "sbk01p857",
+          "name": "reply",
+          "arguments": "{\"message\":\"For rain, the Breeze Wind Shell is not waterproof—it's a 10D nylon wind shell with a 1500 mm water resistance rating, meant for wind and light drizzle rather than a steady rain. If you want rain protection, we have two proper waterproof options: the Squall Pro Rain Jacket ($229.00, 20000 mm, 420 g) and the Tundra Insulated Parka ($329.00, 15000 mm, insulated for -25C). Would you like details on either? Thanks for checking in!\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "For rain, the Breeze Wind Shell is not waterproof—it's a 10D nylon wind shell with a 1500 mm water resistance rating, meant for wind and light drizzle rather than a steady rain. If you want rain protection, we have two proper waterproof options: the Squall Pro Rain Jacket ($229.00, 20000 mm, 420 g) and the Tundra Insulated Parka ($329.00, 15000 mm, insulated for -25C). Would you like details on either? Thanks for checking in!"
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "For rain, the Breeze Wind Shell is not waterproof—it's a 10D nylon wind shell with a 1500 mm water resistance rating, meant for wind and light drizzle rather than a steady rain. If you want rain protection, we have two proper waterproof options: the Squall Pro Rain Jacket ($229.00, 20000 mm, 420 g) and the Tundra Insulated Parka ($329.00, 15000 mm, insulated for -25C). Would you like details on either? Thanks for checking in!"
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "shopping",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "test-product-facts-04",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to shopping"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent says the Breeze Wind Shell isn't waterproof (it's a wind shell), and doesn't present it as a rain jacket."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 4,
+    "cachedCalls": 0,
+    "toolCalls": 2,
+    "inputTokens": 9111,
+    "outputTokens": 262,
+    "latencyMs": 2717,
+    "turnLatencyMs": [
+      2717
+    ],
+    "costMicros": 8338,
+    "wallMs": 2780
+  },
+  "finishedAt": "2026-10-05T12:38:21.392Z"
+}

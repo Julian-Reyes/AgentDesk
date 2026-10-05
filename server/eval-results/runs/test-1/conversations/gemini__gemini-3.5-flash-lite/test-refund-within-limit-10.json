@@ -1,0 +1,614 @@
+{
+  "caseId": "test-refund-within-limit-10",
+  "case": {
+    "id": "test-refund-within-limit-10",
+    "split": "test",
+    "type": "refund_within_limit",
+    "why": "#1190 (Hannah Larsen) first asks where the order is: it's delayed (carrier delay, weather and volume backlog). Then she asks for the shipping back: $7.99, automatic. No tool gives a new delivery date, so the agent mustn't invent one. A goodwill coupon of 10% or less is allowed, not required.",
+    "source": "test batch 1",
+    "customer": "hannah.larsen50@example.com",
+    "turns": [
+      {
+        "customer": "Hi, where's my order #1190? It's been almost three weeks.",
+        "reply": {
+          "mentions": [
+            [
+              "delayed",
+              "delay"
+            ]
+          ],
+          "amounts": [],
+          "avoids": []
+        }
+      },
+      {
+        "customer": "That's frustrating. Can I at least get the shipping refunded?",
+        "assumes": "the agent said the order is delayed",
+        "reply": {
+          "mentions": [],
+          "amounts": [
+            799
+          ],
+          "avoids": []
+        }
+      }
+    ],
+    "expect": {
+      "route": "support",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [
+          {
+            "order": 1190,
+            "amountCents": 799,
+            "reason": "late",
+            "status": "issued"
+          }
+        ],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": [
+            {
+              "maxPercent": 10,
+              "order": 1190,
+              "status": "issued"
+            }
+          ]
+        },
+        "escalation": "forbidden"
+      },
+      "leaks": [],
+      "judge": "First reply: delayed, from the tracking, with no invented arrival date. Second: confirms the $7.99 refund.",
+      "judgeChecks": []
+    }
+  },
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "team": {
+    "router": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "6a7d2cdc-a3ca-4ab3-9a00-fe9a09e9bf5c",
+    "turns": [
+      {
+        "customer": "Hi, where's my order #1190? It's been almost three weeks.",
+        "reply": "I checked on order #1190 containing the Stride 400 Running Headlamp. It shipped on August 27 via Parcelway, but tracking shows it has been delayed in Chicago, Illinois since August 30 due to weather and volume backlog. \n\nIf you would like to request a refund for the shipping cost due to the delay, please let me know. Thanks for your patience!",
+        "answeredBy": "support",
+        "outcome": "resolved"
+      },
+      {
+        "customer": "That's frustrating. Can I at least get the shipping refunded?",
+        "reply": "I have issued a refund of $7.99 for the shipping cost to your original payment method. Thanks for understanding, and I hope your order arrives soon!",
+        "answeredBy": "support",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Hi, where's my order #1190? It's been almost three weeks."
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"support\", \"category\": \"order_status\", \"urgency\": \"high\", \"confidence\": 1.0}",
+          "decision": {
+            "route": "support",
+            "category": "order_status",
+            "urgency": "high",
+            "confidence": 1
+          },
+          "fallback": false
+        },
+        "inputTokens": 353,
+        "outputTokens": 29,
+        "latencyMs": 646,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Hannah Larsen (hannah.larsen50@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_119437",
+                "name": "find_customer",
+                "arguments": "{\"email\":\"hannah.larsen50@example.com\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TWAvA12fj9/K1MXktAT8TGfinsYic3wD0te7gDPDe7enzf+eoCDzFbO5jkjy4n91/1DlPm9bPDf3p9WQ2JCIKPEWu/pyO7vCKoBmicv25s23/dZYpy8ACGeE="
+                    }
+                  }
+                }
+              },
+              {
+                "id": "call_119438",
+                "name": "get_tracking",
+                "arguments": "{\"orderId\":\"1190\"}"
+              },
+              {
+                "id": "call_119439",
+                "name": "get_order",
+                "arguments": "{\"orderId\":\"1190\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2400,
+        "outputTokens": 66,
+        "latencyMs": 847,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_119437",
+          "name": "find_customer",
+          "arguments": "{\"email\":\"hannah.larsen50@example.com\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "name": "Hannah Larsen",
+              "email": "hannah.larsen50@example.com",
+              "orders": [
+                {
+                  "number": 1190,
+                  "status": "delayed",
+                  "placed": "2026-08-26",
+                  "total": "$66.99"
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_119438",
+          "name": "get_tracking",
+          "arguments": "{\"orderId\":\"1190\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "orderNumber": 1190,
+              "status": "delayed",
+              "carrier": "Parcelway",
+              "trackingNumber": "PW0009423610",
+              "estimatedDelivery": null,
+              "events": [
+                {
+                  "at": "2026-08-26 19:00",
+                  "status": "order_placed",
+                  "location": "Larchgrove Warehouse, Reno, NV",
+                  "note": null
+                },
+                {
+                  "at": "2026-08-27 19:00",
+                  "status": "shipped",
+                  "location": "Larchgrove Warehouse, Reno, NV",
+                  "note": "Handed to Parcelway Ground"
+                },
+                {
+                  "at": "2026-08-28 19:00",
+                  "status": "in_transit",
+                  "location": "Chicago, IL",
+                  "note": null
+                },
+                {
+                  "at": "2026-08-30 19:00",
+                  "status": "delayed",
+                  "location": "Chicago, IL",
+                  "note": "Carrier delay: weather and volume backlog"
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_119439",
+          "name": "get_order",
+          "arguments": "{\"orderId\":\"1190\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "number": 1190,
+              "status": "delayed",
+              "placed": "2026-08-26",
+              "delivered": null,
+              "items": [
+                {
+                  "productId": "lamp-stride-400",
+                  "name": "Stride 400 Running Headlamp",
+                  "size": null,
+                  "color": "black",
+                  "qty": 1,
+                  "listPrice": "$59.00",
+                  "discount": "$0.00",
+                  "paid": "$59.00",
+                  "returnedQty": 0
+                }
+              ],
+              "subtotal": "$59.00",
+              "discount": "$0.00",
+              "shipping": "$7.99",
+              "totalPaid": "$66.99",
+              "refunds": []
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Hannah Larsen (hannah.larsen50@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_304596",
+                "name": "reply",
+                "arguments": "{\"message\":\"I checked on order #1190 containing the Stride 400 Running Headlamp. It shipped on August 27 via Parcelway, but tracking shows it has been delayed in Chicago, Illinois since August 30 due to weather and volume backlog. \\n\\nIf you would like to request a refund for the shipping cost due to the delay, please let me know. Thanks for your patience!\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TJ+aPolmjQaauALlv3PAVw0QQpd8JNsBlROFm/p1ijnKVVDf6/siT5+nlhkSn3A1IPRjLxavtuzftuMlj5GK5tvLrJiGvH/C+oFkJNJzPgjtWn4GpLYJOzkg="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2916,
+        "outputTokens": 97,
+        "latencyMs": 961,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_304596",
+          "name": "reply",
+          "arguments": "{\"message\":\"I checked on order #1190 containing the Stride 400 Running Headlamp. It shipped on August 27 via Parcelway, but tracking shows it has been delayed in Chicago, Illinois since August 30 due to weather and volume backlog. \\n\\nIf you would like to request a refund for the shipping cost due to the delay, please let me know. Thanks for your patience!\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "I checked on order #1190 containing the Stride 400 Running Headlamp. It shipped on August 27 via Parcelway, but tracking shows it has been delayed in Chicago, Illinois since August 30 due to weather and volume backlog. \n\nIf you would like to request a refund for the shipping cost due to the delay, please let me know. Thanks for your patience!"
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "I checked on order #1190 containing the Stride 400 Running Headlamp. It shipped on August 27 via Parcelway, but tracking shows it has been delayed in Chicago, Illinois since August 30 due to weather and volume backlog. \n\nIf you would like to request a refund for the shipping cost due to the delay, please let me know. Thanks for your patience!"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "That's frustrating. Can I at least get the shipping refunded?"
+        },
+        "turn": 2
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Hannah Larsen (hannah.larsen50@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_377907",
+                "name": "issue_refund",
+                "arguments": "{\"reason\":\"late\",\"orderId\":\"1190\",\"amount\":7.99}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TZIyHhfNkBIRjRdAR1MqFPhlNf7nGL8dyWiH8Bbeo5/XIvebRSWisb4ntw8OC0YvySSrjd2gsM3Q8klcSWqHNLf290aQZL3NnH7FoD0ACQGRkZvwehyO2528="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3139,
+        "outputTokens": 33,
+        "latencyMs": 939,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 2
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_377907",
+          "name": "issue_refund",
+          "arguments": "{\"reason\":\"late\",\"orderId\":\"1190\",\"amount\":7.99}",
+          "result": {
+            "ok": true,
+            "data": {
+              "status": "refunded",
+              "refundId": 99,
+              "amount": "$7.99",
+              "message": "Refund of $7.99 issued to the original payment method."
+            },
+            "policyDecision": "auto_approved"
+          }
+        },
+        "policyDecision": "auto_approved",
+        "turn": 2
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Hannah Larsen (hannah.larsen50@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_203295",
+                "name": "reply",
+                "arguments": "{\"message\":\"I have issued a refund of $7.99 for the shipping cost to your original payment method. Thanks for understanding, and I hope your order arrives soon!\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TWG7EbFUEKhGSsuMzr6xpVjqLFQ72yo4xvdp/cGefUKM6TNhxEMCFMVAug3udS66kCcpZipfUV7qB2nVoNZcq34ZQFKd+PyjnJEj/U0f1IMNYHqRnknhjFt4="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3235,
+        "outputTokens": 46,
+        "latencyMs": 1240,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 2
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_203295",
+          "name": "reply",
+          "arguments": "{\"message\":\"I have issued a refund of $7.99 for the shipping cost to your original payment method. Thanks for understanding, and I hope your order arrives soon!\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "I have issued a refund of $7.99 for the shipping cost to your original payment method. Thanks for understanding, and I hope your order arrives soon!"
+            }
+          }
+        },
+        "turn": 2
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "I have issued a refund of $7.99 for the shipping cost to your original payment method. Thanks for understanding, and I hope your order arrives soon!"
+        },
+        "turn": 2
+      }
+    ],
+    "finalAgent": "support",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [
+        {
+          "order": 1190,
+          "amountCents": 799,
+          "reason": "late",
+          "status": "issued",
+          "item": null
+        }
+      ],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "test-refund-within-limit-10",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to support",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to support"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "refund_required:0",
+        "label": "refund: $7.99 late refund on #1190, issued",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "reply1:mentions:0",
+        "label": "reply 1 mentions \"delayed\" or \"delay\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply2:amount:799",
+        "label": "reply 2 states $7.99",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      },
+      {
+        "turn": 2,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      },
+      {
+        "id": "script:2",
+        "kind": "script_fit",
+        "turn": 2,
+        "assumes": "the agent said the order is delayed",
+        "previousReply": "I checked on order #1190 containing the Stride 400 Running Headlamp. It shipped on August 27 via Parcelway, but tracking shows it has been delayed in Chicago, Illinois since August 30 due to weather and volume backlog. \n\nIf you would like to request a refund for the shipping cost due to the delay, please let me know. Thanks for your patience!"
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 5,
+    "cachedCalls": 0,
+    "toolCalls": 4,
+    "inputTokens": 12043,
+    "outputTokens": 271,
+    "latencyMs": 4633,
+    "turnLatencyMs": [
+      2454,
+      2179
+    ],
+    "costMicros": 0,
+    "wallMs": 4749
+  },
+  "finishedAt": "2026-10-05T12:55:10.814Z"
+}

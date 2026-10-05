@@ -1,0 +1,149 @@
+{
+  "caseId": "test-returns-16",
+  "runId": "5404e23b-1c21-49e9-98d8-8c9bd171aba9",
+  "questionSet": "199f0f48",
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-returns-16",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Can I still return the Spirit Alcohol Stove from order #1176? It came on August 15 and it's unused.",
+        "reply": "I'm sorry, but the Spirit Alcohol Stove from order #1176 is no longer eligible for a return because the 30-day return window ended on September 14, 2026. Thanks for understanding."
+      }
+    ],
+    "toolSummary": [
+      "message 1: check_return_eligibility({\"condition\":\"unused\",\"orderId\":\"1176\",\"item\":\"Spirit Alcohol Stove\"}) → {\"ok\":true,\"data\":{\"orderNumber\":1176,\"item\":\"Spirit Alcohol Stove\",\"eligible\":false,\"code\":\"WINDOW_EXPIRED\",\"message\":\"The 30-day return window ended on 2026-09-14 (delivered 31 days ago).\",\"details\":{\"returnBy\":\"2026-09-14\",\"daysSinceDelivery\":31}},\"policyDecision\":\"denied\"}",
+      "message 1: get_policy({\"topic\":\"returns\"}) → {\"ok\":true,\"data\":{\"topic\":\"returns\",\"title\":\"Returns\",\"text\":\"Unused items in original packaging can be returned within 30 days of delivery.\\nUsed or worn items can't be returned. If a used item is defective, see the warranty policy.\\nTo return an item, send it back using the return label from your account. The refund is issued to your original payment method once the warehouse receives it, usually within 5 business days.\\nItems that arrived damaged follow the damaged-items policy instead.\"}}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent says the 30-day return window has ended, and doesn't promise, offer or hint at an exception. Giving the date it ended (September 14) is optional."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "The reply clearly explains the return window has expired and politely informs the customer."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent explicitly states the 30‑day return window ended on September 14, 2026, and does not mention any exception or offer. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent’s reply only states that the return window has expired and does not promise or imply any future action such as notifying, following up, or checking back. This complies with the rule. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent states the return window ended on September 14, 2026, which matches the tool result that the 30‑day window ended on 2026‑09‑14. No other timing claims are made. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 1
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 537,
+      "inputTokens": 820,
+      "outputTokens": 190,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the return window ended on September 14, 2026, which matches the tool result that the 30‑day window ended on 2026‑09‑14. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 568,
+      "inputTokens": 831,
+      "outputTokens": 268,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states that the return window has expired and does not promise or imply any future action such as notifying, following up, or checking back. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 571,
+      "inputTokens": 820,
+      "outputTokens": 270,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the return window ended on September 14, 2026, which matches the tool’s eligibility response and the 30‑day return policy. No unsupported timing claims are made.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 639,
+      "inputTokens": 831,
+      "outputTokens": 259,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply only states that the return window has expired and does not promise or imply any future action such as notifying, following up, or checking back. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 763,
+      "inputTokens": 820,
+      "outputTokens": 277,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the return window ended on September 14, 2026, which matches the tool's returned date and the policy's 30‑day window. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1050,
+      "inputTokens": 831,
+      "outputTokens": 276,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only informs the customer that the return window has expired and does not promise or imply any future action such as notifying, following up, or reviewing the return. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 1052,
+      "inputTokens": 769,
+      "outputTokens": 271,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states the 30‑day return window ended on September 14, 2026, and does not mention any exception or offer. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 1461,
+      "inputTokens": 1064,
+      "outputTokens": 451,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"The reply clearly explains the return window has expired and politely informs the customer.\"}]}"
+    }
+  ]
+}

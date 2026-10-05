@@ -1,0 +1,428 @@
+{
+  "caseId": "test-comparison-03",
+  "case": {
+    "id": "test-comparison-03",
+    "split": "test",
+    "type": "comparison",
+    "why": "Beacon 500 (500 lumens, 1200 min = 20 h, USB-C rechargeable, $49.00) vs Glowworm 300 (300 lumens, 1800 min = 30 h, AAA, $29.00). The brighter lamp has the shorter burn time; a reasoning check on two specs pulling apart.",
+    "source": "test batch 4",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "Beacon 500 vs Glowworm 300 headlamp: which is brighter, and which lasts longer on a charge or set of batteries?",
+        "reply": {
+          "mentions": [
+            [
+              "500 lumens",
+              "500 lm",
+              "500-lumen"
+            ],
+            [
+              "300 lumens",
+              "300 lm",
+              "300-lumen"
+            ]
+          ],
+          "amounts": [],
+          "avoids": []
+        }
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "leaks": [],
+      "judgeChecks": [
+        "The agent says the Beacon 500 is brighter and the Glowworm 300 runs longer (30 hours vs 20 hours, or 1800 vs 1200 minutes)."
+      ]
+    }
+  },
+  "agentModel": "groq/gpt-oss-120b",
+  "team": {
+    "router": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "d047d36f-68e2-40f5-af59-aedfe0fd7522",
+    "turns": [
+      {
+        "customer": "Beacon 500 vs Glowworm 300 headlamp: which is brighter, and which lasts longer on a charge or set of batteries?",
+        "reply": "The Beacon 500 delivers 500 lumens, so it’s brighter than the Glowworm 300’s 300 lumens. The Glowworm 300 runs about 1,800 minutes on its AAA batteries, which exceeds the Beacon 500’s roughly 1,200 minutes on a USB‑C charge.",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Beacon 500 vs Glowworm 300 headlamp: which is brighter, and which lasts longer on a charge or set of batteries?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\":\"shopping\",\"category\":\"comparison\",\"urgency\":\"normal\",\"confidence\":0.99}",
+          "decision": {
+            "route": "shopping",
+            "category": "comparison",
+            "urgency": "normal",
+            "confidence": 0.99
+          },
+          "fallback": false
+        },
+        "inputTokens": 435,
+        "outputTokens": 108,
+        "latencyMs": 521,
+        "cached": false,
+        "costMicros": 130,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_486c0b2f-1155-4500-bde0-deaccbe926d5",
+                "name": "search_products",
+                "arguments": "{\"limit\":5,\"query\":\"Beacon 500 headlamp\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to compare two headlamps: Beacon 500 and Glowworm 300. Need brightness (lumens) and battery life (runtime). Must retrieve product details via search or get_product. Let's search.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1868,
+        "outputTokens": 82,
+        "latencyMs": 588,
+        "cached": false,
+        "costMicros": 329,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_486c0b2f-1155-4500-bde0-deaccbe926d5",
+          "name": "search_products",
+          "arguments": "{\"limit\":5,\"query\":\"Beacon 500 headlamp\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 8,
+              "products": [
+                {
+                  "id": "lamp-beacon-500",
+                  "name": "Beacon 500 Rechargeable Headlamp",
+                  "category": "headlamps",
+                  "listPrice": "$49.00",
+                  "currentPrice": "$49.00",
+                  "rating": 4.6,
+                  "description": "USB-C rechargeable headlamp with a lock mode.",
+                  "specs": {
+                    "lumens": 500,
+                    "waterproof": true,
+                    "weightGrams": 86,
+                    "burnTimeMinutes": 1200
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Headlamps: buy 2, get 1 free"
+                  ]
+                },
+                {
+                  "id": "lamp-beacon-900",
+                  "name": "Beacon 900 Rechargeable Headlamp",
+                  "category": "headlamps",
+                  "listPrice": "$79.00",
+                  "currentPrice": "$79.00",
+                  "rating": 4.7,
+                  "description": "High-output rechargeable headlamp with a rear battery pack.",
+                  "specs": {
+                    "lumens": 900,
+                    "waterproof": true,
+                    "weightGrams": 140,
+                    "burnTimeMinutes": 900
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Headlamps: buy 2, get 1 free"
+                  ]
+                },
+                {
+                  "id": "lamp-stride-400",
+                  "name": "Stride 400 Running Headlamp",
+                  "category": "headlamps",
+                  "listPrice": "$59.00",
+                  "currentPrice": "$59.00",
+                  "rating": 4.5,
+                  "description": "Bounce-free headlamp for trail running.",
+                  "specs": {
+                    "lumens": 400,
+                    "waterproof": true,
+                    "weightGrams": 60,
+                    "burnTimeMinutes": 600
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Headlamps: buy 2, get 1 free"
+                  ]
+                },
+                {
+                  "id": "lamp-glowworm-300",
+                  "name": "Glowworm 300 Headlamp",
+                  "category": "headlamps",
+                  "listPrice": "$29.00",
+                  "currentPrice": "$29.00",
+                  "rating": 4.4,
+                  "description": "All-round AAA headlamp with a red night mode.",
+                  "specs": {
+                    "lumens": 300,
+                    "waterproof": true,
+                    "weightGrams": 78,
+                    "burnTimeMinutes": 1800
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Headlamps: buy 2, get 1 free"
+                  ]
+                },
+                {
+                  "id": "lamp-firefly-kids",
+                  "name": "Firefly Kids Headlamp",
+                  "category": "headlamps",
+                  "listPrice": "$14.99",
+                  "currentPrice": "$14.99",
+                  "rating": 4.3,
+                  "description": "Low-power kids' headlamp with a soft strap.",
+                  "specs": {
+                    "lumens": 100,
+                    "waterproof": false,
+                    "weightGrams": 50,
+                    "burnTimeMinutes": 1500
+                  },
+                  "availability": "low_stock",
+                  "activeDeals": [
+                    "Headlamps: buy 2, get 1 free"
+                  ]
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_15fc0294-a243-4661-83e5-d989b33397d3",
+                "name": "reply",
+                "arguments": "{\"message\":\"The Beacon 500 delivers 500 lumens, so it’s brighter than the Glowworm 300’s 300 lumens. The Glowworm 300 runs about 1,800 minutes on its AAA batteries, which exceeds the Beacon 500’s roughly 1,200 minutes on a USB‑C charge.\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to answer: which is brighter and which lasts longer on a charge or set of batteries. We have specs: Beacon 500 lumens 500, burn time 1200 minutes (likely rechargeable). Glowworm 300 lumens 300, burn time 1800 minutes (AAA). So Beacon brighter, Glowworm lasts longer.\n\nWe need to reply using reply tool, short, friendly, specific.\n\n",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2471,
+        "outputTokens": 172,
+        "latencyMs": 764,
+        "cached": false,
+        "costMicros": 474,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_15fc0294-a243-4661-83e5-d989b33397d3",
+          "name": "reply",
+          "arguments": "{\"message\":\"The Beacon 500 delivers 500 lumens, so it’s brighter than the Glowworm 300’s 300 lumens. The Glowworm 300 runs about 1,800 minutes on its AAA batteries, which exceeds the Beacon 500’s roughly 1,200 minutes on a USB‑C charge.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "The Beacon 500 delivers 500 lumens, so it’s brighter than the Glowworm 300’s 300 lumens. The Glowworm 300 runs about 1,800 minutes on its AAA batteries, which exceeds the Beacon 500’s roughly 1,200 minutes on a USB‑C charge."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "The Beacon 500 delivers 500 lumens, so it’s brighter than the Glowworm 300’s 300 lumens. The Glowworm 300 runs about 1,800 minutes on its AAA batteries, which exceeds the Beacon 500’s roughly 1,200 minutes on a USB‑C charge."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "shopping",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "test-comparison-03",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to shopping"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "reply1:mentions:0",
+        "label": "reply 1 mentions \"500 lumens\" or \"500 lm\" or \"500-lumen\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:mentions:1",
+        "label": "reply 1 mentions \"300 lumens\" or \"300 lm\" or \"300-lumen\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent says the Beacon 500 is brighter and the Glowworm 300 runs longer (30 hours vs 20 hours, or 1800 vs 1200 minutes)."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 3,
+    "cachedCalls": 0,
+    "toolCalls": 1,
+    "inputTokens": 4774,
+    "outputTokens": 362,
+    "latencyMs": 1873,
+    "turnLatencyMs": [
+      1873
+    ],
+    "costMicros": 933,
+    "wallMs": 1900
+  },
+  "finishedAt": "2026-10-05T12:38:37.372Z"
+}

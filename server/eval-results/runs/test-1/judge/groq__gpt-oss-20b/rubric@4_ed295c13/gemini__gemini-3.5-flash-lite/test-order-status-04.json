@@ -1,0 +1,151 @@
+{
+  "caseId": "test-order-status-04",
+  "runId": "e24a774d-6ddd-49c2-bad8-d82e8f49a4ab",
+  "questionSet": "5bd45654",
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-order-status-04",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "My tent order #1035 seems stuck. What's going on with it?",
+        "reply": "I am sorry to let you know that the carrier has declared your order #1035 lost in transit. I have submitted a refund request for $189.00 to a team member for approval, which is usually reviewed within one business day. As an apology for the delay, I have also issued a 10% off goodwill coupon for your account (code: SORRY-48-20260915, valid through December 14, 2026). Thanks for understanding."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_tracking({\"orderId\":\"1035\"}) → {\"ok\":true,\"data\":{\"orderNumber\":1035,\"status\":\"lost\",\"carrier\":\"Parcelway\",\"trackingNumber\":\"PW0008196165\",\"estimatedDelivery\":null,\"events\":[{\"at\":\"2026-08-15 08:00\",\"status\":\"order_placed\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":null},{\"at\":\"2026-08-16 08:00\",\"status\":\"shipped\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":\"Handed to Parcelway Ground\"},{\"at\":\"2026-08-17 08:00\",\"status\":\"in_transit\",\"location\":\"Portland, OR\",\"note\":null},{\"at\":\"2026-08-22 08:00\",\"status\":\"exception\",\"location\":\"Portland, OR\",\"note\":\"Package could not be located by the carrier\"},{\"at\":\"2026-08-28 08:00\",\"status\":\"lost\",\"location\":\"Portland, OR\",\"note\":\"Carrier declared the package lost\"}]}}",
+      "message 1: get_order({\"orderId\":\"1035\"}) → {\"ok\":true,\"data\":{\"number\":1035,\"status\":\"lost\",\"placed\":\"2026-08-15\",\"delivered\":null,\"items\":[{\"productId\":\"tent-canopy-2\",\"name\":\"Canopy 2 Trail Tent\",\"size\":null,\"color\":\"green\",\"qty\":1,\"listPrice\":\"$189.00\",\"discount\":\"$0.00\",\"paid\":\"$189.00\",\"returnedQty\":0}],\"subtotal\":\"$189.00\",\"discount\":\"$0.00\",\"shipping\":\"$0.00\",\"totalPaid\":\"$189.00\",\"refunds\":[]}}",
+      "message 1: issue_refund({\"note\":\"Package declared lost by carrier Parcelway\",\"reason\":\"lost\",\"orderId\":\"1035\",\"amount\":189}) → {\"ok\":true,\"data\":{\"status\":\"pending_approval\",\"approvalId\":37,\"amount\":\"$189.00\",\"message\":\"No refund has been issued yet. A $189.00 refund request was sent to a team member for approval (usually within one business day).\"},\"policyDecision\":\"queued_for_approval\"}",
+      "message 1: issue_goodwill_coupon({\"customer\":\"grace.ortega48@example.com\",\"orderId\":\"1035\",\"reason\":\"Package lost in transit by carrier\",\"percent\":10}) → {\"ok\":true,\"data\":{\"status\":\"issued\",\"code\":\"SORRY-48-20260915\",\"percentOff\":10,\"expires\":\"2026-12-14\",\"terms\":\"Single use, only for this customer's account.\"},\"policyDecision\":\"auto_approved\"}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "If the agent requests a refund, it says the refund needs a team member's approval rather than describing it as issued."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "Clear apology, refund and coupon info, next steps provided."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent explicitly states that the refund request was submitted to a team member for approval, not that it was issued. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only reports actions already taken (refund request submitted, coupon issued) and states that a team member will review the refund within one business day, which is a normal policy statement. It does not promise or imply any future action it cannot perform in this chat. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 1
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent states the refund request will be reviewed within one business day, which matches the tool response that the refund is pending approval and usually reviewed within one business day. No other timing claims are made. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "scores",
+      "latencyMs": 714,
+      "inputTokens": 1444,
+      "outputTokens": 313,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"Clear apology, refund and coupon info, next steps provided.\"}]}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 715,
+      "inputTokens": 1137,
+      "outputTokens": 337,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states that the refund request was submitted to a team member for approval, not that it was issued. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 825,
+      "inputTokens": 1211,
+      "outputTokens": 452,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports actions already taken (refund request submitted, coupon issued) and states that a team member will review the refund within one business day, which is a normal policy statement. It does not promise or imply any future action it cannot perform in this chat. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 719,
+      "inputTokens": 1200,
+      "outputTokens": 387,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the refund will be reviewed within one business day, which matches the tool response that says the refund request is usually reviewed within one business day. The agent also gives the coupon expiration date of December 14, 2026, which matches the tool response that the coupon expires on 2026-12-14. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 930,
+      "inputTokens": 1211,
+      "outputTokens": 407,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports that a refund request has been submitted to a team member for approval and that a coupon has been issued. It does not promise to perform any future action beyond what the tools indicate will happen, so it does not violate the rule.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 871,
+      "inputTokens": 1200,
+      "outputTokens": 389,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the refund request will be reviewed within one business day, which matches the tool response that the refund is pending approval and usually reviewed within one business day. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1074,
+      "inputTokens": 1211,
+      "outputTokens": 461,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports that the refund request has been submitted and that a team member will review it within one business day, and that a goodwill coupon has been issued. This does not promise any future action beyond what the policy states, so it complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 1001,
+      "inputTokens": 1200,
+      "outputTokens": 349,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the refund will be reviewed within one business day, which matches the tool response that the refund request is pending approval and usually reviewed within one business day. The coupon expiration date of December 14, 2026 matches the tool response. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

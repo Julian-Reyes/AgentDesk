@@ -1,0 +1,331 @@
+{
+  "caseId": "test-recommendation-04",
+  "case": {
+    "id": "test-recommendation-04",
+    "split": "test",
+    "type": "recommendation",
+    "why": "Sleeping bags under 1 kg rated to 0°C or colder: only the Ember 0°C (850 g). The Nightjar quilt (650 g) is rated 2°C; the Ember -10°C is 1150 g.",
+    "source": "test batch 4",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "I want a sleeping bag that's under 1 kg but still good down to freezing (0°C)."
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "recommendation": {
+        "constraints": {
+          "category": "sleeping_bags",
+          "maxWeightGrams": 1000,
+          "maxTempRatingC": 0
+        },
+        "acceptable": [
+          "bag-ember-0"
+        ]
+      },
+      "leaks": [],
+      "judgeChecks": []
+    }
+  },
+  "agentModel": "groq/gpt-oss-120b",
+  "team": {
+    "router": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "66d234bb-fc70-47d9-a07b-06f0c7c0de67",
+    "turns": [
+      {
+        "customer": "I want a sleeping bag that's under 1 kg but still good down to freezing (0°C).",
+        "reply": "The Ember 0°C Down Sleeping Bag meets your criteria. It’s a three‑season mummy‑style bag filled with 650‑fill responsibly sourced down, rated for 0 °C, and weighs only 850 g. It’s in stock and costs $259.00. Let me know if you’d like to add it to a cart or need more options.",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "I want a sleeping bag that's under 1 kg but still good down to freezing (0°C)."
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\":\"shopping\",\"category\":\"recommendation\",\"urgency\":\"normal\",\"confidence\":0.98}",
+          "decision": {
+            "route": "shopping",
+            "category": "recommendation",
+            "urgency": "normal",
+            "confidence": 0.98
+          },
+          "fallback": false
+        },
+        "inputTokens": 428,
+        "outputTokens": 78,
+        "latencyMs": 439,
+        "cached": false,
+        "costMicros": 111,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_393f2af9-bb53-4a20-bb7f-9be080fcf45a",
+                "name": "search_products",
+                "arguments": "{\"filters\":{\"category\":\"sleeping_bags\",\"inStockOnly\":true,\"maxTempRatingC\":0,\"maxWeightGrams\":1000},\"limit\":10}"
+              }
+            ]
+          },
+          "reasoning": "We need to find sleeping bags under 1kg (i.e., weight <= 1000 grams) and rated for at least 0°C (down to freezing). Probably we have maxTempRatingC filter? There's maxTempRatingC filter but we need minimum temperature rating. The product likely has a \"maxTempRatingC\" meaning maximum rating? Actually likely they have a max temperature rating? Might be \"maxTempRatingC\" meaning highest temperature it's suitable for? But we want rating down to freezing, i.e., it can handle 0°C. Usually sleeping bags have \"temperature rating\" indicating lowest temperature. So we want min rating <=0°C? Not sure. The filter has maxTempRatingC. That could be maximum temperature rating? Hmm. Probably they store the lowest temperature rating as \"maxTempRatingC\". So we want maxTempRatingC <= 0°C? Actually if they call it maxTempRatingC, could be maximum comfortable temperature, but we want rating for freezing (0°C) meaning can handle down to 0°C, so maxTempRatingC maybe -5 etc. Let's assume we filter maxTempRatingC <= 0. Also weight maxWeightGrams <= 1000. Use search_products with those filters, category sleeping_bags, inStockOnly true.\n\nLet's call search.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1861,
+        "outputTokens": 343,
+        "latencyMs": 1384,
+        "cached": false,
+        "costMicros": 485,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_393f2af9-bb53-4a20-bb7f-9be080fcf45a",
+          "name": "search_products",
+          "arguments": "{\"filters\":{\"category\":\"sleeping_bags\",\"inStockOnly\":true,\"maxTempRatingC\":0,\"maxWeightGrams\":1000},\"limit\":10}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 1,
+              "products": [
+                {
+                  "id": "bag-ember-0",
+                  "name": "Ember 0°C Down Sleeping Bag",
+                  "category": "sleeping_bags",
+                  "listPrice": "$259.00",
+                  "currentPrice": "$259.00",
+                  "rating": 4.7,
+                  "description": "Three-season mummy bag with 650-fill responsibly sourced down.",
+                  "specs": {
+                    "material": "650-fill down",
+                    "tempRatingC": 0,
+                    "weightGrams": 850
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_a50ab1f0-7535-43c3-be11-e6c3b951591a",
+                "name": "reply",
+                "arguments": "{\"message\":\"The Ember 0°C Down Sleeping Bag meets your criteria. It’s a three‑season mummy‑style bag filled with 650‑fill responsibly sourced down, rated for 0 °C, and weighs only 850 g. It’s in stock and costs $259.00. Let me know if you’d like to add it to a cart or need more options.\"}"
+              }
+            ]
+          },
+          "reasoning": "We have one product matching: Ember 0°C Down Sleeping Bag, weight 850g, price $259.00, in stock.\n\nThe user wants sleeping bag under 1kg good down to freezing (0°C). This matches. Provide recommendation with details. Should we check stock? We have availability in_stock. Could optionally get stock details but not needed. Provide answer. Use reply tool.\n\n",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2052,
+        "outputTokens": 177,
+        "latencyMs": 651,
+        "cached": false,
+        "costMicros": 414,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_a50ab1f0-7535-43c3-be11-e6c3b951591a",
+          "name": "reply",
+          "arguments": "{\"message\":\"The Ember 0°C Down Sleeping Bag meets your criteria. It’s a three‑season mummy‑style bag filled with 650‑fill responsibly sourced down, rated for 0 °C, and weighs only 850 g. It’s in stock and costs $259.00. Let me know if you’d like to add it to a cart or need more options.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "The Ember 0°C Down Sleeping Bag meets your criteria. It’s a three‑season mummy‑style bag filled with 650‑fill responsibly sourced down, rated for 0 °C, and weighs only 850 g. It’s in stock and costs $259.00. Let me know if you’d like to add it to a cart or need more options."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "The Ember 0°C Down Sleeping Bag meets your criteria. It’s a three‑season mummy‑style bag filled with 650‑fill responsibly sourced down, rated for 0 °C, and weighs only 850 g. It’s in stock and costs $259.00. Let me know if you’d like to add it to a cart or need more options."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "shopping",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "test-recommendation-04",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to shopping"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "recommendation",
+        "label": "recommends only products that meet every constraint",
+        "pass": true,
+        "severity": "task",
+        "detail": "named: bag-ember-0"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 3,
+    "cachedCalls": 0,
+    "toolCalls": 1,
+    "inputTokens": 4341,
+    "outputTokens": 598,
+    "latencyMs": 2474,
+    "turnLatencyMs": [
+      2474
+    ],
+    "costMicros": 1010,
+    "wallMs": 2515
+  },
+  "finishedAt": "2026-10-05T12:38:51.758Z"
+}

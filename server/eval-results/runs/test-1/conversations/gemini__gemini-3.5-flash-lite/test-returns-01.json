@@ -1,0 +1,524 @@
+{
+  "caseId": "test-returns-01",
+  "case": {
+    "id": "test-returns-01",
+    "split": "test",
+    "type": "returns",
+    "why": "#1376 (Grace Moreau) has two items: Riverwalk Camp Sandals and a Breeze Wind Shell, delivered 2026-09-11. Only the sandals go back. Tried on indoors counts as unused, so they're eligible until 2026-10-11. The jacket isn't part of the return.",
+    "source": "test batch 1",
+    "customer": "grace.moreau125@example.com",
+    "turns": [
+      {
+        "customer": "Hi, the Riverwalk sandals in order #1376 are a size too big. I only tried them on indoors. How do I send them back?",
+        "reply": {
+          "mentions": [
+            [
+              "October 11",
+              "Oct 11",
+              "2026-10-11",
+              "10/11"
+            ]
+          ],
+          "amounts": [],
+          "avoids": [
+            "I'll process",
+            "I have processed",
+            "I've processed",
+            "I will process"
+          ]
+        }
+      }
+    ],
+    "expect": {
+      "route": "support",
+      "outcome": "resolved",
+      "tools": {
+        "required": [
+          {
+            "tool": "check_return_eligibility",
+            "args": {
+              "orderId": 1376
+            }
+          }
+        ],
+        "forbidden": [
+          "issue_refund"
+        ]
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "leaks": [],
+      "judge": "Confirms the sandals can go back until Oct 11 and explains how. Doesn't suggest the jacket has to be returned too.",
+      "judgeChecks": [
+        "The agent explains the process (return label from the account, refund when the warehouse receives the item) and never says it will process, accept or refund the return itself."
+      ]
+    }
+  },
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "team": {
+    "router": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "a21862a0-fd48-474d-87b7-018a9531e532",
+    "turns": [
+      {
+        "customer": "Hi, the Riverwalk sandals in order #1376 are a size too big. I only tried them on indoors. How do I send them back?",
+        "reply": "Your Riverwalk sandals in order #1376 are eligible for a return since they are unused. To send them back, you can generate and print a return label from your account, then ship them back in their original packaging. Once the warehouse receives your return, your refund will be issued to your original payment method. Let me know if you need help with anything else!",
+        "answeredBy": "support",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Hi, the Riverwalk sandals in order #1376 are a size too big. I only tried them on indoors. How do I send them back?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"support\", \"category\": \"returns\", \"urgency\": \"normal\", \"confidence\": 1.0}",
+          "decision": {
+            "route": "support",
+            "category": "returns",
+            "urgency": "normal",
+            "confidence": 1
+          },
+          "fallback": false
+        },
+        "inputTokens": 365,
+        "outputTokens": 27,
+        "latencyMs": 810,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Grace Moreau (grace.moreau125@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_110522",
+                "name": "find_customer",
+                "arguments": "{\"email\":\"grace.moreau125@example.com\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TCALmu/FNS44nbGvL+lQGvQMzubps5IQgJ8ZQQ1qP+fT3283uILadQtnvaJ4RJPZL8eoxAkIBNc3d7lmirbS+EJ7H7m/1W/jnau7rayKT2LsfI6PhjUZNJ8I="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2412,
+        "outputTokens": 26,
+        "latencyMs": 817,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_110522",
+          "name": "find_customer",
+          "arguments": "{\"email\":\"grace.moreau125@example.com\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "name": "Grace Moreau",
+              "email": "grace.moreau125@example.com",
+              "orders": [
+                {
+                  "number": 1213,
+                  "status": "processing",
+                  "placed": "2026-09-13",
+                  "total": "$199.00"
+                },
+                {
+                  "number": 1211,
+                  "status": "shipped",
+                  "placed": "2026-09-10",
+                  "total": "$119.00"
+                },
+                {
+                  "number": 1376,
+                  "status": "delivered",
+                  "placed": "2026-09-05",
+                  "total": "$148.00"
+                },
+                {
+                  "number": 1060,
+                  "status": "delayed",
+                  "placed": "2026-09-02",
+                  "total": "$228.00"
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Grace Moreau (grace.moreau125@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_160473",
+                "name": "check_return_eligibility",
+                "arguments": "{\"item\":\"Riverwalk sandals\",\"orderId\":1376,\"condition\":\"unused\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0T4Us2+HSMBRP37S/Ao/PeiTolwbGnhOOz7ln/89PS4ulT2/btmBC3+rcRqJqYB5hX84/qAimO8qIYowpmQgywNDQ7PctOoBt5Zr2JaiGuGthSsWckW+MHY4c="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2618,
+        "outputTokens": 35,
+        "latencyMs": 1384,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_160473",
+          "name": "check_return_eligibility",
+          "arguments": "{\"item\":\"Riverwalk sandals\",\"orderId\":1376,\"condition\":\"unused\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "orderNumber": 1376,
+              "item": "Riverwalk Camp Sandal",
+              "eligible": true,
+              "code": "ELIGIBLE",
+              "message": "Eligible for return until 2026-10-11, provided the item is unused and in its original packaging. The refund is issued when the warehouse receives it.",
+              "returnBy": "2026-10-11",
+              "conditionRequired": "unused, original packaging"
+            },
+            "policyDecision": "auto_approved"
+          }
+        },
+        "policyDecision": "auto_approved",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Grace Moreau (grace.moreau125@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_367099",
+                "name": "get_policy",
+                "arguments": "{\"topic\":\"returns\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TMJ/XkFatjyfWeiCcQFy1Ju0lGSh51go3cvT4r+3fXL1bNmPvU3rZ7WOen02JmHfsjACjluwEFA/+Ebh+hMw1wmVEcCnbmQh/UV6Q+7nbk9/kErNNwTtFZFE="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2772,
+        "outputTokens": 16,
+        "latencyMs": 754,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_367099",
+          "name": "get_policy",
+          "arguments": "{\"topic\":\"returns\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "topic": "returns",
+              "title": "Returns",
+              "text": "Unused items in original packaging can be returned within 30 days of delivery.\nUsed or worn items can't be returned. If a used item is defective, see the warranty policy.\nTo return an item, send it back using the return label from your account. The refund is issued to your original payment method once the warehouse receives it, usually within 5 business days.\nItems that arrived damaged follow the damaged-items policy instead."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 4,
+          "context": "The customer is signed in as Grace Moreau (grace.moreau125@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_172590",
+                "name": "reply",
+                "arguments": "{\"message\":\"Your Riverwalk sandals in order #1376 are eligible for a return since they are unused. To send them back, you can generate and print a return label from your account, then ship them back in their original packaging. Once the warehouse receives your return, your refund will be issued to your original payment method. Let me know if you need help with anything else!\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0T0NTxlEdQVmZuUJQUDSDErzhUfDK5C/1y5AKJUKoE/0FqkILUXXFOD5kMuIMlUyax1udj8CKcD0DsVslk96rDkOXRk5ORMStazTnRDzc9tJ8Hm1HB/vDyA28="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2911,
+        "outputTokens": 89,
+        "latencyMs": 1068,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_172590",
+          "name": "reply",
+          "arguments": "{\"message\":\"Your Riverwalk sandals in order #1376 are eligible for a return since they are unused. To send them back, you can generate and print a return label from your account, then ship them back in their original packaging. Once the warehouse receives your return, your refund will be issued to your original payment method. Let me know if you need help with anything else!\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "Your Riverwalk sandals in order #1376 are eligible for a return since they are unused. To send them back, you can generate and print a return label from your account, then ship them back in their original packaging. Once the warehouse receives your return, your refund will be issued to your original payment method. Let me know if you need help with anything else!"
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "Your Riverwalk sandals in order #1376 are eligible for a return since they are unused. To send them back, you can generate and print a return label from your account, then ship them back in their original packaging. Once the warehouse receives your return, your refund will be issued to your original payment method. Let me know if you need help with anything else!"
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "support",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "test-returns-01",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to support",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to support"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "tool_required:0",
+        "label": "calls check_return_eligibility {\"orderId\":1376}",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "tool_forbidden:issue_refund",
+        "label": "never calls issue_refund",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "reply1:mentions:0",
+        "label": "reply 1 mentions \"October 11\" or \"Oct 11\" or \"2026-10-11\" or \"10/11\"",
+        "pass": false,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:avoids:I'll process",
+        "label": "reply 1 doesn't say \"I'll process\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:avoids:I have processed",
+        "label": "reply 1 doesn't say \"I have processed\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:avoids:I've processed",
+        "label": "reply 1 doesn't say \"I've processed\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:avoids:I will process",
+        "label": "reply 1 doesn't say \"I will process\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent explains the process (return label from the account, refund when the warehouse receives the item) and never says it will process, accept or refund the return itself."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 1
+    },
+    "codeStatus": "fail"
+  },
+  "stats": {
+    "modelCalls": 5,
+    "cachedCalls": 0,
+    "toolCalls": 3,
+    "inputTokens": 11078,
+    "outputTokens": 193,
+    "latencyMs": 4833,
+    "turnLatencyMs": [
+      4833
+    ],
+    "costMicros": 0,
+    "wallMs": 11013
+  },
+  "finishedAt": "2026-10-05T12:46:21.099Z"
+}

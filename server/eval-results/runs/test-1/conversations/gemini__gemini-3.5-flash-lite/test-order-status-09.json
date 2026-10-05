@@ -1,0 +1,392 @@
+{
+  "caseId": "test-order-status-09",
+  "case": {
+    "id": "test-order-status-09",
+    "split": "test",
+    "type": "order_status",
+    "why": "#1260 (Marcus Ibrahim) was delivered on 2026-09-09 to the front door. The customer has been away and asks whether it arrived.",
+    "source": "test batch 2",
+    "customer": "marcus.ibrahim22@example.com",
+    "turns": [
+      {
+        "customer": "I've been away for a week. Did order #1260 arrive?",
+        "reply": {
+          "mentions": [
+            "delivered",
+            [
+              "September 9",
+              "Sep 9",
+              "Sept 9",
+              "9/9",
+              "2026-09-09"
+            ]
+          ],
+          "amounts": [],
+          "avoids": []
+        }
+      }
+    ],
+    "expect": {
+      "route": "support",
+      "outcome": "resolved",
+      "tools": {
+        "required": [
+          {
+            "anyOf": [
+              {
+                "tool": "get_tracking",
+                "args": {
+                  "orderId": 1260
+                }
+              },
+              {
+                "tool": "get_order",
+                "args": {
+                  "orderId": 1260
+                }
+              }
+            ]
+          }
+        ],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "leaks": [],
+      "judgeChecks": []
+    }
+  },
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "team": {
+    "router": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "68167002-be09-4417-b859-9a6df0b0eb1d",
+    "turns": [
+      {
+        "customer": "I've been away for a week. Did order #1260 arrive?",
+        "reply": "Yes, order #1260 arrived and was delivered to your front door on September 9 at 4:00 PM via Parcelway.",
+        "answeredBy": "support",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "I've been away for a week. Did order #1260 arrive?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"support\", \"category\": \"order_status\", \"urgency\": \"normal\", \"confidence\": 0.99}",
+          "decision": {
+            "route": "support",
+            "category": "order_status",
+            "urgency": "normal",
+            "confidence": 0.99
+          },
+          "fallback": false
+        },
+        "inputTokens": 350,
+        "outputTokens": 30,
+        "latencyMs": 756,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Marcus Ibrahim (marcus.ibrahim22@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_291925",
+                "name": "get_tracking",
+                "arguments": "{\"orderId\":1260}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TYiV/wAdMmEbUnlYDe2KZOWpTQHaIXUUtofNVVBqZpcK6vrSieZ3dBF5G3riBNHpg4A6OG8k/YuZijZtLKmybkpQP6uVRgeFeIgeBTXrhteWaXqSY6wJFZIM="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2398,
+        "outputTokens": 18,
+        "latencyMs": 1195,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_291925",
+          "name": "get_tracking",
+          "arguments": "{\"orderId\":1260}",
+          "result": {
+            "ok": true,
+            "data": {
+              "orderNumber": 1260,
+              "status": "delivered",
+              "carrier": "Parcelway",
+              "trackingNumber": "PW0009977940",
+              "estimatedDelivery": null,
+              "events": [
+                {
+                  "at": "2026-09-05 11:00",
+                  "status": "order_placed",
+                  "location": "Larchgrove Warehouse, Reno, NV",
+                  "note": null
+                },
+                {
+                  "at": "2026-09-06 11:00",
+                  "status": "shipped",
+                  "location": "Larchgrove Warehouse, Reno, NV",
+                  "note": "Handed to Parcelway Ground"
+                },
+                {
+                  "at": "2026-09-07 11:00",
+                  "status": "in_transit",
+                  "location": "Phoenix, AZ",
+                  "note": null
+                },
+                {
+                  "at": "2026-09-09 10:00",
+                  "status": "out_for_delivery",
+                  "location": "Local delivery station",
+                  "note": null
+                },
+                {
+                  "at": "2026-09-09 16:00",
+                  "status": "delivered",
+                  "location": "Front door",
+                  "note": null
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Marcus Ibrahim (marcus.ibrahim22@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_159863",
+                "name": "reply",
+                "arguments": "{\"message\":\"Yes, order #1260 arrived and was delivered to your front door on September 9 at 4:00 PM via Parcelway.\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TRORoY5BPmMemLBPtW1eAwP5ToZ4R9709Zrwcc7rJM2SJiaHXlmWbjMmLEpVl23m6/v8keaW4kNGY55ph6ZbsOUXS27aIbG/9NTxB2sGRpAp3FOxZYm1i1TE="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2664,
+        "outputTokens": 44,
+        "latencyMs": 1099,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_159863",
+          "name": "reply",
+          "arguments": "{\"message\":\"Yes, order #1260 arrived and was delivered to your front door on September 9 at 4:00 PM via Parcelway.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "Yes, order #1260 arrived and was delivered to your front door on September 9 at 4:00 PM via Parcelway."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "Yes, order #1260 arrived and was delivered to your front door on September 9 at 4:00 PM via Parcelway."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "support",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "test-order-status-09",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to support",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to support"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "tool_required:0",
+        "label": "calls get_tracking {\"orderId\":1260} or get_order {\"orderId\":1260}",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "reply1:mentions:0",
+        "label": "reply 1 mentions \"delivered\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:mentions:1",
+        "label": "reply 1 mentions \"September 9\" or \"Sep 9\" or \"Sept 9\" or \"9/9\" or \"2026-09-09\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 3,
+    "cachedCalls": 0,
+    "toolCalls": 1,
+    "inputTokens": 5412,
+    "outputTokens": 92,
+    "latencyMs": 3050,
+    "turnLatencyMs": [
+      3050
+    ],
+    "costMicros": 0,
+    "wallMs": 21941
+  },
+  "finishedAt": "2026-10-05T13:08:00.353Z"
+}

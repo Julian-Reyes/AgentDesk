@@ -1,0 +1,656 @@
+{
+  "caseId": "test-refund-within-limit-10",
+  "case": {
+    "id": "test-refund-within-limit-10",
+    "split": "test",
+    "type": "refund_within_limit",
+    "why": "#1190 (Hannah Larsen) first asks where the order is: it's delayed (carrier delay, weather and volume backlog). Then she asks for the shipping back: $7.99, automatic. No tool gives a new delivery date, so the agent mustn't invent one. A goodwill coupon of 10% or less is allowed, not required.",
+    "source": "test batch 1",
+    "customer": "hannah.larsen50@example.com",
+    "turns": [
+      {
+        "customer": "Hi, where's my order #1190? It's been almost three weeks.",
+        "reply": {
+          "mentions": [
+            [
+              "delayed",
+              "delay"
+            ]
+          ],
+          "amounts": [],
+          "avoids": []
+        }
+      },
+      {
+        "customer": "That's frustrating. Can I at least get the shipping refunded?",
+        "assumes": "the agent said the order is delayed",
+        "reply": {
+          "mentions": [],
+          "amounts": [
+            799
+          ],
+          "avoids": []
+        }
+      }
+    ],
+    "expect": {
+      "route": "support",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [
+          {
+            "order": 1190,
+            "amountCents": 799,
+            "reason": "late",
+            "status": "issued"
+          }
+        ],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": [
+            {
+              "maxPercent": 10,
+              "order": 1190,
+              "status": "issued"
+            }
+          ]
+        },
+        "escalation": "forbidden"
+      },
+      "leaks": [],
+      "judge": "First reply: delayed, from the tracking, with no invented arrival date. Second: confirms the $7.99 refund.",
+      "judgeChecks": []
+    }
+  },
+  "agentModel": "groq/gpt-oss-120b",
+  "team": {
+    "router": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "028b0b37-d3e2-42a9-a397-38f2323a6174",
+    "turns": [
+      {
+        "customer": "Hi, where's my order #1190? It's been almost three weeks.",
+        "reply": "Your order #1190 for the Stride 400 Running Headlamp was placed on 2026‑08‑26 and shipped the next day. It is currently delayed while in transit with Parcelway (latest event 2026‑08‑30 in Chicago, IL). You can follow its progress using the tracking number PW0009423610.\n\nBecause of this delay we’ve automatically issued a 10 % off coupon for your next purchase: **SORRY-50-20260915**, valid until 2026‑12‑14.  \n\nIf you have any other questions, feel free to let us know.",
+        "answeredBy": "support",
+        "outcome": "resolved"
+      },
+      {
+        "customer": "That's frustrating. Can I at least get the shipping refunded?",
+        "reply": "I’ve processed a refund of $7.99 for the shipping cost on order #1190. The amount has been returned to your original payment method. Let us know if there’s anything else we can help with.",
+        "answeredBy": "support",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Hi, where's my order #1190? It's been almost three weeks."
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\":\"support\",\"category\":\"order_status\",\"urgency\":\"high\",\"confidence\":0.99}",
+          "decision": {
+            "route": "support",
+            "category": "order_status",
+            "urgency": "high",
+            "confidence": 0.99
+          },
+          "fallback": false
+        },
+        "inputTokens": 424,
+        "outputTokens": 129,
+        "latencyMs": 1346,
+        "cached": false,
+        "costMicros": 141,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Hannah Larsen (hannah.larsen50@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_573f004e-29c0-4c3f-b1f3-7d87cb05bce0",
+                "name": "get_order",
+                "arguments": "{\"orderId\":1190}"
+              }
+            ]
+          },
+          "reasoning": "We need to check order #1190 for customer Hannah. Use get_order.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1737,
+        "outputTokens": 46,
+        "latencyMs": 1852,
+        "cached": false,
+        "costMicros": 288,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "fc_573f004e-29c0-4c3f-b1f3-7d87cb05bce0",
+          "name": "get_order",
+          "arguments": "{\"orderId\":1190}",
+          "result": {
+            "ok": true,
+            "data": {
+              "number": 1190,
+              "status": "delayed",
+              "placed": "2026-08-26",
+              "delivered": null,
+              "items": [
+                {
+                  "productId": "lamp-stride-400",
+                  "name": "Stride 400 Running Headlamp",
+                  "size": null,
+                  "color": "black",
+                  "qty": 1,
+                  "listPrice": "$59.00",
+                  "discount": "$0.00",
+                  "paid": "$59.00",
+                  "returnedQty": 0
+                }
+              ],
+              "subtotal": "$59.00",
+              "discount": "$0.00",
+              "shipping": "$7.99",
+              "totalPaid": "$66.99",
+              "refunds": []
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Hannah Larsen (hannah.larsen50@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_421d57ec-4bd8-4f39-a485-6c40b8a86351",
+                "name": "issue_goodwill_coupon",
+                "arguments": "{\"customer\":\"hannah.larsen50@example.com\",\"orderId\":1190,\"percent\":10,\"reason\":\"order delayed\"}"
+              }
+            ]
+          },
+          "reasoning": "We have order #1190 status delayed, placed Aug 26, almost three weeks now (today Oct 5). It is delayed. We need to respond with status and possibly offer goodwill. We can issue a goodwill coupon because it's delayed and store allows for up to 10% for delayed orders. Let's see policy: maybe we need to issue a goodwill coupon. But we need to check if we can issue directly. The rule: issue_goodwill_coupon up to 10% immediate if order has such a problem on record; delayed qualifies. So we can issue a coupon. Let's issue say 10%? Up to 10% allowed. Use issue_goodwill_coupon.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1888,
+        "outputTokens": 197,
+        "latencyMs": 1374,
+        "cached": false,
+        "costMicros": 401,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "fc_421d57ec-4bd8-4f39-a485-6c40b8a86351",
+          "name": "issue_goodwill_coupon",
+          "arguments": "{\"customer\":\"hannah.larsen50@example.com\",\"orderId\":1190,\"percent\":10,\"reason\":\"order delayed\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "status": "issued",
+              "code": "SORRY-50-20260915",
+              "percentOff": 10,
+              "expires": "2026-12-14",
+              "terms": "Single use, only for this customer's account."
+            },
+            "policyDecision": "auto_approved"
+          }
+        },
+        "policyDecision": "auto_approved",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Hannah Larsen (hannah.larsen50@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_5cc1e39a-5941-4465-9389-b8884026151b",
+                "name": "get_tracking",
+                "arguments": "{\"orderId\":1190}"
+              }
+            ]
+          },
+          "reasoning": "We have order #1190, status delayed. Customer asks where is order, after almost three weeks. We should provide tracking info? Need to get tracking. Let's fetch tracking.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1994,
+        "outputTokens": 57,
+        "latencyMs": 493,
+        "cached": false,
+        "costMicros": 333,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "fc_5cc1e39a-5941-4465-9389-b8884026151b",
+          "name": "get_tracking",
+          "arguments": "{\"orderId\":1190}",
+          "result": {
+            "ok": true,
+            "data": {
+              "orderNumber": 1190,
+              "status": "delayed",
+              "carrier": "Parcelway",
+              "trackingNumber": "PW0009423610",
+              "estimatedDelivery": null,
+              "events": [
+                {
+                  "at": "2026-08-26 19:00",
+                  "status": "order_placed",
+                  "location": "Larchgrove Warehouse, Reno, NV",
+                  "note": null
+                },
+                {
+                  "at": "2026-08-27 19:00",
+                  "status": "shipped",
+                  "location": "Larchgrove Warehouse, Reno, NV",
+                  "note": "Handed to Parcelway Ground"
+                },
+                {
+                  "at": "2026-08-28 19:00",
+                  "status": "in_transit",
+                  "location": "Chicago, IL",
+                  "note": null
+                },
+                {
+                  "at": "2026-08-30 19:00",
+                  "status": "delayed",
+                  "location": "Chicago, IL",
+                  "note": "Carrier delay: weather and volume backlog"
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 4,
+          "context": "The customer is signed in as Hannah Larsen (hannah.larsen50@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "repaired_0",
+                "name": "reply",
+                "arguments": "{\"message\":\"Your order #1190 for the Stride 400 Running Headlamp was placed on 2026‑08‑26 and shipped the next day. It is currently delayed while in transit with Parcelway (latest event 2026‑08‑30 in Chicago, IL). You can follow its progress using the tracking number PW0009423610.\\n\\nBecause of this delay we’ve automatically issued a 10 % off coupon for your next purchase: **SORRY-50-20260915**, valid until 2026‑12‑14.  \\n\\nIf you have any other questions, feel free to let us know.\"}"
+              }
+            ]
+          },
+          "failedAttempts": [
+            {
+              "status": 400,
+              "code": "tool_use_failed",
+              "message": "{\"error\":{\"message\":\"Failed to parse tool call arguments as JSON\",\"type\":\"invalid_request_error\",\"code\":\"tool_use_failed\",\"failed_generation\":\"{\\\"name\\\": \\\"reply\\\", \\\"arguments\\\": Your order #1190 for the Stride 400 Running Headlamp was placed on 2026‑08‑26 and shipped the next day. It is currently ",
+              "failedGeneration": "{\"name\": \"reply\", \"arguments\": Your order #1190 for the Stride 400 Running Headlamp was placed on 2026‑08‑26 and shipped the next day. It is currently delayed while in transit with Parcelway (latest event 2026‑08‑30 in Chicago, IL). You can follow its progress using the tracking number PW0009423610.\n\nBecause of this delay we’ve automatically issued a 10 % off coupon for your next purchase: **SORRY-50-20260915**, valid until 2026‑12‑14.  \n\nIf you have any other questions, feel free to let us know.\"}"
+            }
+          ],
+          "repaired": true,
+          "finishReason": "repaired"
+        },
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "latencyMs": 1025,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "repaired_0",
+          "name": "reply",
+          "arguments": "{\"message\":\"Your order #1190 for the Stride 400 Running Headlamp was placed on 2026‑08‑26 and shipped the next day. It is currently delayed while in transit with Parcelway (latest event 2026‑08‑30 in Chicago, IL). You can follow its progress using the tracking number PW0009423610.\\n\\nBecause of this delay we’ve automatically issued a 10 % off coupon for your next purchase: **SORRY-50-20260915**, valid until 2026‑12‑14.  \\n\\nIf you have any other questions, feel free to let us know.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "Your order #1190 for the Stride 400 Running Headlamp was placed on 2026‑08‑26 and shipped the next day. It is currently delayed while in transit with Parcelway (latest event 2026‑08‑30 in Chicago, IL). You can follow its progress using the tracking number PW0009423610.\n\nBecause of this delay we’ve automatically issued a 10 % off coupon for your next purchase: **SORRY-50-20260915**, valid until 2026‑12‑14.  \n\nIf you have any other questions, feel free to let us know."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "Your order #1190 for the Stride 400 Running Headlamp was placed on 2026‑08‑26 and shipped the next day. It is currently delayed while in transit with Parcelway (latest event 2026‑08‑30 in Chicago, IL). You can follow its progress using the tracking number PW0009423610.\n\nBecause of this delay we’ve automatically issued a 10 % off coupon for your next purchase: **SORRY-50-20260915**, valid until 2026‑12‑14.  \n\nIf you have any other questions, feel free to let us know."
+        },
+        "turn": 1
+      },
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "That's frustrating. Can I at least get the shipping refunded?"
+        },
+        "turn": 2
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Hannah Larsen (hannah.larsen50@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_40b07d1c-55c4-46be-9eb0-3bffb01d7db1",
+                "name": "issue_refund",
+                "arguments": "{\"amount\":7.99,\"note\":\"Shipping refund due to delay\",\"orderId\":1190,\"reason\":\"late\"}"
+              }
+            ]
+          },
+          "reasoning": "The customer wants shipping refunded due to delay. Need to check policy: shipping refunds for delayed orders? We have refunds tool: reason \"late\" for delayed order, amount shipping cost? We need to issue refund. Shipping cost is $7.99. Use issue_refund with amount 7.99, reason \"late\". Also need to note that amount is shipping cost only. Let's call issue_refund.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2518,
+        "outputTokens": 127,
+        "latencyMs": 1333,
+        "cached": false,
+        "costMicros": 454,
+        "turn": 2
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "fc_40b07d1c-55c4-46be-9eb0-3bffb01d7db1",
+          "name": "issue_refund",
+          "arguments": "{\"amount\":7.99,\"note\":\"Shipping refund due to delay\",\"orderId\":1190,\"reason\":\"late\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "status": "refunded",
+              "refundId": 73,
+              "amount": "$7.99",
+              "message": "Refund of $7.99 issued to the original payment method."
+            },
+            "policyDecision": "auto_approved"
+          }
+        },
+        "policyDecision": "auto_approved",
+        "turn": 2
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Hannah Larsen (hannah.larsen50@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_ddd882cf-f2db-4ad7-acd6-f9641cedf039",
+                "name": "reply",
+                "arguments": "{\"message\":\"I’ve processed a refund of $7.99 for the shipping cost on order #1190. The amount has been returned to your original payment method. Let us know if there’s anything else we can help with.\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to reply to the customer confirming the shipping refund. Use reply tool. Ensure short, friendly.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2612,
+        "outputTokens": 83,
+        "latencyMs": 1404,
+        "cached": false,
+        "costMicros": 442,
+        "turn": 2
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "fc_ddd882cf-f2db-4ad7-acd6-f9641cedf039",
+          "name": "reply",
+          "arguments": "{\"message\":\"I’ve processed a refund of $7.99 for the shipping cost on order #1190. The amount has been returned to your original payment method. Let us know if there’s anything else we can help with.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "I’ve processed a refund of $7.99 for the shipping cost on order #1190. The amount has been returned to your original payment method. Let us know if there’s anything else we can help with."
+            }
+          }
+        },
+        "turn": 2
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "I’ve processed a refund of $7.99 for the shipping cost on order #1190. The amount has been returned to your original payment method. Let us know if there’s anything else we can help with."
+        },
+        "turn": 2
+      }
+    ],
+    "finalAgent": "support",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [
+        {
+          "order": 1190,
+          "amountCents": 799,
+          "reason": "late",
+          "status": "issued",
+          "item": null
+        }
+      ],
+      "goodwill": [
+        {
+          "percent": 10,
+          "status": "issued"
+        }
+      ],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "test-refund-within-limit-10",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to support",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to support"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "refund_required:0",
+        "label": "refund: $7.99 late refund on #1190, issued",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "goodwill_allowed:4",
+        "label": "allowed goodwill coupon: 10%, issued",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "reply1:mentions:0",
+        "label": "reply 1 mentions \"delayed\" or \"delay\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply2:amount:799",
+        "label": "reply 2 states $7.99",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      },
+      {
+        "turn": 2,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      },
+      {
+        "id": "script:2",
+        "kind": "script_fit",
+        "turn": 2,
+        "assumes": "the agent said the order is delayed",
+        "previousReply": "Your order #1190 for the Stride 400 Running Headlamp was placed on 2026‑08‑26 and shipped the next day. It is currently delayed while in transit with Parcelway (latest event 2026‑08‑30 in Chicago, IL). You can follow its progress using the tracking number PW0009423610.\n\nBecause of this delay we’ve automatically issued a 10 % off coupon for your next purchase: **SORRY-50-20260915**, valid until 2026‑12‑14.  \n\nIf you have any other questions, feel free to let us know."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 7,
+    "cachedCalls": 0,
+    "toolCalls": 4,
+    "inputTokens": 11173,
+    "outputTokens": 639,
+    "latencyMs": 8827,
+    "turnLatencyMs": [
+      6090,
+      2737
+    ],
+    "costMicros": 2059,
+    "wallMs": 8920
+  },
+  "finishedAt": "2026-10-05T12:42:12.303Z"
+}

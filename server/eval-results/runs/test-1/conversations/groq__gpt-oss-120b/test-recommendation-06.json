@@ -1,0 +1,358 @@
+{
+  "caseId": "test-recommendation-06",
+  "case": {
+    "id": "test-recommendation-06",
+    "split": "test",
+    "type": "recommendation",
+    "why": "Tents for 3+ people under $300 today (20% tent sale): Summit 3 ($263.20) and Basecamp 4 ($223.20). The Meadow 6 is $319.20. At list price the Summit 3 ($329.00) would miss, so the limit must use the sale price.",
+    "source": "test batch 4",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "We're three people. Which tents fit us for under $300?"
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "recommendation": {
+        "constraints": {
+          "category": "tents",
+          "maxPriceCents": 30000,
+          "minCapacityPersons": 3
+        },
+        "acceptable": [
+          "tent-summit-3",
+          "tent-basecamp-4"
+        ]
+      },
+      "leaks": [],
+      "judgeChecks": []
+    }
+  },
+  "agentModel": "groq/gpt-oss-120b",
+  "team": {
+    "router": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "7933a60c-04e3-45b0-b88b-c67d0998ecdd",
+    "turns": [
+      {
+        "customer": "We're three people. Which tents fit us for under $300?",
+        "reply": "Here are the tents that accommodate three people and cost under $300:\n\n1. **Summit 3 Trekking Tent** – fits 3 persons, current price $263.20, 3‑season, 30D ripstop nylon, waterproof to 3000 mm, weight 2,600 g. Availability: low stock.\n\n2. **Basecamp 4 Family Tent** – fits up to 4 persons (so it will comfortably hold three), current price $223.20, 3‑season, polyester, waterproof to 2000 mm, weight 5,800 g. Availability: in stock.\n\nBoth are under $300 today.",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "We're three people. Which tents fit us for under $300?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\":\"shopping\",\"category\":\"recommendation\",\"urgency\":\"normal\",\"confidence\":0.99}",
+          "decision": {
+            "route": "shopping",
+            "category": "recommendation",
+            "urgency": "normal",
+            "confidence": 0.99
+          },
+          "fallback": false
+        },
+        "inputTokens": 421,
+        "outputTokens": 152,
+        "latencyMs": 595,
+        "cached": false,
+        "costMicros": 154,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_75c3a46d-c20e-43ae-9090-1f609b72a033",
+                "name": "search_products",
+                "arguments": "{\"filters\":{\"category\":\"tents\",\"maxPrice\":300,\"minCapacityPersons\":3},\"limit\":20}"
+              }
+            ]
+          },
+          "reasoning": "We need to search for tents that fit at least 3 persons (minCapacityPersons >=3) and currentPrice <=300. Category tents. Use search_products.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1854,
+        "outputTokens": 93,
+        "latencyMs": 457,
+        "cached": false,
+        "costMicros": 334,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_75c3a46d-c20e-43ae-9090-1f609b72a033",
+          "name": "search_products",
+          "arguments": "{\"filters\":{\"category\":\"tents\",\"maxPrice\":300,\"minCapacityPersons\":3},\"limit\":20}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 2,
+              "products": [
+                {
+                  "id": "tent-summit-3",
+                  "name": "Summit 3 Trekking Tent",
+                  "category": "tents",
+                  "listPrice": "$329.00",
+                  "currentPrice": "$263.20",
+                  "rating": 4.5,
+                  "description": "Roomy three-person trekking tent with a steep-walled design for long trips.",
+                  "specs": {
+                    "seasons": 3,
+                    "material": "30D ripstop nylon",
+                    "waterproof": true,
+                    "weightGrams": 2600,
+                    "capacityPersons": 3,
+                    "waterproofRatingMm": 3000
+                  },
+                  "availability": "low_stock",
+                  "activeDeals": [
+                    "Tent Sale: 20% off all tents"
+                  ]
+                },
+                {
+                  "id": "tent-basecamp-4",
+                  "name": "Basecamp 4 Family Tent",
+                  "category": "tents",
+                  "listPrice": "$279.00",
+                  "currentPrice": "$223.20",
+                  "rating": 4.2,
+                  "description": "Four-person dome tent for car camping, with a large front porch.",
+                  "specs": {
+                    "seasons": 3,
+                    "material": "polyester",
+                    "waterproof": true,
+                    "weightGrams": 5800,
+                    "capacityPersons": 4,
+                    "waterproofRatingMm": 2000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Tent Sale: 20% off all tents"
+                  ]
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_7afe0546-2e6f-4248-978d-e5da46158ed3",
+                "name": "reply",
+                "arguments": "{\"message\":\"Here are the tents that accommodate three people and cost under $300:\\n\\n1. **Summit 3 Trekking Tent** – fits 3 persons, current price $263.20, 3‑season, 30D ripstop nylon, waterproof to 3000 mm, weight 2,600 g. Availability: low stock.\\n\\n2. **Basecamp 4 Family Tent** – fits up to 4 persons (so it will comfortably hold three), current price $223.20, 3‑season, polyester, waterproof to 2000 mm, weight 5,800 g. Availability: in stock.\\n\\nBoth are under $300 today.\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to answer: \"We're three people. Which tents fit us for under $300?\" We have two tents: Summit 3 Trekking Tent (capacity 3, currentPrice $263.20) and Basecamp 4 Family Tent (capacity 4, currentPrice $223.20). Both under $300. Provide both with price and capacity. Possibly mention stock: Summit low_stock, Basecamp in_stock. Provide recommendation? Just answer. Must reply using reply tool.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2182,
+        "outputTokens": 264,
+        "latencyMs": 980,
+        "cached": false,
+        "costMicros": 486,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_7afe0546-2e6f-4248-978d-e5da46158ed3",
+          "name": "reply",
+          "arguments": "{\"message\":\"Here are the tents that accommodate three people and cost under $300:\\n\\n1. **Summit 3 Trekking Tent** – fits 3 persons, current price $263.20, 3‑season, 30D ripstop nylon, waterproof to 3000 mm, weight 2,600 g. Availability: low stock.\\n\\n2. **Basecamp 4 Family Tent** – fits up to 4 persons (so it will comfortably hold three), current price $223.20, 3‑season, polyester, waterproof to 2000 mm, weight 5,800 g. Availability: in stock.\\n\\nBoth are under $300 today.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "Here are the tents that accommodate three people and cost under $300:\n\n1. **Summit 3 Trekking Tent** – fits 3 persons, current price $263.20, 3‑season, 30D ripstop nylon, waterproof to 3000 mm, weight 2,600 g. Availability: low stock.\n\n2. **Basecamp 4 Family Tent** – fits up to 4 persons (so it will comfortably hold three), current price $223.20, 3‑season, polyester, waterproof to 2000 mm, weight 5,800 g. Availability: in stock.\n\nBoth are under $300 today."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "Here are the tents that accommodate three people and cost under $300:\n\n1. **Summit 3 Trekking Tent** – fits 3 persons, current price $263.20, 3‑season, 30D ripstop nylon, waterproof to 3000 mm, weight 2,600 g. Availability: low stock.\n\n2. **Basecamp 4 Family Tent** – fits up to 4 persons (so it will comfortably hold three), current price $223.20, 3‑season, polyester, waterproof to 2000 mm, weight 5,800 g. Availability: in stock.\n\nBoth are under $300 today."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "shopping",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "test-recommendation-06",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to shopping"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "recommendation",
+        "label": "recommends only products that meet every constraint",
+        "pass": true,
+        "severity": "task",
+        "detail": "named: tent-summit-3, tent-basecamp-4"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 3,
+    "cachedCalls": 0,
+    "toolCalls": 1,
+    "inputTokens": 4457,
+    "outputTokens": 509,
+    "latencyMs": 2032,
+    "turnLatencyMs": [
+      2032
+    ],
+    "costMicros": 974,
+    "wallMs": 2072
+  },
+  "finishedAt": "2026-10-05T12:38:55.667Z"
+}

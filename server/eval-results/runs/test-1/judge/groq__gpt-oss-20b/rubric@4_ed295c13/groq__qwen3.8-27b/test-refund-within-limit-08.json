@@ -1,0 +1,128 @@
+{
+  "caseId": "test-refund-within-limit-08",
+  "runId": "45fb9150-049f-4f61-8f2a-52bd27a65c2b",
+  "questionSet": "2a2c12d8",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-refund-within-limit-08",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "The Glowworm headlamp from order #1253 arrived broken. Can you refund it?",
+        "reply": "I'm sorry the headlamp arrived broken — let me look into getting that sorted for you.\n\nTo check order #1253 and process a refund, I need you to be signed in to your account first (I can only view your own orders). Could you sign in, then let me know and I'll take care of it?"
+      }
+    ],
+    "toolSummary": [],
+    "judgeNote": "Asks them to sign in so it can help with the damaged item; may explain the damaged-items policy meanwhile.",
+    "checks": [
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "Apologizes, explains the need to sign in, and offers a clear next step."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only requests the customer to sign in and then says it will process the refund, which is an action it can perform once it has access. It does not promise or imply any future action that it cannot do in this chat, such as notifying the customer or following up. Answer: yes.",
+        "votes": [
+          true,
+          false,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent made no statements about shipping, arrival, refund, review, or processing times, so all timing claims (none) trivially match the conversation. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "scores",
+      "latencyMs": 1188,
+      "inputTokens": 893,
+      "outputTokens": 290,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"Apologizes, explains the need to sign in, and offers a clear next step.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1188,
+      "inputTokens": 660,
+      "outputTokens": 489,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only requests the customer to sign in and then says it will process the refund, which is an action it can perform once it has access. It does not promise or imply any future action that it cannot do in this chat, such as notifying the customer or following up. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 709,
+      "inputTokens": 649,
+      "outputTokens": 234,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refund, review, or processing times, so all timing claims (none) are consistent with the conversation. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 922,
+      "inputTokens": 660,
+      "outputTokens": 568,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only requests the customer to sign in and then says it will process the refund, which it can do after sign in. It does not promise future actions it cannot perform in this chat. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 932,
+      "inputTokens": 649,
+      "outputTokens": 232,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refund, review, or processing times, so all timing claims (none) trivially match the conversation. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1129,
+      "inputTokens": 649,
+      "outputTokens": 231,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refund, review, or processing times, so all timing claims (none) trivially match the conversation. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1143,
+      "inputTokens": 660,
+      "outputTokens": 521,
+      "cached": false,
+      "raw": "{\"why\":\"The agent promises to process the refund after the customer signs in, which is a future action it cannot perform in this chat, violating the rule. Answer: no.\",\"answer\":false}"
+    }
+  ]
+}

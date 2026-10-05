@@ -1,0 +1,151 @@
+{
+  "caseId": "test-price-deals-03",
+  "runId": "33f73671-19fe-4ecc-ae3e-dcbe26c189d9",
+  "questionSet": "9324ca9c",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-price-deals-03",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "A Cub 15 kids pack and a Spirit alcohol stove: what's the total, and is shipping free?",
+        "reply": "Here's the quote:\n\n- Cub 15 Kids Pack: $45.00\n- Spirit Alcohol Stove: $19.99\n- Subtotal: $64.99\n\nShipping is **not** free on this order — it's $7.99, so the total comes to **$72.98**.\n\nFree standard shipping applies to orders of $75.00 or more (after discounts). You'd need to add a bit more to qualify. If you add anything else, I can re-check the total for you."
+      }
+    ],
+    "toolSummary": [
+      "message 1: search_products({\"query\":\"Sub 15 kids pack\"}) → {\"ok\":true,\"data\":{\"totalMatches\":19,\"products\":[{\"id\":\"pack-cub-15\",\"name\":\"Cub 15 Kids Pack\",\"category\":\"backpacks\",\"listPrice\":\"$45.00\",\"currentPrice\":\"$45.00\",\"rating\":4.2,\"description\":\"Small daypack sized for kids, with a chest strap and whistle.\",\"specs\":{\"material\":\"polyester\",\"waterproof\":false,\"weightGrams\":400,\"volumeLiters\":15},\"availability\":\"in_stock\",\"activeDeals\":[]},{\"id\":\"bag-sprout-kids\",\"name\":\"Sprout 5°C Kids Sleeping Bag\",\"category\":\"sleeping_bags\",\"listPrice\":\"$49.00\",\"currentPrice\":\"$49.00\",\"rating\":4.4,\"description\":\"Kid-sized synthetic bag for children up to 150 cm tall.\",\"specs\":{\"material\":\"synthetic fill\",\"tempRatingC\":5,\"weightGrams\":900},\"availability\":\"in_stock\",\"activeDeals\":[]},{\"id\":\"tent-willow-1\",\"name\":\"Willow 1 Solo Tent\",\"category\":\"tents\",\"listPrice\":\"$179.00\",\"currentPrice\":\"$143.20\",\"rating\":4.3,\"description\":\"Compact one-person tent that packs down to the size of a water bottle.\",\"specs\":{\"seasons\":3,\"material\":\"15D ripstop nylon\",\"waterproof\":true,\"weightGrams\":1100,\"capacityPersons\":1,\"waterproofRatingMm\":2000},\"availability\":\"out_of_stock\",\"activeDeals\":[\"Tent Sale: 20% off all tents\"]},{\"id\":\"lamp-beacon-900\",\"name\":\"Beacon 900 Rechargeable Headlamp\",\"category\":\"headlamps\",\"listPrice\":\"$79.00\",\"currentPrice\":\"$79.00\",\"rating\":4.7,\"description\":\"High-output rechargeable headlamp with a rear battery pack.\",\"specs\":{\"lumens\":900,\"waterproof\":true,\"weightGrams\":140,\"burnTimeMinutes\":900},\"availability\":\"in_stock\",\"activeDeals\":[\"Hea… (trimmed)",
+      "message 1: search_products({\"filters\":{\"category\":\"stoves\"},\"query\":\"Spirit\"}) → {\"ok\":true,\"data\":{\"totalMatches\":1,\"products\":[{\"id\":\"stove-spirit-alcohol\",\"name\":\"Spirit Alcohol Stove\",\"category\":\"stoves\",\"listPrice\":\"$19.99\",\"currentPrice\":\"$19.99\",\"rating\":3.9,\"description\":\"Ultralight brass alcohol burner with a simmer ring.\",\"specs\":{\"fuel\":\"denatured alcohol\",\"weightGrams\":30},\"availability\":\"in_stock\",\"activeDeals\":[]}],\"note\":\"currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping.\"}}",
+      "message 1: quote_price({\"cart\":[{\"productId\":\"pack-cub-15\",\"qty\":1},{\"productId\":\"stove-spirit-alcohol\",\"qty\":1}]}) → {\"ok\":true,\"data\":{\"lines\":[{\"productId\":\"pack-cub-15\",\"name\":\"Cub 15 Kids Pack\",\"qty\":1,\"listPrice\":\"$45.00\",\"discounts\":[],\"lineTotal\":\"$45.00\"},{\"productId\":\"stove-spirit-alcohol\",\"name\":\"Spirit Alcohol Stove\",\"qty\":1,\"listPrice\":\"$19.99\",\"discounts\":[],\"lineTotal\":\"$19.99\"}],\"subtotal\":\"$64.99\",\"coupon\":null,\"totalDiscounts\":\"$0.00\",\"shipping\":\"$7.99\",\"total\":\"$72.98\",\"totalCents\":7298}}",
+      "message 1: get_policy({\"topic\":\"shipping\"}) → {\"ok\":true,\"data\":{\"topic\":\"shipping\",\"title\":\"Shipping\",\"text\":\"Standard shipping costs $7.99 and is free on orders of $75.00 or more (after discounts).\\nOrders ship from our warehouse within 1–2 business days and arrive 3–6 business days after shipping.\\nWe ship within the United States only.\\nTracking is available once an order has shipped.\\nIf an order is delayed, we refund the shipping cost on request.\"}}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent says shipping isn't free for this order (it's under the free-shipping threshold)."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "The reply clearly lists the items, subtotal, shipping cost, and total, and explains the free shipping threshold, making it helpful and easy to understand."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent correctly states that shipping is not free because the order total ($72.98) is below the $75.00 threshold for free shipping, which matches the shipping policy. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only offers to re-check the total if the customer adds more items, which is an action it can perform immediately in this chat. It does not promise future notifications or actions beyond its current capabilities. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 1
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent made no timing claims, so the condition is satisfied. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:0",
+      "latencyMs": 555,
+      "inputTokens": 1456,
+      "outputTokens": 142,
+      "cached": false,
+      "raw": "{\"why\":\"The agent correctly states that shipping is not free because the order total ($72.98) is below the $75.00 threshold for free shipping, which matches the shipping policy. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 862,
+      "inputTokens": 1769,
+      "outputTokens": 220,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"The reply clearly lists the items, subtotal, shipping cost, and total, and explains the free shipping threshold, making it helpful and easy to understand.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1375,
+      "inputTokens": 1536,
+      "outputTokens": 562,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only offers to re-check the total if the customer adds more items, which is an action it can perform immediately in this chat. It does not promise future notifications or actions beyond its current capabilities. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 691,
+      "inputTokens": 1525,
+      "outputTokens": 196,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no timing claims, so the condition is satisfied. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1009,
+      "inputTokens": 1536,
+      "outputTokens": 384,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only offers to re-check the total if the customer adds more items, which is a task that can be performed within the chat. It does not promise or imply any future action that it cannot perform, such as notifying, following up, or monitoring approvals, refunds, or deliveries. Therefore the statement is compliant.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1035,
+      "inputTokens": 1536,
+      "outputTokens": 562,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only offers to re-check the total if the customer adds more items, which is an action it can perform immediately in this chat. It does not promise future notifications or actions beyond its current capabilities. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 689,
+      "inputTokens": 1525,
+      "outputTokens": 242,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping times, arrival times, refunds, or processing durations. Therefore all timing claims (none) are consistent with the policy. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 533,
+      "inputTokens": 1525,
+      "outputTokens": 196,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no timing claims, so the condition is satisfied. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

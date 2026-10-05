@@ -1,0 +1,149 @@
+{
+  "caseId": "test-order-status-10",
+  "runId": "0b3d4ff2-3f79-4301-9d0d-90a2a42ae83e",
+  "questionSet": "0a3f7e93",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-order-status-10",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Is my order #1134 lost? It's been sitting in Salt Lake City for days.",
+        "reply": "Good news — it's not lost. Your Swift 30 Daypack (order #1134) is showing as **delayed**, not lost. The carrier (Parcelway, tracking PW0008980146) logged a delay at the Salt Lake City, UT facility on Sep 9 due to weather and a volume backlog. Since then there haven't been new tracking updates, so the \"sitting for days\" you're seeing is that same delay still in effect.\n\nWhat's possible right now:\n- I can issue a **partial refund of your $0.00 shipping** for the delay — though since shipping was free, there's no amount to refund.\n\nI wouldn't claim a lost-in-transit refund at this point, since the package is delayed, not lost. If it stops moving and cancels, the lost-in-transit process would kick in. If you'd like, I can escalate this to a human support agent to look more closely at the stalled SLC facility, or I can issue a small goodwill coupon for the inconvenience. Just say the word."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_tracking({\"orderId\":1134}) → {\"ok\":true,\"data\":{\"orderNumber\":1134,\"status\":\"delayed\",\"carrier\":\"Parcelway\",\"trackingNumber\":\"PW0008980146\",\"estimatedDelivery\":null,\"events\":[{\"at\":\"2026-09-05 14:00\",\"status\":\"order_placed\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":null},{\"at\":\"2026-09-06 14:00\",\"status\":\"shipped\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":\"Handed to Parcelway Ground\"},{\"at\":\"2026-09-07 14:00\",\"status\":\"in_transit\",\"location\":\"Salt Lake City, UT\",\"note\":null},{\"at\":\"2026-09-09 14:00\",\"status\":\"delayed\",\"location\":\"Salt Lake City, UT\",\"note\":\"Carrier delay: weather and volume backlog\"}]}}",
+      "message 1: get_order({\"orderId\":1134}) → {\"ok\":true,\"data\":{\"number\":1134,\"status\":\"delayed\",\"placed\":\"2026-09-05\",\"delivered\":null,\"items\":[{\"productId\":\"pack-swift-30\",\"name\":\"Swift 30 Daypack\",\"size\":null,\"color\":\"black\",\"qty\":1,\"listPrice\":\"$119.00\",\"discount\":\"$0.00\",\"paid\":\"$119.00\",\"returnedQty\":0}],\"subtotal\":\"$119.00\",\"discount\":\"$0.00\",\"shipping\":\"$0.00\",\"totalPaid\":\"$119.00\",\"refunds\":[]}}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent says the order is delayed by the carrier, not lost, and gives no delivery date (the tracking has none)."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "The reply clearly explains the delay, offers options, and is warm and professional."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent explicitly states the package is delayed, not lost, and the tracking data shows no estimated delivery date (estimatedDelivery is null).",
+        "noConclusion": 1
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only offers actions that can be performed immediately (issue refund, coupon, escalation) and does not promise future actions beyond what is possible in this chat. Therefore the statement is true. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent only states that there have been no new tracking updates since the delay on Sep 9, which matches the tool data showing the last event on Sep 9. No other vague timing claims are made. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:0",
+      "latencyMs": 757,
+      "inputTokens": 1032,
+      "outputTokens": 328,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states the package is delayed, not lost, and the tracking data shows no estimated delivery date (estimatedDelivery is null).\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 765,
+      "inputTokens": 1338,
+      "outputTokens": 344,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"The reply clearly explains the delay, offers options, and is warm and professional.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1092,
+      "inputTokens": 1105,
+      "outputTokens": 502,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only offers actions it can perform immediately (issue a refund, issue a coupon, or escalated to a human) and references policy for future events. It does not promise or imply any future action that it cannot do in this chat. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 920,
+      "inputTokens": 1094,
+      "outputTokens": 549,
+      "cached": false,
+      "raw": "{\"why\":\"The agent references the lack of new tracking updates since Sep 9, which matches the tool data showing the last event on Sep 9. No other vague timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1284,
+      "inputTokens": 1105,
+      "outputTokens": 691,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only offers actions it can perform immediately (issue a refund or coupon) and offers escalation to a human agent, which is a possible next step but not a promise of future action it cannot perform. Therefore it does not promise or imply any future action it cannot do in this chat. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 1341,
+      "inputTokens": 1094,
+      "outputTokens": 558,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states that no new tracking updates have occurred since Sep 9, which matches the tool data showing the last event on Sep 9. No other vague timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1344,
+      "inputTokens": 1094,
+      "outputTokens": 536,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states that there have been no new tracking updates since the delay on Sep 9, which matches the tool data showing the last event on Sep 9. No other vague timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1686,
+      "inputTokens": 1105,
+      "outputTokens": 587,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only offers actions that can be performed immediately (issue refund, coupon, escalation) and does not promise future actions beyond what is possible in this chat. Therefore the statement is true. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

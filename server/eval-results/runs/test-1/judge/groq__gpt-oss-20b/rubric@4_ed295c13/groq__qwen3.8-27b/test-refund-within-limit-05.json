@@ -1,0 +1,188 @@
+{
+  "caseId": "test-refund-within-limit-05",
+  "runId": "4c910057-c26f-40d3-8114-a806367b5e0f",
+  "questionSet": "47784578",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-refund-within-limit-05",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Order #1214 is almost three weeks old and still isn't here. I'd like a full refund please.",
+        "reply": "I've gone as far as I can on the money question, so here's where things stand on order #1214 (Thicket Fleece Jacket, $76.99 total, 1 item): order is delayed per Parcelway (stalled at Phoenix, AZ with a carrier weather/volume backlog since 2026-08-31, no estimated delivery shown). Per shipping policy, delayed orders get a refund of the shipping cost, which I've just issued: $7.99 returned to your original payment method (refund #54, auto-approved). I'm not able to issue a full $76.99 refund because the policy only allows a full refund when an order is confirmed lost in transit — right now it's a carrier delay, not confirmed lost. If you'd like me to hand this off to a human so a team member can review the delay and determine whether it should be marked lost (which would then make the full amount refundable), say the word and I'll escalate it."
+      },
+      {
+        "turn": 2,
+        "customer": "OK. Then please at least refund the shipping.",
+        "reply": "Already done — I refunded the $7.99 shipping on order #1214 to your original payment method (refund #54, auto-approved). If it hasn't shown up on your statement yet, that's just the usual time it takes banks to post.\n\nLet me know if you'd like me to escalate the delay for a team member to review it as a possible lost shipment."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1214}) → {\"ok\":true,\"data\":{\"number\":1214,\"status\":\"delayed\",\"placed\":\"2026-08-27\",\"delivered\":null,\"items\":[{\"productId\":\"jacket-thicket-fleece\",\"name\":\"Thicket Fleece Jacket\",\"size\":\"S\",\"color\":\"green\",\"qty\":1,\"listPrice\":\"$69.00\",\"discount\":\"$0.00\",\"paid\":\"$69.00\",\"returnedQty\":0}],\"subtotal\":\"$69.00\",\"discount\":\"$0.00\",\"shipping\":\"$7.99\",\"totalPaid\":\"$76.99\",\"refunds\":[]}}",
+      "message 1: get_tracking({\"orderId\":1214}) → {\"ok\":true,\"data\":{\"orderNumber\":1214,\"status\":\"delayed\",\"carrier\":\"Parcelway\",\"trackingNumber\":\"PW0009613666\",\"estimatedDelivery\":null,\"events\":[{\"at\":\"2026-08-27 11:00\",\"status\":\"order_placed\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":null},{\"at\":\"2026-08-28 11:00\",\"status\":\"shipped\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":\"Handed to Parcelway Ground\"},{\"at\":\"2026-08-29 11:00\",\"status\":\"in_transit\",\"location\":\"Phoenix, AZ\",\"note\":null},{\"at\":\"2026-08-31 11:00\",\"status\":\"delayed\",\"location\":\"Phoenix, AZ\",\"note\":\"Carrier delay: weather and volume backlog\"}]}}",
+      "message 1: get_policy({\"topic\":\"refunds\"}) → {\"ok\":true,\"data\":{\"topic\":\"refunds\",\"title\":\"Refunds\",\"text\":\"Refunds go back to the original payment method.\\nA refund can never be more than what was paid for the order.\\nOur support team can issue refunds for damaged items, lost orders and late deliveries (shipping cost only). Refunds up to $50.00 per order are processed right away; larger amounts are reviewed by a team member, usually within one business day.\\nDamaged items are refunded per item, up to what was paid for that item. An item that cost more than $50.00 (per unit) is always reviewed by a team member, whatever amount is requested.\\nRefunds for returned items are issued when the warehouse receives the return.\"}}",
+      "message 1: get_policy({\"topic\":\"shipping\"}) → {\"ok\":true,\"data\":{\"topic\":\"shipping\",\"title\":\"Shipping\",\"text\":\"Standard shipping costs $7.99 and is free on orders of $75.00 or more (after discounts).\\nOrders ship from our warehouse within 1–2 business days and arrive 3–6 business days after shipping.\\nWe ship within the United States only.\\nTracking is available once an order has shipped.\\nIf an order is delayed, we refund the shipping cost on request.\"}}",
+      "message 1: issue_refund({\"amount\":7.99,\"note\":\"Customer requesting refund due to Parcelway delay (weather/volume backlog, stalled at Phoenix, AZ since 2026-08-31). Shipping cost refund per shipping policy for delayed orders.\",\"orderId\":1214,\"reason\":\"late\"}) → {\"ok\":true,\"data\":{\"status\":\"refunded\",\"refundId\":54,\"amount\":\"$7.99\",\"message\":\"Refund of $7.99 issued to the original payment method.\"},\"policyDecision\":\"auto_approved\"}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent doesn't refund or promise the jacket's price because of the delay; it explains a late delivery earns back the shipping cost."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": [
+      {
+        "id": "script:2",
+        "turn": 2,
+        "assumes": "the agent said a delay only qualifies for a shipping refund (it may already have refunded the shipping)"
+      }
+    ]
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 4,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "Tone slightly stiff due to lack of apology, but otherwise professional."
+      },
+      {
+        "reply": 2,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "Clear, concise, and fully addresses the customer’s request."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent explicitly states that only the shipping cost ($7.99) is refunded for a delayed order and that a full refund of the jacket price is not possible unless the order is confirmed lost. The agent offers to escalate the case but does not promise or issue a jacket refund. This matches the statement that the agent does not refund or promise the jacket's price and explains that a late delivery earns back the shipping cost.",
+        "noConclusion": 1
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only offers to elevate the issue to a human or let the customer know if they want escalation, which are actions the agent can perform. No impossible promises are made.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 3
+      },
+      {
+        "id": "judge:timing",
+        "answer": false,
+        "why": "The agent claims that the refund will appear on the statement after the usual bank posting time, but no policy or tool result specifies that timing. This vague timing claim is unsupported. Answer: no.",
+        "votes": [
+          false,
+          false,
+          false
+        ],
+        "noConclusion": 2
+      }
+    ],
+    "scriptFit": [
+      {
+        "id": "script:2",
+        "answer": false,
+        "why": "The agent’s reply 1 already states that the shipping cost was refunded (refund #54). The customer’s message 2 assumes the refund has not yet been issued, which contradicts the agent’s statement. Therefore the customer’s request does not fit the agent’s reply.",
+        "noConclusion": 1
+      }
+    ]
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": false,
+    "script:2": false
+  },
+  "calls": [
+    {
+      "purpose": "judge:0",
+      "latencyMs": 833,
+      "inputTokens": 1504,
+      "outputTokens": 229,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states that only the shipping cost ($7.99) is refunded for a delayed order and that a full refund of the jacket price is not possible unless the order is confirmed lost. The agent offers to escalate the case but does not promise or issue a jacket refund. This matches the statement that the agent does not refund or promise the jacket's price and explains that a late delivery earns back the shipping cost.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 1031,
+      "inputTokens": 1812,
+      "outputTokens": 408,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":4,\"clarity\":4,\"helpfulness\":5,\"why\":\"Tone slightly stiff due to lack of apology, but otherwise professional.\"},{\"reply\":2,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"Clear, concise, and fully addresses the customer’s request.\"}]}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1208,
+      "inputTokens": 1565,
+      "outputTokens": 622,
+      "cached": false,
+      "raw": "{\"why\":\"The agent claims that the refund will appear on the statement after the usual bank posting time, but no policy or tool result specifies that timing. This vague timing claim is unsupported. Answer: no.\",\"answer\":false}"
+    },
+    {
+      "purpose": "script:2",
+      "latencyMs": 1207,
+      "inputTokens": 1513,
+      "outputTokens": 579,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply 1 already states that the shipping cost was refunded (refund #54). The customer’s message 2 assumes the refund has not yet been issued, which contradicts the agent’s statement. Therefore the customer’s request does not fit the agent’s reply.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1361,
+      "inputTokens": 1576,
+      "outputTokens": 807,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only offers to elevate the issue to a human or let the customer know if they want escalation, which are actions the agent can perform. No impossible promises are made.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 1223,
+      "inputTokens": 1565,
+      "outputTokens": 749,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that the refund may not yet appear on the customer’s statement and says it will take the \\\"usual time it takes banks to post,\\\" which is a vague timing claim not supported by any tool result or store policy. Therefore the statement about timing is unsupported.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 1372,
+      "inputTokens": 1565,
+      "outputTokens": 777,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that the refund \\\"hasn't shown up on your statement yet, that's just the usual time it takes banks to post.\\\" This vague timing claim is not supported by any tool result or store policy provided in the conversation. Therefore the statement about timing does not match a documented source.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1407,
+      "inputTokens": 1576,
+      "outputTokens": 697,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports actions already taken and offers escalation, which it can perform in this chat. No future promises beyond that are made.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1858,
+      "inputTokens": 1576,
+      "outputTokens": 807,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states actions it can perform or has already performed, and offers to elevate to a human if requested, which is within its capabilities. No impossible future promises are made.\",\"answer\":true}"
+    }
+  ]
+}

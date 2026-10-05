@@ -1,0 +1,438 @@
+{
+  "caseId": "test-product-facts-01",
+  "case": {
+    "id": "test-product-facts-01",
+    "split": "test",
+    "type": "product_facts",
+    "why": "Tundra 2 Four-Season Tent: 4 seasons, 5000 mm waterproof rating (catalog). Both facts asked; both must be right.",
+    "source": "test batch 4",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "Is the Tundra 2 tent OK for winter camping? How many seasons is it rated for, and what's the waterproof rating?",
+        "reply": {
+          "mentions": [
+            [
+              "4-season",
+              "four-season",
+              "4 season",
+              "four season",
+              "4 seasons",
+              "four seasons"
+            ],
+            [
+              "5000 mm",
+              "5,000 mm",
+              "5000mm",
+              "5,000mm"
+            ]
+          ],
+          "amounts": [],
+          "avoids": []
+        }
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "leaks": [],
+      "judge": "Yes: a 4-season tent built for snow load and high winds, 5000 mm. May add 2 people, 3.3 kg and the sale price ($439.20).",
+      "judgeChecks": []
+    }
+  },
+  "agentModel": "groq/qwen3.8-27b",
+  "team": {
+    "router": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "7f9d202f-58c7-44eb-ab6a-ace6c655f90c",
+    "turns": [
+      {
+        "customer": "Is the Tundra 2 tent OK for winter camping? How many seasons is it rated for, and what's the waterproof rating?",
+        "reply": "Yes, the Tundra 2 is built for winter camping. It's a four-season mountaineering tent designed to handle snow load and high winds. Details: rated for 4 seasons, waterproof with a 5000 mm rating, made of 40D ripstop nylon, holds 2 people, and weighs 3300 g. It's in stock and currently on sale, marked down from $549.00 to $439.20.",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Is the Tundra 2 tent OK for winter camping? How many seasons is it rated for, and what's the waterproof rating?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\n  \"route\": \"shopping\",\n  \"category\": \"product_info\",\n  \"urgency\": \"normal\",\n  \"confidence\": 0.95\n}",
+          "decision": {
+            "route": "shopping",
+            "category": "product_info",
+            "urgency": "normal",
+            "confidence": 0.95
+          },
+          "fallback": false
+        },
+        "inputTokens": 364,
+        "outputTokens": 40,
+        "latencyMs": 701,
+        "cached": false,
+        "costMicros": 451,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "hkcnn8w9z",
+                "name": "search_products",
+                "arguments": "{\"query\":\"Tundra 2\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2480,
+        "outputTokens": 29,
+        "latencyMs": 569,
+        "cached": false,
+        "costMicros": 2100,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "hkcnn8w9z",
+          "name": "search_products",
+          "arguments": "{\"query\":\"Tundra 2\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 2,
+              "products": [
+                {
+                  "id": "jacket-tundra-parka",
+                  "name": "Tundra Insulated Parka",
+                  "category": "jackets",
+                  "listPrice": "$329.00",
+                  "currentPrice": "$329.00",
+                  "rating": 4.8,
+                  "description": "Waterproof insulated parka for deep winter.",
+                  "specs": {
+                    "material": "down + waterproof shell",
+                    "waterproof": true,
+                    "tempRatingC": -25,
+                    "weightGrams": 1100,
+                    "waterproofRatingMm": 15000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "tent-tundra-2",
+                  "name": "Tundra 2 Four-Season Tent",
+                  "category": "tents",
+                  "listPrice": "$549.00",
+                  "currentPrice": "$439.20",
+                  "rating": 4.8,
+                  "description": "Two-person mountaineering tent built for snow load and high winds.",
+                  "specs": {
+                    "seasons": 4,
+                    "material": "40D ripstop nylon",
+                    "waterproof": true,
+                    "weightGrams": 3300,
+                    "capacityPersons": 2,
+                    "waterproofRatingMm": 5000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Tent Sale: 20% off all tents"
+                  ]
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "61rasy3ew",
+                "name": "get_product",
+                "arguments": "{\"id\":\"tent-tundra-2\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2819,
+        "outputTokens": 31,
+        "latencyMs": 616,
+        "cached": false,
+        "costMicros": 2379,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "61rasy3ew",
+          "name": "get_product",
+          "arguments": "{\"id\":\"tent-tundra-2\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "id": "tent-tundra-2",
+              "name": "Tundra 2 Four-Season Tent",
+              "category": "tents",
+              "listPrice": "$549.00",
+              "currentPrice": "$439.20",
+              "rating": 4.8,
+              "description": "Two-person mountaineering tent built for snow load and high winds.",
+              "specs": {
+                "seasons": 4,
+                "material": "40D ripstop nylon",
+                "waterproof": true,
+                "weightGrams": 3300,
+                "capacityPersons": 2,
+                "waterproofRatingMm": 5000
+              },
+              "availability": "in_stock",
+              "activeDeals": [
+                "Tent Sale: 20% off all tents"
+              ],
+              "variants": [
+                {
+                  "size": null,
+                  "color": "yellow",
+                  "availability": "in_stock"
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 3,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": "Yes, the Tundra 2 is built for winter camping. It's a four-season mountaineering tent designed to handle snow load and high winds.\n\n- Seasons: rated for 4 seasons\n- Waterproof: yes, with a 5000 mm waterproof rating\n- Material: 40D ripstop nylon\n- Capacity: 2 people\n- Weight: 3300 g\n\nIt's currently in stock and on sale, marked down from $549.00 to $439.20.\n\n",
+            "toolCalls": [
+              {
+                "id": "tbbdkn67v",
+                "name": "reply",
+                "arguments": "{\"message\":\"Yes, the Tundra 2 is built for winter camping. It's a four-season mountaineering tent designed to handle snow load and high winds. Details: rated for 4 seasons, waterproof with a 5000 mm rating, made of 40D ripstop nylon, holds 2 people, and weighs 3300 g. It's in stock and currently on sale, marked down from $549.00 to $439.20.\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3024,
+        "outputTokens": 240,
+        "latencyMs": 1043,
+        "cached": false,
+        "costMicros": 3379,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "tbbdkn67v",
+          "name": "reply",
+          "arguments": "{\"message\":\"Yes, the Tundra 2 is built for winter camping. It's a four-season mountaineering tent designed to handle snow load and high winds. Details: rated for 4 seasons, waterproof with a 5000 mm rating, made of 40D ripstop nylon, holds 2 people, and weighs 3300 g. It's in stock and currently on sale, marked down from $549.00 to $439.20.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "Yes, the Tundra 2 is built for winter camping. It's a four-season mountaineering tent designed to handle snow load and high winds. Details: rated for 4 seasons, waterproof with a 5000 mm rating, made of 40D ripstop nylon, holds 2 people, and weighs 3300 g. It's in stock and currently on sale, marked down from $549.00 to $439.20."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "Yes, the Tundra 2 is built for winter camping. It's a four-season mountaineering tent designed to handle snow load and high winds. Details: rated for 4 seasons, waterproof with a 5000 mm rating, made of 40D ripstop nylon, holds 2 people, and weighs 3300 g. It's in stock and currently on sale, marked down from $549.00 to $439.20."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "shopping",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "test-product-facts-01",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to shopping"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "reply1:mentions:0",
+        "label": "reply 1 mentions \"4-season\" or \"four-season\" or \"4 season\" or \"four season\" or \"4 seasons\" or \"four seasons\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:mentions:1",
+        "label": "reply 1 mentions \"5000 mm\" or \"5,000 mm\" or \"5000mm\" or \"5,000mm\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 4,
+    "cachedCalls": 0,
+    "toolCalls": 2,
+    "inputTokens": 8687,
+    "outputTokens": 340,
+    "latencyMs": 2929,
+    "turnLatencyMs": [
+      2929
+    ],
+    "costMicros": 8309,
+    "wallMs": 3217
+  },
+  "finishedAt": "2026-10-05T12:38:12.011Z"
+}

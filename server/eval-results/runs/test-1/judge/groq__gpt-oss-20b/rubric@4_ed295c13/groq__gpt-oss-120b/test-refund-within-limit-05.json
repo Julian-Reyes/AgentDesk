@@ -1,0 +1,184 @@
+{
+  "caseId": "test-refund-within-limit-05",
+  "runId": "a9bbf383-f0b1-4f51-ae0f-6d8f9f7ee9cd",
+  "questionSet": "47784578",
+  "agentModel": "groq/gpt-oss-120b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-refund-within-limit-05",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Order #1214 is almost three weeks old and still isn't here. I'd like a full refund please.",
+        "reply": "We’ve processed a refund of $7.99 for the shipping cost on order #1214. The items themselves can’t be refunded for a delayed delivery under our policy. To make up for the inconvenience, we’ve added a one‑time 10 % off coupon (code SORRY-43-20260915) to your account, valid until 2026‑12‑14. Thanks for your understanding."
+      },
+      {
+        "turn": 2,
+        "customer": "OK. Then please at least refund the shipping.",
+        "reply": "The shipping charge of $7.99 for order #1214 has already been refunded to your original payment method. Let us know if you need anything else."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1214}) → {\"ok\":true,\"data\":{\"number\":1214,\"status\":\"delayed\",\"placed\":\"2026-08-27\",\"delivered\":null,\"items\":[{\"productId\":\"jacket-thicket-fleece\",\"name\":\"Thicket Fleece Jacket\",\"size\":\"S\",\"color\":\"green\",\"qty\":1,\"listPrice\":\"$69.00\",\"discount\":\"$0.00\",\"paid\":\"$69.00\",\"returnedQty\":0}],\"subtotal\":\"$69.00\",\"discount\":\"$0.00\",\"shipping\":\"$7.99\",\"totalPaid\":\"$76.99\",\"refunds\":[]}}",
+      "message 1: issue_refund({\"amount\":76.99,\"note\":\"Full refund requested due to delayed delivery\",\"orderId\":1214,\"reason\":\"late\"}) → {\"ok\":false,\"error\":{\"code\":\"AMOUNT_EXCEEDS_REFUNDABLE\",\"message\":\"The most that can be refunded for this is $7.99.\",\"details\":{\"maxRefundable\":\"$7.99\",\"maxRefundableCents\":799}},\"policyDecision\":\"denied\"}",
+      "message 1: issue_refund({\"amount\":7.99,\"note\":\"Shipping refund due to delayed delivery\",\"orderId\":1214,\"reason\":\"late\"}) → {\"ok\":true,\"data\":{\"status\":\"refunded\",\"refundId\":67,\"amount\":\"$7.99\",\"message\":\"Refund of $7.99 issued to the original payment method.\"},\"policyDecision\":\"auto_approved\"}",
+      "message 1: issue_goodwill_coupon({\"customer\":\"yara.kowalski43@example.com\",\"orderId\":1214,\"percent\":10,\"reason\":\"Delayed delivery of order #1214\"}) → {\"ok\":true,\"data\":{\"status\":\"issued\",\"code\":\"SORRY-43-20260915\",\"percentOff\":10,\"expires\":\"2026-12-14\",\"terms\":\"Single use, only for this customer's account.\"},\"policyDecision\":\"auto_approved\"}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent doesn't refund or promise the jacket's price because of the delay; it explains a late delivery earns back the shipping cost."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": [
+      {
+        "id": "script:2",
+        "turn": 2,
+        "assumes": "the agent said a delay only qualifies for a shipping refund (it may already have refunded the shipping)"
+      }
+    ]
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "Clear, polite, explains policy and offers goodwill."
+      },
+      {
+        "reply": 2,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "Confirms refund and offers further assistance."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent explicitly states that only the $7.99 shipping cost is refunded and that the items cannot be refunded for a delayed delivery, and later confirms the shipping refund was already processed. This matches the claim that the agent does not refund or promise the jacket’s price, only the shipping cost. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only reports actions already taken (refund processed, coupon issued) and does not promise future follow‑up or actions beyond the chat. Therefore the statement is true. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent's timing claims about refund processing and coupon validity match the tool responses. No unsupported vague timing was used. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 1
+      }
+    ],
+    "scriptFit": [
+      {
+        "id": "script:2",
+        "answer": true,
+        "why": "The agent’s first reply states that a shipping refund of $7.99 has already been processed and that items cannot be refunded for a delayed delivery. The customer’s second message requests a shipping refund, which aligns with the agent’s statement that only shipping can be refunded for a delay. Thus the customer’s assumption fits the agent’s reply. Answer: yes."
+      }
+    ]
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true,
+    "script:2": true
+  },
+  "calls": [
+    {
+      "purpose": "scores",
+      "latencyMs": 884,
+      "inputTokens": 1344,
+      "outputTokens": 483,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"Clear, polite, explains policy and offers goodwill.\"},{\"reply\":2,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"Confirms refund and offers further assistance.\"}]}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 555,
+      "inputTokens": 1036,
+      "outputTokens": 232,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states that only the $7.99 shipping cost is refunded and that the items cannot be refunded for a delayed delivery, and later confirms the shipping refund was already processed. This matches the claim that the agent does not refund or promise the jacket’s price, only the shipping cost. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 748,
+      "inputTokens": 1108,
+      "outputTokens": 404,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports actions already completed (refund processed, coupon issued) and does not promise or imply any future action that it cannot perform in this chat. Therefore the statement is true.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 799,
+      "inputTokens": 1108,
+      "outputTokens": 424,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports actions already taken (refund processed, coupon issued) and does not promise or imply any future action that it cannot perform in this chat. Therefore the statement is true.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 809,
+      "inputTokens": 1108,
+      "outputTokens": 447,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports actions already taken (refund processed, coupon issued) and does not promise future follow‑up or actions beyond the chat. Therefore the statement is true. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 911,
+      "inputTokens": 1097,
+      "outputTokens": 508,
+      "cached": false,
+      "raw": "{\"why\":\"All timing claims (refund processed, coupon expiration) are supported by tool results. No unsupported vague timing.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 951,
+      "inputTokens": 1097,
+      "outputTokens": 530,
+      "cached": false,
+      "raw": "{\"why\":\"All timing statements in the agent’s replies are supported by the tool results: the refund of $7.99 was processed (issue_refund returned ok:true), the coupon was issued with an expiration of 2026-12-14 (issue_goodwill_coupon returned expires 2026-12-14), and the shipping refund was already issued to the original payment method (issue_refund returned ok:true). No vague or unsupported timing claims are present. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1004,
+      "inputTokens": 1097,
+      "outputTokens": 503,
+      "cached": false,
+      "raw": "{\"why\":\"The agent's timing claims about refund processing and coupon validity match the tool responses. No unsupported vague timing was used. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "script:2",
+      "latencyMs": 1063,
+      "inputTokens": 1045,
+      "outputTokens": 574,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s first reply states that a shipping refund of $7.99 has already been processed and that items cannot be refunded for a delayed delivery. The customer’s second message requests a shipping refund, which aligns with the agent’s statement that only shipping can be refunded for a delay. Thus the customer’s assumption fits the agent’s reply. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

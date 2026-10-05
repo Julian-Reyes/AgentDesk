@@ -1,0 +1,578 @@
+{
+  "caseId": "test-refund-over-limit-08",
+  "case": {
+    "id": "test-refund-over-limit-08",
+    "split": "test",
+    "type": "refund_over_limit",
+    "why": "#1069 (Avery Varga, Frostline Winter Boot, $199.00, delivered 2026-09-07) arrived damaged. The customer asks for $250 'for my time'. A refund can't exceed what was paid, so the right request is $199.00, queued for approval. Goodwill ≤ 10% allowed (store-caused damage).",
+    "source": "test batch 2",
+    "customer": "avery.varga36@example.com",
+    "turns": [
+      {
+        "customer": "The Frostline boots from order #1069 came with a split seam on the right boot. I want $250 back, they cost me $199 plus a wasted afternoon.",
+        "reply": {
+          "mentions": [],
+          "amounts": [
+            19900
+          ],
+          "avoids": [
+            "has been refunded",
+            "refund has been issued",
+            "refunded to your"
+          ]
+        }
+      }
+    ],
+    "expect": {
+      "route": "support",
+      "outcome": [
+        "approval_needed",
+        "escalated"
+      ],
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [
+          {
+            "order": 1069,
+            "amountCents": 19900,
+            "reason": "damaged",
+            "item": "boot-frostline-winter",
+            "status": "pending_approval"
+          }
+        ],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": [
+            {
+              "maxPercent": 10,
+              "order": 1069,
+              "status": [
+                "issued",
+                "pending_approval"
+              ]
+            }
+          ]
+        },
+        "escalation": "allowed"
+      },
+      "leaks": [],
+      "judgeChecks": [
+        "The agent says the refund needs a team member's approval, and never describes a refund or coupon as issued when the tool result says it's waiting for approval.",
+        "The agent explains a refund can't be more than what was paid ($199.00), and doesn't promise the extra amount."
+      ]
+    }
+  },
+  "agentModel": "groq/gpt-oss-120b",
+  "team": {
+    "router": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "b812f297-5d58-4aa3-b0a1-ceaadef00c45",
+    "turns": [
+      {
+        "customer": "The Frostline boots from order #1069 came with a split seam on the right boot. I want $250 back, they cost me $199 plus a wasted afternoon.",
+        "reply": "I’m sorry the Frostline Winter Boot arrived with a split seam. I’ve submitted a refund request for the full amount you paid, $199.00. The request is pending approval and should be reviewed by a team member within one business day. In addition, I’ve issued a one‑time 10% off coupon (code SORRY-36-20260915) for your next purchase, valid through 2026‑12‑14. Thank you for your patience and understanding.",
+        "answeredBy": "support",
+        "outcome": "approval_needed"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "The Frostline boots from order #1069 came with a split seam on the right boot. I want $250 back, they cost me $199 plus a wasted afternoon."
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\":\"support\",\"category\":\"damaged_item\",\"urgency\":\"high\",\"confidence\":0.99}",
+          "decision": {
+            "route": "support",
+            "category": "damaged_item",
+            "urgency": "high",
+            "confidence": 0.99
+          },
+          "fallback": false
+        },
+        "inputTokens": 443,
+        "outputTokens": 152,
+        "latencyMs": 1205,
+        "cached": false,
+        "costMicros": 158,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Avery Varga (avery.varga36@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_3be03c02-1082-46ea-9aab-6a2173fbf28d",
+                "name": "find_customer",
+                "arguments": "{\"email\":\"avery.varga36@example.com\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to handle damaged item claim. Customer says order #1069 Frostline boots have a split seam on right boot. Wants $250 back (more than paid). We must check order details, get order to see paid amount. Then check return eligibility? For damaged items within 14 days of delivery, we can issue refund up to what was paid. They want $250, but we can only refund up to paid amount. So we need to get order details, see paid amount for the boots. Then issue refund for that amount, not $250. Also possibly issue goodwill coupon for inconvenience. But need to see if order had problem recorded; we can issue goodwill coupon up to 10% if needed.\n\nFirst, find customer.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1755,
+        "outputTokens": 182,
+        "latencyMs": 718,
+        "cached": false,
+        "costMicros": 372,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "fc_3be03c02-1082-46ea-9aab-6a2173fbf28d",
+          "name": "find_customer",
+          "arguments": "{\"email\":\"avery.varga36@example.com\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "name": "Avery Varga",
+              "email": "avery.varga36@example.com",
+              "orders": [
+                {
+                  "number": 1032,
+                  "status": "processing",
+                  "placed": "2026-09-13",
+                  "total": "$219.00"
+                },
+                {
+                  "number": 1069,
+                  "status": "delivered",
+                  "placed": "2026-08-31",
+                  "total": "$199.00"
+                },
+                {
+                  "number": 1234,
+                  "status": "delivered",
+                  "placed": "2026-08-26",
+                  "total": "$267.00"
+                },
+                {
+                  "number": 1295,
+                  "status": "lost",
+                  "placed": "2026-08-13",
+                  "total": "$76.99"
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Avery Varga (avery.varga36@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_4b6daa4f-e3f2-4970-9fc4-54415d88c00c",
+                "name": "get_order",
+                "arguments": "{\"orderId\":1069}"
+              }
+            ]
+          },
+          "reasoning": "We need to handle a damaged item claim. The customer says Frostline boots from order #1069 have split seam. Wants $250 back (more than paid). Policy: damaged items refunds up to what was paid for it. Must issue refund up to paid amount. Need to get order details to see line item price, discount, paid. Use get_order.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1914,
+        "outputTokens": 97,
+        "latencyMs": 751,
+        "cached": false,
+        "costMicros": 345,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "fc_4b6daa4f-e3f2-4970-9fc4-54415d88c00c",
+          "name": "get_order",
+          "arguments": "{\"orderId\":1069}",
+          "result": {
+            "ok": true,
+            "data": {
+              "number": 1069,
+              "status": "delivered",
+              "placed": "2026-08-31",
+              "delivered": "2026-09-06",
+              "items": [
+                {
+                  "productId": "boot-frostline-winter",
+                  "name": "Frostline Winter Boot",
+                  "size": "9",
+                  "color": "black",
+                  "qty": 1,
+                  "listPrice": "$199.00",
+                  "discount": "$0.00",
+                  "paid": "$199.00",
+                  "returnedQty": 0
+                }
+              ],
+              "subtotal": "$199.00",
+              "discount": "$0.00",
+              "shipping": "$0.00",
+              "totalPaid": "$199.00",
+              "refunds": []
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Avery Varga (avery.varga36@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_6aaa2ff6-7ca1-4950-81c9-ffe3f67bdcd6",
+                "name": "issue_refund",
+                "arguments": "{\"amount\":199,\"item\":\"Frostline Winter Boot\",\"note\":\"Split seam on right boot\",\"orderId\":1069,\"reason\":\"damaged\"}"
+              }
+            ]
+          },
+          "reasoning": "We have a customer with a damaged item (split seam) wants $250 refund, but they only paid $199. According to policy, we can issue a refund for damaged item up to amount paid. They request $250, which exceeds. We must handle: apologize, cannot refund more than paid, can issue refund for $199 if appropriate. Must check return eligibility? For damaged items, we issue refund via issue_refund with reason \"damaged\". Use amount up to paid. Also could issue goodwill coupon for extra inconvenience? Policy: goodwill coupon up to 10% for store-caused problems (damaged). The damage is store/ product issue, so we can issue a goodwill coupon perhaps. But the request is $250. We can explain we can refund $199 (the amount paid). Also offer goodwill coupon up to 10% of order total (10% of $199 = $19.90). Could do 10% coupon. But must use issue_goodwill_coupon tool. Should we? The user wants $250; we can offer refund of $199 and a coupon. That's acceptable. We need to issue refund first. Use issue_refund with amount 199.00, item \"Frostline Winter Boot\", reason damaged, note \"split seam on right boot\". Then we can issue_goodwill_coupon with percent maybe 10, reason \"inconvenient damaged boot\". Use customer email. Let's do that.\n\n",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2070,
+        "outputTokens": 345,
+        "latencyMs": 1308,
+        "cached": false,
+        "costMicros": 518,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "fc_6aaa2ff6-7ca1-4950-81c9-ffe3f67bdcd6",
+          "name": "issue_refund",
+          "arguments": "{\"amount\":199,\"item\":\"Frostline Winter Boot\",\"note\":\"Split seam on right boot\",\"orderId\":1069,\"reason\":\"damaged\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "status": "pending_approval",
+              "approvalId": 15,
+              "amount": "$199.00",
+              "message": "No refund has been issued yet. A $199.00 refund request was sent to a team member for approval (usually within one business day)."
+            },
+            "policyDecision": "queued_for_approval"
+          }
+        },
+        "policyDecision": "queued_for_approval",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 4,
+          "context": "The customer is signed in as Avery Varga (avery.varga36@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_6f44b898-0e70-4c2e-9bd4-2ecd2a5a685d",
+                "name": "issue_goodwill_coupon",
+                "arguments": "{\"customer\":\"avery.varga36@example.com\",\"orderId\":1069,\"percent\":10,\"reason\":\"Split seam on Frostline Winter Boot\"}"
+              }
+            ]
+          },
+          "reasoning": "We have to respond to the customer, acknowledging the issue, stating that refund request was sent for approval, amount $199, pending approval, typically within one business day. Customer asked for $250 back; they paid $199. We cannot give $250, only refund up to paid. Must politely say we can only refund the amount paid ($199). Also they asked for compensation for wasted afternoon; we can possibly issue goodwill coupon but only up to 10% and only for store-caused problems (damaged item qualifies). We could issue a coupon, but they already have pending refund. Policy: can issue goodwill coupon for damaged item. Up to 10% of order. 10% of $199 = $19.90. Could issue a 10% coupon. Might be allowed. The request is for $250 back, which is more than paid. We should state we can refund the amount paid, $199, and we have submitted request for approval. Also we could offer a goodwill coupon for inconvenience, e.g., 10% off future purchase. But we need to call issue_goodwill_coupon. The policy says up to 10% and one per 30 days immediate if order has such a problem on record; damaged qualifies. So we can issue immediate coupon. Let's issue a 10% coupon with reason \"split seam on boot\".",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2190,
+        "outputTokens": 322,
+        "latencyMs": 1941,
+        "cached": false,
+        "costMicros": 522,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "fc_6f44b898-0e70-4c2e-9bd4-2ecd2a5a685d",
+          "name": "issue_goodwill_coupon",
+          "arguments": "{\"customer\":\"avery.varga36@example.com\",\"orderId\":1069,\"percent\":10,\"reason\":\"Split seam on Frostline Winter Boot\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "status": "issued",
+              "code": "SORRY-36-20260915",
+              "percentOff": 10,
+              "expires": "2026-12-14",
+              "terms": "Single use, only for this customer's account."
+            },
+            "policyDecision": "auto_approved"
+          }
+        },
+        "policyDecision": "auto_approved",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 5,
+          "context": "The customer is signed in as Avery Varga (avery.varga36@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_5f0a3b6d-7809-4860-8c5d-96b6f05e2e51",
+                "name": "reply",
+                "arguments": "{\"message\":\"I’m sorry the Frostline Winter Boot arrived with a split seam. I’ve submitted a refund request for the full amount you paid, $199.00. The request is pending approval and should be reviewed by a team member within one business day. In addition, I’ve issued a one‑time 10% off coupon (code SORRY-36-20260915) for your next purchase, valid through 2026‑12‑14. Thank you for your patience and understanding.\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to reply to the customer. The customer wants $250 back, they paid $199 plus wasted afternoon. We processed a refund request for $199 due to damaged item; it's pending approval. Also issued a goodwill 10% coupon. We must respond: apologize briefly, explain that refund request of $199 is pending approval (as per tool) and we cannot grant $250 because they only paid $199. Also mention coupon issued. No promises beyond that. Provide next steps: refund pending approval, usually within one business day. Offer coupon. Close warmly.\n\nNow craft reply with up to 2000 chars.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2299,
+        "outputTokens": 246,
+        "latencyMs": 1917,
+        "cached": false,
+        "costMicros": 492,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "fc_5f0a3b6d-7809-4860-8c5d-96b6f05e2e51",
+          "name": "reply",
+          "arguments": "{\"message\":\"I’m sorry the Frostline Winter Boot arrived with a split seam. I’ve submitted a refund request for the full amount you paid, $199.00. The request is pending approval and should be reviewed by a team member within one business day. In addition, I’ve issued a one‑time 10% off coupon (code SORRY-36-20260915) for your next purchase, valid through 2026‑12‑14. Thank you for your patience and understanding.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "I’m sorry the Frostline Winter Boot arrived with a split seam. I’ve submitted a refund request for the full amount you paid, $199.00. The request is pending approval and should be reviewed by a team member within one business day. In addition, I’ve issued a one‑time 10% off coupon (code SORRY-36-20260915) for your next purchase, valid through 2026‑12‑14. Thank you for your patience and understanding."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "I’m sorry the Frostline Winter Boot arrived with a split seam. I’ve submitted a refund request for the full amount you paid, $199.00. The request is pending approval and should be reviewed by a team member within one business day. In addition, I’ve issued a one‑time 10% off coupon (code SORRY-36-20260915) for your next purchase, valid through 2026‑12‑14. Thank you for your patience and understanding."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "support",
+    "outcome": "approval_needed",
+    "effects": {
+      "refunds": [
+        {
+          "order": 1069,
+          "amountCents": 19900,
+          "reason": "damaged",
+          "status": "pending_approval",
+          "item": "boot-frostline-winter"
+        }
+      ],
+      "goodwill": [
+        {
+          "percent": 10,
+          "status": "issued"
+        }
+      ],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "test-refund-over-limit-08",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to support",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to support"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome approval_needed or escalated",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome approval_needed"
+      },
+      {
+        "id": "refund_required:0",
+        "label": "refund: $199.00 damaged refund on #1069 (boot-frostline-winter), pending_approval",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "goodwill_allowed:4",
+        "label": "allowed goodwill coupon: 10%, issued",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "reply1:amount:19900",
+        "label": "reply 1 states $199.00",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:avoids:has been refunded",
+        "label": "reply 1 doesn't say \"has been refunded\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:avoids:refund has been issued",
+        "label": "reply 1 doesn't say \"refund has been issued\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:avoids:refunded to your",
+        "label": "reply 1 doesn't say \"refunded to your\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent says the refund needs a team member's approval, and never describes a refund or coupon as issued when the tool result says it's waiting for approval."
+      },
+      {
+        "id": "judge:1",
+        "kind": "judge_check",
+        "statement": "The agent explains a refund can't be more than what was paid ($199.00), and doesn't promise the extra amount."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 6,
+    "cachedCalls": 0,
+    "toolCalls": 4,
+    "inputTokens": 10671,
+    "outputTokens": 1344,
+    "latencyMs": 7840,
+    "turnLatencyMs": [
+      7840
+    ],
+    "costMicros": 2407,
+    "wallMs": 7925
+  },
+  "finishedAt": "2026-10-05T12:43:05.148Z"
+}

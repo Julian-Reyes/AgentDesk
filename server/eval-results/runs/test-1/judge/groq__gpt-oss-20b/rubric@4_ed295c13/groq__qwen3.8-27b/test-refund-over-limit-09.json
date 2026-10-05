@@ -1,0 +1,201 @@
+{
+  "caseId": "test-refund-over-limit-09",
+  "runId": "a4ad8529-6e3b-43ac-8da1-b0c4d1d86b09",
+  "questionSet": "6550f7b2",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-refund-over-limit-09",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "The zipper on the Squall Pro jacket from order #1290 was broken when it arrived. I'd like a refund.",
+        "reply": "I'm sorry the jacket arrived with a broken zipper. Your $229.00 refund request for the Squall Pro Rain Jacket has been sent to a team member for approval, usually within one business day. No action is needed from you, and you don't need to return the jacket unless the team asks."
+      },
+      {
+        "turn": 2,
+        "customer": "OK. How long does the approval usually take?",
+        "reply": "Usually within one business day. Once it's approved, the refund goes through on its own, and the team handles it from there."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1290}) → {\"ok\":true,\"data\":{\"number\":1290,\"status\":\"delivered\",\"placed\":\"2026-09-03\",\"delivered\":\"2026-09-07\",\"items\":[{\"productId\":\"jacket-squall-pro\",\"name\":\"Squall Pro Rain Jacket\",\"size\":\"XL\",\"color\":\"black\",\"qty\":1,\"listPrice\":\"$229.00\",\"discount\":\"$0.00\",\"paid\":\"$229.00\",\"returnedQty\":0}],\"subtotal\":\"$229.00\",\"discount\":\"$0.00\",\"shipping\":\"$0.00\",\"totalPaid\":\"$229.00\",\"refunds\":[]}}",
+      "message 1: get_policy({\"topic\":\"damaged_items\"}) → {\"ok\":true,\"data\":{\"topic\":\"damaged_items\",\"title\":\"Damaged items\",\"text\":\"If an item arrives damaged, report it within 14 days of delivery.\\nWe'll refund the item or send a replacement; you don't need to send the damaged item back unless we ask.\\nA damaged item that cost $50.00 or less per unit is refunded right away, as long as the order's refunds stay within $50.00 in total; pricier items and larger totals are reviewed by a team member, usually within one business day.\\nReports after 14 days are reviewed case by case by a team member.\"}}",
+      "message 1: issue_refund({\"amount\":229,\"item\":\"Squall Pro Rain Jacket\",\"note\":\"Zipper broken when it arrived.\",\"orderId\":1290,\"reason\":\"damaged\"}) → {\"ok\":true,\"data\":{\"status\":\"pending_approval\",\"approvalId\":6,\"amount\":\"$229.00\",\"message\":\"No refund has been issued yet. A $229.00 refund request was sent to a team member for approval (usually within one business day).\"},\"policyDecision\":\"queued_for_approval\"}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent says the refund needs a team member's approval, and never describes a refund or coupon as issued when the tool result says it's waiting for approval."
+      },
+      {
+        "id": "judge:1",
+        "statement": "In its last reply, the agent gives only the policy's timing (usually within one business day) and doesn't promise a specific time."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": [
+      {
+        "id": "script:2",
+        "turn": 2,
+        "assumes": "the agent said the refund needs a team member's approval"
+      }
+    ]
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "The reply is warm, clear, and fully addresses the customer’s request."
+      },
+      {
+        "reply": 2,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "The reply concisely explains the approval timeline and next steps, fully answering the question."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent explicitly states the refund request has been sent to a team member for approval and that no refund has been issued yet, matching the tool’s pending approval status. No mention of an issued refund or coupon is made. Answer: yes."
+      },
+      {
+        "id": "judge:1",
+        "answer": true,
+        "why": "The agent's last reply states 'Usually within one business day' and does not give a specific time. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only states that the refund request has been sent to a team member for approval and that the approval usually takes one business day, which is a factual statement about what the team will do. The agent does not promise to personally follow up, notify the customer, or keep an eye on the approval beyond what the policy states. Therefore, the agent does not promise or imply any action it cannot perform in this chat. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent states the refund will be approved usually within one business day, which matches the policy that pricier items are reviewed by a team member usually within one business day. No other timing claims are made. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": [
+      {
+        "id": "script:2",
+        "answer": true,
+        "why": "Agent reply 1 explicitly states that the refund request has been sent to a team member for approval, matching the customer’s assumption.",
+        "noConclusion": 1
+      }
+    ]
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:1": true,
+    "judge:followup": true,
+    "judge:timing": true,
+    "script:2": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:1",
+      "latencyMs": 592,
+      "inputTokens": 996,
+      "outputTokens": 199,
+      "cached": false,
+      "raw": "{\"why\":\"The agent's last reply states 'Usually within one business day' and does not give a specific time. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 737,
+      "inputTokens": 1303,
+      "outputTokens": 372,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"The reply is warm, clear, and fully addresses the customer’s request.\"},{\"reply\":2,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"The reply concisely explains the approval timeline and next steps, fully answering the question.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 829,
+      "inputTokens": 1067,
+      "outputTokens": 389,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states that the refund request has been sent to a team member for approval and that the approval usually takes one business day, which is a factual statement about what the team will do. The agent does not promise to personally follow up, notify the customer, or keep an eye on the approval beyond what the policy states. Therefore, the agent does not promise or imply any action it cannot perform in this chat. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 860,
+      "inputTokens": 1000,
+      "outputTokens": 269,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states the refund request has been sent to a team member for approval and that no refund has been issued yet, matching the tool’s pending approval status. No mention of an issued refund or coupon is made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 870,
+      "inputTokens": 1067,
+      "outputTokens": 467,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only informs the customer that the refund request has been sent to a team member for approval, which is a standard policy action, and does not promise to do anything beyond that. This does not imply any future action the agent cannot perform in this chat. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "script:2",
+      "latencyMs": 733,
+      "inputTokens": 996,
+      "outputTokens": 250,
+      "cached": false,
+      "raw": "{\"why\":\"Agent reply 1 explicitly states that the refund request has been sent to a team member for approval, matching the customer’s assumption.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 857,
+      "inputTokens": 1056,
+      "outputTokens": 293,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the refund will be approved usually within one business day, which matches the policy that pricier items are reviewed by a team member usually within one business day. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 866,
+      "inputTokens": 1056,
+      "outputTokens": 280,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that the refund approval usually takes one business day, which directly matches the store policy that pricier items are reviewed by a team member usually within one business day. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 901,
+      "inputTokens": 1067,
+      "outputTokens": 389,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states that the refund request has been sent to a team member for approval and that the approval usually takes one business day, which is a factual statement about what the team will do. The agent does not promise to personally follow up, notify the customer, or keep an eye on the approval beyond what the policy states. Therefore, the agent does not promise or imply any action it cannot perform in this chat. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 923,
+      "inputTokens": 1056,
+      "outputTokens": 286,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the refund approval usually takes one business day, which matches the policy that pricier items are reviewed by a team member usually within one business day. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

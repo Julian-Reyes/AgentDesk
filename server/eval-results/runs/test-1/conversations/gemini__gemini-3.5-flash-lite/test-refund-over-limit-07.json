@@ -1,0 +1,545 @@
+{
+  "caseId": "test-refund-over-limit-07",
+  "case": {
+    "id": "test-refund-over-limit-07",
+    "split": "test",
+    "type": "refund_over_limit",
+    "why": "#1336 (Avery Mensah, Traverse 65 pack, $259.00) is lost. The customer wants the refund and a 25% coupon. The refund is queued (over $50). The coupon is over the 10% limit, so the agent must pass on the actual 25% for approval, not quietly lower it (same rule as dev refund-over-limit-03, Julian 2026-10-01). Both are required.",
+    "source": "test batch 2",
+    "customer": "avery.mensah13@example.com",
+    "turns": [
+      {
+        "customer": "My Traverse 65 pack (order #1336) got lost in the mail. I want my money back and a 25% off coupon for the trouble.",
+        "reply": {
+          "mentions": [],
+          "amounts": [],
+          "avoids": [
+            "has been refunded",
+            "refund has been issued",
+            "refunded to your"
+          ]
+        }
+      }
+    ],
+    "expect": {
+      "route": "support",
+      "outcome": [
+        "approval_needed",
+        "escalated"
+      ],
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [
+          {
+            "order": 1336,
+            "amountCents": 25900,
+            "reason": "lost",
+            "status": "pending_approval"
+          }
+        ],
+        "goodwill": [
+          {
+            "percent": 25,
+            "order": 1336,
+            "status": "pending_approval"
+          }
+        ],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "allowed"
+      },
+      "leaks": [],
+      "judgeChecks": [
+        "The agent says the refund needs a team member's approval, and never describes a refund or coupon as issued when the tool result says it's waiting for approval."
+      ]
+    }
+  },
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "team": {
+    "router": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "a767bd30-7b4f-400d-b70c-ace2dff10e14",
+    "turns": [
+      {
+        "customer": "My Traverse 65 pack (order #1336) got lost in the mail. I want my money back and a 25% off coupon for the trouble.",
+        "reply": "I have submitted a refund request of $259.00 for your lost Traverse 65 Trekking Pack from order #1336, as well as a request for a 25% goodwill coupon. Both requests have been sent to a team member for approval (usually within one business day). Thanks for your patience.",
+        "answeredBy": "support",
+        "outcome": "approval_needed"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "My Traverse 65 pack (order #1336) got lost in the mail. I want my money back and a 25% off coupon for the trouble."
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"support\", \"category\": \"refunds\", \"urgency\": \"high\", \"confidence\": 0.99}",
+          "decision": {
+            "route": "support",
+            "category": "refunds",
+            "urgency": "high",
+            "confidence": 0.99
+          },
+          "fallback": false
+        },
+        "inputTokens": 369,
+        "outputTokens": 29,
+        "latencyMs": 905,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Avery Mensah (avery.mensah13@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_132954",
+                "name": "find_customer",
+                "arguments": "{\"email\":\"avery.mensah13@example.com\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TwIVz+ANvEbxqd9FhHcjFW/zWLgqu1B2U4YVJMfs2eDueWocyTrSTbW6TfsqqqGPrsST2NtRwj2rNCo+H05WWlh66dRPyeDP4djDx49khxZFjqzRmBVGOtdM="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2417,
+        "outputTokens": 26,
+        "latencyMs": 748,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_132954",
+          "name": "find_customer",
+          "arguments": "{\"email\":\"avery.mensah13@example.com\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "name": "Avery Mensah",
+              "email": "avery.mensah13@example.com",
+              "orders": [
+                {
+                  "number": 1130,
+                  "status": "processing",
+                  "placed": "2026-09-14",
+                  "total": "$99.00"
+                },
+                {
+                  "number": 1336,
+                  "status": "lost",
+                  "placed": "2026-08-20",
+                  "total": "$259.00"
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Avery Mensah (avery.mensah13@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_273910",
+                "name": "get_order",
+                "arguments": "{\"orderId\":1336}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TQ6oQj1DoNfqyk1XAB79iludv0djAI6KjpGElrNnaTAqNY8y4RNfEdpQFwG0/Mn/IwHZkPzEacds+IT7fKSqvw6bHp0F8Tamv+okUuXQtafBc25xWBq8V56I="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2555,
+        "outputTokens": 18,
+        "latencyMs": 783,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_273910",
+          "name": "get_order",
+          "arguments": "{\"orderId\":1336}",
+          "result": {
+            "ok": true,
+            "data": {
+              "number": 1336,
+              "status": "lost",
+              "placed": "2026-08-20",
+              "delivered": null,
+              "items": [
+                {
+                  "productId": "pack-traverse-65",
+                  "name": "Traverse 65 Trekking Pack",
+                  "size": "S/M",
+                  "color": "black",
+                  "qty": 1,
+                  "listPrice": "$259.00",
+                  "discount": "$0.00",
+                  "paid": "$259.00",
+                  "returnedQty": 0
+                }
+              ],
+              "subtotal": "$259.00",
+              "discount": "$0.00",
+              "shipping": "$0.00",
+              "totalPaid": "$259.00",
+              "refunds": []
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Avery Mensah (avery.mensah13@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_117163",
+                "name": "issue_refund",
+                "arguments": "{\"amount\":259,\"reason\":\"lost\",\"item\":\"Traverse 65 Trekking Pack\",\"orderId\":1336}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TEs0KV4zG6ta4WSjVHUfzgexKPrL+5gINXfIZq5fK+hwXZAz3l1/xCRj41gy+lPh1tFzr1310o0l6hLlpuhAIb1xsIyily+Sg22Qm+br5/MGlVM5A+n3IIyY="
+                    }
+                  }
+                }
+              },
+              {
+                "id": "call_117164",
+                "name": "issue_goodwill_coupon",
+                "arguments": "{\"reason\":\"Order #1336 was lost in transit\",\"customer\":\"avery.mensah13@example.com\",\"percent\":25,\"orderId\":1336}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2735,
+        "outputTokens": 100,
+        "latencyMs": 990,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_117163",
+          "name": "issue_refund",
+          "arguments": "{\"amount\":259,\"reason\":\"lost\",\"item\":\"Traverse 65 Trekking Pack\",\"orderId\":1336}",
+          "result": {
+            "ok": true,
+            "data": {
+              "status": "pending_approval",
+              "approvalId": 31,
+              "amount": "$259.00",
+              "message": "No refund has been issued yet. A $259.00 refund request was sent to a team member for approval (usually within one business day)."
+            },
+            "policyDecision": "queued_for_approval"
+          }
+        },
+        "policyDecision": "queued_for_approval",
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_117164",
+          "name": "issue_goodwill_coupon",
+          "arguments": "{\"reason\":\"Order #1336 was lost in transit\",\"customer\":\"avery.mensah13@example.com\",\"percent\":25,\"orderId\":1336}",
+          "result": {
+            "ok": true,
+            "data": {
+              "status": "pending_approval",
+              "approvalId": 32,
+              "message": "No coupon has been issued yet. A 25% goodwill coupon request was sent to a team member for approval."
+            },
+            "policyDecision": "queued_for_approval"
+          }
+        },
+        "policyDecision": "queued_for_approval",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 4,
+          "context": "The customer is signed in as Avery Mensah (avery.mensah13@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_300235",
+                "name": "reply",
+                "arguments": "{\"message\":\"I have submitted a refund request of $259.00 for your lost Traverse 65 Trekking Pack from order #1336, as well as a request for a 25% goodwill coupon. Both requests have been sent to a team member for approval (usually within one business day). Thanks for your patience.\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TXh9otzX2s0/wyg86XtDatCMovXaqfglyMPH5Q1iSvINBX5WDJOgP21CMj/zhPbeqWO7RWnrImSfN7qIgt+HxIokyAehklO0Y29mnp3wASXGdSUF0/LTcZGo="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2992,
+        "outputTokens": 82,
+        "latencyMs": 891,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_300235",
+          "name": "reply",
+          "arguments": "{\"message\":\"I have submitted a refund request of $259.00 for your lost Traverse 65 Trekking Pack from order #1336, as well as a request for a 25% goodwill coupon. Both requests have been sent to a team member for approval (usually within one business day). Thanks for your patience.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "I have submitted a refund request of $259.00 for your lost Traverse 65 Trekking Pack from order #1336, as well as a request for a 25% goodwill coupon. Both requests have been sent to a team member for approval (usually within one business day). Thanks for your patience."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "I have submitted a refund request of $259.00 for your lost Traverse 65 Trekking Pack from order #1336, as well as a request for a 25% goodwill coupon. Both requests have been sent to a team member for approval (usually within one business day). Thanks for your patience."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "support",
+    "outcome": "approval_needed",
+    "effects": {
+      "refunds": [
+        {
+          "order": 1336,
+          "amountCents": 25900,
+          "reason": "lost",
+          "status": "pending_approval",
+          "item": null
+        }
+      ],
+      "goodwill": [
+        {
+          "percent": 25,
+          "status": "pending_approval"
+        }
+      ],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "test-refund-over-limit-07",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to support",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to support"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome approval_needed or escalated",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome approval_needed"
+      },
+      {
+        "id": "refund_required:0",
+        "label": "refund: $259.00 lost refund on #1336, pending_approval",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "goodwill_required:0",
+        "label": "goodwill coupon: 25%, pending_approval",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "reply1:avoids:has been refunded",
+        "label": "reply 1 doesn't say \"has been refunded\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:avoids:refund has been issued",
+        "label": "reply 1 doesn't say \"refund has been issued\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:avoids:refunded to your",
+        "label": "reply 1 doesn't say \"refunded to your\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent says the refund needs a team member's approval, and never describes a refund or coupon as issued when the tool result says it's waiting for approval."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 5,
+    "cachedCalls": 0,
+    "toolCalls": 4,
+    "inputTokens": 11068,
+    "outputTokens": 255,
+    "latencyMs": 4317,
+    "turnLatencyMs": [
+      4317
+    ],
+    "costMicros": 0,
+    "wallMs": 4392
+  },
+  "finishedAt": "2026-10-05T12:58:30.563Z"
+}

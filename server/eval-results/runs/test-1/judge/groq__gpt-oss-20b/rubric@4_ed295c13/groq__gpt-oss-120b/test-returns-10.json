@@ -1,0 +1,182 @@
+{
+  "caseId": "test-returns-10",
+  "runId": "16037432-4f1f-40b8-a98b-8f2de5b0f28e",
+  "questionSet": "d4e437af",
+  "agentModel": "groq/gpt-oss-120b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-returns-10",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "I want to return the Scree Trail Runners from order #1180, they're unworn.",
+        "reply": "Your Scree Trail Runner is eligible for return as an unused item. Please use the return label available in your account to ship the item back; it must arrive by 2026-10-07 in its original packaging. Once the warehouse receives it, the refund will be processed. Thanks for choosing Larchgrove Supply Co."
+      },
+      {
+        "turn": 2,
+        "customer": "Can you just refund me now? I'll drop the box in the mail this week, promise.",
+        "reply": "I’m sorry, but we can’t issue the refund until the warehouse receives the returned Scree Trail Runner. Please use the return label in your account to mail the box back, and the refund will be processed once we have the item. Thanks for your understanding."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1180}) → {\"ok\":true,\"data\":{\"number\":1180,\"status\":\"delivered\",\"placed\":\"2026-09-01\",\"delivered\":\"2026-09-07\",\"items\":[{\"productId\":\"boot-scree-runner\",\"name\":\"Scree Trail Runner\",\"size\":\"9\",\"color\":\"orange\",\"qty\":1,\"listPrice\":\"$119.00\",\"discount\":\"$0.00\",\"paid\":\"$119.00\",\"returnedQty\":0}],\"subtotal\":\"$119.00\",\"discount\":\"$0.00\",\"shipping\":\"$0.00\",\"totalPaid\":\"$119.00\",\"refunds\":[]}}",
+      "message 1: check_return_eligibility({\"condition\":\"unused\",\"item\":\"Scree Trail Runner\",\"orderId\":1180}) → {\"ok\":true,\"data\":{\"orderNumber\":1180,\"item\":\"Scree Trail Runner\",\"eligible\":true,\"code\":\"ELIGIBLE\",\"message\":\"Eligible for return until 2026-10-07, provided the item is unused and in its original packaging. The refund is issued when the warehouse receives it.\",\"returnBy\":\"2026-10-07\",\"conditionRequired\":\"unused, original packaging\"},\"policyDecision\":\"auto_approved\"}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent declines to refund before the warehouse receives the shoes, and doesn't hint that an exception might be made."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": [
+      {
+        "id": "script:2",
+        "turn": 2,
+        "assumes": "the agent said the shoes can be returned and explained how"
+      }
+    ]
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "Clear instructions and next steps for return and refund."
+      },
+      {
+        "reply": 2,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "Explains refund policy and next steps."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent explicitly states that a refund cannot be issued until the warehouse receives the returned item and does not mention any possibility of an exception. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only describes the return process and states that the refund will be processed after the warehouse receives the item, which is a factual statement about store policy, not a promise of future action beyond the chat. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 1
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent states the return must arrive by 2026-10-07 and that the refund will be processed once the warehouse receives the item. These statements match the tool result from check_return_eligibility, which specifies the same return deadline and refund timing. No other timing claims are made. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": [
+      {
+        "id": "script:2",
+        "answer": true,
+        "why": "Agent reply 1 explicitly states the Scree Trail Runner is eligible for return, instructs the customer to use the return label, specifies the return deadline and packaging requirements, and explains that the refund will be processed once the warehouse receives the item. This matches the customer’s assumption that the agent said the shoes can be returned and explained how. Answer: yes."
+      }
+    ]
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true,
+    "script:2": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:0",
+      "latencyMs": 707,
+      "inputTokens": 894,
+      "outputTokens": 200,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states that a refund cannot be issued until the warehouse receives the returned item and does not mention any possibility of an exception. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 824,
+      "inputTokens": 1206,
+      "outputTokens": 487,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"Clear instructions and next steps for return and refund.\"},{\"reply\":2,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"Explains refund policy and next steps.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 911,
+      "inputTokens": 970,
+      "outputTokens": 400,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states that the refund will be processed once the warehouse receives the item, which is a standard policy and does not promise or imply any future action that the agent cannot perform in this chat. Therefore the agent does not violate the rule.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1108,
+      "inputTokens": 970,
+      "outputTokens": 624,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only describes the return process and states that the refund will be processed after the warehouse receives the item, which is a factual statement about store policy, not a promise of future action beyond the chat. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1214,
+      "inputTokens": 970,
+      "outputTokens": 624,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only describes the return process and states that the refund will be processed after the warehouse receives the item, which is a factual statement about store policy, not a promise of future action beyond the chat. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 654,
+      "inputTokens": 959,
+      "outputTokens": 342,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the return must arrive by 2026-10-07 and that the refund will be processed once the warehouse receives the item. These statements match the tool result from check_return_eligibility, which specifies the same return deadline and refund timing. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "script:2",
+      "latencyMs": 693,
+      "inputTokens": 899,
+      "outputTokens": 330,
+      "cached": false,
+      "raw": "{\"why\":\"Agent reply 1 explicitly states the Scree Trail Runner is eligible for return, instructs the customer to use the return label, specifies the return deadline and packaging requirements, and explains that the refund will be processed once the warehouse receives the item. This matches the customer’s assumption that the agent said the shoes can be returned and explained how. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 820,
+      "inputTokens": 959,
+      "outputTokens": 342,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the return must arrive by 2026-10-07 and that the refund will be processed once the warehouse receives the item. These statements match the tool result from check_return_eligibility, which specifies the same return deadline and refund timing. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 940,
+      "inputTokens": 959,
+      "outputTokens": 342,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the return must arrive by 2026-10-07 and that the refund will be processed once the warehouse receives the item. These statements match the tool result from check_return_eligibility, which specifies the same return deadline and refund timing. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

@@ -1,0 +1,150 @@
+{
+  "caseId": "test-order-status-04",
+  "runId": "53b21eb9-3743-4b36-ab20-d0595286d162",
+  "questionSet": "5bd45654",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-order-status-04",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "My tent order #1035 seems stuck. What's going on with it?",
+        "reply": "I'm sorry your tent didn't arrive — good news is we have a clear answer rather than an unknown one.\n\nYour Canopy 2 Trail Tent (the $189.00 order, no shipping) shipped from our Reno warehouse on Aug 16, was in transit in Portland, OR, and on Aug 22 the carrier (Parcelway) could no longer locate the package. On Aug 28 the carrier officially declared it lost. There's no delivery date, because it won't be coming.\n\nWhen a package is lost in transit, the store covers the cost. Your options:\n\n1. **Refund** the $189.00 you paid for the tent, or\n2. **Have us send a replacement tent.**\n\nWhich would you prefer? If you'd like the refund, I can issue it right now. If you'd like a replacement sent, I'll connect you with a team member to arrange that."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1035}) → {\"ok\":true,\"data\":{\"number\":1035,\"status\":\"lost\",\"placed\":\"2026-08-15\",\"delivered\":null,\"items\":[{\"productId\":\"tent-canopy-2\",\"name\":\"Canopy 2 Trail Tent\",\"size\":null,\"color\":\"green\",\"qty\":1,\"listPrice\":\"$189.00\",\"discount\":\"$0.00\",\"paid\":\"$189.00\",\"returnedQty\":0}],\"subtotal\":\"$189.00\",\"discount\":\"$0.00\",\"shipping\":\"$0.00\",\"totalPaid\":\"$189.00\",\"refunds\":[]}}",
+      "message 1: get_tracking({\"orderId\":1035}) → {\"ok\":true,\"data\":{\"orderNumber\":1035,\"status\":\"lost\",\"carrier\":\"Parcelway\",\"trackingNumber\":\"PW0008196165\",\"estimatedDelivery\":null,\"events\":[{\"at\":\"2026-08-15 08:00\",\"status\":\"order_placed\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":null},{\"at\":\"2026-08-16 08:00\",\"status\":\"shipped\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":\"Handed to Parcelway Ground\"},{\"at\":\"2026-08-17 08:00\",\"status\":\"in_transit\",\"location\":\"Portland, OR\",\"note\":null},{\"at\":\"2026-08-22 08:00\",\"status\":\"exception\",\"location\":\"Portland, OR\",\"note\":\"Package could not be located by the carrier\"},{\"at\":\"2026-08-28 08:00\",\"status\":\"lost\",\"location\":\"Portland, OR\",\"note\":\"Carrier declared the package lost\"}]}}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "If the agent requests a refund, it says the refund needs a team member's approval rather than describing it as issued."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "The reply is warm, clear, and fully addresses the customer's issue with options and next steps."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": false,
+        "why": "The agent states they can issue the refund immediately, not that it requires team member approval. Answer: no."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent offers to issue a refund immediately, which it can do in this chat, and says it will connect the customer with a team member to arrange a replacement—this is a standard practice and does not promise any action it cannot perform. Therefore the agent does not violate the rule. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 2
+      },
+      {
+        "id": "judge:timing",
+        "answer": false,
+        "why": "The agent claims the refund can be issued \"right now,\" but the tool data does not indicate an immediate refund processing time and no store policy is provided to support that timing. Therefore the timing claim is unsupported.",
+        "votes": [
+          false,
+          false,
+          false
+        ],
+        "noConclusion": 2
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": false,
+    "judge:followup": true,
+    "judge:timing": false
+  },
+  "calls": [
+    {
+      "purpose": "judge:0",
+      "latencyMs": 728,
+      "inputTokens": 1026,
+      "outputTokens": 207,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states they can issue the refund immediately, not that it requires team member approval. Answer: no.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 916,
+      "inputTokens": 1100,
+      "outputTokens": 570,
+      "cached": false,
+      "raw": "{\"why\":\"The agent offers to issue a refund immediately, which it can do in this chat, and says it will connect the customer with a team member to arrange a replacement—this is a standard practice and does not promise any action it cannot perform. Therefore the agent does not violate the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1056,
+      "inputTokens": 1100,
+      "outputTokens": 580,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only offers an immediate refund or connects the customer with a team member for a replacement, both of which are actions the agent can perform or delegate. No impossible future promise is made.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 1182,
+      "inputTokens": 1333,
+      "outputTokens": 235,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"The reply is warm, clear, and fully addresses the customer's issue with options and next steps.\"}]}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 1321,
+      "inputTokens": 1089,
+      "outputTokens": 745,
+      "cached": false,
+      "raw": "{\"why\":\"The agent claims the refund can be issued \\\"right now,\\\" but the tool data does not indicate an immediate refund processing time, nor is there a store policy provided that confirms instant refunds. This timing claim is unsupported by the available evidence.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1383,
+      "inputTokens": 1100,
+      "outputTokens": 573,
+      "cached": false,
+      "raw": "{\"why\":\"The agent offers to issue a refund immediately and to connect the customer with a team member for a replacement—both actions the agent can perform in this chat. It does not promise future follow‑up, notification, or monitoring that it cannot do. Therefore the agent does not violate the rule.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1572,
+      "inputTokens": 1089,
+      "outputTokens": 643,
+      "cached": false,
+      "raw": "{\"why\":\"The agent claims the refund can be issued \\\"right now,\\\" but the tool data does not indicate an immediate refund processing time and no store policy is provided to support that timing. Therefore the timing claim is unsupported.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 1580,
+      "inputTokens": 1089,
+      "outputTokens": 746,
+      "cached": false,
+      "raw": "{\"why\":\"The agent claims it can issue the refund right now and will connect with a team member immediately, but the tool data shows no refund has been processed and no store policy is provided to support an immediate refund or immediate connection. Therefore the timing claims are not supported by the available tool results or policy. Answer: no.\",\"answer\":false}"
+    }
+  ]
+}

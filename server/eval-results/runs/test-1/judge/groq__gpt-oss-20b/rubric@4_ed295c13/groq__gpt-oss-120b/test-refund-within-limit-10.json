@@ -1,0 +1,167 @@
+{
+  "caseId": "test-refund-within-limit-10",
+  "runId": "028b0b37-d3e2-42a9-a397-38f2323a6174",
+  "questionSet": "9153946c",
+  "agentModel": "groq/gpt-oss-120b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-refund-within-limit-10",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Hi, where's my order #1190? It's been almost three weeks.",
+        "reply": "Your order #1190 for the Stride 400 Running Headlamp was placed on 2026‑08‑26 and shipped the next day. It is currently delayed while in transit with Parcelway (latest event 2026‑08‑30 in Chicago, IL). You can follow its progress using the tracking number PW0009423610.\n\nBecause of this delay we’ve automatically issued a 10 % off coupon for your next purchase: **SORRY-50-20260915**, valid until 2026‑12‑14.  \n\nIf you have any other questions, feel free to let us know."
+      },
+      {
+        "turn": 2,
+        "customer": "That's frustrating. Can I at least get the shipping refunded?",
+        "reply": "I’ve processed a refund of $7.99 for the shipping cost on order #1190. The amount has been returned to your original payment method. Let us know if there’s anything else we can help with."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1190}) → {\"ok\":true,\"data\":{\"number\":1190,\"status\":\"delayed\",\"placed\":\"2026-08-26\",\"delivered\":null,\"items\":[{\"productId\":\"lamp-stride-400\",\"name\":\"Stride 400 Running Headlamp\",\"size\":null,\"color\":\"black\",\"qty\":1,\"listPrice\":\"$59.00\",\"discount\":\"$0.00\",\"paid\":\"$59.00\",\"returnedQty\":0}],\"subtotal\":\"$59.00\",\"discount\":\"$0.00\",\"shipping\":\"$7.99\",\"totalPaid\":\"$66.99\",\"refunds\":[]}}",
+      "message 1: issue_goodwill_coupon({\"customer\":\"hannah.larsen50@example.com\",\"orderId\":1190,\"percent\":10,\"reason\":\"order delayed\"}) → {\"ok\":true,\"data\":{\"status\":\"issued\",\"code\":\"SORRY-50-20260915\",\"percentOff\":10,\"expires\":\"2026-12-14\",\"terms\":\"Single use, only for this customer's account.\"},\"policyDecision\":\"auto_approved\"}",
+      "message 1: get_tracking({\"orderId\":1190}) → {\"ok\":true,\"data\":{\"orderNumber\":1190,\"status\":\"delayed\",\"carrier\":\"Parcelway\",\"trackingNumber\":\"PW0009423610\",\"estimatedDelivery\":null,\"events\":[{\"at\":\"2026-08-26 19:00\",\"status\":\"order_placed\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":null},{\"at\":\"2026-08-27 19:00\",\"status\":\"shipped\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":\"Handed to Parcelway Ground\"},{\"at\":\"2026-08-28 19:00\",\"status\":\"in_transit\",\"location\":\"Chicago, IL\",\"note\":null},{\"at\":\"2026-08-30 19:00\",\"status\":\"delayed\",\"location\":\"Chicago, IL\",\"note\":\"Carrier delay: weather and volume backlog\"}]}}",
+      "message 2: issue_refund({\"amount\":7.99,\"note\":\"Shipping refund due to delay\",\"orderId\":1190,\"reason\":\"late\"}) → {\"ok\":true,\"data\":{\"status\":\"refunded\",\"refundId\":73,\"amount\":\"$7.99\",\"message\":\"Refund of $7.99 issued to the original payment method.\"},\"policyDecision\":\"auto_approved\"}"
+    ],
+    "judgeNote": "First reply: delayed, from the tracking, with no invented arrival date. Second: confirms the $7.99 refund.",
+    "checks": [
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": [
+      {
+        "id": "script:2",
+        "turn": 2,
+        "assumes": "the agent said the order is delayed"
+      }
+    ]
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "Provides clear status, tracking, and a goodwill coupon."
+      },
+      {
+        "reply": 2,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "Confirms shipping refund and next steps."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only reports completed actions and offers further help, with no future promises beyond what was already done. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 1
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "All timing statements in the agent replies match the tool results: the order was placed on 2026-08-26, shipped the next day (2026-08-27), delayed as of 2026-08-30, and the $7.99 shipping refund was processed immediately. No unsupported vague timing was used. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": [
+      {
+        "id": "script:2",
+        "answer": true,
+        "why": "The agent’s reply 1 explicitly states the order is delayed while in transit, so the customer’s follow‑up about a shipping refund is a logical next step. Answer: yes."
+      }
+    ]
+  },
+  "answers": {
+    "judge:followup": true,
+    "judge:timing": true,
+    "script:2": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 717,
+      "inputTokens": 1280,
+      "outputTokens": 260,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s replies only report what has already happened (shipment status, coupon issuance, refund processed) and do not promise or imply any future action that cannot be performed in this chat. Therefore the condition is satisfied.\",\"answer\":true}"
+    },
+    {
+      "purpose": "script:2",
+      "latencyMs": 796,
+      "inputTokens": 1205,
+      "outputTokens": 270,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply 1 explicitly states the order is delayed while in transit, so the customer’s follow‑up about a shipping refund is a logical next step. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 864,
+      "inputTokens": 1280,
+      "outputTokens": 502,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports completed actions and offers further help, with no future promises beyond what was already done. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 886,
+      "inputTokens": 1269,
+      "outputTokens": 453,
+      "cached": false,
+      "raw": "{\"why\":\"All timing statements in the agent's replies match the tool results: the order was placed on 2026-08-26, shipped on 2026-08-27, delayed event on 2026-08-30, coupon expires 2026-12-14, and the $7.99 shipping refund was issued. No unsupported or vague timing claims are present. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 900,
+      "inputTokens": 1269,
+      "outputTokens": 547,
+      "cached": false,
+      "raw": "{\"why\":\"All timing statements in the agent's replies match the tool data: order placed 2026-08-26, shipped 2026-08-27, delayed event 2026-08-30, coupon expires 2026-12-14, and refund of $7.99 issued. No unsupported timing claims. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 986,
+      "inputTokens": 1516,
+      "outputTokens": 640,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"Provides clear status, tracking, and a goodwill coupon.\"},{\"reply\":2,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"Confirms shipping refund and next steps.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1168,
+      "inputTokens": 1280,
+      "outputTokens": 502,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports completed actions and offers further help, with no future promises beyond what was already done. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1638,
+      "inputTokens": 1269,
+      "outputTokens": 391,
+      "cached": false,
+      "raw": "{\"why\":\"All timing statements in the agent replies match the tool results: the order was placed on 2026-08-26, shipped the next day (2026-08-27), delayed as of 2026-08-30, and the $7.99 shipping refund was processed immediately. No unsupported vague timing was used. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

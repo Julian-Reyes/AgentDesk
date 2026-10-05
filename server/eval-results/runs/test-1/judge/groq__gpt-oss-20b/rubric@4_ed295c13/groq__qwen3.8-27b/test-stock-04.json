@@ -1,0 +1,149 @@
+{
+  "caseId": "test-stock-04",
+  "runId": "2e408848-0bd6-4957-9819-b134f6cc755a",
+  "questionSet": "0effd8e3",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-stock-04",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Can I order the Willow 1 solo tent today?",
+        "reply": "Unfortunately, the Willow 1 Solo Tent is out of stock right now, so it can't be ordered today. It's normally $179.00, but with the Tent Sale it's down to $143.20.\n\nWould you like me to find a similar solo tent that is in stock?"
+      }
+    ],
+    "toolSummary": [
+      "message 1: search_products({\"query\":\"Willow 1\"}) → {\"ok\":true,\"data\":{\"totalMatches\":1,\"products\":[{\"id\":\"tent-willow-1\",\"name\":\"Willow 1 Solo Tent\",\"category\":\"tents\",\"listPrice\":\"$179.00\",\"currentPrice\":\"$143.20\",\"rating\":4.3,\"description\":\"Compact one-person tent that packs down to the size of a water bottle.\",\"specs\":{\"seasons\":3,\"material\":\"15D ripstop nylon\",\"waterproof\":true,\"weightGrams\":1100,\"capacityPersons\":1,\"waterproofRatingMm\":2000},\"availability\":\"out_of_stock\",\"activeDeals\":[\"Tent Sale: 20% off all tents\"]}],\"note\":\"currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping.\"}}",
+      "message 1: check_stock({\"productId\":\"tent-willow-1\"}) → {\"ok\":true,\"data\":{\"product\":\"Willow 1 Solo Tent\",\"variants\":[{\"size\":null,\"color\":\"green\",\"inStock\":false,\"unitsAvailable\":0,\"availability\":\"out_of_stock\"}]}}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "Any alternative the agent offers is in stock according to the tool results, and it gives no restock date."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "The reply is warm, clear, and offers a helpful alternative, meeting all criteria."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": false,
+        "why": "The agent only asked if the customer wants to find a similar solo tent; no specific alternative product was mentioned or its stock status confirmed. Therefore we cannot verify that any offered alternative is in stock, nor that a restock date was omitted. Answer: no."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only offers to find a similar tent, which is a task the agent can perform in this chat, and does not promise any future action that cannot be done. Therefore the statement is correct.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 2
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent states the product is out of stock and cannot be ordered today, which matches the tool result showing availability as \"out_of_stock\". No other timing claims are made. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": false,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 965,
+      "inputTokens": 853,
+      "outputTokens": 327,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only offers to find a similar tent in stock, which is a task it can perform in this chat using the search tool. It does not promise any future action it cannot do, such as notifying the customer later or checking back on an approval. Therefore the statement is compliant.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 1045,
+      "inputTokens": 1086,
+      "outputTokens": 244,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"The reply is warm, clear, and offers a helpful alternative, meeting all criteria.\"}]}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 1102,
+      "inputTokens": 777,
+      "outputTokens": 278,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only asked if the customer wants to find a similar solo tent; no specific alternative product was mentioned or its stock status confirmed. Therefore we cannot verify that any offered alternative is in stock, nor that a restock date was omitted. Answer: no.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1303,
+      "inputTokens": 853,
+      "outputTokens": 381,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only offers to find a similar tent, which is a task the agent can perform in this chat, and does not promise any future action that cannot be done. Therefore the statement is correct.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1351,
+      "inputTokens": 853,
+      "outputTokens": 347,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only offers to find a similar tent in stock, which is a task that can be performed immediately in this chat using available tools. It does not promise future actions like notifications, follow‑ups, or approvals that cannot be completed here. Therefore the agent’s reply complies with the rule.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 1426,
+      "inputTokens": 842,
+      "outputTokens": 295,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the product is out of stock and cannot be ordered today, which matches the tool result showing availability as \\\"out_of_stock\\\". No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 1681,
+      "inputTokens": 842,
+      "outputTokens": 289,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the product is out of stock and cannot be ordered today, which matches the tool result showing availability as \\\"out_of_stock\\\". No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1736,
+      "inputTokens": 842,
+      "outputTokens": 295,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the product is out of stock and cannot be ordered today, which matches the tool result showing availability as \\\"out_of_stock\\\". No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

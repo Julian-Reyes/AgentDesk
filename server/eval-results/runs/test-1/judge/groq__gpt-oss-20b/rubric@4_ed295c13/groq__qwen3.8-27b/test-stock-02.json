@@ -1,0 +1,149 @@
+{
+  "caseId": "test-stock-02",
+  "runId": "7226b2b0-a9c3-42e3-8415-c97f4c2f7a47",
+  "questionSet": "7c25e0a6",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-stock-02",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Is the Scree Trail Runner available in size 12, orange?",
+        "reply": "The Scree Trail Runner is not currently available in size 12, orange (it's out of stock). Would you like me to check other sizes or colors? There are a few other variants in stock."
+      }
+    ],
+    "toolSummary": [
+      "message 1: search_products({\"query\":\"Scree Trail Runner\"}) → {\"ok\":true,\"data\":{\"totalMatches\":3,\"products\":[{\"id\":\"boot-scree-runner\",\"name\":\"Scree Trail Runner\",\"category\":\"boots\",\"listPrice\":\"$119.00\",\"currentPrice\":\"$119.00\",\"rating\":4.3,\"description\":\"Breathable, quick-drying trail running shoe.\",\"specs\":{\"material\":\"mesh\",\"waterproof\":false,\"weightGrams\":600},\"availability\":\"in_stock\",\"activeDeals\":[]},{\"id\":\"lamp-stride-400\",\"name\":\"Stride 400 Running Headlamp\",\"category\":\"headlamps\",\"listPrice\":\"$59.00\",\"currentPrice\":\"$59.00\",\"rating\":4.5,\"description\":\"Bounce-free headlamp for trail running.\",\"specs\":{\"lumens\":400,\"waterproof\":true,\"weightGrams\":60,\"burnTimeMinutes\":600},\"availability\":\"in_stock\",\"activeDeals\":[\"Headlamps: buy 2, get 1 free\"]},{\"id\":\"tent-canopy-2\",\"name\":\"Canopy 2 Trail Tent\",\"category\":\"tents\",\"listPrice\":\"$189.00\",\"currentPrice\":\"$151.20\",\"rating\":4.5,\"description\":\"Lightweight two-person trail tent with a full-coverage fly.\",\"specs\":{\"seasons\":3,\"material\":\"20D ripstop polyester\",\"waterproof\":true,\"weightGrams\":2000,\"capacityPersons\":2,\"waterproofRatingMm\":2500},\"availability\":\"in_stock\",\"activeDeals\":[\"Tent Sale: 20% off all tents\"]}],\"note\":\"currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping.\"}}",
+      "message 1: check_stock({\"color\":\"orange\",\"productId\":\"boot-scree-runner\",\"size\":\"12\"}) → {\"ok\":true,\"data\":{\"product\":\"Scree Trail Runner\",\"variants\":[{\"size\":\"12\",\"color\":\"orange\",\"inStock\":false,\"unitsAvailable\":0,\"availability\":\"out_of_stock\"}]}}"
+    ],
+    "judgeNote": "Says 12/orange is out, offers 12 in blue (only 2 left). No restock date.",
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "Any alternative the agent offers (another color, size or product) is in stock according to the tool results."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "The reply is polite, clear, and offers next steps without unnecessary detail."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": false,
+        "why": "The agent did not specify any particular alternative color, size, or product, so there is no alternative to verify as in stock. Therefore the statement is not true."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only offers to check other sizes or colors within the chat and does not promise future actions such as notifications or follow‑ups. Therefore it does not violate the rule. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent made no timing claims about shipping, arrival, refunds, or processing. Therefore the statement about timing matches the conversation (none). Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": false,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:0",
+      "latencyMs": 547,
+      "inputTokens": 982,
+      "outputTokens": 226,
+      "cached": false,
+      "raw": "{\"why\":\"The agent did not specify any particular alternative color, size, or product, so there is no alternative to verify as in stock. Therefore the statement is not true.\",\"answer\":false}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 968,
+      "inputTokens": 1291,
+      "outputTokens": 377,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"The reply is polite, clear, and offers next steps without unnecessary detail.\"}]}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 973,
+      "inputTokens": 1047,
+      "outputTokens": 271,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no timing claims about shipping, arrival, refunds, or processing. Therefore the statement about timing matches the conversation (none). Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 827,
+      "inputTokens": 1047,
+      "outputTokens": 270,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no timing claims about shipping, arrival, refunds, or processing. Therefore the statement about timing matches the conversation (none). Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1087,
+      "inputTokens": 1058,
+      "outputTokens": 335,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only offers to check other sizes or colors in the current chat and does not promise future notifications, follow‑ups, or actions beyond what can be done now. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 1532,
+      "inputTokens": 1047,
+      "outputTokens": 271,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no timing claims about shipping, arrival, refunds, or processing. Therefore the statement about timing matches the conversation (none). Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1892,
+      "inputTokens": 1058,
+      "outputTokens": 347,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only offers to check other sizes or colors immediately and does not promise future actions. Therefore it complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 4039,
+      "inputTokens": 1058,
+      "outputTokens": 360,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only offers to check other sizes or colors within the chat and does not promise future actions such as notifications or follow‑ups. Therefore it does not violate the rule. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

@@ -1,0 +1,150 @@
+{
+  "caseId": "test-refund-within-limit-11",
+  "runId": "0e286c9b-4dd6-4962-8644-0b8532798eab",
+  "questionSet": "67cbb996",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-refund-within-limit-11",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "My order #1265 is delayed. Please refund the shipping, but send it to my PayPal instead of my card.",
+        "reply": "Done — your $7.99 shipping refund was issued right away to the original payment method on the order. Refunds go back to the card used, so I wasn't able to redirect it to PayPal. Thanks for understanding."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1265}) → {\"ok\":true,\"data\":{\"number\":1265,\"status\":\"delayed\",\"placed\":\"2026-08-26\",\"delivered\":null,\"items\":[{\"productId\":\"jacket-thicket-fleece\",\"name\":\"Thicket Fleece Jacket\",\"size\":\"M\",\"color\":\"grey\",\"qty\":1,\"listPrice\":\"$69.00\",\"discount\":\"$0.00\",\"paid\":\"$69.00\",\"returnedQty\":0}],\"subtotal\":\"$69.00\",\"discount\":\"$0.00\",\"shipping\":\"$7.99\",\"totalPaid\":\"$76.99\",\"refunds\":[]}}",
+      "message 1: get_policy({\"topic\":\"refunds\"}) → {\"ok\":true,\"data\":{\"topic\":\"refunds\",\"title\":\"Refunds\",\"text\":\"Refunds go back to the original payment method.\\nA refund can never be more than what was paid for the order.\\nOur support team can issue refunds for damaged items, lost orders and late deliveries (shipping cost only). Refunds up to $50.00 per order are processed right away; larger amounts are reviewed by a team member, usually within one business day.\\nDamaged items are refunded per item, up to what was paid for that item. An item that cost more than $50.00 (per unit) is always reviewed by a team member, whatever amount is requested.\\nRefunds for returned items are issued when the warehouse receives the return.\"}}",
+      "message 1: issue_refund({\"amount\":7.99,\"note\":\"Order #01265 delayed; refunding shipping cost only ($7.99).\",\"orderId\":1265,\"reason\":\"late\"}) → {\"ok\":true,\"data\":{\"status\":\"refunded\",\"refundId\":57,\"amount\":\"$7.99\",\"message\":\"Refund of $7.99 issued to the original payment method.\"},\"policyDecision\":\"auto_approved\"}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent says the refund goes back to the original payment method, and doesn't promise to send it to PayPal."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "The reply is clear, polite, and fully addresses the customer's request with correct policy explanation."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent explicitly states the refund was issued to the original payment method and that they cannot redirect it to PayPal, matching the claim. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only reports that the refund was processed and explains the limitation that refunds go back to the original payment method; no future promise or action is implied. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 1
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent claims the refund was issued right away, which matches the policy that refunds up to $50 are processed right away and the tool result confirms the refund was issued. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 891,
+      "inputTokens": 1012,
+      "outputTokens": 377,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports that the refund was issued and explains why it cannot be redirected to PayPal; no future promise or implied action is made.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 933,
+      "inputTokens": 1012,
+      "outputTokens": 509,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports that the refund was processed and explains the limitation that refunds go back to the original payment method; no future promise or action is implied. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 1119,
+      "inputTokens": 1001,
+      "outputTokens": 428,
+      "cached": false,
+      "raw": "{\"why\":\"The agent claimed the refund was issued right away, which aligns with the policy that refunds up to $50 are processed immediately and the tool result confirms the refund was issued. No other timing claims are present. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 1284,
+      "inputTokens": 1245,
+      "outputTokens": 326,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"The reply is clear, polite, and fully addresses the customer's request with correct policy explanation.\"}]}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 1380,
+      "inputTokens": 937,
+      "outputTokens": 204,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states the refund was issued to the original payment method and that they cannot redirect it to PayPal, matching the claim. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 1438,
+      "inputTokens": 1001,
+      "outputTokens": 429,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the refund was issued right away, which aligns with the policy that refunds up to $50 are processed right away and the tool result confirms the refund was issued immediately. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1504,
+      "inputTokens": 1001,
+      "outputTokens": 441,
+      "cached": false,
+      "raw": "{\"why\":\"The agent claims the refund was issued right away, which matches the policy that refunds up to $50 are processed right away and the tool result confirms the refund was issued. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1580,
+      "inputTokens": 1012,
+      "outputTokens": 278,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports that the refund was issued and explains why it cannot redirect it to PayPal, with no future promises or implied follow‑up actions. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

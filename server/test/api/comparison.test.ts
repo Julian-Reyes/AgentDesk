@@ -12,8 +12,9 @@ describe("GET /api/comparison", () => {
   it("lists the configured sets with their split; the first is the default", () =>
     inTx(async (tx) => {
       const { data } = await json(await testApp(tx).app.request("/api/comparison"));
-      expect(data.default).toBe("dev-round-2");
-      expect(data.sets[0]).toEqual({ id: "dev-round-2", label: expect.stringContaining("round-2"), split: "dev", runs: ["dev-3-r2a", "dev-3-r2b"], generated: true });
+      expect(data.default).toBe("test-1");
+      expect(data.sets[0]).toEqual({ id: "test-1", label: expect.stringContaining("Test set"), split: "test", runs: ["test-1"], generated: true });
+      expect(data.sets[1]).toEqual({ id: "dev-round-2", label: expect.stringContaining("round-2"), split: "dev", runs: ["dev-3-r2a", "dev-3-r2b"], generated: true });
     }));
 
   it("serves a set's committed file as is", () =>
@@ -38,8 +39,8 @@ describe("the Agents page's eval block", () => {
     inTx(async (tx) => {
       const app = testApp(tx, { over: { agents: { teamFile: () => FILE } } }).app;
       const { data } = await json(await app.request("/api/agents"));
-      const set = readComparisonSet("dev-round-2")!;
-      expect(data.eval.set).toEqual({ id: "dev-round-2", label: set.label, split: "dev" });
+      const set = readComparisonSet("test-1")!;
+      expect(data.eval.set).toEqual({ id: "test-1", label: set.label, split: "test" });
       const lite = set.models[0]!.report;
       expect(data.eval.models[0]).toEqual({
         model: "gemini/gemini-3.5-flash-lite",

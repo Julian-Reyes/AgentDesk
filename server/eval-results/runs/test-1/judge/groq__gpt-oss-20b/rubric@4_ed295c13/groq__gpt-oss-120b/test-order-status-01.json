@@ -1,0 +1,147 @@
+{
+  "caseId": "test-order-status-01",
+  "runId": "08293e70-115e-4077-a73a-fbdf4622169c",
+  "questionSet": "d26c8a89",
+  "agentModel": "groq/gpt-oss-120b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-order-status-01",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Hi, can you check on order #9999 for me?",
+        "reply": "I’m unable to locate order #9999 on your account. Could you double‑check the order number and let me know the correct one? Thanks!"
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":9999}) → {\"ok\":false,\"error\":{\"code\":\"ORDER_NOT_FOUND\",\"message\":\"No order #9999 was found on this customer's account.\"}}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent says it can't find order #9999 on this account, invents no status or details for it, and offers to help find the right order."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "The agent politely informs the customer that the order cannot be found and requests the correct number, which is clear, helpful, and appropriately toned."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent explicitly states it cannot locate order #9999, does not provide any status or details, and asks the customer to double-check the order number and provide the correct one. This matches the judge check. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only states it cannot find the order and asks the customer to verify the number; it does not promise or imply any future action such as checking again, notifying, or following up. This complies with the rule. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent made no statements about shipping, arrival, refund, review, or processing times, so all timing claims (none) are supported. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 690,
+      "inputTokens": 626,
+      "outputTokens": 263,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states it cannot find the order and asks the customer to verify the number; it does not promise or imply any future action such as checking again, notifying, or following up. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 685,
+      "inputTokens": 615,
+      "outputTokens": 105,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refund, review, or processing times, so all timing claims (none) are supported. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 687,
+      "inputTokens": 615,
+      "outputTokens": 105,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refund, review, or processing times, so all timing claims (none) are supported. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 726,
+      "inputTokens": 859,
+      "outputTokens": 227,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"The agent politely informs the customer that the order cannot be found and requests the correct number, which is clear, helpful, and appropriately toned.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 809,
+      "inputTokens": 626,
+      "outputTokens": 262,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states it cannot find the order and asks the customer to verify the number; it does not promise or imply any future action that it cannot perform in this chat. Therefore the agent complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 1146,
+      "inputTokens": 560,
+      "outputTokens": 169,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states it cannot locate order #9999, does not provide any status or details, and asks the customer to double-check the order number and provide the correct one. This matches the judge check. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 1165,
+      "inputTokens": 615,
+      "outputTokens": 105,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refund, review, or processing times, so all timing claims (none) are supported. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 2414,
+      "inputTokens": 626,
+      "outputTokens": 264,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states it cannot find the order and asks the customer to verify the number; it does not promise or imply any future action such as checking again, notifying, or following up. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

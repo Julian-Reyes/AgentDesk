@@ -1,0 +1,151 @@
+{
+  "caseId": "test-order-status-01",
+  "runId": "fbaab97e-a1e3-4908-9203-4ec08650064e",
+  "questionSet": "d26c8a89",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-order-status-01",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Hi, can you check on order #9999 for me?",
+        "reply": "Hi there. I wasn't able to find order #9999 on your account, so I'm unsure where that number came from. \n\nIf you were thinking of your recent order, that would be #1018, which was placed on 2026-07-03, delivered, and totaled $119.00. Let me know if you'd like me to look into that one instead!"
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":9999}) → {\"ok\":false,\"error\":{\"code\":\"ORDER_NOT_FOUND\",\"message\":\"No order #9999 was found on this customer's account.\"}}",
+      "message 1: find_customer({\"email\":\"hugo.varga12@example.com\"}) → {\"ok\":true,\"data\":{\"name\":\"Hugo Varga\",\"email\":\"hugo.varga12@example.com\",\"orders\":[{\"number\":1018,\"status\":\"delivered\",\"placed\":\"2026-07-03\",\"total\":\"$119.00\"}]}}",
+      "message 1: get_order({\"orderId\":9999}) → {\"ok\":false,\"error\":{\"code\":\"ORDER_NOT_FOUND\",\"message\":\"No order #9999 was found on this customer's account.\"}}",
+      "message 1: find_customer({\"email\":\"hugo.varga12@example.com\"}) → {\"ok\":true,\"data\":{\"name\":\"Hugo Varga\",\"email\":\"hugo.varga12@example.com\",\"orders\":[{\"number\":1018,\"status\":\"delivered\",\"placed\":\"2026-07-03\",\"total\":\"$119.00\"}]}}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent says it can't find order #9999 on this account, invents no status or details for it, and offers to help find the right order."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "The reply is friendly, clear, and offers the correct order info and next steps."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent explicitly states it could not find order #9999 on the customer's account, does not provide any status or details for that order, and offers to look into the correct order instead. This matches the judge check description. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only offers to look into the order if the customer requests it and does not promise or imply any future action that cannot be performed in this chat. This complies with the rule. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent's reply contains no statements about shipping, arrival, refunds, reviews, processing times, or any other timing. Therefore all timing claims (none) trivially match the available tool results or policies. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 1
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "scores",
+      "latencyMs": 626,
+      "inputTokens": 1095,
+      "outputTokens": 286,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"The reply is friendly, clear, and offers the correct order info and next steps.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 857,
+      "inputTokens": 862,
+      "outputTokens": 445,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only offers to look into the order if the customer requests it and does not promise or imply any future action that cannot be performed in this chat. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 875,
+      "inputTokens": 796,
+      "outputTokens": 234,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states it could not find order #9999 on the customer's account, does not provide any status or details for that order, and offers to look into the correct order instead. This matches the judge check description. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 746,
+      "inputTokens": 862,
+      "outputTokens": 398,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only offers to look into the recent order if the customer wants, and does not promise any future action beyond the chat. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1104,
+      "inputTokens": 851,
+      "outputTokens": 282,
+      "cached": false,
+      "raw": "{\"why\":\"The agent's reply contains no statements about shipping, arrival, refunds, reviews, processing times, or any other timing. Therefore all timing claims (none) trivially match the available tool results or policies. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1116,
+      "inputTokens": 862,
+      "outputTokens": 445,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only offers to look into the order if the customer requests it and does not promise or imply any future action that cannot be performed in this chat. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 673,
+      "inputTokens": 851,
+      "outputTokens": 287,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states that order #1018 was delivered, which matches the tool result showing it was delivered. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 732,
+      "inputTokens": 851,
+      "outputTokens": 341,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that order #1018 was delivered, which matches the tool result showing status \\\"delivered\\\". No other timing claims are made. Therefore all timing statements are supported.\",\"answer\":true}"
+    }
+  ]
+}

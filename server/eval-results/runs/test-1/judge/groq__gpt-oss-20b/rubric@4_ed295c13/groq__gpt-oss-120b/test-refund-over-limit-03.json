@@ -1,0 +1,169 @@
+{
+  "caseId": "test-refund-over-limit-03",
+  "runId": "50d3353f-1e97-4ea6-9dc6-c3c0fcbfdda3",
+  "questionSet": "74592430",
+  "agentModel": "groq/gpt-oss-120b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-refund-over-limit-03",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "The Loft Down Jacket from order #1083 arrived with a burst baffle. There are feathers everywhere. Please refund it.",
+        "reply": "We’re sorry the Loft Down Jacket arrived damaged. We’ve submitted a $199.00 refund request for the jacket; it will be reviewed by a team member (typically within one business day). In the meantime, we’ve issued a 10% off coupon code SORRY-46-20260915 for your next purchase, valid until 2026‑12‑14. Thanks for your understanding."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1083}) → {\"ok\":true,\"data\":{\"number\":1083,\"status\":\"delivered\",\"placed\":\"2026-09-09\",\"delivered\":\"2026-09-13\",\"items\":[{\"productId\":\"jacket-loft-down\",\"name\":\"Loft Down Jacket\",\"size\":\"M\",\"color\":\"blue\",\"qty\":1,\"listPrice\":\"$199.00\",\"discount\":\"$0.00\",\"paid\":\"$199.00\",\"returnedQty\":0}],\"subtotal\":\"$199.00\",\"discount\":\"$0.00\",\"shipping\":\"$0.00\",\"totalPaid\":\"$199.00\",\"refunds\":[]}}",
+      "message 1: issue_refund({\"amount\":199,\"item\":\"Loft Down Jacket\",\"note\":\"burst baffle, feathers everywhere\",\"orderId\":1083,\"reason\":\"damaged\"}) → {\"ok\":true,\"data\":{\"status\":\"pending_approval\",\"approvalId\":9,\"amount\":\"$199.00\",\"message\":\"No refund has been issued yet. A $199.00 refund request was sent to a team member for approval (usually within one business day).\"},\"policyDecision\":\"queued_for_approval\"}",
+      "message 1: issue_goodwill_coupon({\"customer\":\"grace.kowalski46@example.com\",\"orderId\":1083,\"percent\":10,\"reason\":\"Damaged item - burst baffle\"}) → {\"ok\":true,\"data\":{\"status\":\"issued\",\"code\":\"SORRY-46-20260915\",\"percentOff\":10,\"expires\":\"2026-12-14\",\"terms\":\"Single use, only for this customer's account.\"},\"policyDecision\":\"auto_approved\"}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent says the refund needs a team member's approval, and never describes a refund or coupon as issued when the tool result says it's waiting for approval."
+      },
+      {
+        "id": "judge:1",
+        "statement": "The agent doesn't offer or issue a partial automatic refund (e.g. '$50 now')."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "The reply apologizes, explains the refund process and offers a coupon, clearly outlining next steps."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": false,
+        "why": "The agent states the refund request is pending approval and that a coupon has been issued, which matches the tool’s response that the refund is waiting for approval and the coupon was issued. Therefore the claim that the agent never describes a refund or coupon as issued is incorrect.",
+        "noConclusion": 1
+      },
+      {
+        "id": "judge:1",
+        "answer": true,
+        "why": "The agent only submitted a full $199.00 refund request for approval and issued a 10% coupon; no partial automatic refund was offered or issued.",
+        "noConclusion": 1
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent correctly states that a refund request has been submitted and will be reviewed by a team member within one business day, which is permissible. No impossible promise is made. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent states the refund will be reviewed within one business day, which matches the tool result that says approval usually takes one business day. The coupon expires on 2026-12-14, matching the tool result. No other timing claims are made. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": false,
+    "judge:1": true,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:1",
+      "latencyMs": 754,
+      "inputTokens": 911,
+      "outputTokens": 149,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only submitted a full $199.00 refund request for approval and issued a 10% coupon; no partial automatic refund was offered or issued.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 809,
+      "inputTokens": 980,
+      "outputTokens": 356,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the refund will be reviewed by a team member typically within one business day, which matches the tool’s response that the refund request is pending approval and usually takes one business day. The coupon’s expiration date of 2026-12-14 also matches the tool’s data. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 824,
+      "inputTokens": 980,
+      "outputTokens": 304,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the refund will be reviewed within one business day, which matches the tool result that says approval usually takes one business day. The coupon expires on 2026-12-14, matching the tool result. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 879,
+      "inputTokens": 980,
+      "outputTokens": 356,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the refund will be reviewed by a team member typically within one business day, which matches the tool’s response that the refund request is pending approval and usually takes one business day. The coupon’s expiration date of 2026-12-14 also matches the tool’s data. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 1028,
+      "inputTokens": 924,
+      "outputTokens": 345,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the refund request is pending approval and that a coupon has been issued, which matches the tool’s response that the refund is waiting for approval and the coupon was issued. Therefore the claim that the agent never describes a refund or coupon as issued is incorrect.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1090,
+      "inputTokens": 991,
+      "outputTokens": 471,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports that a refund request has been submitted and will be reviewed by a team member within one business day, and that a coupon has been issued. This is a statement of what has already been done or what the store policy dictates, not a promise of future action beyond the normal review process. Therefore the agent does not promise or imply any action it cannot perform in this chat. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1891,
+      "inputTokens": 991,
+      "outputTokens": 470,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states that a refund request has been submitted and will be reviewed by a team member within one business day, and that a coupon has been issued. This does not promise or imply any action beyond what the tools indicate. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1893,
+      "inputTokens": 991,
+      "outputTokens": 398,
+      "cached": false,
+      "raw": "{\"why\":\"The agent correctly states that a refund request has been submitted and will be reviewed by a team member within one business day, which is permissible. No impossible promise is made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 2733,
+      "inputTokens": 1224,
+      "outputTokens": 209,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"The reply apologizes, explains the refund process and offers a coupon, clearly outlining next steps.\"}]}"
+    }
+  ]
+}

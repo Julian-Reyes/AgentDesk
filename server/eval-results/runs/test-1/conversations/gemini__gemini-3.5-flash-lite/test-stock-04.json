@@ -1,0 +1,679 @@
+{
+  "caseId": "test-stock-04",
+  "case": {
+    "id": "test-stock-04",
+    "split": "test",
+    "type": "stock",
+    "why": "The Willow 1 comes only in green, and that's out of stock (0). The other solo shelter, the Hollow Bivy, is out too. Any alternative offered must be in stock (e.g. the Fernlight 2, 2 left).",
+    "source": "test batch 4",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "Can I order the Willow 1 solo tent today?",
+        "reply": {
+          "mentions": [
+            [
+              "out of stock",
+              "sold out",
+              "not in stock",
+              "not available",
+              "unavailable",
+              "none left"
+            ]
+          ],
+          "amounts": [],
+          "avoids": []
+        }
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "outcome": "resolved",
+      "tools": {
+        "required": [
+          {
+            "anyOf": [
+              {
+                "tool": "check_stock",
+                "args": {
+                  "productId": "tent-willow-1"
+                }
+              },
+              {
+                "tool": "get_product",
+                "args": {
+                  "id": "tent-willow-1"
+                }
+              }
+            ]
+          }
+        ],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "leaks": [],
+      "judgeChecks": [
+        "Any alternative the agent offers is in stock according to the tool results, and it gives no restock date."
+      ]
+    }
+  },
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "team": {
+    "router": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "33419078-d6bd-430f-897f-fcabde1f9484",
+    "turns": [
+      {
+        "customer": "Can I order the Willow 1 solo tent today?",
+        "reply": "The Willow 1 Solo Tent is currently out of stock, so you cannot order it today. However, we have several other tents currently in stock, including the Ridge 2 Backpacking Tent (was $249.00, now $199.20) and the Canopy 2 Trail Tent (was $189.00, now $151.20). Let me know if you would like to explore any of these alternatives!",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Can I order the Willow 1 solo tent today?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"shopping\", \"category\": \"stock\", \"urgency\": \"normal\", \"confidence\": 0.99}",
+          "decision": {
+            "route": "shopping",
+            "category": "stock",
+            "urgency": "normal",
+            "confidence": 0.99
+          },
+          "fallback": false
+        },
+        "inputTokens": 343,
+        "outputTokens": 28,
+        "latencyMs": 5205,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_258261",
+                "name": "search_products",
+                "arguments": "{\"query\":\"Willow 1\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TLhnjRwAOlTOk4KEtoM9GQB/PeUgrs/EphuVAHvGINzNsY/Au6Cs8vsTtp1s3BUNnQMXBhWqP9XgSoqoWDBjt6hJfEvWjMdDDDDf7JEa2VF7jpJj6g4zp2io="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1989,
+        "outputTokens": 18,
+        "latencyMs": 810,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_258261",
+          "name": "search_products",
+          "arguments": "{\"query\":\"Willow 1\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 1,
+              "products": [
+                {
+                  "id": "tent-willow-1",
+                  "name": "Willow 1 Solo Tent",
+                  "category": "tents",
+                  "listPrice": "$179.00",
+                  "currentPrice": "$143.20",
+                  "rating": 4.3,
+                  "description": "Compact one-person tent that packs down to the size of a water bottle.",
+                  "specs": {
+                    "seasons": 3,
+                    "material": "15D ripstop nylon",
+                    "waterproof": true,
+                    "weightGrams": 1100,
+                    "capacityPersons": 1,
+                    "waterproofRatingMm": 2000
+                  },
+                  "availability": "out_of_stock",
+                  "activeDeals": [
+                    "Tent Sale: 20% off all tents"
+                  ]
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_121276",
+                "name": "check_stock",
+                "arguments": "{\"productId\":\"tent-willow-1\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TcWv3C5VA22oG+PUY+e6Va/04fh8dQgG2TRp0/dNhtRy/dbfL9oRECXrL6m7aGRTCBJSsQhTxprpG6xdX84JKcM9xdcSFhTmHK/JHZle9O/ryQM/YipWzpok="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2204,
+        "outputTokens": 21,
+        "latencyMs": 803,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_121276",
+          "name": "check_stock",
+          "arguments": "{\"productId\":\"tent-willow-1\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "product": "Willow 1 Solo Tent",
+              "variants": [
+                {
+                  "size": null,
+                  "color": "green",
+                  "inStock": false,
+                  "unitsAvailable": 0,
+                  "availability": "out_of_stock"
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 3,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_156956",
+                "name": "get_active_promotions",
+                "arguments": "{}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TAtrQBch6b0gynbSIXdwfY1etBrLwQ81jEbBFzO4YWfOE57ZiqrWCp7cNr2QAglaea+wI7QdbtNP+KERVbjNsSnyPXqf/6zvM2JEx+U1Qt5eK1z4tV6K9Uds="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2283,
+        "outputTokens": 13,
+        "latencyMs": 734,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_156956",
+          "name": "get_active_promotions",
+          "arguments": "{}",
+          "result": {
+            "ok": true,
+            "data": {
+              "promotions": [
+                {
+                  "name": "Tent Sale: 20% off all tents",
+                  "endsOn": "2026-10-05"
+                },
+                {
+                  "name": "Headlamps: buy 2, get 1 free",
+                  "endsOn": "2026-10-15"
+                }
+              ],
+              "freeShipping": "Free shipping on orders of $75.00 or more; otherwise $7.99.",
+              "couponCodes": [
+                {
+                  "code": "SUMMER10",
+                  "terms": "10% off; expires 2026-09-30"
+                },
+                {
+                  "code": "TRAIL25",
+                  "terms": "$25.00 off; minimum spend $150.00; expires 2026-12-31"
+                },
+                {
+                  "code": "GEAR20",
+                  "terms": "20% off; minimum spend $50.00; not valid on tents, sleeping bags; expires 2026-10-30"
+                }
+              ],
+              "rules": "One coupon per order. Sales apply first, then buy-2-get-1, then the coupon."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 4,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_184321",
+                "name": "search_products",
+                "arguments": "{\"filters\":{\"category\":\"tents\",\"inStockOnly\":true},\"limit\":5}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TmcaN2B3vZ32Jmo2N6A4NzuGODB3CPE1L1CN2Y/1LK3ZSeQQ8u7XtMT0QYCykG7U+O6xOzhrJ+nVRE+MRobTvR05NILbhvmPOShNNab/kaIhv3GQ2r1WoQ9I="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2543,
+        "outputTokens": 29,
+        "latencyMs": 1726,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_184321",
+          "name": "search_products",
+          "arguments": "{\"filters\":{\"category\":\"tents\",\"inStockOnly\":true},\"limit\":5}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 8,
+              "products": [
+                {
+                  "id": "tent-tundra-2",
+                  "name": "Tundra 2 Four-Season Tent",
+                  "category": "tents",
+                  "listPrice": "$549.00",
+                  "currentPrice": "$439.20",
+                  "rating": 4.8,
+                  "description": "Two-person mountaineering tent built for snow load and high winds.",
+                  "specs": {
+                    "seasons": 4,
+                    "material": "40D ripstop nylon",
+                    "waterproof": true,
+                    "weightGrams": 3300,
+                    "capacityPersons": 2,
+                    "waterproofRatingMm": 5000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Tent Sale: 20% off all tents"
+                  ]
+                },
+                {
+                  "id": "tent-ridge-2",
+                  "name": "Ridge 2 Backpacking Tent",
+                  "category": "tents",
+                  "listPrice": "$249.00",
+                  "currentPrice": "$199.20",
+                  "rating": 4.6,
+                  "description": "Freestanding two-person backpacking tent with two doors and two vestibules.",
+                  "specs": {
+                    "seasons": 3,
+                    "material": "20D ripstop nylon",
+                    "waterproof": true,
+                    "weightGrams": 1900,
+                    "capacityPersons": 2,
+                    "waterproofRatingMm": 3000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Tent Sale: 20% off all tents"
+                  ]
+                },
+                {
+                  "id": "tent-canopy-2",
+                  "name": "Canopy 2 Trail Tent",
+                  "category": "tents",
+                  "listPrice": "$189.00",
+                  "currentPrice": "$151.20",
+                  "rating": 4.5,
+                  "description": "Lightweight two-person trail tent with a full-coverage fly.",
+                  "specs": {
+                    "seasons": 3,
+                    "material": "20D ripstop polyester",
+                    "waterproof": true,
+                    "weightGrams": 2000,
+                    "capacityPersons": 2,
+                    "waterproofRatingMm": 2500
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Tent Sale: 20% off all tents"
+                  ]
+                },
+                {
+                  "id": "tent-summit-3",
+                  "name": "Summit 3 Trekking Tent",
+                  "category": "tents",
+                  "listPrice": "$329.00",
+                  "currentPrice": "$263.20",
+                  "rating": 4.5,
+                  "description": "Roomy three-person trekking tent with a steep-walled design for long trips.",
+                  "specs": {
+                    "seasons": 3,
+                    "material": "30D ripstop nylon",
+                    "waterproof": true,
+                    "weightGrams": 2600,
+                    "capacityPersons": 3,
+                    "waterproofRatingMm": 3000
+                  },
+                  "availability": "low_stock",
+                  "activeDeals": [
+                    "Tent Sale: 20% off all tents"
+                  ]
+                },
+                {
+                  "id": "tent-fernlight-2",
+                  "name": "Fernlight 2 Ultralight Tent",
+                  "category": "tents",
+                  "listPrice": "$389.00",
+                  "currentPrice": "$311.20",
+                  "rating": 4.4,
+                  "description": "Trekking-pole-supported ultralight shelter for two.",
+                  "specs": {
+                    "seasons": 3,
+                    "material": "silnylon",
+                    "waterproof": true,
+                    "weightGrams": 1200,
+                    "capacityPersons": 2,
+                    "waterproofRatingMm": 1500
+                  },
+                  "availability": "low_stock",
+                  "activeDeals": [
+                    "Tent Sale: 20% off all tents"
+                  ]
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 5,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_330735",
+                "name": "reply",
+                "arguments": "{\"message\":\"The Willow 1 Solo Tent is currently out of stock, so you cannot order it today. However, we have several other tents currently in stock, including the Ridge 2 Backpacking Tent (was $249.00, now $199.20) and the Canopy 2 Trail Tent (was $189.00, now $151.20). Let me know if you would like to explore any of these alternatives!\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TS7a9LhqUhSIsiPcw14flgBI+WaqoL3uuFmpdqmqNdGPekIn3Ze43rmvYH/3601mqUc9VukPcTfC+1qwpeNIz4r2GPOIvmsyJEqX/TTK/D1Tac/02hf4TxL8="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3306,
+        "outputTokens": 110,
+        "latencyMs": 1063,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_330735",
+          "name": "reply",
+          "arguments": "{\"message\":\"The Willow 1 Solo Tent is currently out of stock, so you cannot order it today. However, we have several other tents currently in stock, including the Ridge 2 Backpacking Tent (was $249.00, now $199.20) and the Canopy 2 Trail Tent (was $189.00, now $151.20). Let me know if you would like to explore any of these alternatives!\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "The Willow 1 Solo Tent is currently out of stock, so you cannot order it today. However, we have several other tents currently in stock, including the Ridge 2 Backpacking Tent (was $249.00, now $199.20) and the Canopy 2 Trail Tent (was $189.00, now $151.20). Let me know if you would like to explore any of these alternatives!"
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "The Willow 1 Solo Tent is currently out of stock, so you cannot order it today. However, we have several other tents currently in stock, including the Ridge 2 Backpacking Tent (was $249.00, now $199.20) and the Canopy 2 Trail Tent (was $189.00, now $151.20). Let me know if you would like to explore any of these alternatives!"
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "shopping",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "test-stock-04",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to shopping"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "tool_required:0",
+        "label": "calls check_stock {\"productId\":\"tent-willow-1\"} or get_product {\"id\":\"tent-willow-1\"}",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "reply1:mentions:0",
+        "label": "reply 1 mentions \"out of stock\" or \"sold out\" or \"not in stock\" or \"not available\" or \"unavailable\" or \"none left\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "Any alternative the agent offers is in stock according to the tool results, and it gives no restock date."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 6,
+    "cachedCalls": 0,
+    "toolCalls": 4,
+    "inputTokens": 12668,
+    "outputTokens": 219,
+    "latencyMs": 10341,
+    "turnLatencyMs": [
+      10341
+    ],
+    "costMicros": 0,
+    "wallMs": 10416
+  },
+  "finishedAt": "2026-10-05T12:45:23.053Z"
+}

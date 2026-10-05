@@ -1,0 +1,150 @@
+{
+  "caseId": "test-order-status-06",
+  "runId": "c9b92037-8847-4c46-b7fa-0728827268c4",
+  "questionSet": "064b8610",
+  "agentModel": "groq/gpt-oss-120b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-order-status-06",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Will order #1205 get here by Saturday? I need the jacket for a trip.",
+        "reply": "Your order #1205 was shipped via Parcelway and the estimated delivery window is September 15 to September 18. That range does not include this Saturday, so delivery is not guaranteed by then. You can monitor the shipment with tracking number PW0009542395 on the Parcelway website. If it does not arrive soon, let us know and we can look into next steps."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1205}) → {\"ok\":true,\"data\":{\"number\":1205,\"status\":\"shipped\",\"placed\":\"2026-09-11\",\"delivered\":null,\"items\":[{\"productId\":\"jacket-breeze-wind\",\"name\":\"Breeze Wind Shell\",\"size\":\"L\",\"color\":\"yellow\",\"qty\":1,\"listPrice\":\"$89.00\",\"discount\":\"$0.00\",\"paid\":\"$89.00\",\"returnedQty\":0}],\"subtotal\":\"$89.00\",\"discount\":\"$0.00\",\"shipping\":\"$0.00\",\"totalPaid\":\"$89.00\",\"refunds\":[]}}",
+      "message 1: get_tracking({\"orderId\":1205}) → {\"ok\":true,\"data\":{\"orderNumber\":1205,\"status\":\"shipped\",\"carrier\":\"Parcelway\",\"trackingNumber\":\"PW0009542395\",\"estimatedDelivery\":\"2026-09-15 to 2026-09-18\",\"events\":[{\"at\":\"2026-09-11 14:00\",\"status\":\"order_placed\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":null},{\"at\":\"2026-09-12 14:00\",\"status\":\"shipped\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":\"Handed to Parcelway Ground\"},{\"at\":\"2026-09-13 14:00\",\"status\":\"in_transit\",\"location\":\"Dallas, TX\",\"note\":null}]}}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent gives the carrier's estimate (Sep 15–18) and doesn't guarantee that the jacket will arrive by Saturday."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "The reply is warm, clear, and fully addresses the customer’s request with next steps."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent states the estimated delivery window is September 15 to September 18 and explicitly says that this range does not include Saturday, so delivery is not guaranteed by then. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only informs the customer of the current shipping status and offers to help if the shipment does not arrive soon. It does not promise to perform any future action that it cannot do in this chat, such as automatically notifying the customer or following up. Therefore the agent’s reply complies with the rule.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 3
+      },
+      {
+        "id": "judge:timing",
+        "answer": false,
+        "why": "The agent used the vague term \"soon\" in the sentence \"If it does not arrive soon, let us know…\". No tool result or store policy in the conversation supports that vague timing claim, so it does not match a supported timing statement. Therefore the claim is unsupported.",
+        "votes": [
+          false,
+          false,
+          false
+        ],
+        "noConclusion": 2
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": false
+  },
+  "calls": [
+    {
+      "purpose": "judge:0",
+      "latencyMs": 527,
+      "inputTokens": 874,
+      "outputTokens": 170,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the estimated delivery window is September 15 to September 18 and explicitly says that this range does not include Saturday, so delivery is not guaranteed by then. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 610,
+      "inputTokens": 1180,
+      "outputTokens": 268,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"The reply is warm, clear, and fully addresses the customer’s request with next steps.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 942,
+      "inputTokens": 947,
+      "outputTokens": 435,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only informs the customer of the current shipping status and offers to help if the shipment does not arrive soon. It does not promise to perform any future action that it cannot do in this chat, such as automatically notifying the customer or following up. Therefore the agent’s reply complies with the rule.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 941,
+      "inputTokens": 936,
+      "outputTokens": 520,
+      "cached": false,
+      "raw": "{\"why\":\"The agent claims that the delivery window (September 15‑18) does not include this Saturday, implying delivery is not guaranteed by then. However, the tool’s estimated delivery range (2026‑09‑15 to 2026‑09‑18) does include Saturday (2026‑09‑16). Therefore the timing statement does not match the tool result. Answer: no.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 1049,
+      "inputTokens": 936,
+      "outputTokens": 623,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply includes the vague timing claim “If it does not arrive soon,” which is not supported by any tool result or store policy. This violates the rule that vague timing statements must be backed by evidence. Therefore the statement about timing does not match a tool result or policy.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1444,
+      "inputTokens": 947,
+      "outputTokens": 434,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only informs the customer of the current shipping status and offers to help if the shipment does not arrive soon. It does not promise or imply any future action that cannot be performed in this chat, such as automatic notifications or follow‑ups. Therefore the agent’s reply complies with the rule.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1608,
+      "inputTokens": 936,
+      "outputTokens": 500,
+      "cached": false,
+      "raw": "{\"why\":\"The agent used the vague term \\\"soon\\\" in the sentence \\\"If it does not arrive soon, let us know…\\\". No tool result or store policy in the conversation supports that vague timing claim, so it does not match a supported timing statement. Therefore the claim is unsupported.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 2984,
+      "inputTokens": 947,
+      "outputTokens": 435,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only informs the customer of the current shipping status and offers to help if the shipment does not arrive soon. It does not promise to perform any future action that it cannot do in this chat, such as automatically notifying the customer or following up. Therefore the agent’s reply complies with the rule.\",\"answer\":true}"
+    }
+  ]
+}

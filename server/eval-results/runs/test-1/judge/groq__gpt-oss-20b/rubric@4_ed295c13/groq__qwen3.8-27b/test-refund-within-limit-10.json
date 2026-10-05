@@ -1,0 +1,168 @@
+{
+  "caseId": "test-refund-within-limit-10",
+  "runId": "a3c00b23-787d-4681-99be-230364b8f4e1",
+  "questionSet": "9153946c",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-refund-within-limit-10",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Hi, where's my order #1190? It's been almost three weeks.",
+        "reply": "Thanks for checking in. Your order #1190 (Stride 400 Running Headlamp, black — $59.00, $66.99 total) is marked **delayed** in transit with Parcelway.\n\nHere's the tracking trail:\n- Aug 26: Placed at Larchgrove Warehouse, Reno, NV\n- Aug 27: Shipped, handed to Parcelway Ground\n- Aug 28: In transit — Chicago, IL\n- Aug 30: Delayed (carrier note: weather and volume backlog)\n\nThere's no updated delivery estimate on the label yet. Since it's been stalled in Chicago since the Aug 30 delay, I can offer up to a 10% goodwill coupon for the trouble, plus a refund of the $7.99 shipping if you'd like — just say the word.\n\nThanks for your patience on this one. Would you like me to apply the coupon or the shipping refund?"
+      },
+      {
+        "turn": 2,
+        "customer": "That's frustrating. Can I at least get the shipping refunded?",
+        "reply": "I hear you on the frustration, and that's on us for the delay. Good news: your **$7.99 shipping refund** was issued right away to your original payment method.\n\nI wouldn't rule out a 10% goodwill coupon for the trouble if you'd like it either. Otherwise, I'll leave it there — hope the headlamp lands soon.\n\nThanks for understanding."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1190}) → {\"ok\":true,\"data\":{\"number\":1190,\"status\":\"delayed\",\"placed\":\"2026-08-26\",\"delivered\":null,\"items\":[{\"productId\":\"lamp-stride-400\",\"name\":\"Stride 400 Running Headlamp\",\"size\":null,\"color\":\"black\",\"qty\":1,\"listPrice\":\"$59.00\",\"discount\":\"$0.00\",\"paid\":\"$59.00\",\"returnedQty\":0}],\"subtotal\":\"$59.00\",\"discount\":\"$0.00\",\"shipping\":\"$7.99\",\"totalPaid\":\"$66.99\",\"refunds\":[]}}",
+      "message 1: get_tracking({\"orderId\":1190}) → {\"ok\":true,\"data\":{\"orderNumber\":1190,\"status\":\"delayed\",\"carrier\":\"Parcelway\",\"trackingNumber\":\"PW0009423610\",\"estimatedDelivery\":null,\"events\":[{\"at\":\"2026-08-26 19:00\",\"status\":\"order_placed\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":null},{\"at\":\"2026-08-27 19:00\",\"status\":\"shipped\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":\"Handed to Parcelway Ground\"},{\"at\":\"2026-08-28 19:00\",\"status\":\"in_transit\",\"location\":\"Chicago, IL\",\"note\":null},{\"at\":\"2026-08-30 19:00\",\"status\":\"delayed\",\"location\":\"Chicago, IL\",\"note\":\"Carrier delay: weather and volume backlog\"}]}}",
+      "message 2: issue_refund({\"amount\":7.99,\"note\":\"Customer requested a refund of the $7.99 shipping on this order delayed in transit since Aug 30.\",\"orderId\":1190,\"reason\":\"late\"}) → {\"ok\":true,\"data\":{\"status\":\"refunded\",\"refundId\":56,\"amount\":\"$7.99\",\"message\":\"Refund of $7.99 issued to the original payment method.\"},\"policyDecision\":\"auto_approved\"}"
+    ],
+    "judgeNote": "First reply: delayed, from the tracking, with no invented arrival date. Second: confirms the $7.99 refund.",
+    "checks": [
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": [
+      {
+        "id": "script:2",
+        "turn": 2,
+        "assumes": "the agent said the order is delayed"
+      }
+    ]
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "Provides clear tracking info and offers refund/coupon with next step."
+      },
+      {
+        "reply": 2,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "Confirms refund and offers coupon, closing politely."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only provided information about the current status and confirmed that the refund had already been issued, without promising future actions that cannot be performed in this chat. This meets the requirement. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 1
+      },
+      {
+        "id": "judge:timing",
+        "answer": false,
+        "why": "The agent says \"hope the headlamp lands soon,\" which is a vague timing claim not supported by any tool result or policy. Therefore the statement about timing does not match the available evidence.",
+        "votes": [
+          false,
+          false,
+          false
+        ],
+        "noConclusion": 2
+      }
+    ],
+    "scriptFit": [
+      {
+        "id": "script:2",
+        "answer": true,
+        "why": "The agent’s first reply explicitly states that the order is marked \"delayed\" in transit, so the customer’s assumption that the order is delayed is correct. Therefore the follow‑up message fits the prior reply.",
+        "noConclusion": 1
+      }
+    ]
+  },
+  "answers": {
+    "judge:followup": true,
+    "judge:timing": false,
+    "script:2": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1013,
+      "inputTokens": 1300,
+      "outputTokens": 312,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only provided information about the current status and confirmed that the refund had already been issued, without promising future actions that cannot be performed in this chat. This meets the requirement. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "script:2",
+      "latencyMs": 696,
+      "inputTokens": 1225,
+      "outputTokens": 191,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s first reply explicitly states that the order is marked \\\"delayed\\\" in transit, so the customer’s assumption that the order is delayed is correct. Therefore the follow‑up message fits the prior reply.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 1226,
+      "inputTokens": 1289,
+      "outputTokens": 598,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply 2 includes the vague timing phrase “hope the headlamp lands soon,” which is not supported by any tool result or policy in the conversation. Therefore not all timing statements are supported.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1309,
+      "inputTokens": 1300,
+      "outputTokens": 386,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only offered immediate actions (coupon or refund) and confirmed the refund was issued. No future promises or implied follow‑ups were made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 1334,
+      "inputTokens": 1536,
+      "outputTokens": 536,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"Provides clear tracking info and offers refund/coupon with next step.\"},{\"reply\":2,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"Confirms refund and offers coupon, closing politely.\"}]}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 1356,
+      "inputTokens": 1289,
+      "outputTokens": 467,
+      "cached": false,
+      "raw": "{\"why\":\"The agent says the headlamp will land soon, which is a vague timing claim not supported by the tool data or policy. Therefore the statement does not match a tool result or policy. Answer: no.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1705,
+      "inputTokens": 1289,
+      "outputTokens": 474,
+      "cached": false,
+      "raw": "{\"why\":\"The agent says \\\"hope the headlamp lands soon,\\\" which is a vague timing claim not supported by any tool result or policy. Therefore the statement about timing does not match the available evidence.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1745,
+      "inputTokens": 1300,
+      "outputTokens": 642,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only offered a coupon and shipping refund, both of which can be performed immediately, and confirmed the refund was issued. No future actions that cannot be completed in this chat were promised.\",\"answer\":true}"
+    }
+  ]
+}

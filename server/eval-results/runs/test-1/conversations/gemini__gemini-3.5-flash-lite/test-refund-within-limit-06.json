@@ -1,0 +1,609 @@
+{
+  "caseId": "test-refund-within-limit-06",
+  "case": {
+    "id": "test-refund-within-limit-06",
+    "split": "test",
+    "type": "refund_within_limit",
+    "why": "#1031 (Jamie Rossi, Kindling stove, $79.00) is delayed, but it shipped free (orders of $75 or more), so there's no shipping cost to refund (the late refund is NOTHING_REFUNDABLE). No refund is possible. A goodwill coupon of 10% or less is allowed, not required (delayed = store-caused; he has had none).",
+    "source": "test batch 1",
+    "customer": "jamie.rossi121@example.com",
+    "turns": [
+      {
+        "customer": "My wood stove order #1031 is late. Can I get my shipping cost back?"
+      }
+    ],
+    "expect": {
+      "route": "support",
+      "outcome": [
+        "resolved",
+        "escalated"
+      ],
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": [
+            {
+              "maxPercent": 10,
+              "order": 1031,
+              "status": "issued"
+            }
+          ]
+        },
+        "escalation": "allowed"
+      },
+      "leaks": [],
+      "judgeChecks": [
+        "The agent explains the order shipped free, so there's no shipping cost to refund, and doesn't invent another refund."
+      ]
+    }
+  },
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "team": {
+    "router": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "e23878f0-309b-4e8d-b6c8-3035b8acacbe",
+    "turns": [
+      {
+        "customer": "My wood stove order #1031 is late. Can I get my shipping cost back?",
+        "reply": "I see that order #1031 (Kindling Wood-Burning Stove) qualified for free shipping, so no shipping cost was charged on this order. As an apology for the delay with your delivery, I have issued a 5% discount coupon (code: SORRY-121-20260915) for your account. Thanks for understanding.",
+        "answeredBy": "support",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "My wood stove order #1031 is late. Can I get my shipping cost back?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"support\", \"category\": \"shipping\", \"urgency\": \"normal\", \"confidence\": 0.99}",
+          "failedAttempts": [
+            {
+              "status": 429,
+              "message": "[{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota e"
+            }
+          ],
+          "decision": {
+            "route": "support",
+            "category": "shipping",
+            "urgency": "normal",
+            "confidence": 0.99
+          },
+          "fallback": false
+        },
+        "inputTokens": 352,
+        "outputTokens": 28,
+        "latencyMs": 1102,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Jamie Rossi (jamie.rossi121@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_203758",
+                "name": "get_order",
+                "arguments": "{\"orderId\":\"1031\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0T96zIBV9DPwqcbeg8LiwofczTNXrnCp05mQchD0B4kJmAa+oZx2QEeI3kIGIV4wcR9XfICbabbq+hkvFTbPcX4GucmZ5S72ivjVyoDcL/wwzOxMP87igrC4Y="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2400,
+        "outputTokens": 20,
+        "latencyMs": 781,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_203758",
+          "name": "get_order",
+          "arguments": "{\"orderId\":\"1031\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "number": 1031,
+              "status": "delayed",
+              "placed": "2026-09-03",
+              "delivered": null,
+              "items": [
+                {
+                  "productId": "stove-kindling-wood",
+                  "name": "Kindling Wood-Burning Stove",
+                  "size": null,
+                  "color": null,
+                  "qty": 1,
+                  "listPrice": "$79.00",
+                  "discount": "$0.00",
+                  "paid": "$79.00",
+                  "returnedQty": 0
+                }
+              ],
+              "subtotal": "$79.00",
+              "discount": "$0.00",
+              "shipping": "$0.00",
+              "totalPaid": "$79.00",
+              "refunds": []
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Jamie Rossi (jamie.rossi121@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_58443",
+                "name": "get_tracking",
+                "arguments": "{\"orderId\":\"1031\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TCmavCYB6ij3Uz7EDlsiPp9csP8hzW2oEvxOZgEfQef8es6+oQfdVtNVERmopybxk+Re36zU3g8AYd4EcQGh8bPH5KnlSbULTeJSNqvW+xXnYlZDeajfbUMY="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2574,
+        "outputTokens": 20,
+        "latencyMs": 785,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_58443",
+          "name": "get_tracking",
+          "arguments": "{\"orderId\":\"1031\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "orderNumber": 1031,
+              "status": "delayed",
+              "carrier": "Parcelway",
+              "trackingNumber": "PW0008164489",
+              "estimatedDelivery": null,
+              "events": [
+                {
+                  "at": "2026-09-03 15:00",
+                  "status": "order_placed",
+                  "location": "Larchgrove Warehouse, Reno, NV",
+                  "note": null
+                },
+                {
+                  "at": "2026-09-04 15:00",
+                  "status": "shipped",
+                  "location": "Larchgrove Warehouse, Reno, NV",
+                  "note": "Handed to Parcelway Ground"
+                },
+                {
+                  "at": "2026-09-05 15:00",
+                  "status": "in_transit",
+                  "location": "Chicago, IL",
+                  "note": null
+                },
+                {
+                  "at": "2026-09-07 15:00",
+                  "status": "delayed",
+                  "location": "Chicago, IL",
+                  "note": "Carrier delay: weather and volume backlog"
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Jamie Rossi (jamie.rossi121@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_428519",
+                "name": "issue_refund",
+                "arguments": "{\"amount\":0,\"reason\":\"late\",\"orderId\":\"1031\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TmWJkZ0rdUBirmKMX2JiYcVeAps8eVSsG4XV0fiR1nreV9ObQGrMUxAsQ60oreGTIorkxy2eAhco250nKfTC2fpfl5Yp654YNm0G4+up2HftjnJJH/4NSDss="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2813,
+        "outputTokens": 30,
+        "latencyMs": 1030,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_428519",
+          "name": "issue_refund",
+          "arguments": "{\"amount\":0,\"reason\":\"late\",\"orderId\":\"1031\"}",
+          "result": {
+            "ok": false,
+            "error": {
+              "code": "INVALID_ARGS",
+              "message": "Invalid arguments for issue_refund.",
+              "details": {
+                "issues": [
+                  {
+                    "path": "amount",
+                    "message": "Too small: expected number to be >0"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 4,
+          "context": "The customer is signed in as Jamie Rossi (jamie.rossi121@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_154416",
+                "name": "get_policy",
+                "arguments": "{\"topic\":\"shipping\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TloPLKxrU7L5yWRhrHyAvqKTDFMpSY72yz+bjd+mhDymSviMCx4uQxK7d1xPa00Vmi+F/GDWHSyGRcfZliRRtYtcUqMBNn6lohI6VR/j4IKj06gSdCNf7luE="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2901,
+        "outputTokens": 16,
+        "latencyMs": 804,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_154416",
+          "name": "get_policy",
+          "arguments": "{\"topic\":\"shipping\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "topic": "shipping",
+              "title": "Shipping",
+              "text": "Standard shipping costs $7.99 and is free on orders of $75.00 or more (after discounts).\nOrders ship from our warehouse within 1–2 business days and arrive 3–6 business days after shipping.\nWe ship within the United States only.\nTracking is available once an order has shipped.\nIf an order is delayed, we refund the shipping cost on request."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 5,
+          "context": "The customer is signed in as Jamie Rossi (jamie.rossi121@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_238530",
+                "name": "issue_goodwill_coupon",
+                "arguments": "{\"percent\":5,\"orderId\":\"1031\",\"reason\":\"Order delayed in transit\",\"customer\":\"jamie.rossi121@example.com\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0Toj2SfE4HJLPUps+q8S4A8AQea2jIexYalqncRpH7QyZ2JvNrrkJAQ5Hsk2BmTS7RFXZGR+Uht2KzABcyXXKH1/SLiljat2KeD0n0bC/DoTFwFWOYAJ3f/Ic="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3032,
+        "outputTokens": 53,
+        "latencyMs": 891,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_238530",
+          "name": "issue_goodwill_coupon",
+          "arguments": "{\"percent\":5,\"orderId\":\"1031\",\"reason\":\"Order delayed in transit\",\"customer\":\"jamie.rossi121@example.com\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "status": "issued",
+              "code": "SORRY-121-20260915",
+              "percentOff": 5,
+              "expires": "2026-12-14",
+              "terms": "Single use, only for this customer's account."
+            },
+            "policyDecision": "auto_approved"
+          }
+        },
+        "policyDecision": "auto_approved",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 6,
+          "context": "The customer is signed in as Jamie Rossi (jamie.rossi121@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_176660",
+                "name": "reply",
+                "arguments": "{\"message\":\"I see that order #1031 (Kindling Wood-Burning Stove) qualified for free shipping, so no shipping cost was charged on this order. As an apology for the delay with your delivery, I have issued a 5% discount coupon (code: SORRY-121-20260915) for your account. Thanks for understanding.\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TTwII4fBZjwlpfP+yLSpplhFS32dUPoIDfjvEpygFzvFs34x74ZM59fvZe3C95i1lNx3FOOPan67LEV69OJRvWSy1rzoxE4o3MnJg8KT5Y0B2aKnL9qqSLGY="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3169,
+        "outputTokens": 91,
+        "latencyMs": 1047,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_176660",
+          "name": "reply",
+          "arguments": "{\"message\":\"I see that order #1031 (Kindling Wood-Burning Stove) qualified for free shipping, so no shipping cost was charged on this order. As an apology for the delay with your delivery, I have issued a 5% discount coupon (code: SORRY-121-20260915) for your account. Thanks for understanding.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "I see that order #1031 (Kindling Wood-Burning Stove) qualified for free shipping, so no shipping cost was charged on this order. As an apology for the delay with your delivery, I have issued a 5% discount coupon (code: SORRY-121-20260915) for your account. Thanks for understanding."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "I see that order #1031 (Kindling Wood-Burning Stove) qualified for free shipping, so no shipping cost was charged on this order. As an apology for the delay with your delivery, I have issued a 5% discount coupon (code: SORRY-121-20260915) for your account. Thanks for understanding."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "support",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [
+        {
+          "percent": 5,
+          "status": "issued"
+        }
+      ],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "test-refund-within-limit-06",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to support",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to support"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved or escalated",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "goodwill_allowed:3",
+        "label": "allowed goodwill coupon: 5%, issued",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent explains the order shipped free, so there's no shipping cost to refund, and doesn't invent another refund."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 7,
+    "cachedCalls": 0,
+    "toolCalls": 5,
+    "inputTokens": 17241,
+    "outputTokens": 258,
+    "latencyMs": 6440,
+    "turnLatencyMs": [
+      6440
+    ],
+    "costMicros": 0,
+    "wallMs": 76782
+  },
+  "finishedAt": "2026-10-05T12:54:07.628Z"
+}

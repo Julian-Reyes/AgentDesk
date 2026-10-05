@@ -1,0 +1,149 @@
+{
+  "caseId": "test-order-status-10",
+  "runId": "74c65b9c-7a4d-4e1f-86c2-301823e09515",
+  "questionSet": "0a3f7e93",
+  "agentModel": "groq/gpt-oss-120b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-order-status-10",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Is my order #1134 lost? It's been sitting in Salt Lake City for days.",
+        "reply": "Your order #1134 is not marked as lost; the latest tracking shows it delayed in Salt Lake City due to carrier weather and volume backlog. A 10% goodwill coupon (code SORRY-171-20260915, expires 2026-12-14) has been added to your account for the inconvenience. Let me know if you need anything else."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1134}) → {\"ok\":true,\"data\":{\"number\":1134,\"status\":\"delayed\",\"placed\":\"2026-09-05\",\"delivered\":null,\"items\":[{\"productId\":\"pack-swift-30\",\"name\":\"Swift 30 Daypack\",\"size\":null,\"color\":\"black\",\"qty\":1,\"listPrice\":\"$119.00\",\"discount\":\"$0.00\",\"paid\":\"$119.00\",\"returnedQty\":0}],\"subtotal\":\"$119.00\",\"discount\":\"$0.00\",\"shipping\":\"$0.00\",\"totalPaid\":\"$119.00\",\"refunds\":[]}}",
+      "message 1: get_tracking({\"orderId\":1134}) → {\"ok\":true,\"data\":{\"orderNumber\":1134,\"status\":\"delayed\",\"carrier\":\"Parcelway\",\"trackingNumber\":\"PW0008980146\",\"estimatedDelivery\":null,\"events\":[{\"at\":\"2026-09-05 14:00\",\"status\":\"order_placed\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":null},{\"at\":\"2026-09-06 14:00\",\"status\":\"shipped\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":\"Handed to Parcelway Ground\"},{\"at\":\"2026-09-07 14:00\",\"status\":\"in_transit\",\"location\":\"Salt Lake City, UT\",\"note\":null},{\"at\":\"2026-09-09 14:00\",\"status\":\"delayed\",\"location\":\"Salt Lake City, UT\",\"note\":\"Carrier delay: weather and volume backlog\"}]}}",
+      "message 1: issue_goodwill_coupon({\"customer\":\"kofi.sato171@example.com\",\"orderId\":1134,\"percent\":10,\"reason\":\"Carrier delay in Salt Lake City\"}) → {\"ok\":true,\"data\":{\"status\":\"issued\",\"code\":\"SORRY-171-20260915\",\"percentOff\":10,\"expires\":\"2026-12-14\",\"terms\":\"Single use, only for this customer's account.\"},\"policyDecision\":\"auto_approved\"}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent says the order is delayed by the carrier, not lost, and gives no delivery date (the tracking has none)."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "The reply is warm, clear, and fully addresses the customer’s concerns with a helpful next step."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent explicitly states the order is delayed, not lost, and does not provide a delivery date. The tracking data confirms no estimated delivery. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only reports the current status and the coupon issuance, and does not promise future actions. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent made no explicit timing claims such as arrival dates, shipping times, or refund processing times. Therefore all timing statements (none) match the available data. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 643,
+      "inputTokens": 1053,
+      "outputTokens": 280,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no explicit timing claims such as arrival dates, shipping times, or refund processing times. Therefore all timing statements (none) match the available data. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 675,
+      "inputTokens": 1053,
+      "outputTokens": 280,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no explicit timing claims such as arrival dates, shipping times, or refund processing times. Therefore all timing statements (none) match the available data. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 692,
+      "inputTokens": 1053,
+      "outputTokens": 286,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply contains no statements about when the order will ship, arrive, be refunded, reviewed, or processed. Therefore all timing claims (none) are consistent with the available data. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 737,
+      "inputTokens": 1064,
+      "outputTokens": 386,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports the current status and the coupon issuance, and does not promise any future actions such as follow‑ups or notifications. Therefore the rule is satisfied. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 788,
+      "inputTokens": 991,
+      "outputTokens": 232,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states the order is delayed, not lost, and does not provide a delivery date. The tracking data confirms no estimated delivery. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 829,
+      "inputTokens": 1297,
+      "outputTokens": 275,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"The reply is warm, clear, and fully addresses the customer’s concerns with a helpful next step.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1134,
+      "inputTokens": 1064,
+      "outputTokens": 427,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports the current status and the coupon issuance, and does not promise future actions. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1208,
+      "inputTokens": 1064,
+      "outputTokens": 427,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports the current status and the coupon issuance, and does not promise future actions. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

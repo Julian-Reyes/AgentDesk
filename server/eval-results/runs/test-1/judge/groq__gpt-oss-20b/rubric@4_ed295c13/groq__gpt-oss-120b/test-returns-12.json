@@ -1,0 +1,166 @@
+{
+  "caseId": "test-returns-12",
+  "runId": "d4656f7e-45c0-4652-9c6d-52b3f571ab04",
+  "questionSet": "5cecbb0c",
+  "agentModel": "groq/gpt-oss-120b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-returns-12",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "I ordered two Swift 30 daypacks on #1351 but only need one. Can I send one back? Both are unused.",
+        "reply": "We can accept a return of one of the Swift 30 Daypacks. The item is eligible for return until 2026‑10‑06 as long as it’s unused and in its original packaging. Please use the return label in your account to send the backpack back; once the warehouse receives it, they will process the refund for that item. Let us know if you need any further help."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1351}) → {\"ok\":true,\"data\":{\"number\":1351,\"status\":\"delivered\",\"placed\":\"2026-09-03\",\"delivered\":\"2026-09-06\",\"items\":[{\"productId\":\"pack-swift-30\",\"name\":\"Swift 30 Daypack\",\"size\":null,\"color\":\"black\",\"qty\":2,\"listPrice\":\"$119.00\",\"discount\":\"$0.00\",\"paid\":\"$238.00\",\"returnedQty\":0}],\"subtotal\":\"$238.00\",\"discount\":\"$0.00\",\"shipping\":\"$0.00\",\"totalPaid\":\"$238.00\",\"refunds\":[]}}",
+      "message 1: check_return_eligibility({\"condition\":\"unused\",\"item\":\"Swift 30 Daypack\",\"orderId\":1351}) → {\"ok\":true,\"data\":{\"orderNumber\":1351,\"item\":\"Swift 30 Daypack\",\"eligible\":true,\"code\":\"ELIGIBLE\",\"message\":\"Eligible for return until 2026-10-06, provided the item is unused and in its original packaging. The refund is issued when the warehouse receives it.\",\"returnBy\":\"2026-10-06\",\"conditionRequired\":\"unused, original packaging\"},\"policyDecision\":\"auto_approved\"}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent confirms one of the two daypacks can be returned on its own."
+      },
+      {
+        "id": "judge:1",
+        "statement": "The agent explains the process (return label from the account, refund when the warehouse receives the item) and never says it will process, accept or refund the return itself."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "The reply is warm, clear, and fully addresses the customer's request with next steps."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent explicitly states that a return of one of the Swift 30 Daypacks is accepted and eligible, confirming that one of the two can be returned on its own. Answer: yes."
+      },
+      {
+        "id": "judge:1",
+        "answer": false,
+        "why": "The agent explicitly states \"We can accept a return of one of the Swift 30 Daypacks,\" which indicates that the company will accept the return. Therefore the claim that the agent never says it will process, accept or refund the return itself is false. Answer: no."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only provides instructions and states what will happen after the return is processed, without promising or implying any future action that the agent cannot perform in this chat. This complies with the rule. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent states the return is eligible until 2026-10-06, which matches the tool result. They also say the refund will be processed once the warehouse receives the item, which aligns with the tool’s message that the refund is issued when the warehouse receives it. No other timing claims are made. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:1": false,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "scores",
+      "latencyMs": 745,
+      "inputTokens": 1145,
+      "outputTokens": 197,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"The reply is warm, clear, and fully addresses the customer's request with next steps.\"}]}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 742,
+      "inputTokens": 901,
+      "outputTokens": 288,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the return is eligible until 2026-10-06, which matches the tool’s eligibility date. They also say the refund will be processed once the warehouse receives the item, which matches the tool’s statement that the refund is issued when the warehouse receives it. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:1",
+      "latencyMs": 747,
+      "inputTokens": 848,
+      "outputTokens": 423,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states \\\"We can accept a return of one of the Swift 30 Daypacks,\\\" which indicates that the company will accept the return. Therefore the claim that the agent never says it will process, accept or refund the return itself is false. Answer: no.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 745,
+      "inputTokens": 901,
+      "outputTokens": 292,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the return is eligible until 2026-10-06, which matches the tool result. They also say the refund will be processed once the warehouse receives the item, which aligns with the tool’s message that the refund is issued when the warehouse receives it. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 754,
+      "inputTokens": 830,
+      "outputTokens": 177,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states that a return of one of the Swift 30 Daypacks is accepted and eligible, confirming that one of the two can be returned on its own. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 788,
+      "inputTokens": 912,
+      "outputTokens": 398,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only informs the customer of the return policy and next steps, and does not promise any future action beyond what the warehouse will do, which is permissible. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 796,
+      "inputTokens": 901,
+      "outputTokens": 268,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the return is eligible until 2026-10-06, which matches the tool’s eligibility date, and that the refund will be processed once the warehouse receives the item, which matches the tool’s refund timing. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1139,
+      "inputTokens": 912,
+      "outputTokens": 345,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only provides instructions and states what will happen after the return is processed, without promising or implying any future action that the agent cannot perform in this chat. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1247,
+      "inputTokens": 912,
+      "outputTokens": 444,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only informs the customer of the return policy and next steps, not promising any future action beyond what the warehouse will do, which is permissible. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

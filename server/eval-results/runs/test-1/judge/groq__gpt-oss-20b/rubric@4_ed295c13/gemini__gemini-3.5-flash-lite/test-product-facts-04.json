@@ -1,0 +1,149 @@
+{
+  "caseId": "test-product-facts-04",
+  "runId": "755f83bf-f6c2-4616-b629-0ca1c4f457ce",
+  "questionSet": "c2d0e015",
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-product-facts-04",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Is the Breeze Wind Shell waterproof enough to wear in the rain?",
+        "reply": "The Breeze Wind Shell is not waterproof—it is designed as a featherweight wind shell. If you need something for the rain, we do carry waterproof options like the Squall Pro Rain Jacket or Tundra Insulated Parka. Let me know if you would like to look at those or anything else!"
+      }
+    ],
+    "toolSummary": [
+      "message 1: search_products({\"query\":\"Breeze Wind Shell\"}) → {\"ok\":true,\"data\":{\"totalMatches\":6,\"products\":[{\"id\":\"jacket-breeze-wind\",\"name\":\"Breeze Wind Shell\",\"category\":\"jackets\",\"listPrice\":\"$89.00\",\"currentPrice\":\"$89.00\",\"rating\":4.1,\"description\":\"Featherweight wind shell that packs into its own pocket.\",\"specs\":{\"material\":\"10D nylon\",\"waterproof\":false,\"weightGrams\":90,\"waterproofRatingMm\":1500},\"availability\":\"in_stock\",\"activeDeals\":[]},{\"id\":\"jacket-gale-softshell\",\"name\":\"Gale Softshell Jacket\",\"category\":\"jackets\",\"listPrice\":\"$129.00\",\"currentPrice\":\"$129.00\",\"rating\":4.2,\"description\":\"Stretchy, wind-resistant softshell for active days.\",\"specs\":{\"material\":\"softshell\",\"waterproof\":false,\"weightGrams\":480,\"waterproofRatingMm\":5000},\"availability\":\"in_stock\",\"activeDeals\":[]},{\"id\":\"jacket-tundra-parka\",\"name\":\"Tundra Insulated Parka\",\"category\":\"jackets\",\"listPrice\":\"$329.00\",\"currentPrice\":\"$329.00\",\"rating\":4.8,\"description\":\"Waterproof insulated parka for deep winter.\",\"specs\":{\"material\":\"down + waterproof shell\",\"waterproof\":true,\"tempRatingC\":-25,\"weightGrams\":1100,\"waterproofRatingMm\":15000},\"availability\":\"in_stock\",\"activeDeals\":[]},{\"id\":\"tent-tundra-2\",\"name\":\"Tundra 2 Four-Season Tent\",\"category\":\"tents\",\"listPrice\":\"$549.00\",\"currentPrice\":\"$439.20\",\"rating\":4.8,\"description\":\"Two-person mountaineering tent built for snow load and high winds.\",\"specs\":{\"seasons\":4,\"material\":\"40D ripstop nylon\",\"waterproof\":true,\"weightGrams\":3300,\"capacityPersons\":2,\"waterproofRatingMm\":5000},\"availability\":\"in_stock\",\"a… (trimmed)",
+      "message 1: get_product({\"id\":\"jacket-breeze-wind\"}) → {\"ok\":true,\"data\":{\"id\":\"jacket-breeze-wind\",\"name\":\"Breeze Wind Shell\",\"category\":\"jackets\",\"listPrice\":\"$89.00\",\"currentPrice\":\"$89.00\",\"rating\":4.1,\"description\":\"Featherweight wind shell that packs into its own pocket.\",\"specs\":{\"material\":\"10D nylon\",\"waterproof\":false,\"weightGrams\":90,\"waterproofRatingMm\":1500},\"availability\":\"in_stock\",\"activeDeals\":[],\"variants\":[{\"size\":\"L\",\"color\":\"blue\",\"availability\":\"low_stock\"},{\"size\":\"L\",\"color\":\"yellow\",\"availability\":\"in_stock\"},{\"size\":\"M\",\"color\":\"blue\",\"availability\":\"in_stock\"},{\"size\":\"M\",\"color\":\"yellow\",\"availability\":\"in_stock\"},{\"size\":\"S\",\"color\":\"blue\",\"availability\":\"low_stock\"},{\"size\":\"S\",\"color\":\"yellow\",\"availability\":\"in_stock\"},{\"size\":\"XL\",\"color\":\"blue\",\"availability\":\"in_stock\"},{\"size\":\"XL\",\"color\":\"yellow\",\"availability\":\"low_stock\"},{\"size\":\"XS\",\"color\":\"blue\",\"availability\":\"in_stock\"},{\"size\":\"XS\",\"color\":\"yellow\",\"availability\":\"low_stock\"}]}}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent says the Breeze Wind Shell isn't waterproof (it's a wind shell), and doesn't present it as a rain jacket."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "The reply clearly states the product is not waterproof, offers suitable alternatives, and invites further assistance, meeting all criteria."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent explicitly states that the Breeze Wind Shell is not waterproof and is a featherweight wind shell, and offers waterproof alternatives instead of presenting it as a rain jacket. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only informs the customer about product features and offers alternatives, without promising future actions it cannot perform in this chat. Therefore the condition is satisfied. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent made no statements about shipping, arrival, refunds, reviews, or processing times, so all timing claims are satisfied by default.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 3
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 494,
+      "inputTokens": 1295,
+      "outputTokens": 135,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refunds, reviews, or processing times, so all timing claims are satisfied by default.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 494,
+      "inputTokens": 1295,
+      "outputTokens": 135,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refunds, reviews, or processing times, so all timing claims are satisfied by default.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 538,
+      "inputTokens": 1295,
+      "outputTokens": 135,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refunds, reviews, or processing times, so all timing claims are satisfied by default.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 698,
+      "inputTokens": 1232,
+      "outputTokens": 215,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states that the Breeze Wind Shell is not waterproof and is a featherweight wind shell, and offers waterproof alternatives instead of presenting it as a rain jacket. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 739,
+      "inputTokens": 1306,
+      "outputTokens": 396,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only informs the customer about product features and offers alternatives, without promising future actions it cannot perform in this chat. Therefore the condition is satisfied. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 752,
+      "inputTokens": 1539,
+      "outputTokens": 264,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"The reply clearly states the product is not waterproof, offers suitable alternatives, and invites further assistance, meeting all criteria.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 751,
+      "inputTokens": 1306,
+      "outputTokens": 400,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only informs the customer about product features and offers alternatives, without promising future actions it cannot perform. No future commitments are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 996,
+      "inputTokens": 1306,
+      "outputTokens": 395,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only informs the customer about product features and offers alternatives, without promising future actions it cannot perform in this chat. Therefore the condition is satisfied. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

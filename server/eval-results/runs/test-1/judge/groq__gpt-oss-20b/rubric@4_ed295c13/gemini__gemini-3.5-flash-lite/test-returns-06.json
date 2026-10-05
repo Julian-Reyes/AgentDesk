@@ -1,0 +1,151 @@
+{
+  "caseId": "test-returns-06",
+  "runId": "4078f5e1-58ba-4b50-9269-fd2de429bfeb",
+  "questionSet": "fba290e5",
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-returns-06",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "The seam tape inside my Squall rain jacket (order #1127) is peeling and it leaks at the shoulders now. I bought it in early June. What can I do?",
+        "reply": "I am sorry to hear that the seam tape on your Squall Rain Jacket is peeling. Since it has been past our initial 14-day damage window, this falls under our one-year manufacturing warranty. I have escalated this issue to our human support team (Ticket ESC-17), and a team member will follow up with you by email, usually within one business day. Thanks for understanding."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":\"1127\"}) → {\"ok\":true,\"data\":{\"number\":1127,\"status\":\"delivered\",\"placed\":\"2026-06-02\",\"delivered\":\"2026-06-05\",\"items\":[{\"productId\":\"jacket-squall\",\"name\":\"Squall Rain Jacket\",\"size\":\"S\",\"color\":\"navy\",\"qty\":1,\"listPrice\":\"$149.00\",\"discount\":\"$0.00\",\"paid\":\"$149.00\",\"returnedQty\":0}],\"subtotal\":\"$149.00\",\"discount\":\"$0.00\",\"shipping\":\"$0.00\",\"totalPaid\":\"$149.00\",\"refunds\":[]}}",
+      "message 1: check_return_eligibility({\"item\":\"Squall Rain Jacket\",\"condition\":\"damaged\",\"orderId\":\"1127\"}) → {\"ok\":true,\"data\":{\"orderNumber\":1127,\"item\":\"Squall Rain Jacket\",\"eligible\":false,\"code\":\"USE_DAMAGED_ITEM_PROCESS\",\"message\":\"Items that arrived damaged follow the damaged-items process instead of a normal return (report within 14 days of delivery).\",\"details\":{\"daysSinceDelivery\":102,\"withinDamageWindow\":false}},\"policyDecision\":\"denied\"}",
+      "message 1: get_policy({\"topic\":\"warranty\"}) → {\"ok\":true,\"data\":{\"topic\":\"warranty\",\"title\":\"Warranty\",\"text\":\"Larchgrove Supply Co. products carry a 1-year warranty against manufacturing defects (seams, zippers, buckles, poles, electronics).\\nThe warranty doesn't cover normal wear, misuse, or accidental damage.\\nWarranty claims are handled by a team member: we repair, replace, or refund at our discretion.\"}}",
+      "message 1: escalate_to_human({\"reason\":\"Customer is reporting a peeling seam tape defect on a Squall Rain Jacket purchased in June, outside the 14-day damage window, requiring warranty evaluation.\",\"orderId\":\"1127\"}) → {\"ok\":true,\"data\":{\"ticket\":\"ESC-17\",\"message\":\"A human support agent will follow up by email, usually within one business day.\"}}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent points to the warranty for the defect and passes it to a team member, without promising a specific remedy (repair, replacement or refund is the team's decision)."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "The reply apologizes, explains warranty eligibility, and clearly states the next steps, making it helpful and supportive."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent explicitly references the one‑year manufacturing warranty, escalates the issue to a human support team, and does not commit to a specific remedy such as repair, replacement, or refund. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent’s reply only states that a human support team will follow up, which is permissible. It does not promise the agent itself will do something later that it cannot do in this chat. Therefore the statement is fine.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 3
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent states that a human support agent will follow up by email, usually within one business day, which matches the tool result from the escalation that says the same timing. No other timing claims are made. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:0",
+      "latencyMs": 544,
+      "inputTokens": 1023,
+      "outputTokens": 222,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly references the one‑year manufacturing warranty, escalates the issue to a human support team, and does not commit to a specific remedy such as repair, replacement, or refund. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 704,
+      "inputTokens": 1321,
+      "outputTokens": 320,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"The reply apologizes, explains warranty eligibility, and clearly states the next steps, making it helpful and supportive.\"}]}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 603,
+      "inputTokens": 1077,
+      "outputTokens": 280,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that a human support agent will follow up by email, usually within one business day, which matches the tool result from the escalation that says the same timing. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 675,
+      "inputTokens": 1077,
+      "outputTokens": 348,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that a human support agent will follow up by email, usually within one business day. The escalation tool response explicitly says the same: \\\"A human support agent will follow up by email, usually within one business day.\\\" No other timing claims are made. Therefore all timing statements are supported by the tool result or policy. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 702,
+      "inputTokens": 1077,
+      "outputTokens": 348,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that a human support agent will follow up by email, usually within one business day. The escalation tool response explicitly says the same: \\\"A human support agent will follow up by email, usually within one business day.\\\" No other timing claims are made. Therefore all timing statements are supported by the tool result or policy. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 735,
+      "inputTokens": 1088,
+      "outputTokens": 341,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply only states that a human support team will follow up, which is permissible. It does not promise the agent itself will do something later that it cannot do in this chat. Therefore the statement is fine.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 737,
+      "inputTokens": 1088,
+      "outputTokens": 341,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply only states that a human support team will follow up, which is permissible. It does not promise the agent itself will do something later that it cannot do in this chat. Therefore the statement is fine.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1024,
+      "inputTokens": 1088,
+      "outputTokens": 341,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply only states that a human support team will follow up, which is permissible. It does not promise the agent itself will do something later that it cannot do in this chat. Therefore the statement is fine.\",\"answer\":true}"
+    }
+  ]
+}

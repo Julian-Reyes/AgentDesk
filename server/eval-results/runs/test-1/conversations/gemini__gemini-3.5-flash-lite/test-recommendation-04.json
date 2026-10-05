@@ -1,0 +1,420 @@
+{
+  "caseId": "test-recommendation-04",
+  "case": {
+    "id": "test-recommendation-04",
+    "split": "test",
+    "type": "recommendation",
+    "why": "Sleeping bags under 1 kg rated to 0°C or colder: only the Ember 0°C (850 g). The Nightjar quilt (650 g) is rated 2°C; the Ember -10°C is 1150 g.",
+    "source": "test batch 4",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "I want a sleeping bag that's under 1 kg but still good down to freezing (0°C)."
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "recommendation": {
+        "constraints": {
+          "category": "sleeping_bags",
+          "maxWeightGrams": 1000,
+          "maxTempRatingC": 0
+        },
+        "acceptable": [
+          "bag-ember-0"
+        ]
+      },
+      "leaks": [],
+      "judgeChecks": []
+    }
+  },
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "team": {
+    "router": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "ed7d0fd7-c510-4e87-92f0-99c416550b5d",
+    "turns": [
+      {
+        "customer": "I want a sleeping bag that's under 1 kg but still good down to freezing (0°C).",
+        "reply": "I recommend the Ember 0°C Down Sleeping Bag. It weighs 850 grams (under 1 kg), is rated down to 0°C, and costs $259.00. It's a three-season mummy bag featuring 650-fill responsibly sourced down, and it's available in regular and long sizes. Would you like to check stock for a specific size?",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "I want a sleeping bag that's under 1 kg but still good down to freezing (0°C)."
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"shopping\", \"category\": \"recommendation\", \"urgency\": \"normal\", \"confidence\": 0.95}",
+          "decision": {
+            "route": "shopping",
+            "category": "recommendation",
+            "urgency": "normal",
+            "confidence": 0.95
+          },
+          "fallback": false
+        },
+        "inputTokens": 355,
+        "outputTokens": 29,
+        "latencyMs": 848,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_203095",
+                "name": "search_products",
+                "arguments": "{\"filters\":{\"category\":\"sleeping_bags\",\"maxTempRatingC\":0,\"maxWeightGrams\":1000}}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TsApKX++G0klw8hteCBYX/kzZEAo+B++hV3Xph8VPHT21VoKh1ZfLSwvnEtwLjq/8NnnK41wetIlJKRGOvpyWHv6CbKih/MTmUuTD0VZ5NaIA/YGILFZZgio="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2001,
+        "outputTokens": 37,
+        "latencyMs": 816,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_203095",
+          "name": "search_products",
+          "arguments": "{\"filters\":{\"category\":\"sleeping_bags\",\"maxTempRatingC\":0,\"maxWeightGrams\":1000}}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 1,
+              "products": [
+                {
+                  "id": "bag-ember-0",
+                  "name": "Ember 0°C Down Sleeping Bag",
+                  "category": "sleeping_bags",
+                  "listPrice": "$259.00",
+                  "currentPrice": "$259.00",
+                  "rating": 4.7,
+                  "description": "Three-season mummy bag with 650-fill responsibly sourced down.",
+                  "specs": {
+                    "material": "650-fill down",
+                    "tempRatingC": 0,
+                    "weightGrams": 850
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_162848",
+                "name": "get_product",
+                "arguments": "{\"id\":\"bag-ember-0\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0T7dcpNZ0wImyzf5NfHlycOtsXWEyMecJqNxOiePGiMJw2QZq0u5pm7EBQsbQAzuKlTy7xPuUBDB6/nn0/xvwdRDbG4rbr8Io6ccGCgbulezco2zmyHkd1pI4="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2207,
+        "outputTokens": 20,
+        "latencyMs": 987,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_162848",
+          "name": "get_product",
+          "arguments": "{\"id\":\"bag-ember-0\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "id": "bag-ember-0",
+              "name": "Ember 0°C Down Sleeping Bag",
+              "category": "sleeping_bags",
+              "listPrice": "$259.00",
+              "currentPrice": "$259.00",
+              "rating": 4.7,
+              "description": "Three-season mummy bag with 650-fill responsibly sourced down.",
+              "specs": {
+                "material": "650-fill down",
+                "tempRatingC": 0,
+                "weightGrams": 850
+              },
+              "availability": "in_stock",
+              "activeDeals": [],
+              "variants": [
+                {
+                  "size": "long",
+                  "color": null,
+                  "availability": "low_stock"
+                },
+                {
+                  "size": "regular",
+                  "color": null,
+                  "availability": "in_stock"
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 3,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_347546",
+                "name": "reply",
+                "arguments": "{\"message\":\"I recommend the Ember 0°C Down Sleeping Bag. It weighs 850 grams (under 1 kg), is rated down to 0°C, and costs $259.00. It's a three-season mummy bag featuring 650-fill responsibly sourced down, and it's available in regular and long sizes. Would you like to check stock for a specific size?\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0T7WvQ30TqBjbPSRKd2fTAt5NIDR4qC1O4lKLDzMbUoGMo2uKtE89J72U6aJeNi/zoFd6gycFbz6YC9hu/i5zJkiMWmJS4dr6Zi+005TERbcvh4k6Sf5p8+QQ="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2388,
+        "outputTokens": 99,
+        "latencyMs": 1004,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_347546",
+          "name": "reply",
+          "arguments": "{\"message\":\"I recommend the Ember 0°C Down Sleeping Bag. It weighs 850 grams (under 1 kg), is rated down to 0°C, and costs $259.00. It's a three-season mummy bag featuring 650-fill responsibly sourced down, and it's available in regular and long sizes. Would you like to check stock for a specific size?\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "I recommend the Ember 0°C Down Sleeping Bag. It weighs 850 grams (under 1 kg), is rated down to 0°C, and costs $259.00. It's a three-season mummy bag featuring 650-fill responsibly sourced down, and it's available in regular and long sizes. Would you like to check stock for a specific size?"
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "I recommend the Ember 0°C Down Sleeping Bag. It weighs 850 grams (under 1 kg), is rated down to 0°C, and costs $259.00. It's a three-season mummy bag featuring 650-fill responsibly sourced down, and it's available in regular and long sizes. Would you like to check stock for a specific size?"
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "shopping",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "test-recommendation-04",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to shopping"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "recommendation",
+        "label": "recommends only products that meet every constraint",
+        "pass": true,
+        "severity": "task",
+        "detail": "named: bag-ember-0"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 4,
+    "cachedCalls": 0,
+    "toolCalls": 2,
+    "inputTokens": 6951,
+    "outputTokens": 185,
+    "latencyMs": 3655,
+    "turnLatencyMs": [
+      3655
+    ],
+    "costMicros": 0,
+    "wallMs": 3862
+  },
+  "finishedAt": "2026-10-05T12:41:19.565Z"
+}

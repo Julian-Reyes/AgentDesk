@@ -1,0 +1,152 @@
+{
+  "caseId": "test-refund-over-limit-02",
+  "runId": "7b6055c6-4a2d-4602-8c23-57b0e17e4328",
+  "questionSet": "af832c3e",
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-refund-over-limit-02",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "The Thicket fleece from order #1087 has a big snag and a hole in the sleeve. It was like that when I opened the package. I'd like a refund.",
+        "reply": "I am sorry to hear that the Thicket Fleece Jacket arrived with a snag and a hole. Because damage must be reported within 14 days of delivery and this order was delivered 15 days ago, I have escalated your request to our team for review (Ticket #ESC-21). A human support agent will follow up by email, usually within one business day. Thanks for understanding."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_customer({\"email\":\"hannah.smith24@example.com\"}) → {\"ok\":false,\"error\":{\"code\":\"UNKNOWN_TOOL\",\"message\":\"No tool named \\\"get_customer\\\" is available to you.\"}}",
+      "message 1: get_order({\"orderId\":\"1087\"}) → {\"ok\":true,\"data\":{\"number\":1087,\"status\":\"delivered\",\"placed\":\"2026-08-27\",\"delivered\":\"2026-08-31\",\"items\":[{\"productId\":\"jacket-thicket-fleece\",\"name\":\"Thicket Fleece Jacket\",\"size\":\"M\",\"color\":\"grey\",\"qty\":1,\"listPrice\":\"$69.00\",\"discount\":\"$0.00\",\"paid\":\"$69.00\",\"returnedQty\":0},{\"productId\":\"jacket-breeze-wind\",\"name\":\"Breeze Wind Shell\",\"size\":\"XL\",\"color\":\"yellow\",\"qty\":1,\"listPrice\":\"$89.00\",\"discount\":\"$0.00\",\"paid\":\"$89.00\",\"returnedQty\":0}],\"subtotal\":\"$158.00\",\"discount\":\"$0.00\",\"shipping\":\"$0.00\",\"totalPaid\":\"$158.00\",\"refunds\":[]}}",
+      "message 1: issue_refund({\"amount\":69,\"item\":\"Thicket Fleece Jacket\",\"orderId\":\"1087\",\"reason\":\"damaged\"}) → {\"ok\":false,\"error\":{\"code\":\"DAMAGE_REPORT_WINDOW_EXPIRED\",\"message\":\"Damage must be reported within 14 days of delivery; this order was delivered 15 days ago. Escalate if the customer disputes this.\",\"details\":{\"daysSinceDelivery\":15}},\"policyDecision\":\"denied\"}",
+      "message 1: escalate_to_human({\"reason\":\"Damage reported 15 days after delivery (1 day past the 14-day window), customer requests refund for Thicket Fleece Jacket with snag and hole.\",\"orderId\":\"1087\"}) → {\"ok\":true,\"data\":{\"ticket\":\"ESC-21\",\"message\":\"A human support agent will follow up by email, usually within one business day.\"}}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent says damage must be reported within 14 days of delivery and passes the claim to a team member for review, without promising the refund will be approved."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "The reply apologizes, explains the policy, escalates, and gives next steps, so it is warm, clear, and helpful."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent explicitly states that damage must be reported within 14 days and notes the order was delivered 15 days ago, then says they have escalated the request for review and does not promise refund approval. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent's reply correctly states that a human support agent will follow up by email within one business day, which is permissible. It does not promise any action that cannot be performed in this chat. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 2
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent’s timing claims—damage must be reported within 14 days, the order was delivered 15 days ago, and a human agent will follow up within one business day—are all supported by the tool results and the store policy shown in the conversation. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 1
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "scores",
+      "latencyMs": 829,
+      "inputTokens": 1309,
+      "outputTokens": 345,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"The reply apologizes, explains the policy, escalates, and gives next steps, so it is warm, clear, and helpful.\"}]}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 828,
+      "inputTokens": 1065,
+      "outputTokens": 391,
+      "cached": false,
+      "raw": "{\"why\":\"All timing statements are supported by tool results or policy: the 14‑day window and the 15‑day delivery date come from the order data, and the one‑business‑day follow‑up comes from the escalation tool response. No unsupported vague timing is used.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 868,
+      "inputTokens": 1065,
+      "outputTokens": 545,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s timing claims—damage must be reported within 14 days, the order was delivered 15 days ago, and a human agent will follow up within one business day—are all supported by the tool results and the store policy shown in the conversation. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 880,
+      "inputTokens": 1076,
+      "outputTokens": 405,
+      "cached": false,
+      "raw": "{\"why\":\"The agent's reply correctly states that a human support agent will follow up by email within one business day, which is permissible. It does not promise any action that cannot be performed in this chat. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 971,
+      "inputTokens": 1076,
+      "outputTokens": 403,
+      "cached": false,
+      "raw": "{\"why\":\"The agent correctly escalated the request and stated that a human support agent will follow up by email within one business day, which is permissible. No impossible promises were made.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 1008,
+      "inputTokens": 1010,
+      "outputTokens": 259,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states that damage must be reported within 14 days and notes the order was delivered 15 days ago, then says they have escalated the request for review and does not promise refund approval. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1072,
+      "inputTokens": 1076,
+      "outputTokens": 401,
+      "cached": false,
+      "raw": "{\"why\":\"The agent correctly escalated the issue and stated that a human support agent will follow up by email within one business day, which is permissible. No impossible promises were made.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 1530,
+      "inputTokens": 1065,
+      "outputTokens": 333,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states damage must be reported within 14 days, which matches the policy returned by the tool, and that a human support agent will follow up within one business day, which matches the tool’s ticket response. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

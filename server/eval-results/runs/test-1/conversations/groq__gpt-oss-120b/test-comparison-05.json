@@ -1,0 +1,479 @@
+{
+  "caseId": "test-comparison-05",
+  "case": {
+    "id": "test-comparison-05",
+    "split": "test",
+    "type": "comparison",
+    "why": "Frostline Winter Boot (insulated, rated to -30°C, waterproof, 1600 g) vs Ridgeline Mid (waterproof, 1200 g, no temperature rating in the catalog). A grounding trap: the agent mustn't invent a temperature rating for the Ridgeline Mid.",
+    "source": "test batch 4",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "For snowshoeing in deep snow, Frostline winter boots or Ridgeline Mid hiking boots? How cold can each handle?"
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "leaks": [],
+      "judgeChecks": [
+        "The agent gives the Frostline's -30°C rating and doesn't state a temperature rating for the Ridgeline Mid (the catalog has none)."
+      ]
+    }
+  },
+  "agentModel": "groq/gpt-oss-120b",
+  "team": {
+    "router": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "033dcaec-593a-403f-9549-008459093df4",
+    "turns": [
+      {
+        "customer": "For snowshoeing in deep snow, Frostline winter boots or Ridgeline Mid hiking boots? How cold can each handle?",
+        "reply": "The Frostline Winter Boot is specifically insulated for cold weather and is rated to ‑30 °C, making it suitable for deep‑snow snowshoeing. The Ridgeline Mid Hiking Boot is a waterproof, mid‑cut hiking boot without a published temperature rating, so it’s best for milder conditions or light winter use rather than extreme cold. For deep snow, the Frostline Winter Boot would be the more appropriate choice.",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "For snowshoeing in deep snow, Frostline winter boots or Ridgeline Mid hiking boots? How cold can each handle?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\":\"shopping\",\"category\":\"comparison\",\"urgency\":\"normal\",\"confidence\":0.99}",
+          "decision": {
+            "route": "shopping",
+            "category": "comparison",
+            "urgency": "normal",
+            "confidence": 0.99
+          },
+          "fallback": false
+        },
+        "inputTokens": 434,
+        "outputTokens": 139,
+        "latencyMs": 696,
+        "cached": false,
+        "costMicros": 149,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_1e30940f-ae62-4dd8-8a96-5b777da8c3bd",
+                "name": "search_products",
+                "arguments": "{\"limit\":5,\"query\":\"Frostline winter boots\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to compare two products: Frostline winter boots and Ridgeline Mid hiking boots. Need temperature rating. Must fetch product details. Use search or get_product. Let's search for those names.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1867,
+        "outputTokens": 79,
+        "latencyMs": 644,
+        "cached": false,
+        "costMicros": 327,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_1e30940f-ae62-4dd8-8a96-5b777da8c3bd",
+          "name": "search_products",
+          "arguments": "{\"limit\":5,\"query\":\"Frostline winter boots\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 10,
+              "products": [
+                {
+                  "id": "boot-frostline-winter",
+                  "name": "Frostline Winter Boot",
+                  "category": "boots",
+                  "listPrice": "$199.00",
+                  "currentPrice": "$199.00",
+                  "rating": 4.6,
+                  "description": "Insulated snow boot rated to -30°C.",
+                  "specs": {
+                    "material": "leather and rubber",
+                    "waterproof": true,
+                    "tempRatingC": -30,
+                    "weightGrams": 1600
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "jacket-tundra-parka",
+                  "name": "Tundra Insulated Parka",
+                  "category": "jackets",
+                  "listPrice": "$329.00",
+                  "currentPrice": "$329.00",
+                  "rating": 4.8,
+                  "description": "Waterproof insulated parka for deep winter.",
+                  "specs": {
+                    "material": "down + waterproof shell",
+                    "waterproof": true,
+                    "tempRatingC": -25,
+                    "weightGrams": 1100,
+                    "waterproofRatingMm": 15000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "bag-ember-minus10",
+                  "name": "Ember -10°C Down Sleeping Bag",
+                  "category": "sleeping_bags",
+                  "listPrice": "$349.00",
+                  "currentPrice": "$349.00",
+                  "rating": 4.7,
+                  "description": "Warmer version of the Ember for shoulder-season and early winter trips.",
+                  "specs": {
+                    "material": "650-fill down",
+                    "tempRatingC": -10,
+                    "weightGrams": 1150
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "boot-crag-mountaineering",
+                  "name": "Crag Mountaineering Boot",
+                  "category": "boots",
+                  "listPrice": "$329.00",
+                  "currentPrice": "$329.00",
+                  "rating": 4.7,
+                  "description": "Stiff, crampon-compatible leather boot for alpine routes.",
+                  "specs": {
+                    "material": "full-grain leather",
+                    "waterproof": true,
+                    "weightGrams": 1900
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "boot-ridgeline-mid",
+                  "name": "Ridgeline Mid Hiking Boot",
+                  "category": "boots",
+                  "listPrice": "$179.00",
+                  "currentPrice": "$179.00",
+                  "rating": 4.5,
+                  "description": "Waterproof mid-cut hiking boot with a membrane liner.",
+                  "specs": {
+                    "material": "suede and mesh",
+                    "waterproof": true,
+                    "weightGrams": 1200
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_d0e49eef-7563-43f4-940a-d5745586234b",
+                "name": "get_product",
+                "arguments": "{\"id\":\"boot-ridgeline-mid\"}"
+              }
+            ]
+          },
+          "reasoning": "We need temperature rating for Ridgeline Mid hiking boots. Search product details.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2415,
+        "outputTokens": 45,
+        "latencyMs": 366,
+        "cached": false,
+        "costMicros": 389,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_d0e49eef-7563-43f4-940a-d5745586234b",
+          "name": "get_product",
+          "arguments": "{\"id\":\"boot-ridgeline-mid\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "id": "boot-ridgeline-mid",
+              "name": "Ridgeline Mid Hiking Boot",
+              "category": "boots",
+              "listPrice": "$179.00",
+              "currentPrice": "$179.00",
+              "rating": 4.5,
+              "description": "Waterproof mid-cut hiking boot with a membrane liner.",
+              "specs": {
+                "material": "suede and mesh",
+                "waterproof": true,
+                "weightGrams": 1200
+              },
+              "availability": "in_stock",
+              "activeDeals": [],
+              "variants": [
+                {
+                  "size": "10",
+                  "color": "brown",
+                  "availability": "out_of_stock"
+                },
+                {
+                  "size": "11",
+                  "color": "brown",
+                  "availability": "low_stock"
+                },
+                {
+                  "size": "12",
+                  "color": "brown",
+                  "availability": "out_of_stock"
+                },
+                {
+                  "size": "7",
+                  "color": "brown",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "8",
+                  "color": "brown",
+                  "availability": "low_stock"
+                },
+                {
+                  "size": "9",
+                  "color": "brown",
+                  "availability": "in_stock"
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 3,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_ed10b722-a6c1-48dd-a97d-aacb1196e165",
+                "name": "reply",
+                "arguments": "{\"message\":\"The Frostline Winter Boot is specifically insulated for cold weather and is rated to ‑30 °C, making it suitable for deep‑snow snowshoeing. The Ridgeline Mid Hiking Boot is a waterproof, mid‑cut hiking boot without a published temperature rating, so it’s best for milder conditions or light winter use rather than extreme cold. For deep snow, the Frostline Winter Boot would be the more appropriate choice.\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to answer: compare Frostline winter boots and Ridgeline Mid hiking boots, focusing on temperature rating. We have Frostline winter boot spec: tempRatingC -30°C. Ridgeline Mid has no temp rating listed; specs only material, waterproof, weight. Likely no temp rating. So answer: Frostline rated to -30°C, suitable for deep snow. Ridgeline Mid is a hiking boot, not rated for extreme cold; suitable for mild winter but not deep snow. Provide brief recommendation for snowshoeing in deep snow: Frostline is better.\n\nWe should not fabricate missing data. So say Ridgeline does not have a temperature rating; it's a waterproof hiking boot, better for moderate conditions. Provide details. Use reply tool.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2624,
+        "outputTokens": 261,
+        "latencyMs": 868,
+        "cached": false,
+        "costMicros": 550,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_ed10b722-a6c1-48dd-a97d-aacb1196e165",
+          "name": "reply",
+          "arguments": "{\"message\":\"The Frostline Winter Boot is specifically insulated for cold weather and is rated to ‑30 °C, making it suitable for deep‑snow snowshoeing. The Ridgeline Mid Hiking Boot is a waterproof, mid‑cut hiking boot without a published temperature rating, so it’s best for milder conditions or light winter use rather than extreme cold. For deep snow, the Frostline Winter Boot would be the more appropriate choice.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "The Frostline Winter Boot is specifically insulated for cold weather and is rated to ‑30 °C, making it suitable for deep‑snow snowshoeing. The Ridgeline Mid Hiking Boot is a waterproof, mid‑cut hiking boot without a published temperature rating, so it’s best for milder conditions or light winter use rather than extreme cold. For deep snow, the Frostline Winter Boot would be the more appropriate choice."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "The Frostline Winter Boot is specifically insulated for cold weather and is rated to ‑30 °C, making it suitable for deep‑snow snowshoeing. The Ridgeline Mid Hiking Boot is a waterproof, mid‑cut hiking boot without a published temperature rating, so it’s best for milder conditions or light winter use rather than extreme cold. For deep snow, the Frostline Winter Boot would be the more appropriate choice."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "shopping",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "test-comparison-05",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to shopping"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent gives the Frostline's -30°C rating and doesn't state a temperature rating for the Ridgeline Mid (the catalog has none)."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 4,
+    "cachedCalls": 0,
+    "toolCalls": 2,
+    "inputTokens": 7340,
+    "outputTokens": 524,
+    "latencyMs": 2574,
+    "turnLatencyMs": [
+      2574
+    ],
+    "costMicros": 1415,
+    "wallMs": 2620
+  },
+  "finishedAt": "2026-10-05T12:38:42.344Z"
+}

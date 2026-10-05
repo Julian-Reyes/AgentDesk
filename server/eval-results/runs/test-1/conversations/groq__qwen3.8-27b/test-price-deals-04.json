@@ -1,0 +1,466 @@
+{
+  "caseId": "test-price-deals-04",
+  "case": {
+    "id": "test-price-deals-04",
+    "split": "test",
+    "type": "price_deals",
+    "why": "Basecamp 4 ($279.00 → $223.20 in the tent sale) + Loft Synthetic ($149.00) = $372.20; SUMMER10 takes 10% after the sale: $334.98, free shipping. Order: sale, then coupon.",
+    "source": "test batch 4",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "How much for a Basecamp 4 tent and a Loft Synthetic jacket with SUMMER10?"
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "price": {
+        "cart": [
+          {
+            "productId": "tent-basecamp-4",
+            "qty": 1
+          },
+          {
+            "productId": "jacket-loft-synthetic",
+            "qty": 1
+          }
+        ],
+        "coupon": "SUMMER10",
+        "totalCents": 33498
+      },
+      "coupon": {
+        "code": "SUMMER10",
+        "valid": true
+      },
+      "leaks": [],
+      "judgeChecks": []
+    }
+  },
+  "agentModel": "groq/qwen3.8-27b",
+  "team": {
+    "router": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "ce63daf9-27ad-413f-8e14-7c2ab1ead0d7",
+    "turns": [
+      {
+        "customer": "How much for a Basecamp 4 tent and a Loft Synthetic jacket with SUMMER10?",
+        "reply": "Here's your total with SUMMER10:\n\n- Basecamp 4 Family Tent: $223.20 (was $279.00, 20% off the Tent Sale)\n- Loft Synthetic Jacket: $149.00\n- Subtotal: $428.00\n- SUMMER10 coupon: -$37.22\n- Shipping: FREE\n\nTotal: $334.98",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "How much for a Basecamp 4 tent and a Loft Synthetic jacket with SUMMER10?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"shopping\", \"category\": \"pricing_deals\", \"urgency\": \"normal\", \"confidence\": 0.95}",
+          "decision": {
+            "route": "shopping",
+            "category": "pricing_deals",
+            "urgency": "normal",
+            "confidence": 0.95
+          },
+          "fallback": false
+        },
+        "inputTokens": 357,
+        "outputTokens": 31,
+        "latencyMs": 319,
+        "cached": false,
+        "costMicros": 410,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "hv1rbkzjx",
+                "name": "search_products",
+                "arguments": "{\"filters\":{\"category\":\"tents\"},\"query\":\"Basecamp 4\"}"
+              },
+              {
+                "id": "q3w5pfqkc",
+                "name": "search_products",
+                "arguments": "{\"filters\":{\"category\":\"jackets\"},\"query\":\"Loft Synthetic\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2473,
+        "outputTokens": 95,
+        "latencyMs": 1092,
+        "cached": false,
+        "costMicros": 2358,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "hv1rbkzjx",
+          "name": "search_products",
+          "arguments": "{\"filters\":{\"category\":\"tents\"},\"query\":\"Basecamp 4\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 1,
+              "products": [
+                {
+                  "id": "tent-basecamp-4",
+                  "name": "Basecamp 4 Family Tent",
+                  "category": "tents",
+                  "listPrice": "$279.00",
+                  "currentPrice": "$223.20",
+                  "rating": 4.2,
+                  "description": "Four-person dome tent for car camping, with a large front porch.",
+                  "specs": {
+                    "seasons": 3,
+                    "material": "polyester",
+                    "waterproof": true,
+                    "weightGrams": 5800,
+                    "capacityPersons": 4,
+                    "waterproofRatingMm": 2000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Tent Sale: 20% off all tents"
+                  ]
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "q3w5pfqkc",
+          "name": "search_products",
+          "arguments": "{\"filters\":{\"category\":\"jackets\"},\"query\":\"Loft Synthetic\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 2,
+              "products": [
+                {
+                  "id": "jacket-loft-synthetic",
+                  "name": "Loft Synthetic Jacket",
+                  "category": "jackets",
+                  "listPrice": "$149.00",
+                  "currentPrice": "$149.00",
+                  "rating": 4.4,
+                  "description": "Synthetic insulated jacket that keeps insulating when wet.",
+                  "specs": {
+                    "material": "synthetic insulation",
+                    "waterproof": false,
+                    "weightGrams": 400
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "jacket-loft-down",
+                  "name": "Loft Down Jacket",
+                  "category": "jackets",
+                  "listPrice": "$199.00",
+                  "currentPrice": "$199.00",
+                  "rating": 4.6,
+                  "description": "Warm, packable down jacket for cold camps.",
+                  "specs": {
+                    "material": "800-fill down",
+                    "waterproof": false,
+                    "weightGrams": 350
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "9tkkdejeg",
+                "name": "quote_price",
+                "arguments": "{\"cart\":[{\"productId\":\"tent-basecamp-4\",\"qty\":1},{\"productId\":\"jacket-loft-synthetic\",\"qty\":1}],\"coupon\":\"SUMMER10\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2991,
+        "outputTokens": 78,
+        "latencyMs": 803,
+        "cached": false,
+        "costMicros": 2705,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "9tkkdejeg",
+          "name": "quote_price",
+          "arguments": "{\"cart\":[{\"productId\":\"tent-basecamp-4\",\"qty\":1},{\"productId\":\"jacket-loft-synthetic\",\"qty\":1}],\"coupon\":\"SUMMER10\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "lines": [
+                {
+                  "productId": "tent-basecamp-4",
+                  "name": "Basecamp 4 Family Tent",
+                  "qty": 1,
+                  "listPrice": "$279.00",
+                  "discounts": [
+                    {
+                      "deal": "Tent Sale: 20% off all tents",
+                      "amount": "-$55.80"
+                    }
+                  ],
+                  "lineTotal": "$223.20"
+                },
+                {
+                  "productId": "jacket-loft-synthetic",
+                  "name": "Loft Synthetic Jacket",
+                  "qty": 1,
+                  "listPrice": "$149.00",
+                  "discounts": [],
+                  "lineTotal": "$149.00"
+                }
+              ],
+              "subtotal": "$428.00",
+              "coupon": {
+                "code": "SUMMER10",
+                "applied": true,
+                "discount": "-$37.22"
+              },
+              "totalDiscounts": "-$93.02",
+              "shipping": "FREE",
+              "total": "$334.98",
+              "totalCents": 33498
+            },
+            "policyDecision": "auto_approved"
+          }
+        },
+        "policyDecision": "auto_approved",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 3,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": "Here's your total with SUMMER10:\n\n- Basecamp 4 Family Tent: $223.20 (was $279.00, 20% off the Tent Sale)\n- Loft Synthetic Jacket: $149.00\n- Subtotal: $428.00\n- SUMMER10 coupon: -$37.22\n- Shipping: FREE\n\nTotal: $334.98"
+          },
+          "finishReason": "stop"
+        },
+        "inputTokens": 3289,
+        "outputTokens": 100,
+        "latencyMs": 733,
+        "cached": false,
+        "costMicros": 3031,
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "Here's your total with SUMMER10:\n\n- Basecamp 4 Family Tent: $223.20 (was $279.00, 20% off the Tent Sale)\n- Loft Synthetic Jacket: $149.00\n- Subtotal: $428.00\n- SUMMER10 coupon: -$37.22\n- Shipping: FREE\n\nTotal: $334.98",
+          "implicit": true
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "shopping",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "test-price-deals-04",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to shopping"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "price_quoted",
+        "label": "quote_price for jacket-loft-synthetic×1,tent-basecamp-4×1 with SUMMER10",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "price_stated",
+        "label": "reply 1 states $334.98",
+        "pass": true,
+        "severity": "task",
+        "detail": "amounts in reply: $223.20, $279.00, $149.00, $428.00, $37.22, $334.98"
+      },
+      {
+        "id": "coupon",
+        "label": "checks SUMMER10 (valid)",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 4,
+    "cachedCalls": 0,
+    "toolCalls": 3,
+    "inputTokens": 9110,
+    "outputTokens": 304,
+    "latencyMs": 2947,
+    "turnLatencyMs": [
+      2947
+    ],
+    "costMicros": 8504,
+    "wallMs": 2998
+  },
+  "finishedAt": "2026-10-05T12:39:13.679Z"
+}

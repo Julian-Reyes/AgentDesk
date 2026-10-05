@@ -1,0 +1,554 @@
+{
+  "caseId": "test-refund-within-limit-09",
+  "case": {
+    "id": "test-refund-within-limit-09",
+    "split": "test",
+    "type": "refund_within_limit",
+    "why": "#1077 (Alex Lindqvist) is delayed. The customer asks for the $7.99 shipping back and a 10% coupon. Both are within the rules: the shipping refund is automatic, and a 10% coupon for a delayed order is issued right away (store-caused, none in the last 30 days). Both are required.",
+    "source": "test batch 1",
+    "customer": "alex.lindqvist143@example.com",
+    "turns": [
+      {
+        "customer": "Order #1077 is late and I needed those headlamps for a trip this weekend. Can you refund the shipping and give me a 10% coupon for the trouble?",
+        "reply": {
+          "mentions": [
+            "10%"
+          ],
+          "amounts": [
+            799
+          ],
+          "avoids": []
+        }
+      }
+    ],
+    "expect": {
+      "route": "support",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [
+          {
+            "order": 1077,
+            "amountCents": 799,
+            "reason": "late",
+            "status": "issued"
+          }
+        ],
+        "goodwill": [
+          {
+            "percent": 10,
+            "order": 1077,
+            "status": "issued"
+          }
+        ],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "leaks": [],
+      "judge": "Confirms both, and gives the coupon code from the tool result.",
+      "judgeChecks": []
+    }
+  },
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "team": {
+    "router": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "11d8e99d-e743-41ef-9fc3-8fb7f0467f87",
+    "turns": [
+      {
+        "customer": "Order #1077 is late and I needed those headlamps for a trip this weekend. Can you refund the shipping and give me a 10% coupon for the trouble?",
+        "reply": "I have issued a refund of $7.99 for the shipping charge on order #1077, which was auto-approved and will return to your original payment method. As an apology for the delay, I have also generated a 10% off goodwill coupon for your account: SORRY-143-20260915, valid until December 14, 2026. Thanks for understanding.",
+        "answeredBy": "support",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Order #1077 is late and I needed those headlamps for a trip this weekend. Can you refund the shipping and give me a 10% coupon for the trouble?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"support\", \"category\": \"order_status\", \"urgency\": \"high\", \"confidence\": 1.0}",
+          "decision": {
+            "route": "support",
+            "category": "order_status",
+            "urgency": "high",
+            "confidence": 1
+          },
+          "fallback": false
+        },
+        "inputTokens": 370,
+        "outputTokens": 29,
+        "latencyMs": 869,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Alex Lindqvist (alex.lindqvist143@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_217955",
+                "name": "get_order",
+                "arguments": "{\"orderId\":1077}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0T7P95oV85szDfGiDo3u/ncpHIL1SvihY4PcJyYRH/kqW6drByE+A+P6u+I5bqHlxGCC8ReowinsPUdT9Jdho0GFzaI16SE3vqyEHyYCmF0sIvDD5ZIxqzlLM="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2418,
+        "outputTokens": 18,
+        "latencyMs": 874,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_217955",
+          "name": "get_order",
+          "arguments": "{\"orderId\":1077}",
+          "result": {
+            "ok": true,
+            "data": {
+              "number": 1077,
+              "status": "delayed",
+              "placed": "2026-09-01",
+              "delivered": null,
+              "items": [
+                {
+                  "productId": "lamp-glowworm-300",
+                  "name": "Glowworm 300 Headlamp",
+                  "size": null,
+                  "color": "orange",
+                  "qty": 2,
+                  "listPrice": "$29.00",
+                  "discount": "$0.00",
+                  "paid": "$58.00",
+                  "returnedQty": 0
+                }
+              ],
+              "subtotal": "$58.00",
+              "discount": "$0.00",
+              "shipping": "$7.99",
+              "totalPaid": "$65.99",
+              "refunds": []
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Alex Lindqvist (alex.lindqvist143@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_123501",
+                "name": "get_tracking",
+                "arguments": "{\"orderId\":1077}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TsQ5M5G7RrjxtRhed8A2Kyix7I/8gaRIZMnkM6qpuWcjODH+8P9IGNBzTdpQmRFavoyK6dCxAqXjgD44SPa8e+etk/rZE4nUg84j2O5mAi2yWeLiugyvM3js="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2595,
+        "outputTokens": 18,
+        "latencyMs": 799,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_123501",
+          "name": "get_tracking",
+          "arguments": "{\"orderId\":1077}",
+          "result": {
+            "ok": true,
+            "data": {
+              "orderNumber": 1077,
+              "status": "delayed",
+              "carrier": "Parcelway",
+              "trackingNumber": "PW0008528763",
+              "estimatedDelivery": null,
+              "events": [
+                {
+                  "at": "2026-09-01 09:00",
+                  "status": "order_placed",
+                  "location": "Larchgrove Warehouse, Reno, NV",
+                  "note": null
+                },
+                {
+                  "at": "2026-09-02 09:00",
+                  "status": "shipped",
+                  "location": "Larchgrove Warehouse, Reno, NV",
+                  "note": "Handed to Parcelway Ground"
+                },
+                {
+                  "at": "2026-09-03 09:00",
+                  "status": "in_transit",
+                  "location": "Sacramento, CA",
+                  "note": null
+                },
+                {
+                  "at": "2026-09-05 09:00",
+                  "status": "delayed",
+                  "location": "Sacramento, CA",
+                  "note": "Carrier delay: weather and volume backlog"
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Alex Lindqvist (alex.lindqvist143@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_427647",
+                "name": "issue_refund",
+                "arguments": "{\"reason\":\"late\",\"orderId\":1077,\"amount\":7.99}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0Tg+WiG2nQdgghaEccsyAPgMuPY0GU1o8ZknqYBjgmEpKEaoQqI3B0JR6tzONRf20sWCXocYxHM+l+BVkYN5K6ycklajKsNGq/FFKHkKTDrV153T4GqDSyAS8="
+                    }
+                  }
+                }
+              },
+              {
+                "id": "call_427648",
+                "name": "issue_goodwill_coupon",
+                "arguments": "{\"percent\":10,\"orderId\":1077,\"customer\":\"alex.lindqvist143@example.com\",\"reason\":\"Order delayed due to carrier backlog\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2834,
+        "outputTokens": 84,
+        "latencyMs": 1010,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_427647",
+          "name": "issue_refund",
+          "arguments": "{\"reason\":\"late\",\"orderId\":1077,\"amount\":7.99}",
+          "result": {
+            "ok": true,
+            "data": {
+              "status": "refunded",
+              "refundId": 98,
+              "amount": "$7.99",
+              "message": "Refund of $7.99 issued to the original payment method."
+            },
+            "policyDecision": "auto_approved"
+          }
+        },
+        "policyDecision": "auto_approved",
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_427648",
+          "name": "issue_goodwill_coupon",
+          "arguments": "{\"percent\":10,\"orderId\":1077,\"customer\":\"alex.lindqvist143@example.com\",\"reason\":\"Order delayed due to carrier backlog\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "status": "issued",
+              "code": "SORRY-143-20260915",
+              "percentOff": 10,
+              "expires": "2026-12-14",
+              "terms": "Single use, only for this customer's account."
+            },
+            "policyDecision": "auto_approved"
+          }
+        },
+        "policyDecision": "auto_approved",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 4,
+          "context": "The customer is signed in as Alex Lindqvist (alex.lindqvist143@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_382031",
+                "name": "reply",
+                "arguments": "{\"message\":\"I have issued a refund of $7.99 for the shipping charge on order #1077, which was auto-approved and will return to your original payment method. As an apology for the delay, I have also generated a 10% off goodwill coupon for your account: SORRY-143-20260915, valid until December 14, 2026. Thanks for understanding.\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0T1CPRaBaWBHv6yRHFqeQ+QrshLr50PFpmfPLQBybJqEO6kcNQXA47zM+smEO8gQu23vJ2hzdVQ7/XY9kDC9YiiI1uSSPzn5+yUxtL/PzeCL+h4v8zEYeT4QE="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3065,
+        "outputTokens": 106,
+        "latencyMs": 1106,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_382031",
+          "name": "reply",
+          "arguments": "{\"message\":\"I have issued a refund of $7.99 for the shipping charge on order #1077, which was auto-approved and will return to your original payment method. As an apology for the delay, I have also generated a 10% off goodwill coupon for your account: SORRY-143-20260915, valid until December 14, 2026. Thanks for understanding.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "I have issued a refund of $7.99 for the shipping charge on order #1077, which was auto-approved and will return to your original payment method. As an apology for the delay, I have also generated a 10% off goodwill coupon for your account: SORRY-143-20260915, valid until December 14, 2026. Thanks for understanding."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "I have issued a refund of $7.99 for the shipping charge on order #1077, which was auto-approved and will return to your original payment method. As an apology for the delay, I have also generated a 10% off goodwill coupon for your account: SORRY-143-20260915, valid until December 14, 2026. Thanks for understanding."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "support",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [
+        {
+          "order": 1077,
+          "amountCents": 799,
+          "reason": "late",
+          "status": "issued",
+          "item": null
+        }
+      ],
+      "goodwill": [
+        {
+          "percent": 10,
+          "status": "issued"
+        }
+      ],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "test-refund-within-limit-09",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to support",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to support"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "refund_required:0",
+        "label": "refund: $7.99 late refund on #1077, issued",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "goodwill_required:0",
+        "label": "goodwill coupon: 10%, issued",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "reply1:mentions:0",
+        "label": "reply 1 mentions \"10%\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:amount:799",
+        "label": "reply 1 states $7.99",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 5,
+    "cachedCalls": 0,
+    "toolCalls": 4,
+    "inputTokens": 11282,
+    "outputTokens": 255,
+    "latencyMs": 4658,
+    "turnLatencyMs": [
+      4658
+    ],
+    "costMicros": 0,
+    "wallMs": 50790
+  },
+  "finishedAt": "2026-10-05T12:55:06.064Z"
+}

@@ -1,0 +1,152 @@
+{
+  "caseId": "test-refund-within-limit-06",
+  "runId": "e23878f0-309b-4e8d-b6c8-3035b8acacbe",
+  "questionSet": "35363f67",
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-refund-within-limit-06",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "My wood stove order #1031 is late. Can I get my shipping cost back?",
+        "reply": "I see that order #1031 (Kindling Wood-Burning Stove) qualified for free shipping, so no shipping cost was charged on this order. As an apology for the delay with your delivery, I have issued a 5% discount coupon (code: SORRY-121-20260915) for your account. Thanks for understanding."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":\"1031\"}) → {\"ok\":true,\"data\":{\"number\":1031,\"status\":\"delayed\",\"placed\":\"2026-09-03\",\"delivered\":null,\"items\":[{\"productId\":\"stove-kindling-wood\",\"name\":\"Kindling Wood-Burning Stove\",\"size\":null,\"color\":null,\"qty\":1,\"listPrice\":\"$79.00\",\"discount\":\"$0.00\",\"paid\":\"$79.00\",\"returnedQty\":0}],\"subtotal\":\"$79.00\",\"discount\":\"$0.00\",\"shipping\":\"$0.00\",\"totalPaid\":\"$79.00\",\"refunds\":[]}}",
+      "message 1: get_tracking({\"orderId\":\"1031\"}) → {\"ok\":true,\"data\":{\"orderNumber\":1031,\"status\":\"delayed\",\"carrier\":\"Parcelway\",\"trackingNumber\":\"PW0008164489\",\"estimatedDelivery\":null,\"events\":[{\"at\":\"2026-09-03 15:00\",\"status\":\"order_placed\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":null},{\"at\":\"2026-09-04 15:00\",\"status\":\"shipped\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":\"Handed to Parcelway Ground\"},{\"at\":\"2026-09-05 15:00\",\"status\":\"in_transit\",\"location\":\"Chicago, IL\",\"note\":null},{\"at\":\"2026-09-07 15:00\",\"status\":\"delayed\",\"location\":\"Chicago, IL\",\"note\":\"Carrier delay: weather and volume backlog\"}]}}",
+      "message 1: issue_refund({\"amount\":0,\"reason\":\"late\",\"orderId\":\"1031\"}) → {\"ok\":false,\"error\":{\"code\":\"INVALID_ARGS\",\"message\":\"Invalid arguments for issue_refund.\",\"details\":{\"issues\":[{\"path\":\"amount\",\"message\":\"Too small: expected number to be >0\"}]}}}",
+      "message 1: get_policy({\"topic\":\"shipping\"}) → {\"ok\":true,\"data\":{\"topic\":\"shipping\",\"title\":\"Shipping\",\"text\":\"Standard shipping costs $7.99 and is free on orders of $75.00 or more (after discounts).\\nOrders ship from our warehouse within 1–2 business days and arrive 3–6 business days after shipping.\\nWe ship within the United States only.\\nTracking is available once an order has shipped.\\nIf an order is delayed, we refund the shipping cost on request.\"}}",
+      "message 1: issue_goodwill_coupon({\"percent\":5,\"orderId\":\"1031\",\"reason\":\"Order delayed in transit\",\"customer\":\"jamie.rossi121@example.com\"}) → {\"ok\":true,\"data\":{\"status\":\"issued\",\"code\":\"SORRY-121-20260915\",\"percentOff\":5,\"expires\":\"2026-12-14\",\"terms\":\"Single use, only for this customer's account.\"},\"policyDecision\":\"auto_approved\"}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent explains the order shipped free, so there's no shipping cost to refund, and doesn't invent another refund."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "The reply is warm, clear, and fully addresses the customer's request with an appropriate apology and compensation."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent states that the order qualified for free shipping, so no shipping cost was charged, and the agent does not mention issuing a refund—only a discount coupon. This matches the claim that the agent explains the free shipping and does not invent another refund.",
+        "noConclusion": 1
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only states that free shipping applied and a coupon was issued; no future promise or action is implied. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent’s reply contains no statements about when something will ship, arrive, be refunded, reviewed, or processed. Therefore all timing claims (none) are consistent with the available data. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 704,
+      "inputTokens": 1235,
+      "outputTokens": 365,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states that free shipping applied and a coupon was issued; no future promise or action is implied. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 709,
+      "inputTokens": 1224,
+      "outputTokens": 238,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply contains no statements about when something will ship, arrive, be refunded, reviewed, or processed. Therefore all timing claims (none) are consistent with the available data. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 799,
+      "inputTokens": 1235,
+      "outputTokens": 363,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states what has already been done (free shipping, coupon issued) and does not promise future actions that it cannot perform. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 837,
+      "inputTokens": 1235,
+      "outputTokens": 365,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states that free shipping applied and a coupon was issued; no future promise or action is implied. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 867,
+      "inputTokens": 1468,
+      "outputTokens": 451,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"The reply is warm, clear, and fully addresses the customer's request with an appropriate apology and compensation.\"}]}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 883,
+      "inputTokens": 1159,
+      "outputTokens": 255,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that the order qualified for free shipping, so no shipping cost was charged, and the agent does not mention issuing a refund—only a discount coupon. This matches the claim that the agent explains the free shipping and does not invent another refund.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 913,
+      "inputTokens": 1224,
+      "outputTokens": 238,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply contains no statements about when something will ship, arrive, be refunded, reviewed, or processed. Therefore all timing claims (none) are consistent with the available data. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 1529,
+      "inputTokens": 1224,
+      "outputTokens": 238,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply contains no statements about when something will ship, arrive, be refunded, reviewed, or processed. Therefore all timing claims (none) are consistent with the available data. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

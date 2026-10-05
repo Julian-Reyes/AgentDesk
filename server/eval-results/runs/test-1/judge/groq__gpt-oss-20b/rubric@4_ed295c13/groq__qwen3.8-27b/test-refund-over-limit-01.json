@@ -1,0 +1,153 @@
+{
+  "caseId": "test-refund-over-limit-01",
+  "runId": "25598461-197a-4007-8fb1-b8e44436abad",
+  "questionSet": "af832c3e",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-refund-over-limit-01",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "I finally took the Ridgeline Low shoes from order #1052 out of the box and the sole is coming away from the upper on the left shoe. Can I get a refund?",
+        "reply": "I'm sorry the shoe arrived like that. Since it's been about 45 days since delivery, this falls outside the 14-day damaged-item window, so I can't issue the refund directly here. I've sent your case to a team member who reviews late damage reports case by case (ticket ESC-6); they'll follow up by email, usually within one business day."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1052}) → {\"ok\":true,\"data\":{\"number\":1052,\"status\":\"delivered\",\"placed\":\"2026-07-27\",\"delivered\":\"2026-08-01\",\"items\":[{\"productId\":\"boot-ridgeline-low\",\"name\":\"Ridgeline Low Hiking Shoe\",\"size\":\"9\",\"color\":\"grey\",\"qty\":1,\"listPrice\":\"$139.00\",\"discount\":\"$0.00\",\"paid\":\"$139.00\",\"returnedQty\":0}],\"subtotal\":\"$139.00\",\"discount\":\"$0.00\",\"shipping\":\"$0.00\",\"totalPaid\":\"$139.00\",\"refunds\":[]}}",
+      "message 1: check_return_eligibility({\"condition\":\"damaged\",\"item\":\"Ridgeline Low Hiking Shoe (product ID boot-ridgeline-low)\",\"orderId\":1052}) → {\"ok\":false,\"error\":{\"code\":\"ITEM_NOT_IN_ORDER\",\"message\":\"No item matching \\\"Ridgeline Low Hiking Shoe (product ID boot-ridgeline-low)\\\" in order #1052.\",\"details\":{\"itemsInOrder\":[{\"productId\":\"boot-ridgeline-low\",\"name\":\"Ridgeline Low Hiking Shoe\"}]}}}",
+      "message 1: check_return_eligibility({\"condition\":\"damaged\",\"item\":\"Ridgeline Low Hiking Shoe\",\"orderId\":1052}) → {\"ok\":true,\"data\":{\"orderNumber\":1052,\"item\":\"Ridgeline Low Hiking Shoe\",\"eligible\":false,\"code\":\"USE_DAMAGED_ITEM_PROCESS\",\"message\":\"Items that arrived damaged follow the damaged-items process instead of a normal return (report within 14 days of delivery).\",\"details\":{\"daysSinceDelivery\":45,\"withinDamageWindow\":false}},\"policyDecision\":\"denied\"}",
+      "message 1: get_policy({\"topic\":\"damaged_items\"}) → {\"ok\":true,\"data\":{\"topic\":\"damaged_items\",\"title\":\"Damaged items\",\"text\":\"If an item arrives damaged, report it within 14 days of delivery.\\nWe'll refund the item or send a replacement; you don't need to send the damaged item back unless we ask.\\nA damaged item that cost $50.00 or less per unit is refunded right away, as long as the order's refunds stay within $50.00 in total; pricier items and larger totals are reviewed by a team member, usually within one business day.\\nReports after 14 days are reviewed case by case by a team member.\"}}",
+      "message 1: escalate_to_human({\"orderId\":1052,\"reason\":\"Ridgeline Low Hiking Shoe\"}) → {\"ok\":true,\"data\":{\"ticket\":\"ESC-6\",\"message\":\"A human support agent will follow up by email, usually within one business day.\"}}"
+    ],
+    "judgeNote": "May mention the warranty for manufacturing defects. Doesn't suggest the claim will be refunded.",
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent says damage must be reported within 14 days of delivery and passes the claim to a team member for review, without promising the refund will be approved."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "Apologizes, explains policy, and gives next steps clearly."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent explicitly states that the 14‑day window has passed and that the claim will be reviewed by a team member, without guaranteeing a refund. This matches the statement. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent correctly states that they cannot issue a refund directly and that a team member will review the case and follow up by email within one business day, which is permissible. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent states it has been about 45 days since delivery, which matches the tool’s daysSinceDelivery of 45 and the policy’s 14‑day window. The agent also says a human will follow up by email, usually within one business day, which is exactly what the escalation_to_human tool returned. No other timing claims are made. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 1
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:0",
+      "latencyMs": 561,
+      "inputTokens": 1181,
+      "outputTokens": 231,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states that the 14‑day window has passed and that the claim will be reviewed by a team member, without guaranteeing a refund. This matches the statement. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 686,
+      "inputTokens": 1236,
+      "outputTokens": 334,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states it has been about 45 days since delivery, which matches the tool’s daysSinceDelivery of 45 and the 14‑day window policy. They also say a team member will follow up by email usually within one business day, which aligns with the policy that late damage reports are reviewed case by case, usually within one business day. No unsupported vague timing is used.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 799,
+      "inputTokens": 1247,
+      "outputTokens": 401,
+      "cached": false,
+      "raw": "{\"why\":\"The agent correctly states that they cannot issue a refund directly and that a team member will review the case and follow up by email within one business day, which is permissible. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 892,
+      "inputTokens": 1247,
+      "outputTokens": 401,
+      "cached": false,
+      "raw": "{\"why\":\"The agent correctly states that they cannot issue a refund directly and that a team member will review the case and follow up by email within one business day, which is permissible. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 997,
+      "inputTokens": 1247,
+      "outputTokens": 401,
+      "cached": false,
+      "raw": "{\"why\":\"The agent correctly states that they cannot issue a refund directly and that a team member will review the case and follow up by email within one business day, which is permissible. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 1072,
+      "inputTokens": 1236,
+      "outputTokens": 382,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states it has been about 45 days since delivery, which matches the tool’s daysSinceDelivery of 45. They note the 14‑day damaged‑item window, which aligns with the policy. They also say the team will follow up by email usually within one business day, which matches the policy’s statement that late damage reports are reviewed case by case, usually within one business day. All timing claims are supported by the tool results or policy. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 1119,
+      "inputTokens": 1480,
+      "outputTokens": 348,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"Apologizes, explains policy, and gives next steps clearly.\"}]}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1518,
+      "inputTokens": 1236,
+      "outputTokens": 423,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states it has been about 45 days since delivery, which matches the tool’s daysSinceDelivery of 45 and the policy’s 14‑day window. The agent also says a human will follow up by email, usually within one business day, which is exactly what the escalation_to_human tool returned. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

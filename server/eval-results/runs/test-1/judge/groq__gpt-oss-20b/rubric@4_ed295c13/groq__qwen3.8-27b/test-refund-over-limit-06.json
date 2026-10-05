@@ -1,0 +1,151 @@
+{
+  "caseId": "test-refund-over-limit-06",
+  "runId": "f3b61372-bf1c-435e-8ac5-8e55c5f434dd",
+  "questionSet": "861f931e",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-refund-over-limit-06",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Order #1029 was supposed to be our family tent for next weekend. Tracking says the carrier lost it?? What now?",
+        "reply": "I'm sorry — that's a letdown, especially with the tent you were counting on for the weekend. The tracking confirms it: Parcelway could not locate the package and officially declared it lost on Sept 1.\n\nThe good news is the store can make this right. I can issue a refund for the lost order — your total was $488.00 (the Meadow 6 Cabin Tent and the Breeze Wind Shell). I can refund the full amount, or just the tent ($399.00) if you'd like to keep the jacket.\n\nWould you like a full refund, or only the tent?"
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_tracking({\"orderId\":1029}) → {\"ok\":true,\"data\":{\"orderNumber\":1029,\"status\":\"lost\",\"carrier\":\"Parcelway\",\"trackingNumber\":\"PW0008148651\",\"estimatedDelivery\":null,\"events\":[{\"at\":\"2026-08-19 09:00\",\"status\":\"order_placed\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":null},{\"at\":\"2026-08-20 09:00\",\"status\":\"shipped\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":\"Handed to Parcelway Ground\"},{\"at\":\"2026-08-21 09:00\",\"status\":\"in_transit\",\"location\":\"Phoenix, AZ\",\"note\":null},{\"at\":\"2026-08-26 09:00\",\"status\":\"exception\",\"location\":\"Phoenix, AZ\",\"note\":\"Package could not be located by the carrier\"},{\"at\":\"2026-09-01 09:00\",\"status\":\"lost\",\"location\":\"Phoenix, AZ\",\"note\":\"Carrier declared the package lost\"}]}}",
+      "message 1: get_order({\"orderId\":1029}) → {\"ok\":true,\"data\":{\"number\":1029,\"status\":\"lost\",\"placed\":\"2026-08-19\",\"delivered\":null,\"items\":[{\"productId\":\"tent-meadow-6\",\"name\":\"Meadow 6 Cabin Tent\",\"size\":null,\"color\":\"tan\",\"qty\":1,\"listPrice\":\"$399.00\",\"discount\":\"$0.00\",\"paid\":\"$399.00\",\"returnedQty\":0},{\"productId\":\"jacket-breeze-wind\",\"name\":\"Breeze Wind Shell\",\"size\":\"M\",\"color\":\"yellow\",\"qty\":1,\"listPrice\":\"$89.00\",\"discount\":\"$0.00\",\"paid\":\"$89.00\",\"returnedQty\":0}],\"subtotal\":\"$488.00\",\"discount\":\"$0.00\",\"shipping\":\"$0.00\",\"totalPaid\":\"$488.00\",\"refunds\":[]}}"
+    ],
+    "judgeNote": "Apologizes, confirms the carrier declared it lost, and requests the full $488.00 for approval. Doesn't promise a replacement in time for the weekend.",
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent says the refund needs a team member's approval, and never describes a refund or coupon as issued when the tool result says it's waiting for approval."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "The reply is warm, clear, and offers refund options, meeting the customer's needs."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": false,
+        "why": "The agent’s reply offers to issue a refund but does not mention any team‑member approval requirement, nor does it describe a refund or coupon as already issued. Therefore the statement is not true."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent offers to issue a refund immediately and asks for approval, which is an action the agent can perform in this chat. No future promise beyond that.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 1
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent made no statements about when anything would ship, arrive, be refunded, reviewed, or processed. Therefore all timing claims are either absent or unsupported, satisfying the judge check.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 3
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": false,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 672,
+      "inputTokens": 1131,
+      "outputTokens": 195,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about when anything would ship, arrive, be refunded, reviewed, or processed. Therefore all timing claims are either absent or unsupported, satisfying the judge check.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 696,
+      "inputTokens": 1075,
+      "outputTokens": 290,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply offers to issue a refund but does not mention any team‑member approval requirement, nor does it describe a refund or coupon as already issued. Therefore the statement is not true.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1021,
+      "inputTokens": 1142,
+      "outputTokens": 509,
+      "cached": false,
+      "raw": "{\"why\":\"The agent offers to issue a refund immediately and asks for approval, which is an action the agent can perform in this chat. No future promise beyond that.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1022,
+      "inputTokens": 1142,
+      "outputTokens": 428,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only offers to issue a refund immediately and does not promise or imply any future action that cannot be completed in this chat. Therefore the statement is true.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 1022,
+      "inputTokens": 1131,
+      "outputTokens": 195,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about when anything would ship, arrive, be refunded, reviewed, or processed. Therefore all timing claims are either absent or unsupported, satisfying the judge check.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1240,
+      "inputTokens": 1142,
+      "outputTokens": 421,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only offers to issue a refund immediately and does not promise any future actions that it cannot perform in this chat. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 1307,
+      "inputTokens": 1375,
+      "outputTokens": 190,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"The reply is warm, clear, and offers refund options, meeting the customer's needs.\"}]}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 1641,
+      "inputTokens": 1131,
+      "outputTokens": 193,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refund processing time, or any other timing. Therefore all timing claims are either absent or unsupported, satisfying the judge check.\",\"answer\":true}"
+    }
+  ]
+}

@@ -1,0 +1,132 @@
+{
+  "caseId": "test-order-status-03",
+  "runId": "18c8f3e4-148d-4c2d-be9c-4bf5e1626858",
+  "questionSet": "2a2c12d8",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-order-status-03",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Can you give me a quick rundown of where all my orders stand?",
+        "reply": "Here's where your four orders stand:\n\n- **Order #1197** ($426.00, placed Sep 11, 2026) — Shipped\n- **Order #1217** ($548.00, placed Sep 3, 2026) — Delayed\n- **Order #1145** ($297.00, placed Aug 14, 2026) — Lost in transit\n- **Order #1319** ($348.00, placed Jul 10, 2026) — Delivered\n\nA couple of those need attention: #1217 is running late and #1145 was lost in transit, which usually qualifies for a shipping refund. Let me know if you'd like me to look into either of those."
+      }
+    ],
+    "toolSummary": [
+      "message 1: find_customer({\"email\":\"kenji.kaur117@example.com\"}) → {\"ok\":true,\"data\":{\"name\":\"Kenji Kaur\",\"email\":\"kenji.kaur117@example.com\",\"orders\":[{\"number\":1197,\"status\":\"shipped\",\"placed\":\"2026-09-11\",\"total\":\"$426.00\"},{\"number\":1217,\"status\":\"delayed\",\"placed\":\"2026-09-03\",\"total\":\"$548.00\"},{\"number\":1145,\"status\":\"lost\",\"placed\":\"2026-08-14\",\"total\":\"$297.00\"},{\"number\":1319,\"status\":\"delivered\",\"placed\":\"2026-07-10\",\"total\":\"$348.00\"}]}}"
+    ],
+    "judgeNote": "A short list, one line per order, with the right status for each. Flags the lost one and what happens next.",
+    "checks": [
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "The reply is warm, clear, and fully addresses the customer's request with next steps."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only offers to look into the delayed and lost orders, which is a normal action the agent can take in this chat. No impossible promise is made.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 1
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent made no timing claims about shipping, arrival, refunds, reviews, or processing. Therefore all timing statements (none) match the tool result or policy.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 1
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 595,
+      "inputTokens": 880,
+      "outputTokens": 230,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports current statuses and offers to investigate; no specific timing claims are made. Therefore all timing statements (none) are consistent with the tool data. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 856,
+      "inputTokens": 880,
+      "outputTokens": 442,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no timing claims about shipping, arrival, refunds, reviews, or processing. Therefore all timing statements (none) match the tool result or policy.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 960,
+      "inputTokens": 880,
+      "outputTokens": 452,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about when anything will ship, arrive, be refunded, reviewed, or processed, nor used vague timing such as 'soon' or 'shortly'. Therefore all timing claims (none) match the tool result or policy. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1145,
+      "inputTokens": 891,
+      "outputTokens": 634,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply only offers to look into the delayed and lost orders, which is a permissible action within the chat and does not promise future actions beyond the agent’s capabilities. This aligns with the rule that allows stating what the store or a team member will do. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 1273,
+      "inputTokens": 1124,
+      "outputTokens": 250,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"The reply is warm, clear, and fully addresses the customer's request with next steps.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1369,
+      "inputTokens": 891,
+      "outputTokens": 510,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only offers to look into the delayed and lost orders, which is a normal action the agent can take in this chat. No impossible promise is made.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 2273,
+      "inputTokens": 891,
+      "outputTokens": 1669,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only offers to look into the orders, which it can do in this chat, and does not promise to perform actions it cannot do, such as notifying or following up later. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

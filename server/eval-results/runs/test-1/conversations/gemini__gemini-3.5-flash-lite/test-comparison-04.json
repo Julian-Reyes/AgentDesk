@@ -1,0 +1,553 @@
+{
+  "caseId": "test-comparison-04",
+  "case": {
+    "id": "test-comparison-04",
+    "split": "test",
+    "type": "comparison",
+    "why": "Traverse 50 (50 L, 1800 g, $219.00) vs Traverse 65 (65 L, 2100 g, $259.00) for a 3-night trip.",
+    "source": "test batch 4",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "For a three-night backpacking trip, should I get the Traverse 50 or the Traverse 65?",
+        "reply": {
+          "mentions": [
+            [
+              "1.8 kg",
+              "1.8kg",
+              "1800 g",
+              "1800g",
+              "1,800 g"
+            ],
+            [
+              "2.1 kg",
+              "2.1kg",
+              "2100 g",
+              "2100g",
+              "2,100 g"
+            ]
+          ],
+          "amounts": [],
+          "avoids": []
+        }
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "leaks": [],
+      "judge": "Compares volume (50 vs 65 L), weight and price; the 50 is the catalog's 'weekend trips and lighter loads' pack, the 65 is for multi-day trips. No invented load ratings.",
+      "judgeChecks": []
+    }
+  },
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "team": {
+    "router": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "7fab3ebf-3202-4931-947e-b852fb7ec845",
+    "turns": [
+      {
+        "customer": "For a three-night backpacking trip, should I get the Traverse 50 or the Traverse 65?",
+        "reply": "The Traverse 50 (50L capacity, 1,800g, $219.00) is designed as a smaller pack for weekend trips and lighter loads, while the Traverse 65 (65L capacity, 2,100g, $259.00) is built for multi-day trips with an adjustable-torso and a ventilated back panel. \n\nFor a three-night trip, the Traverse 65 typically offers the extra volume needed for three nights of gear and food, but if your gear is compact and lightweight, the Traverse 50 could also work. Both are made from 210D nylon and are not waterproof. Let me know which size or features you prefer!",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "For a three-night backpacking trip, should I get the Traverse 50 or the Traverse 65?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"shopping\", \"category\": \"comparison\", \"urgency\": \"normal\", \"confidence\": 0.95}",
+          "decision": {
+            "route": "shopping",
+            "category": "comparison",
+            "urgency": "normal",
+            "confidence": 0.95
+          },
+          "fallback": false
+        },
+        "inputTokens": 355,
+        "outputTokens": 28,
+        "latencyMs": 1099,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_328933",
+                "name": "search_products",
+                "arguments": "{\"query\":\"Traverse\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0T3UWqEFUWnyaaAK07SSV/JYb6Peas3+64skUc7wXXhu5g6d6xKihTb5ZaAfpYH13CmOiluIyiGF/yaVTkQXo1TK3IZN7jqRczWxas7ZQeo7X9UNxxH/J3daE="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2001,
+        "outputTokens": 17,
+        "latencyMs": 887,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_328933",
+          "name": "search_products",
+          "arguments": "{\"query\":\"Traverse\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 2,
+              "products": [
+                {
+                  "id": "pack-traverse-65",
+                  "name": "Traverse 65 Trekking Pack",
+                  "category": "backpacks",
+                  "listPrice": "$259.00",
+                  "currentPrice": "$259.00",
+                  "rating": 4.6,
+                  "description": "Adjustable-torso pack for multi-day trips with a ventilated back panel.",
+                  "specs": {
+                    "material": "210D nylon",
+                    "waterproof": false,
+                    "weightGrams": 2100,
+                    "volumeLiters": 65
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "pack-traverse-50",
+                  "name": "Traverse 50 Trekking Pack",
+                  "category": "backpacks",
+                  "listPrice": "$219.00",
+                  "currentPrice": "$219.00",
+                  "rating": 4.5,
+                  "description": "Smaller Traverse for weekend trips and lighter loads.",
+                  "specs": {
+                    "material": "210D nylon",
+                    "waterproof": false,
+                    "weightGrams": 1800,
+                    "volumeLiters": 50
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_331705",
+                "name": "get_product",
+                "arguments": "{\"id\":\"pack-traverse-50\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TrTAwQMOa6jQO6Db6RIonf05AzhrVb10GP6O1GBSJ5S1dwroEt0LdjySKrkakLlJ9PKFmwFdqlw6UOSajdASL1d6QomsXxB131IOEaouuxcv7aNMGCfI0J4w="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2301,
+        "outputTokens": 21,
+        "latencyMs": 759,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_331705",
+          "name": "get_product",
+          "arguments": "{\"id\":\"pack-traverse-50\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "id": "pack-traverse-50",
+              "name": "Traverse 50 Trekking Pack",
+              "category": "backpacks",
+              "listPrice": "$219.00",
+              "currentPrice": "$219.00",
+              "rating": 4.5,
+              "description": "Smaller Traverse for weekend trips and lighter loads.",
+              "specs": {
+                "material": "210D nylon",
+                "waterproof": false,
+                "weightGrams": 1800,
+                "volumeLiters": 50
+              },
+              "availability": "in_stock",
+              "activeDeals": [],
+              "variants": [
+                {
+                  "size": "M/L",
+                  "color": "black",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "M/L",
+                  "color": "green",
+                  "availability": "low_stock"
+                },
+                {
+                  "size": "S/M",
+                  "color": "black",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "S/M",
+                  "color": "green",
+                  "availability": "in_stock"
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 3,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_253120",
+                "name": "get_product",
+                "arguments": "{\"id\":\"pack-traverse-65\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TLN7WnHJFKHvsie1KF9Wsk8NBajLgfGLMH8XfnalNiGA5UwxjSJ80QmFLinRGFRkpZozr0CYIHgvg0sIU6nTak4wraOlm7CX0H5ZSiPL9oKqYU+QBtiA1fy4="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2517,
+        "outputTokens": 21,
+        "latencyMs": 749,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_253120",
+          "name": "get_product",
+          "arguments": "{\"id\":\"pack-traverse-65\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "id": "pack-traverse-65",
+              "name": "Traverse 65 Trekking Pack",
+              "category": "backpacks",
+              "listPrice": "$259.00",
+              "currentPrice": "$259.00",
+              "rating": 4.6,
+              "description": "Adjustable-torso pack for multi-day trips with a ventilated back panel.",
+              "specs": {
+                "material": "210D nylon",
+                "waterproof": false,
+                "weightGrams": 2100,
+                "volumeLiters": 65
+              },
+              "availability": "in_stock",
+              "activeDeals": [],
+              "variants": [
+                {
+                  "size": "M/L",
+                  "color": "black",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "M/L",
+                  "color": "green",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "S/M",
+                  "color": "black",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "S/M",
+                  "color": "green",
+                  "availability": "low_stock"
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 4,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_310661",
+                "name": "reply",
+                "arguments": "{\"message\":\"The Traverse 50 (50L capacity, 1,800g, $219.00) is designed as a smaller pack for weekend trips and lighter loads, while the Traverse 65 (65L capacity, 2,100g, $259.00) is built for multi-day trips with an adjustable-torso and a ventilated back panel. \\n\\nFor a three-night trip, the Traverse 65 typically offers the extra volume needed for three nights of gear and food, but if your gear is compact and lightweight, the Traverse 50 could also work. Both are made from 210D nylon and are not waterproof. Let me know which size or features you prefer!\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0T9PVGoM2yPUN7A2x+Oa5bwMvRWU9n5l7eHSG6h+IrrlfL00TZ8HLDem/f63pxPnf0xtlql/fz1pulpJmCFTp0VTTc/GXPLve0fPiJPzkMTGO1UU2CBWDe+0I="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2741,
+        "outputTokens": 171,
+        "latencyMs": 1256,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_310661",
+          "name": "reply",
+          "arguments": "{\"message\":\"The Traverse 50 (50L capacity, 1,800g, $219.00) is designed as a smaller pack for weekend trips and lighter loads, while the Traverse 65 (65L capacity, 2,100g, $259.00) is built for multi-day trips with an adjustable-torso and a ventilated back panel. \\n\\nFor a three-night trip, the Traverse 65 typically offers the extra volume needed for three nights of gear and food, but if your gear is compact and lightweight, the Traverse 50 could also work. Both are made from 210D nylon and are not waterproof. Let me know which size or features you prefer!\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "The Traverse 50 (50L capacity, 1,800g, $219.00) is designed as a smaller pack for weekend trips and lighter loads, while the Traverse 65 (65L capacity, 2,100g, $259.00) is built for multi-day trips with an adjustable-torso and a ventilated back panel. \n\nFor a three-night trip, the Traverse 65 typically offers the extra volume needed for three nights of gear and food, but if your gear is compact and lightweight, the Traverse 50 could also work. Both are made from 210D nylon and are not waterproof. Let me know which size or features you prefer!"
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "The Traverse 50 (50L capacity, 1,800g, $219.00) is designed as a smaller pack for weekend trips and lighter loads, while the Traverse 65 (65L capacity, 2,100g, $259.00) is built for multi-day trips with an adjustable-torso and a ventilated back panel. \n\nFor a three-night trip, the Traverse 65 typically offers the extra volume needed for three nights of gear and food, but if your gear is compact and lightweight, the Traverse 50 could also work. Both are made from 210D nylon and are not waterproof. Let me know which size or features you prefer!"
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "shopping",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "test-comparison-04",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to shopping"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "reply1:mentions:0",
+        "label": "reply 1 mentions \"1.8 kg\" or \"1.8kg\" or \"1800 g\" or \"1800g\" or \"1,800 g\"",
+        "pass": false,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:mentions:1",
+        "label": "reply 1 mentions \"2.1 kg\" or \"2.1kg\" or \"2100 g\" or \"2100g\" or \"2,100 g\"",
+        "pass": false,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 2
+    },
+    "codeStatus": "fail"
+  },
+  "stats": {
+    "modelCalls": 5,
+    "cachedCalls": 0,
+    "toolCalls": 3,
+    "inputTokens": 9915,
+    "outputTokens": 258,
+    "latencyMs": 4750,
+    "turnLatencyMs": [
+      4750
+    ],
+    "costMicros": 0,
+    "wallMs": 4841
+  },
+  "finishedAt": "2026-10-05T12:40:17.549Z"
+}

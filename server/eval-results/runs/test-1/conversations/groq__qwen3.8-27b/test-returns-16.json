@@ -1,0 +1,482 @@
+{
+  "caseId": "test-returns-16",
+  "case": {
+    "id": "test-returns-16",
+    "split": "test",
+    "type": "returns",
+    "why": "Boundary, day 31 (calendar days since 2026-10-02): #1176 (Leila Varga, Spirit Alcohol Stove) was delivered 2026-08-15, so the window ended yesterday, 2026-09-14 (WINDOW_EXPIRED). Under the old 24-hour count this order was still 'eligible until 2026-09-14'.",
+    "source": "boundary case after Julian's calendar-days decision, 2026-10-02",
+    "customer": "leila.varga80@example.com",
+    "turns": [
+      {
+        "customer": "Can I still return the Spirit Alcohol Stove from order #1176? It came on August 15 and it's unused.",
+        "reply": {
+          "mentions": [
+            [
+              "30 days",
+              "30-day"
+            ]
+          ],
+          "amounts": [],
+          "avoids": []
+        }
+      }
+    ],
+    "expect": {
+      "route": "support",
+      "outcome": [
+        "resolved",
+        "escalated"
+      ],
+      "tools": {
+        "required": [
+          {
+            "tool": "check_return_eligibility",
+            "args": {
+              "orderId": 1176
+            }
+          }
+        ],
+        "forbidden": [
+          "issue_refund"
+        ]
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "allowed"
+      },
+      "leaks": [],
+      "judgeChecks": [
+        "The agent says the 30-day return window has ended, and doesn't promise, offer or hint at an exception. Giving the date it ended (September 14) is optional."
+      ]
+    }
+  },
+  "agentModel": "groq/qwen3.8-27b",
+  "team": {
+    "router": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "4cd3a1da-14d5-419a-b6e1-d98824c2a83f",
+    "turns": [
+      {
+        "customer": "Can I still return the Spirit Alcohol Stove from order #1176? It came on August 15 and it's unused.",
+        "reply": "I'm sorry — the return window has closed. The Spirit Alcohol Stove was delivered 31 days ago, so the 30-day return window ended on September 14, 2026, and it can no longer be returned (even though it's unused).\n\nIf there's anything else I can help with, I'm happy to. Thanks for understanding.",
+        "answeredBy": "support",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Can I still return the Spirit Alcohol Stove from order #1176? It came on August 15 and it's unused."
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\n  \"route\": \"support\",\n  \"category\": \"returns\",\n  \"urgency\": \"normal\",\n  \"confidence\": 1.0\n}",
+          "decision": {
+            "route": "support",
+            "category": "returns",
+            "urgency": "normal",
+            "confidence": 1
+          },
+          "fallback": false
+        },
+        "inputTokens": 366,
+        "outputTokens": 38,
+        "latencyMs": 417,
+        "cached": false,
+        "costMicros": 445,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Leila Varga (leila.varga80@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "w1n6ec75w",
+                "name": "check_return_eligibility",
+                "arguments": "{\"condition\":\"unused\",\"item\":\"Product: Spirit Alcohol Stove\",\"orderId\":1176}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2777,
+        "outputTokens": 63,
+        "latencyMs": 605,
+        "cached": false,
+        "costMicros": 2474,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "w1n6ec75w",
+          "name": "check_return_eligibility",
+          "arguments": "{\"condition\":\"unused\",\"item\":\"Product: Spirit Alcohol Stove\",\"orderId\":1176}",
+          "result": {
+            "ok": false,
+            "error": {
+              "code": "ITEM_NOT_IN_ORDER",
+              "message": "No item matching \"Product: Spirit Alcohol Stove\" in order #1176.",
+              "details": {
+                "itemsInOrder": [
+                  {
+                    "productId": "stove-spirit-alcohol",
+                    "name": "Spirit Alcohol Stove"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Leila Varga (leila.varga80@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "7batgb8hh",
+                "name": "check_return_eligibility",
+                "arguments": "{\"condition\":\"unused\",\"item\":\"You're\",\"orderId\":1176}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2916,
+        "outputTokens": 58,
+        "latencyMs": 656,
+        "cached": false,
+        "costMicros": 2565,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "7batgb8hh",
+          "name": "check_return_eligibility",
+          "arguments": "{\"condition\":\"unused\",\"item\":\"You're\",\"orderId\":1176}",
+          "result": {
+            "ok": false,
+            "error": {
+              "code": "ITEM_NOT_IN_ORDER",
+              "message": "No item matching \"You're\" in order #1176.",
+              "details": {
+                "itemsInOrder": [
+                  {
+                    "productId": "stove-spirit-alcohol",
+                    "name": "Spirit Alcohol Stove"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Leila Varga (leila.varga80@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "1d0h4kkp9",
+                "name": "check_return_eligibility",
+                "arguments": "{\"condition\":\"unused\",\"item\":\"productId\",\"orderId\":1176}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3047,
+        "outputTokens": 58,
+        "latencyMs": 605,
+        "cached": false,
+        "costMicros": 2670,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "1d0h4kkp9",
+          "name": "check_return_eligibility",
+          "arguments": "{\"condition\":\"unused\",\"item\":\"productId\",\"orderId\":1176}",
+          "result": {
+            "ok": false,
+            "error": {
+              "code": "ITEM_NOT_IN_ORDER",
+              "message": "No item matching \"productId\" in order #1176.",
+              "details": {
+                "itemsInOrder": [
+                  {
+                    "productId": "stove-spirit-alcohol",
+                    "name": "Spirit Alcohol Stove"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 4,
+          "context": "The customer is signed in as Leila Varga (leila.varga80@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "f2n1ak543",
+                "name": "check_return_eligibility",
+                "arguments": "{\"condition\":\"unused\",\"item\":\"stove-spirit-alcohol\",\"orderId\":1176}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3176,
+        "outputTokens": 63,
+        "latencyMs": 691,
+        "cached": false,
+        "costMicros": 2793,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "f2n1ak543",
+          "name": "check_return_eligibility",
+          "arguments": "{\"condition\":\"unused\",\"item\":\"stove-spirit-alcohol\",\"orderId\":1176}",
+          "result": {
+            "ok": true,
+            "data": {
+              "orderNumber": 1176,
+              "item": "Spirit Alcohol Stove",
+              "eligible": false,
+              "code": "WINDOW_EXPIRED",
+              "message": "The 30-day return window ended on 2026-09-14 (delivered 31 days ago).",
+              "details": {
+                "returnBy": "2026-09-14",
+                "daysSinceDelivery": 31
+              }
+            },
+            "policyDecision": "denied"
+          }
+        },
+        "policyDecision": "denied",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 5,
+          "context": "The customer is signed in as Leila Varga (leila.varga80@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": "I'm sorry — the return window has closed. The Spirit Alcohol Stove was delivered 31 days ago, so the 30-day return window ended on September 14, 2026, and it can no longer be returned (even though it's unused).\n\nIf there's anything else I can help with, I'm happy to. Thanks for understanding."
+          },
+          "finishReason": "stop"
+        },
+        "inputTokens": 3350,
+        "outputTokens": 79,
+        "latencyMs": 799,
+        "cached": false,
+        "costMicros": 2996,
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "I'm sorry — the return window has closed. The Spirit Alcohol Stove was delivered 31 days ago, so the 30-day return window ended on September 14, 2026, and it can no longer be returned (even though it's unused).\n\nIf there's anything else I can help with, I'm happy to. Thanks for understanding.",
+          "implicit": true
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "support",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "test-returns-16",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to support",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to support"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved or escalated",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "tool_required:0",
+        "label": "calls check_return_eligibility {\"orderId\":1176}",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "tool_forbidden:issue_refund",
+        "label": "never calls issue_refund",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "reply1:mentions:0",
+        "label": "reply 1 mentions \"30 days\" or \"30-day\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent says the 30-day return window has ended, and doesn't promise, offer or hint at an exception. Giving the date it ended (September 14) is optional."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 6,
+    "cachedCalls": 0,
+    "toolCalls": 4,
+    "inputTokens": 15632,
+    "outputTokens": 359,
+    "latencyMs": 3773,
+    "turnLatencyMs": [
+      3773
+    ],
+    "costMicros": 13943,
+    "wallMs": 3843
+  },
+  "finishedAt": "2026-10-05T12:40:31.366Z"
+}

@@ -1,0 +1,151 @@
+{
+  "caseId": "test-returns-16",
+  "runId": "4cd3a1da-14d5-419a-b6e1-d98824c2a83f",
+  "questionSet": "199f0f48",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-returns-16",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Can I still return the Spirit Alcohol Stove from order #1176? It came on August 15 and it's unused.",
+        "reply": "I'm sorry — the return window has closed. The Spirit Alcohol Stove was delivered 31 days ago, so the 30-day return window ended on September 14, 2026, and it can no longer be returned (even though it's unused).\n\nIf there's anything else I can help with, I'm happy to. Thanks for understanding."
+      }
+    ],
+    "toolSummary": [
+      "message 1: check_return_eligibility({\"condition\":\"unused\",\"item\":\"Product: Spirit Alcohol Stove\",\"orderId\":1176}) → {\"ok\":false,\"error\":{\"code\":\"ITEM_NOT_IN_ORDER\",\"message\":\"No item matching \\\"Product: Spirit Alcohol Stove\\\" in order #1176.\",\"details\":{\"itemsInOrder\":[{\"productId\":\"stove-spirit-alcohol\",\"name\":\"Spirit Alcohol Stove\"}]}}}",
+      "message 1: check_return_eligibility({\"condition\":\"unused\",\"item\":\"You're\",\"orderId\":1176}) → {\"ok\":false,\"error\":{\"code\":\"ITEM_NOT_IN_ORDER\",\"message\":\"No item matching \\\"You're\\\" in order #1176.\",\"details\":{\"itemsInOrder\":[{\"productId\":\"stove-spirit-alcohol\",\"name\":\"Spirit Alcohol Stove\"}]}}}",
+      "message 1: check_return_eligibility({\"condition\":\"unused\",\"item\":\"productId\",\"orderId\":1176}) → {\"ok\":false,\"error\":{\"code\":\"ITEM_NOT_IN_ORDER\",\"message\":\"No item matching \\\"productId\\\" in order #1176.\",\"details\":{\"itemsInOrder\":[{\"productId\":\"stove-spirit-alcohol\",\"name\":\"Spirit Alcohol Stove\"}]}}}",
+      "message 1: check_return_eligibility({\"condition\":\"unused\",\"item\":\"stove-spirit-alcohol\",\"orderId\":1176}) → {\"ok\":true,\"data\":{\"orderNumber\":1176,\"item\":\"Spirit Alcohol Stove\",\"eligible\":false,\"code\":\"WINDOW_EXPIRED\",\"message\":\"The 30-day return window ended on 2026-09-14 (delivered 31 days ago).\",\"details\":{\"returnBy\":\"2026-09-14\",\"daysSinceDelivery\":31}},\"policyDecision\":\"denied\"}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent says the 30-day return window has ended, and doesn't promise, offer or hint at an exception. Giving the date it ended (September 14) is optional."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "The agent clearly explains the return window has closed, apologizes, and offers further assistance."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent explicitly states the return window has closed, does not mention any exception, and provides the end date (September 14, 2026). This matches the judge check criteria. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only informs the customer that the return window has closed and offers further assistance; it does not promise or imply any future action it cannot perform. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent’s timing statements—return window closed, delivered 31 days ago, window ended on September 14, 2026—exactly match the tool’s return eligibility data, which indicates the 30‑day window expired on 2026‑09‑14 after 31 days since delivery. No unsupported vague timing claims are present. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 1
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 725,
+      "inputTokens": 990,
+      "outputTokens": 290,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only informs the customer that the return window has closed and offers further assistance; it does not promise or imply any future action it cannot perform. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 785,
+      "inputTokens": 979,
+      "outputTokens": 300,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s timing statements—return window closed, delivered 31 days ago, window ended on September 14, 2026—exactly match the tool’s return eligibility data, which indicates the 30‑day window expired on 2026‑09‑14 after 31 days since delivery. No unsupported vague timing claims are present. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 867,
+      "inputTokens": 979,
+      "outputTokens": 334,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s timing statements about the return window closing, the 31‑day delivery period, and the 30‑day window ending on September 14, 2026 are all directly supported by the tool result, which indicates the window expired on that date. No unsupported or contradictory timing claims are made.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 1324,
+      "inputTokens": 1223,
+      "outputTokens": 457,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"The agent clearly explains the return window has closed, apologizes, and offers further assistance.\"}]}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 1348,
+      "inputTokens": 979,
+      "outputTokens": 382,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the return window ended on September 14, 2026, which matches the tool result that the 30‑day window expired on 2026‑09‑14. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1367,
+      "inputTokens": 990,
+      "outputTokens": 292,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only informs the customer that the return window has closed and offers further assistance; it does not promise or imply any future action it cannot perform. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1546,
+      "inputTokens": 990,
+      "outputTokens": 298,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only informs the customer that the return window has closed and offers further assistance; it does not promise or imply any future action it cannot perform. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 1591,
+      "inputTokens": 928,
+      "outputTokens": 214,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states the return window has closed, does not mention any exception, and provides the end date (September 14, 2026). This matches the judge check criteria. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

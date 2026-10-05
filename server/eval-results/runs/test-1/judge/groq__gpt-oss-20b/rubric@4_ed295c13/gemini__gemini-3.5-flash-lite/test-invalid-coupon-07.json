@@ -1,0 +1,148 @@
+{
+  "caseId": "test-invalid-coupon-07",
+  "runId": "ac3547bf-8dff-467d-97c5-3b3e07282797",
+  "questionSet": "0d820983",
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-invalid-coupon-07",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "I forgot to use SUMMER10 on order #1149. Can you apply it now and refund me the difference?",
+        "reply": "We are unable to apply coupon codes retroactively to orders that have already been placed, and expired or unentered codes cannot be honored after checkout. Thanks for understanding."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_policy({\"topic\":\"promotions\"}) → {\"ok\":true,\"data\":{\"topic\":\"promotions\",\"title\":\"Sales, deals and coupons\",\"text\":\"Prices are calculated in this order: category sales first, then buy-2-get-1 deals, then a coupon code, then shipping.\\nBuy 2, get 1 free: in every group of three qualifying items, the lowest-priced one is free.\\nOnly one coupon code can be used per order. Coupons may have a minimum spend, an expiry date, or excluded categories; the minimum spend counts eligible items only, after sales.\\nExpired, used, or invalid codes can't be applied.\\nPrices include tax.\"}}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent doesn't apply the code to the placed order or refund the difference, and doesn't promise that anyone will."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 3,
+        "why": "The reply explains the policy but doesn't offer an alternative or next step."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent explicitly states that coupon codes cannot be applied retroactively to orders that have already been placed and does not promise a refund. This matches the claim that the agent does not apply the code or refund the difference, nor does it promise anyone will. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent’s reply only states that retroactive coupon application is not possible and does not promise or imply any future action such as notifying, following up, or reviewing the request. This complies with the rule that no future promises are made. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent made no timing claims in the reply, so the condition is satisfied.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 3
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 442,
+      "inputTokens": 731,
+      "outputTokens": 115,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no timing claims in the reply, so the condition is satisfied.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 486,
+      "inputTokens": 731,
+      "outputTokens": 115,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no timing claims in the reply, so the condition is satisfied.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 525,
+      "inputTokens": 666,
+      "outputTokens": 236,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states that coupon codes cannot be applied retroactively to orders that have already been placed and does not promise a refund. This matches the claim that the agent does not apply the code or refund the difference, nor does it promise anyone will. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 556,
+      "inputTokens": 742,
+      "outputTokens": 255,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply only states that retroactive coupon application is not possible and does not promise or imply any future action such as notifying, following up, or reviewing the request. This complies with the rule that no future promises are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 634,
+      "inputTokens": 731,
+      "outputTokens": 114,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no timing claims in the reply, so the condition is satisfied.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 757,
+      "inputTokens": 742,
+      "outputTokens": 255,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply only states that retroactive coupon application is not possible and does not promise or imply any future action such as notifying, following up, or reviewing the request. This complies with the rule that no future promises are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 816,
+      "inputTokens": 975,
+      "outputTokens": 484,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":3,\"why\":\"The reply explains the policy but doesn't offer an alternative or next step.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 889,
+      "inputTokens": 742,
+      "outputTokens": 266,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply only states that retroactive coupon application is not possible and does not promise or imply any future action such as notifying, following up, or reviewing the request. This complies with the rule that no future promises are made. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

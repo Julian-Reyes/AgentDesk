@@ -1,0 +1,151 @@
+{
+  "caseId": "test-refund-over-limit-06",
+  "runId": "81470ce8-5dd6-4865-a6aa-bd3e1198887c",
+  "questionSet": "861f931e",
+  "agentModel": "groq/gpt-oss-120b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-refund-over-limit-06",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Order #1029 was supposed to be our family tent for next weekend. Tracking says the carrier lost it?? What now?",
+        "reply": "Your order #1029 was marked as lost by the carrier. We have submitted a refund request for the full $488.00 you paid. Because the amount exceeds $50.00, a team member will review the request and usually respond within one business day.  \n\nWe also issued a one‑time 10% off coupon (code **SORRY-76-20260915**) that you can use on any future purchase before 2026‑12‑14.  \n\nThanks for your patience."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_policy({\"topic\":\"refunds\"}) → {\"ok\":true,\"data\":{\"topic\":\"refunds\",\"title\":\"Refunds\",\"text\":\"Refunds go back to the original payment method.\\nA refund can never be more than what was paid for the order.\\nOur support team can issue refunds for damaged items, lost orders and late deliveries (shipping cost only). Refunds up to $50.00 per order are processed right away; larger amounts are reviewed by a team member, usually within one business day.\\nDamaged items are refunded per item, up to what was paid for that item. An item that cost more than $50.00 (per unit) is always reviewed by a team member, whatever amount is requested.\\nRefunds for returned items are issued when the warehouse receives the return.\"}}",
+      "message 1: get_order({\"orderId\":1029}) → {\"ok\":true,\"data\":{\"number\":1029,\"status\":\"lost\",\"placed\":\"2026-08-19\",\"delivered\":null,\"items\":[{\"productId\":\"tent-meadow-6\",\"name\":\"Meadow 6 Cabin Tent\",\"size\":null,\"color\":\"tan\",\"qty\":1,\"listPrice\":\"$399.00\",\"discount\":\"$0.00\",\"paid\":\"$399.00\",\"returnedQty\":0},{\"productId\":\"jacket-breeze-wind\",\"name\":\"Breeze Wind Shell\",\"size\":\"M\",\"color\":\"yellow\",\"qty\":1,\"listPrice\":\"$89.00\",\"discount\":\"$0.00\",\"paid\":\"$89.00\",\"returnedQty\":0}],\"subtotal\":\"$488.00\",\"discount\":\"$0.00\",\"shipping\":\"$0.00\",\"totalPaid\":\"$488.00\",\"refunds\":[]}}",
+      "message 1: issue_refund({\"amount\":488,\"note\":\"Order marked as lost by carrier\",\"orderId\":1029,\"reason\":\"lost\"}) → {\"ok\":true,\"data\":{\"status\":\"pending_approval\",\"approvalId\":12,\"amount\":\"$488.00\",\"message\":\"No refund has been issued yet. A $488.00 refund request was sent to a team member for approval (usually within one business day).\"},\"policyDecision\":\"queued_for_approval\"}",
+      "message 1: issue_goodwill_coupon({\"customer\":\"omar.silva76@example.com\",\"orderId\":1029,\"percent\":10,\"reason\":\"Lost order #1029\"}) → {\"ok\":true,\"data\":{\"status\":\"issued\",\"code\":\"SORRY-76-20260915\",\"percentOff\":10,\"expires\":\"2026-12-14\",\"terms\":\"Single use, only for this customer's account.\"},\"policyDecision\":\"auto_approved\"}"
+    ],
+    "judgeNote": "Apologizes, confirms the carrier declared it lost, and requests the full $488.00 for approval. Doesn't promise a replacement in time for the weekend.",
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent says the refund needs a team member's approval, and never describes a refund or coupon as issued when the tool result says it's waiting for approval."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "The reply confirms the lost order, explains the refund process, offers a coupon, and is clear and helpful."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": false,
+        "why": "The agent states the refund request is pending approval by a team member, matching the tool’s pending_approval status, and notes the coupon has been issued. Thus the agent does not incorrectly describe the refund or coupon as issued when the tool indicates they are awaiting approval. Answer: no."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The reply only states that a refund request has been submitted and a team member will review it, which is permissible. It does not promise any future action beyond that. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent states that a team member will review the refund request and usually respond within one business day, which matches the policy that refunds over $50 are reviewed by a team member, usually within one business day. The coupon expiration date of 2026-12-14 matches the tool result for the issued coupon. No other timing claims are made. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": false,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "scores",
+      "latencyMs": 979,
+      "inputTokens": 1493,
+      "outputTokens": 373,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"The reply confirms the lost order, explains the refund process, offers a coupon, and is clear and helpful.\"}]}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 1022,
+      "inputTokens": 1193,
+      "outputTokens": 414,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the refund request is pending approval by a team member, matching the tool’s pending_approval status, and notes the coupon has been issued. Thus the agent does not incorrectly describe the refund or coupon as issued when the tool indicates they are awaiting approval. Answer: no.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 922,
+      "inputTokens": 1260,
+      "outputTokens": 366,
+      "cached": false,
+      "raw": "{\"why\":\"The reply only states that a refund request has been submitted and a team member will review it, which is permissible. It does not promise any future action beyond that. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 917,
+      "inputTokens": 1260,
+      "outputTokens": 378,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only informs the customer that the refund request has been submitted and that a team member will review it within one business day, which is permissible. No future actions are promised beyond that. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 666,
+      "inputTokens": 1249,
+      "outputTokens": 344,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that a team member will review the refund request and usually respond within one business day, which matches the policy that refunds over $50 are reviewed by a team member, usually within one business day. The coupon expiration date of 2026-12-14 matches the tool result for the issued coupon. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 930,
+      "inputTokens": 1249,
+      "outputTokens": 363,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that a team member will review the refund request and usually respond within one business day, which matches the policy that refunds over $50 are reviewed by a team member, usually within one business day. The coupon expiration date of 2026-12-14 matches the tool’s returned coupon data. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 953,
+      "inputTokens": 1249,
+      "outputTokens": 395,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that a team member will review the refund request and usually respond within one business day, which matches the policy that refunds over $50 are reviewed by a team member usually within one business day. The coupon expiration date of 2026-12-14 matches the tool’s returned coupon data. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1444,
+      "inputTokens": 1260,
+      "outputTokens": 382,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states that a team member will review the refund request and that a coupon was issued, which are actions already taken or will be handled by the team, not promises the agent cannot fulfill. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

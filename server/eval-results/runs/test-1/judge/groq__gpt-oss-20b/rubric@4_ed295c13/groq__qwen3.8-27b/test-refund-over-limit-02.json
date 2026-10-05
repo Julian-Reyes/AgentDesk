@@ -1,0 +1,151 @@
+{
+  "caseId": "test-refund-over-limit-02",
+  "runId": "dba25f37-cc3b-4be5-b232-2b4ae0fb2e0a",
+  "questionSet": "af832c3e",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-refund-over-limit-02",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "The Thicket fleece from order #1087 has a big snag and a hole in the sleeve. It was like that when I opened the package. I'd like a refund.",
+        "reply": "I've sent this to a support agent. Because the report came in just after the 14-day window, they'll review it case by case.\n\nA human agent will follow up with you by email, usually within one business day, on ticket **ESC-7**. They can take it from there regarding the refund. No need to return the damaged item unless they ask.\n\nThanks for your patience."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1087}) → {\"ok\":true,\"data\":{\"number\":1087,\"status\":\"delivered\",\"placed\":\"2026-08-27\",\"delivered\":\"2026-08-31\",\"items\":[{\"productId\":\"jacket-thicket-fleece\",\"name\":\"Thicket Fleece Jacket\",\"size\":\"M\",\"color\":\"grey\",\"qty\":1,\"listPrice\":\"$69.00\",\"discount\":\"$0.00\",\"paid\":\"$69.00\",\"returnedQty\":0},{\"productId\":\"jacket-breeze-wind\",\"name\":\"Breeze Wind Shell\",\"size\":\"XL\",\"color\":\"yellow\",\"qty\":1,\"listPrice\":\"$89.00\",\"discount\":\"$0.00\",\"paid\":\"$89.00\",\"returnedQty\":0}],\"subtotal\":\"$158.00\",\"discount\":\"$0.00\",\"shipping\":\"$0.00\",\"totalPaid\":\"$158.00\",\"refunds\":[]}}",
+      "message 1: check_return_eligibility({\"condition\":\"damaged\",\"item\":\"Thicket Fleece Jacket\",\"orderId\":1087}) → {\"ok\":true,\"data\":{\"orderNumber\":1087,\"item\":\"Thicket Fleece Jacket\",\"eligible\":false,\"code\":\"USE_DAMAGED_ITEM_PROCESS\",\"message\":\"Items that arrived damaged follow the damaged-items process instead of a normal return (report within 14 days of delivery).\",\"details\":{\"daysSinceDelivery\":15,\"withinDamageWindow\":false}},\"policyDecision\":\"denied\"}",
+      "message 1: get_policy({\"topic\":\"damaged_items\"}) → {\"ok\":true,\"data\":{\"topic\":\"damaged_items\",\"title\":\"Damaged items\",\"text\":\"If an item arrives damaged, report it within 14 days of delivery.\\nWe'll refund the item or send a replacement; you don't need to send the damaged item back unless we ask.\\nA damaged item that cost $50.00 or less per unit is refunded right away, as long as the order's refunds stay within $50.00 in total; pricier items and larger totals are reviewed by a team member, usually within one business day.\\nReports after 14 days are reviewed case by case by a team member.\"}}",
+      "message 1: escalate_to_human({\"orderId\":1087,\"reason\":\"Thicket Fleece Jacket\"}) → {\"ok\":true,\"data\":{\"ticket\":\"ESC-7\",\"message\":\"A human support agent will follow up by email, usually within one business day.\"}}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent says damage must be reported within 14 days of delivery and passes the claim to a team member for review, without promising the refund will be approved."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "Clear, warm, and explains next steps."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent states the report was received just after the 14‑day window and that a team member will review it case‑by‑case, without guaranteeing a refund. This matches the claim that damage must be reported within 14 days and the claim is passed to a team member for review without promise of approval. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only states that a human support agent will follow up by email, which is permissible. No impossible promise is made.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 3
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent states that a human agent will follow up by email usually within one business day. The policy for damaged items says that reports after 14 days are reviewed case by case by a team member, usually within one business day. This timing claim matches the policy. No other unsupported timing claims are present. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:0",
+      "latencyMs": 620,
+      "inputTokens": 1101,
+      "outputTokens": 288,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the report was received just after the 14‑day window and that a team member will review it case‑by‑case, without guaranteeing a refund. This matches the claim that damage must be reported within 14 days and the claim is passed to a team member for review without promise of approval. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 675,
+      "inputTokens": 1167,
+      "outputTokens": 369,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states that a human support agent will follow up by email, which is permissible. No impossible promise is made.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 1351,
+      "inputTokens": 1400,
+      "outputTokens": 614,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"Clear, warm, and explains next steps.\"}]}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 719,
+      "inputTokens": 1156,
+      "outputTokens": 327,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that a human agent will follow up by email, usually within one business day. The store policy for damaged items explicitly says that reports after 14 days are reviewed case by case by a team member, usually within one business day. All timing claims in the agent’s reply are supported by the policy. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 720,
+      "inputTokens": 1156,
+      "outputTokens": 320,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that a human agent will follow up by email usually within one business day. The policy for damaged items says that reports after 14 days are reviewed case by case by a team member, usually within one business day. This matches the timing claim. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 722,
+      "inputTokens": 1167,
+      "outputTokens": 369,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states that a human support agent will follow up by email, which is permissible. No impossible promise is made.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 744,
+      "inputTokens": 1167,
+      "outputTokens": 358,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states that a human agent will follow up, which is permissible. No impossible promise is made.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1059,
+      "inputTokens": 1156,
+      "outputTokens": 322,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that a human agent will follow up by email usually within one business day. The policy for damaged items says that reports after 14 days are reviewed case by case by a team member, usually within one business day. This timing claim matches the policy. No other unsupported timing claims are present. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

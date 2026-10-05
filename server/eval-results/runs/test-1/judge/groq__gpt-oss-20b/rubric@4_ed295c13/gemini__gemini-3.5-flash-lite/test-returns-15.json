@@ -1,0 +1,167 @@
+{
+  "caseId": "test-returns-15",
+  "runId": "2a3ad052-0083-4174-8d26-b9de5bfa4beb",
+  "questionSet": "fe511832",
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-returns-15",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "I got the Ridgeline Low shoes from order #1036 in mid-August and never wore them. Am I still in time to return them?",
+        "reply": "Yes, you are still in time to return the Ridgeline Low shoes! They are eligible for return until September 15, 2026, as long as they are unused and in their original packaging. \n\nTo make a return, you can initiate it from your account where you will find a return label to send the item back. Once the warehouse receives your return, your refund will be issued. Thanks for reaching out!"
+      }
+    ],
+    "toolSummary": [
+      "message 1: check_return_eligibility({\"orderId\":\"1036\",\"item\":\"Ridgeline Low shoes\",\"condition\":\"unused\"}) → {\"ok\":true,\"data\":{\"orderNumber\":1036,\"item\":\"Ridgeline Low Hiking Shoe\",\"eligible\":true,\"code\":\"ELIGIBLE\",\"message\":\"Eligible for return until 2026-09-15, provided the item is unused and in its original packaging. The refund is issued when the warehouse receives it.\",\"returnBy\":\"2026-09-15\",\"conditionRequired\":\"unused, original packaging\"},\"policyDecision\":\"auto_approved\"}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent says the shoes can still be returned and that today (September 15) is the last day."
+      },
+      {
+        "id": "judge:1",
+        "statement": "The agent explains the process (return label from the account, refund when the warehouse receives the item) and never says it will process, accept or refund the return itself."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "The reply is warm, clear, and fully addresses the customer’s request with next steps."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": false,
+        "why": "The agent stated the return deadline is September 15, 2026, not the current date of September 15. Therefore the claim that today is the last day is incorrect.",
+        "noConclusion": 1
+      },
+      {
+        "id": "judge:1",
+        "answer": true,
+        "why": "The agent’s reply only instructs the customer to initiate the return from their account and states that the refund will be issued once the warehouse receives the item; it does not say the agent will process, accept, or refund the return itself. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only informs the customer of the existing return policy and the standard process that will occur once the customer initiates the return. It does not promise or imply any future action that it cannot perform in this chat, such as notifying the customer or following up. Therefore the reply complies with the rule. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 1
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent states the return is eligible until September 15, 2026, which matches the tool’s returnBy date. It also says the refund will be issued once the warehouse receives the return, which aligns with the tool’s message that the refund is issued when the warehouse receives it. No unsupported vague timing is used. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": false,
+    "judge:1": true,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 619,
+      "inputTokens": 770,
+      "outputTokens": 276,
+      "cached": false,
+      "raw": "{\"why\":\"All timing statements in the agent’s reply match the tool result: the return deadline of September 15, 2026 and the refund being issued once the warehouse receives the return. No unsupported vague timing is present. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:1",
+      "latencyMs": 643,
+      "inputTokens": 717,
+      "outputTokens": 378,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply only instructs the customer to initiate the return from their account and states that the refund will be issued once the warehouse receives the item; it does not say the agent will process, accept, or refund the return itself. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 780,
+      "inputTokens": 781,
+      "outputTokens": 398,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only informs the customer of the existing return policy and the standard process that will occur once the customer initiates the return. It does not promise or imply any future action that it cannot perform in this chat, such as notifying the customer or following up. Therefore the reply complies with the rule.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 868,
+      "inputTokens": 781,
+      "outputTokens": 404,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only informs the customer of the existing return policy and the standard process that will occur after the customer initiates the return. It does not promise or imply any future action that the agent cannot perform in this chat, such as notifying the customer or following up on the refund. Therefore the agent’s reply complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 918,
+      "inputTokens": 705,
+      "outputTokens": 372,
+      "cached": false,
+      "raw": "{\"why\":\"The agent stated the return deadline is September 15, 2026, not the current date of September 15. Therefore the claim that today is the last day is incorrect.\",\"answer\":false}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 932,
+      "inputTokens": 1014,
+      "outputTokens": 289,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"The reply is warm, clear, and fully addresses the customer’s request with next steps.\"}]}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1013,
+      "inputTokens": 770,
+      "outputTokens": 298,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the return is eligible until September 15, 2026, which matches the tool’s returnBy date. It also says the refund will be issued once the warehouse receives the return, which aligns with the tool’s message that the refund is issued when the warehouse receives it. No unsupported vague timing is used. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1068,
+      "inputTokens": 781,
+      "outputTokens": 401,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only informs the customer of the existing return policy and the standard process that will occur once the customer initiates the return. It does not promise or imply any future action that it cannot perform in this chat, such as notifying the customer or following up. Therefore the reply complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 1092,
+      "inputTokens": 770,
+      "outputTokens": 322,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the return is eligible until 2026-09-15, matching the tool’s returnBy date, and that the refund will be issued once the warehouse receives the return, which aligns with the tool’s message that the refund is issued when the warehouse receives it. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

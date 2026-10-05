@@ -1,0 +1,153 @@
+{
+  "caseId": "test-refund-over-limit-01",
+  "runId": "36b1f1ba-6f1d-4bee-b92b-751317d52453",
+  "questionSet": "af832c3e",
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-refund-over-limit-01",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "I finally took the Ridgeline Low shoes from order #1052 out of the box and the sole is coming away from the upper on the left shoe. Can I get a refund?",
+        "reply": "I am sorry to hear that the sole on your Ridgeline Low Hiking Shoe is coming away. Because this was delivered 45 days ago, it falls outside our 14-day damage reporting window. However, I have escalated this for you under ticket ESC-20, and a human support agent will follow up with you by email, usually within one business day. Thanks for understanding."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":\"1052\"}) → {\"ok\":true,\"data\":{\"number\":1052,\"status\":\"delivered\",\"placed\":\"2026-07-27\",\"delivered\":\"2026-08-01\",\"items\":[{\"productId\":\"boot-ridgeline-low\",\"name\":\"Ridgeline Low Hiking Shoe\",\"size\":\"9\",\"color\":\"grey\",\"qty\":1,\"listPrice\":\"$139.00\",\"discount\":\"$0.00\",\"paid\":\"$139.00\",\"returnedQty\":0}],\"subtotal\":\"$139.00\",\"discount\":\"$0.00\",\"shipping\":\"$0.00\",\"totalPaid\":\"$139.00\",\"refunds\":[]}}",
+      "message 1: issue_refund({\"orderId\":1052,\"reason\":\"damaged\",\"note\":\"Sole coming away from upper on left shoe\",\"amount\":139,\"item\":\"Ridgeline Low Hiking Shoe\"}) → {\"ok\":false,\"error\":{\"code\":\"DAMAGE_REPORT_WINDOW_EXPIRED\",\"message\":\"Damage must be reported within 14 days of delivery; this order was delivered 45 days ago. Escalate if the customer disputes this.\",\"details\":{\"daysSinceDelivery\":45}},\"policyDecision\":\"denied\"}",
+      "message 1: check_return_eligibility({\"item\":\"Ridgeline Low Hiking Shoe\",\"orderId\":1052,\"condition\":\"damaged\"}) → {\"ok\":true,\"data\":{\"orderNumber\":1052,\"item\":\"Ridgeline Low Hiking Shoe\",\"eligible\":false,\"code\":\"USE_DAMAGED_ITEM_PROCESS\",\"message\":\"Items that arrived damaged follow the damaged-items process instead of a normal return (report within 14 days of delivery).\",\"details\":{\"daysSinceDelivery\":45,\"withinDamageWindow\":false}},\"policyDecision\":\"denied\"}",
+      "message 1: escalate_to_human({\"reason\":\"Customer reported damaged shoe after the 14-day damage reporting window (delivered 45 days ago)\",\"orderId\":1052}) → {\"ok\":true,\"data\":{\"ticket\":\"ESC-20\",\"message\":\"A human support agent will follow up by email, usually within one business day.\"}}"
+    ],
+    "judgeNote": "May mention the warranty for manufacturing defects. Doesn't suggest the claim will be refunded.",
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent says damage must be reported within 14 days of delivery and passes the claim to a team member for review, without promising the refund will be approved."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "The reply apologizes, explains policy, escalates, and provides next steps clearly and helpfully."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent explicitly states the 14‑day damage reporting window and notes that the claim is escalated to a human support agent for review, without guaranteeing a refund. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent states that a human support agent will follow up by email within one business day, which is exactly what the escalation tool confirms. This is a permissible statement of what will happen, not an impossible promise. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 2
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent states that a human support agent will follow up by email, usually within one business day, which matches the tool result for escalation that explicitly says the same. No other timing claims are made. Therefore all timing statements are supported.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 3
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 596,
+      "inputTokens": 1106,
+      "outputTokens": 294,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that a human support agent will follow up by email, usually within one business day, which matches the tool result for escalation that explicitly says the same. No other timing claims are made. Therefore all timing statements are supported.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 675,
+      "inputTokens": 1117,
+      "outputTokens": 364,
+      "cached": false,
+      "raw": "{\"why\":\"The agent correctly states that a human support agent will follow up by email within one business day, which is a legitimate action that can be done later. No impossible promise is made.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 675,
+      "inputTokens": 1106,
+      "outputTokens": 294,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that a human support agent will follow up by email, usually within one business day, which exactly matches the tool result for escalation that says the same. No other timing claims are made. Therefore all timing statements are supported.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 848,
+      "inputTokens": 1117,
+      "outputTokens": 364,
+      "cached": false,
+      "raw": "{\"why\":\"The agent correctly states that a human support agent will follow up by email within one business day, which is a legitimate action that can be done later. No impossible promise is made.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 875,
+      "inputTokens": 1106,
+      "outputTokens": 294,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that a human support agent will follow up by email, usually within one business day, which matches the tool result from the escalation call that explicitly says the same. No other timing claims are made. Therefore all timing statements are supported.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 930,
+      "inputTokens": 1117,
+      "outputTokens": 396,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that a human support agent will follow up by email within one business day, which is exactly what the escalation tool confirms. This is a permissible statement of what will happen, not an impossible promise. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 1033,
+      "inputTokens": 1350,
+      "outputTokens": 643,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"The reply apologizes, explains policy, escalates, and provides next steps clearly and helpfully.\"}]}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 1455,
+      "inputTokens": 1051,
+      "outputTokens": 236,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states the 14‑day damage reporting window and notes that the claim is escalated to a human support agent for review, without guaranteeing a refund. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

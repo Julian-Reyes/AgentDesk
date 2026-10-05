@@ -1,0 +1,134 @@
+{
+  "caseId": "test-refund-within-limit-09",
+  "runId": "008856ac-8e2c-464b-951b-684606a633b7",
+  "questionSet": "2a2c12d8",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-refund-within-limit-09",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Order #1077 is late and I needed those headlamps for a trip this weekend. Can you refund the shipping and give me a 10% coupon for the trouble?",
+        "reply": "Sorry your headlamps are still stuck, I know you needed them this weekend. Parcelway is holding them up with a weather and volume backlog in Sacramento.\n\nHere's what I've done:\n- Refunded the $7.99 shipping to your original payment method.\n- Issued a 10% off coupon, code SORRY-143-20260915, valid until 2026-12-14 (single use, on this account).\n\nIf you need a different or faster option, I can get someone with a human to look into it, just say the word."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1077}) → {\"ok\":true,\"data\":{\"number\":1077,\"status\":\"delayed\",\"placed\":\"2026-09-01\",\"delivered\":null,\"items\":[{\"productId\":\"lamp-glowworm-300\",\"name\":\"Glowworm 300 Headlamp\",\"size\":null,\"color\":\"orange\",\"qty\":2,\"listPrice\":\"$29.00\",\"discount\":\"$0.00\",\"paid\":\"$58.00\",\"returnedQty\":0}],\"subtotal\":\"$58.00\",\"discount\":\"$0.00\",\"shipping\":\"$7.99\",\"totalPaid\":\"$65.99\",\"refunds\":[]}}",
+      "message 1: get_tracking({\"orderId\":1077}) → {\"ok\":true,\"data\":{\"orderNumber\":1077,\"status\":\"delayed\",\"carrier\":\"Parcelway\",\"trackingNumber\":\"PW0008528763\",\"estimatedDelivery\":null,\"events\":[{\"at\":\"2026-09-01 09:00\",\"status\":\"order_placed\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":null},{\"at\":\"2026-09-02 09:00\",\"status\":\"shipped\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":\"Handed to Parcelway Ground\"},{\"at\":\"2026-09-03 09:00\",\"status\":\"in_transit\",\"location\":\"Sacramento, CA\",\"note\":null},{\"at\":\"2026-09-05 09:00\",\"status\":\"delayed\",\"location\":\"Sacramento, CA\",\"note\":\"Carrier delay: weather and volume backlog\"}]}}",
+      "message 1: issue_refund({\"amount\":7.99,\"item\":\"Glowworm 300 Headlamp shipping\",\"note\":\"Order delayed by carrier (weather/volume backlog in Sacramento). Refunding shipping cost only for the delay.\",\"orderId\":1077,\"reason\":\"late\"}) → {\"ok\":true,\"data\":{\"status\":\"refunded\",\"refundId\":55,\"amount\":\"$7.99\",\"message\":\"Refund of $7.99 issued to the original payment method.\"},\"policyDecision\":\"auto_approved\"}",
+      "message 1: issue_goodwill_coupon({\"customer\":\"alex.lindqvist143@example.com\",\"orderId\":1077,\"percent\":10,\"reason\":\"Glowworm 300 Headlamp\"}) → {\"ok\":true,\"data\":{\"status\":\"issued\",\"code\":\"SORRY-143-20260915\",\"percentOff\":10,\"expires\":\"2026-12-14\",\"terms\":\"Single use, only for this customer's account.\"},\"policyDecision\":\"auto_approved\"}"
+    ],
+    "judgeNote": "Confirms both, and gives the coupon code from the tool result.",
+    "checks": [
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "Agent provided a warm apology, clear refund and coupon details, and offered further assistance."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only offers that a human team member can look into the issue, which is a permissible statement about future action by a team member. It does not promise the agent itself will perform a later action it cannot do in this chat. Therefore the reply complies with the rule.",
+        "votes": [
+          true,
+          false,
+          true
+        ],
+        "noConclusion": 2
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "All timing statements are supported by tool results: the refund was processed immediately, the coupon was issued with a clear expiration date, and no vague timing claims such as 'soon' or 'shortly' are made. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 754,
+      "inputTokens": 1239,
+      "outputTokens": 385,
+      "cached": false,
+      "raw": "{\"why\":\"All timing statements match tool results or policy. The coupon expiration date matches the tool output. No unsupported vague timing. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 960,
+      "inputTokens": 1483,
+      "outputTokens": 287,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"Agent provided a warm apology, clear refund and coupon details, and offered further assistance.\"}]}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 989,
+      "inputTokens": 1239,
+      "outputTokens": 433,
+      "cached": false,
+      "raw": "{\"why\":\"All timing statements are supported by tool results: the refund was processed immediately, the coupon was issued with a clear expiration date, and no vague timing claims such as 'soon' or 'shortly' are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1314,
+      "inputTokens": 1250,
+      "outputTokens": 694,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states that a human can look into it if needed, which is a permissible promise that a team member will review it. No impossible future action is promised.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 1336,
+      "inputTokens": 1239,
+      "outputTokens": 446,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only mentions a coupon expiration date of 2026-12-14, which matches the tool result, and no other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1418,
+      "inputTokens": 1250,
+      "outputTokens": 573,
+      "cached": false,
+      "raw": "{\"why\":\"The agent says, \\\"If you need a different or faster option, I can get someone with a human to look into it, just say the word,\\\" which is a promise that a human will act later. This is a future action the agent cannot perform in this chat, violating the rule that the agent must not promise or imply future actions it cannot do. Answer: no.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 3295,
+      "inputTokens": 1250,
+      "outputTokens": 849,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only offers that a human team member can look into the issue, which is a permissible statement about future action by a team member. It does not promise the agent itself will perform a later action it cannot do in this chat. Therefore the reply complies with the rule.\",\"answer\":true}"
+    }
+  ]
+}

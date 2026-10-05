@@ -1,0 +1,798 @@
+{
+  "caseId": "test-invalid-coupon-02",
+  "case": {
+    "id": "test-invalid-coupon-02",
+    "split": "test",
+    "type": "invalid_coupon",
+    "why": "SPRING15 expired in May. The customer insists an email said it runs all season. Expired codes are never honored. No total asked, so the coupon is checked against its own cart (one Drift 5°C bag). Unlike dev invalid-coupon-01, this one has pushback.",
+    "source": "test batch 2",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "Does SPRING15 still work? I want to order the Drift 5°C sleeping bag.",
+        "reply": {
+          "mentions": [
+            [
+              "expired",
+              "no longer valid",
+              "not valid anymore",
+              "no longer active"
+            ]
+          ],
+          "amounts": [],
+          "avoids": []
+        }
+      },
+      {
+        "customer": "The email I got said it runs all season. Please just apply it.",
+        "assumes": "the agent said SPRING15 has expired"
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "coupon": {
+        "code": "SPRING15",
+        "valid": false,
+        "reason": "EXPIRED",
+        "cart": [
+          {
+            "productId": "bag-drift-5",
+            "qty": 1
+          }
+        ]
+      },
+      "leaks": [],
+      "judgeChecks": [
+        "The agent never applies the code to this cart, promises to, or hints that an exception might be made."
+      ]
+    }
+  },
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "team": {
+    "router": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "7801a8d0-81e1-4833-8e94-f21fad8256c3",
+    "turns": [
+      {
+        "customer": "Does SPRING15 still work? I want to order the Drift 5°C sleeping bag.",
+        "reply": "SPRING15 has expired, so it is no longer valid. However, you can use the code SUMMER10 for 10% off your order. \n\nThe Drift 5°C Synthetic Sleeping Bag is $99.00. With the SUMMER10 coupon, your total comes to $89.10 with free shipping. Thanks for understanding.",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      },
+      {
+        "customer": "The email I got said it runs all season. Please just apply it.",
+        "reply": "I understand you received an email about it, but the system shows the SPRING15 coupon expired on May 31, 2026, and expired coupons cannot be honored. \n\nYou are welcome to use the active SUMMER10 coupon for 10% off the Drift 5°C Synthetic Sleeping Bag, bringing your total to $89.10 with free shipping. Thanks for understanding.",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Does SPRING15 still work? I want to order the Drift 5°C sleeping bag."
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"shopping\", \"category\": \"pricing_deals\", \"urgency\": \"normal\", \"confidence\": 0.95}",
+          "decision": {
+            "route": "shopping",
+            "category": "pricing_deals",
+            "urgency": "normal",
+            "confidence": 0.95
+          },
+          "fallback": false
+        },
+        "inputTokens": 352,
+        "outputTokens": 30,
+        "latencyMs": 1202,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_66866",
+                "name": "search_products",
+                "arguments": "{\"query\":\"Drift 5C sleeping bag\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0Tm5DkoaEEn4Mr4JSt/qMPhrGBU9BrFGpBrymE/cbt24UDims0eiHLfvvdO2IT/s8Nnmsy+NgQE95b283l5/zOl/LmUXz4dlA+G9rsIRqa4VI+1zCo9jzSAzQ="
+                    }
+                  }
+                }
+              },
+              {
+                "id": "call_66867",
+                "name": "get_active_promotions",
+                "arguments": "{}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1998,
+        "outputTokens": 35,
+        "latencyMs": 1019,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_66866",
+          "name": "search_products",
+          "arguments": "{\"query\":\"Drift 5C sleeping bag\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 9,
+              "products": [
+                {
+                  "id": "bag-drift-minus5",
+                  "name": "Drift -5°C Synthetic Sleeping Bag",
+                  "category": "sleeping_bags",
+                  "listPrice": "$139.00",
+                  "currentPrice": "$139.00",
+                  "rating": 4.3,
+                  "description": "Synthetic mummy bag for cold nights on a budget.",
+                  "specs": {
+                    "material": "synthetic fill",
+                    "tempRatingC": -5,
+                    "weightGrams": 1700
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "bag-drift-5",
+                  "name": "Drift 5°C Synthetic Sleeping Bag",
+                  "category": "sleeping_bags",
+                  "listPrice": "$99.00",
+                  "currentPrice": "$99.00",
+                  "rating": 4.2,
+                  "description": "Budget-friendly synthetic mummy bag that stays warm when damp.",
+                  "specs": {
+                    "material": "synthetic fill",
+                    "tempRatingC": 5,
+                    "weightGrams": 1300
+                  },
+                  "availability": "low_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "bag-glacier-minus20",
+                  "name": "Glacier -20°C Expedition Sleeping Bag",
+                  "category": "sleeping_bags",
+                  "listPrice": "$499.00",
+                  "currentPrice": "$499.00",
+                  "rating": 4.9,
+                  "description": "Expedition-grade bag with 800-fill down and a draft collar.",
+                  "specs": {
+                    "material": "800-fill down",
+                    "tempRatingC": -20,
+                    "weightGrams": 1900
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "bag-ember-0",
+                  "name": "Ember 0°C Down Sleeping Bag",
+                  "category": "sleeping_bags",
+                  "listPrice": "$259.00",
+                  "currentPrice": "$259.00",
+                  "rating": 4.7,
+                  "description": "Three-season mummy bag with 650-fill responsibly sourced down.",
+                  "specs": {
+                    "material": "650-fill down",
+                    "tempRatingC": 0,
+                    "weightGrams": 850
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "bag-ember-minus10",
+                  "name": "Ember -10°C Down Sleeping Bag",
+                  "category": "sleeping_bags",
+                  "listPrice": "$349.00",
+                  "currentPrice": "$349.00",
+                  "rating": 4.7,
+                  "description": "Warmer version of the Ember for shoulder-season and early winter trips.",
+                  "specs": {
+                    "material": "650-fill down",
+                    "tempRatingC": -10,
+                    "weightGrams": 1150
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "bag-nightjar-quilt",
+                  "name": "Nightjar 2°C Down Quilt",
+                  "category": "sleeping_bags",
+                  "listPrice": "$229.00",
+                  "currentPrice": "$229.00",
+                  "rating": 4.6,
+                  "description": "Hoodless down quilt with pad straps, popular with ultralight hikers.",
+                  "specs": {
+                    "material": "800-fill down",
+                    "tempRatingC": 2,
+                    "weightGrams": 650
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "bag-sprout-kids",
+                  "name": "Sprout 5°C Kids Sleeping Bag",
+                  "category": "sleeping_bags",
+                  "listPrice": "$49.00",
+                  "currentPrice": "$49.00",
+                  "rating": 4.4,
+                  "description": "Kid-sized synthetic bag for children up to 150 cm tall.",
+                  "specs": {
+                    "material": "synthetic fill",
+                    "tempRatingC": 5,
+                    "weightGrams": 900
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "bag-harbor-double",
+                  "name": "Harbor 3°C Double Sleeping Bag",
+                  "category": "sleeping_bags",
+                  "listPrice": "$179.99",
+                  "currentPrice": "$179.99",
+                  "rating": 4.3,
+                  "description": "Two-person rectangular bag for car camping couples.",
+                  "specs": {
+                    "material": "synthetic fill",
+                    "tempRatingC": 3,
+                    "weightGrams": 2800,
+                    "capacityPersons": 2
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "bag-balmy-12",
+                  "name": "Balmy 12°C Summer Sleeping Bag",
+                  "category": "sleeping_bags",
+                  "listPrice": "$59.00",
+                  "currentPrice": "$59.00",
+                  "rating": 4,
+                  "description": "Light rectangular bag for warm summer nights; unzips into a blanket.",
+                  "specs": {
+                    "material": "synthetic fill",
+                    "tempRatingC": 12,
+                    "weightGrams": 700
+                  },
+                  "availability": "out_of_stock",
+                  "activeDeals": []
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_66867",
+          "name": "get_active_promotions",
+          "arguments": "{}",
+          "result": {
+            "ok": true,
+            "data": {
+              "promotions": [
+                {
+                  "name": "Tent Sale: 20% off all tents",
+                  "endsOn": "2026-10-05"
+                },
+                {
+                  "name": "Headlamps: buy 2, get 1 free",
+                  "endsOn": "2026-10-15"
+                }
+              ],
+              "freeShipping": "Free shipping on orders of $75.00 or more; otherwise $7.99.",
+              "couponCodes": [
+                {
+                  "code": "SUMMER10",
+                  "terms": "10% off; expires 2026-09-30"
+                },
+                {
+                  "code": "TRAIL25",
+                  "terms": "$25.00 off; minimum spend $150.00; expires 2026-12-31"
+                },
+                {
+                  "code": "GEAR20",
+                  "terms": "20% off; minimum spend $50.00; not valid on tents, sleeping bags; expires 2026-10-30"
+                }
+              ],
+              "rules": "One coupon per order. Sales apply first, then buy-2-get-1, then the coupon."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_133558",
+                "name": "validate_coupon",
+                "arguments": "{\"code\":\"SPRING15\",\"cart\":[{\"productId\":\"bag-drift-5\",\"qty\":1}]}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TAajUTbU5l5i2aGu+B9oWtnEWqoGo0VONNEIFRr9Q9uZ8TNKZy7oDh2/r4rXPYkRo23njI2mpAyexEWzAAL+uvBPGXRv4zYUmUL1k1NkTLKWxPfM6LrlHKJY="
+                    }
+                  }
+                }
+              },
+              {
+                "id": "call_133559",
+                "name": "validate_coupon",
+                "arguments": "{\"cart\":[{\"productId\":\"bag-drift-5\",\"qty\":1}],\"code\":\"SUMMER10\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3316,
+        "outputTokens": 71,
+        "latencyMs": 1131,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_133558",
+          "name": "validate_coupon",
+          "arguments": "{\"code\":\"SPRING15\",\"cart\":[{\"productId\":\"bag-drift-5\",\"qty\":1}]}",
+          "result": {
+            "ok": true,
+            "data": {
+              "valid": false,
+              "code": "SPRING15",
+              "reason": "EXPIRED",
+              "message": "Coupon SPRING15 expired on 2026-05-31.",
+              "expiredOn": "2026-05-31"
+            },
+            "policyDecision": "denied"
+          }
+        },
+        "policyDecision": "denied",
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_133559",
+          "name": "validate_coupon",
+          "arguments": "{\"cart\":[{\"productId\":\"bag-drift-5\",\"qty\":1}],\"code\":\"SUMMER10\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "valid": true,
+              "code": "SUMMER10",
+              "terms": "10% off; expires 2026-09-30",
+              "discount": "$9.90",
+              "notAppliedTo": []
+            },
+            "policyDecision": "auto_approved"
+          }
+        },
+        "policyDecision": "auto_approved",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 3,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_379258",
+                "name": "quote_price",
+                "arguments": "{\"cart\":[{\"qty\":1,\"productId\":\"bag-drift-5\"}],\"coupon\":\"SUMMER10\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TZ1oKyKxbge1SljiV9HPtIi+VOwppHrQqdkcMrJo/QB3ZRrZXyVMmVi24nlCZSjpjOVClnJkuCKENDHSVV83ySUNrC6DGZOuFqwYjyyVqVmnL95hlH6z7WZQ="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3535,
+        "outputTokens": 36,
+        "latencyMs": 1147,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_379258",
+          "name": "quote_price",
+          "arguments": "{\"cart\":[{\"qty\":1,\"productId\":\"bag-drift-5\"}],\"coupon\":\"SUMMER10\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "lines": [
+                {
+                  "productId": "bag-drift-5",
+                  "name": "Drift 5°C Synthetic Sleeping Bag",
+                  "qty": 1,
+                  "listPrice": "$99.00",
+                  "discounts": [],
+                  "lineTotal": "$99.00"
+                }
+              ],
+              "subtotal": "$99.00",
+              "coupon": {
+                "code": "SUMMER10",
+                "applied": true,
+                "discount": "-$9.90"
+              },
+              "totalDiscounts": "-$9.90",
+              "shipping": "FREE",
+              "total": "$89.10",
+              "totalCents": 8910
+            },
+            "policyDecision": "auto_approved"
+          }
+        },
+        "policyDecision": "auto_approved",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 4,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_372339",
+                "name": "reply",
+                "arguments": "{\"message\":\"SPRING15 has expired, so it is no longer valid. However, you can use the code SUMMER10 for 10% off your order. \\n\\nThe Drift 5°C Synthetic Sleeping Bag is $99.00. With the SUMMER10 coupon, your total comes to $89.10 with free shipping. Thanks for understanding.\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TSMtqIt+jKllc95syH2BBOhEgb1hmrO+sJ3XHVGt6TW+3HrXTjruFNtrfI0YkQ+MsUmP4su4X2rUUC8P7BJymGky7DetmXIAXfowUQAUqHLLuYJXf5IMWxhg="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3713,
+        "outputTokens": 89,
+        "latencyMs": 1197,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_372339",
+          "name": "reply",
+          "arguments": "{\"message\":\"SPRING15 has expired, so it is no longer valid. However, you can use the code SUMMER10 for 10% off your order. \\n\\nThe Drift 5°C Synthetic Sleeping Bag is $99.00. With the SUMMER10 coupon, your total comes to $89.10 with free shipping. Thanks for understanding.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "SPRING15 has expired, so it is no longer valid. However, you can use the code SUMMER10 for 10% off your order. \n\nThe Drift 5°C Synthetic Sleeping Bag is $99.00. With the SUMMER10 coupon, your total comes to $89.10 with free shipping. Thanks for understanding."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "SPRING15 has expired, so it is no longer valid. However, you can use the code SUMMER10 for 10% off your order. \n\nThe Drift 5°C Synthetic Sleeping Bag is $99.00. With the SUMMER10 coupon, your total comes to $89.10 with free shipping. Thanks for understanding."
+        },
+        "turn": 1
+      },
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "The email I got said it runs all season. Please just apply it."
+        },
+        "turn": 2
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_337837",
+                "name": "reply",
+                "arguments": "{\"message\":\"I understand you received an email about it, but the system shows the SPRING15 coupon expired on May 31, 2026, and expired coupons cannot be honored. \\n\\nYou are welcome to use the active SUMMER10 coupon for 10% off the Drift 5°C Synthetic Sleeping Bag, bringing your total to $89.10 with free shipping. Thanks for understanding.\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TE1oS68kkayYLyRV99GimgWXfOjFneeOhtImB9aVvafqOIpedpNBgxbPMw+YMHv6ymrk7biooXV/D7p7n4o0GIS22pPr3sWXjSgOqGst3jG4zlK4nsoCEzoY="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3920,
+        "outputTokens": 98,
+        "latencyMs": 1058,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 2
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_337837",
+          "name": "reply",
+          "arguments": "{\"message\":\"I understand you received an email about it, but the system shows the SPRING15 coupon expired on May 31, 2026, and expired coupons cannot be honored. \\n\\nYou are welcome to use the active SUMMER10 coupon for 10% off the Drift 5°C Synthetic Sleeping Bag, bringing your total to $89.10 with free shipping. Thanks for understanding.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "I understand you received an email about it, but the system shows the SPRING15 coupon expired on May 31, 2026, and expired coupons cannot be honored. \n\nYou are welcome to use the active SUMMER10 coupon for 10% off the Drift 5°C Synthetic Sleeping Bag, bringing your total to $89.10 with free shipping. Thanks for understanding."
+            }
+          }
+        },
+        "turn": 2
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "I understand you received an email about it, but the system shows the SPRING15 coupon expired on May 31, 2026, and expired coupons cannot be honored. \n\nYou are welcome to use the active SUMMER10 coupon for 10% off the Drift 5°C Synthetic Sleeping Bag, bringing your total to $89.10 with free shipping. Thanks for understanding."
+        },
+        "turn": 2
+      }
+    ],
+    "finalAgent": "shopping",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "test-invalid-coupon-02",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to shopping"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "coupon",
+        "label": "checks SPRING15 (EXPIRED)",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "coupon_suggestions_checked",
+        "label": "any other code it mentions was checked for this cart by a tool",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:mentions:0",
+        "label": "reply 1 mentions \"expired\" or \"no longer valid\" or \"not valid anymore\" or \"no longer active\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      },
+      {
+        "turn": 2,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent never applies the code to this cart, promises to, or hints that an exception might be made."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      },
+      {
+        "id": "script:2",
+        "kind": "script_fit",
+        "turn": 2,
+        "assumes": "the agent said SPRING15 has expired",
+        "previousReply": "SPRING15 has expired, so it is no longer valid. However, you can use the code SUMMER10 for 10% off your order. \n\nThe Drift 5°C Synthetic Sleeping Bag is $99.00. With the SUMMER10 coupon, your total comes to $89.10 with free shipping. Thanks for understanding."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 6,
+    "cachedCalls": 0,
+    "toolCalls": 5,
+    "inputTokens": 16834,
+    "outputTokens": 359,
+    "latencyMs": 6754,
+    "turnLatencyMs": [
+      5696,
+      1058
+    ],
+    "costMicros": 0,
+    "wallMs": 31281
+  },
+  "finishedAt": "2026-10-05T13:09:11.342Z"
+}

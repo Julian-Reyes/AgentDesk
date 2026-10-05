@@ -1,0 +1,151 @@
+{
+  "caseId": "test-returns-13",
+  "runId": "15e55a74-9406-4ca7-9ffe-92652312f89a",
+  "questionSet": "54cc17fa",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-returns-13",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "I'd like to return two things: the Thicket fleece from order #1363 and the Loft Synthetic jacket from #1158. Neither has been worn.",
+        "reply": "Here's where things stand on your two returns: the Thicket Fleece Jacket (order #1363) is good to go, and the Loft Synthetic Jacket (order #1158) isn't quite. Thicket Fleece: it's unused and in its original packaging, so you can return it until September 22, 2026. Just use the return label in your account, and we'll refund you once it arrives back at the warehouse. Loft Synthetic: this one was delivered 35 days ago, so it's just past our 30-day window, which closed on September 10, 2026. I can't override that one. Would you like me to take a look at anything else?\""
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1363}) → {\"ok\":true,\"data\":{\"number\":1363,\"status\":\"delivered\",\"placed\":\"2026-08-17\",\"delivered\":\"2026-08-23\",\"items\":[{\"productId\":\"jacket-breeze-wind\",\"name\":\"Breeze Wind Shell\",\"size\":\"M\",\"color\":\"blue\",\"qty\":1,\"listPrice\":\"$89.00\",\"discount\":\"$0.00\",\"paid\":\"$89.00\",\"returnedQty\":0},{\"productId\":\"jacket-thicket-fleece\",\"name\":\"Thicket Fleece Jacket\",\"size\":\"XS\",\"color\":\"green\",\"qty\":1,\"listPrice\":\"$69.00\",\"discount\":\"$0.00\",\"paid\":\"$69.00\",\"returnedQty\":0}],\"subtotal\":\"$158.00\",\"discount\":\"$0.00\",\"shipping\":\"$0.00\",\"totalPaid\":\"$158.00\",\"refunds\":[]}}",
+      "message 1: get_order({\"orderId\":1158}) → {\"ok\":true,\"data\":{\"number\":1158,\"status\":\"delivered\",\"placed\":\"2026-08-06\",\"delivered\":\"2026-08-11\",\"items\":[{\"productId\":\"jacket-loft-synthetic\",\"name\":\"Loft Synthetic Jacket\",\"size\":\"M\",\"color\":\"black\",\"qty\":1,\"listPrice\":\"$149.00\",\"discount\":\"$0.00\",\"paid\":\"$149.00\",\"returnedQty\":0}],\"subtotal\":\"$149.00\",\"discount\":\"$0.00\",\"shipping\":\"$0.00\",\"totalPaid\":\"$149.00\",\"refunds\":[]}}",
+      "message 1: check_return_eligibility({\"condition\":\"unused\",\"item\":\"jacket-thicket-fleece\",\"orderId\":1363}) → {\"ok\":true,\"data\":{\"orderNumber\":1363,\"item\":\"Thicket Fleece Jacket\",\"eligible\":true,\"code\":\"ELIGIBLE\",\"message\":\"Eligible for return until 2026-09-22, provided the item is unused and in its original packaging. The refund is issued when the warehouse receives it.\",\"returnBy\":\"2026-09-22\",\"conditionRequired\":\"unused, original packaging\"},\"policyDecision\":\"auto_approved\"}",
+      "message 1: check_return_eligibility({\"condition\":\"unused\",\"item\":\"jacket-loft-synthetic\",\"orderId\":1158}) → {\"ok\":true,\"data\":{\"orderNumber\":1158,\"item\":\"Loft Synthetic Jacket\",\"eligible\":false,\"code\":\"WINDOW_EXPIRED\",\"message\":\"The 30-day return window ended on 2026-09-10 (delivered 35 days ago).\",\"details\":{\"returnBy\":\"2026-09-10\",\"daysSinceDelivery\":35}},\"policyDecision\":\"denied\"}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent says the fleece can be returned and the Loft Synthetic jacket can't (its 30-day window has ended), without mixing them up or hinting at an exception for the jacket."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "Clear, friendly, and fully addresses the return status and next steps."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent correctly identifies the Thicket Fleece Jacket as eligible for return and the Loft Synthetic Jacket as ineligible due to the 30‑day window having expired, and does not mix up the items or suggest an exception. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only describes the return policy and what will happen (refund upon receipt, window expired) and does not promise or imply any future action it cannot perform. This is allowed. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 1
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "All timing statements in the agent’s reply match the tool results or policy: the return window for the Thicket Fleece ends 2026‑09‑22, refund occurs upon warehouse receipt, and the Loft Synthetic window closed 2026‑09‑10 after 35 days. No unsupported vague timing is used. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 875,
+      "inputTokens": 1288,
+      "outputTokens": 479,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only describes the return policy and what will happen (refund upon receipt, window expired) and does not promise or imply any future action it cannot perform. This is allowed. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 976,
+      "inputTokens": 1288,
+      "outputTokens": 424,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states what will happen according to policy (refund after return) and that it cannot override the return window. It does not promise or imply any future action it cannot perform in this chat. Therefore the statement complies with the rule.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1179,
+      "inputTokens": 1288,
+      "outputTokens": 479,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only describes the return policy and what will happen (refund upon receipt, window expired) and does not promise or imply any future action it cannot perform. This is allowed. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 1275,
+      "inputTokens": 1227,
+      "outputTokens": 326,
+      "cached": false,
+      "raw": "{\"why\":\"The agent correctly identifies the Thicket Fleece Jacket as eligible for return and the Loft Synthetic Jacket as ineligible due to the 30‑day window having expired, and does not mix up the items or suggest an exception. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 1315,
+      "inputTokens": 1521,
+      "outputTokens": 341,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"Clear, friendly, and fully addresses the return status and next steps.\"}]}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 812,
+      "inputTokens": 1277,
+      "outputTokens": 398,
+      "cached": false,
+      "raw": "{\"why\":\"All timing statements in the agent’s reply match the tool results: the return window for the Thicket Fleece ends on 2026‑09‑22, refunds are issued upon warehouse receipt, and the Loft Synthetic’s 30‑day window closed on 2026‑09‑10 after 35 days. No unsupported vague timing is present. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 988,
+      "inputTokens": 1277,
+      "outputTokens": 380,
+      "cached": false,
+      "raw": "{\"why\":\"All timing statements in the agent's reply match the tool results: the return window for the Thicket Fleece ends on 2026-09-22, refunds are issued upon warehouse receipt, and the Loft Synthetic return window closed on 2026-09-10 after 35 days. No unsupported vague timing is present. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 2153,
+      "inputTokens": 1277,
+      "outputTokens": 421,
+      "cached": false,
+      "raw": "{\"why\":\"All timing statements in the agent’s reply match the tool results or policy: the return window for the Thicket Fleece ends 2026‑09‑22, refund occurs upon warehouse receipt, and the Loft Synthetic window closed 2026‑09‑10 after 35 days. No unsupported vague timing is used. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

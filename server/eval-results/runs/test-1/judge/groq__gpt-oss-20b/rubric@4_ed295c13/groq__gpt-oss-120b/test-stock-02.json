@@ -1,0 +1,151 @@
+{
+  "caseId": "test-stock-02",
+  "runId": "a5812b7f-d114-47be-b1e4-81e31b6fa6aa",
+  "questionSet": "7c25e0a6",
+  "agentModel": "groq/gpt-oss-120b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-stock-02",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Is the Scree Trail Runner available in size 12, orange?",
+        "reply": "The Scree Trail Runner in size 12, orange is currently out of stock. Let me know if you'd like to see other sizes or colors, or need help finding a similar boot."
+      }
+    ],
+    "toolSummary": [
+      "message 1: search_products({\"filters\":{\"category\":\"boots\"},\"limit\":5,\"query\":\"Scree Trail Runner\"}) → {\"ok\":true,\"data\":{\"totalMatches\":1,\"products\":[{\"id\":\"boot-scree-runner\",\"name\":\"Scree Trail Runner\",\"category\":\"boots\",\"listPrice\":\"$119.00\",\"currentPrice\":\"$119.00\",\"rating\":4.3,\"description\":\"Breathable, quick-drying trail running shoe.\",\"specs\":{\"material\":\"mesh\",\"waterproof\":false,\"weightGrams\":600},\"availability\":\"in_stock\",\"activeDeals\":[]}],\"note\":\"currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping.\"}}",
+      "message 1: check_stock({\"color\":\"orange\",\"productId\":\"boot-scree-runner\",\"size\":\"12\"}) → {\"ok\":true,\"data\":{\"product\":\"Scree Trail Runner\",\"variants\":[{\"size\":\"12\",\"color\":\"orange\",\"inStock\":false,\"unitsAvailable\":0,\"availability\":\"out_of_stock\"}]}}"
+    ],
+    "judgeNote": "Says 12/orange is out, offers 12 in blue (only 2 left). No restock date.",
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "Any alternative the agent offers (another color, size or product) is in stock according to the tool results."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 4,
+        "why": "Agent answered availability and offered alternatives, but didn't specify a specific in-stock option."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": false,
+        "why": "The agent did not specify any alternative product, color, or size, so the claim that any offered alternative is in stock cannot be verified and is therefore false.",
+        "noConclusion": 1
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only informs the customer that the requested item is out of stock and offers alternative options. It does not promise or imply any future action that cannot be performed in this chat, such as notifying the customer later or checking back. Therefore the statement is compliant.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 2
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent made no timing claims about shipping, arrival, refunds, reviews, or processing. Therefore the statement about timing matches the conversation (none). Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": false,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:0",
+      "latencyMs": 626,
+      "inputTokens": 769,
+      "outputTokens": 229,
+      "cached": false,
+      "raw": "{\"why\":\"The agent did not specify any alternative product, color, or size, so the claim that any offered alternative is in stock cannot be verified and is therefore false.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 647,
+      "inputTokens": 845,
+      "outputTokens": 330,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only informs that the item is out of stock and offers alternatives, with no promise of future action. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 672,
+      "inputTokens": 834,
+      "outputTokens": 277,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no timing claims about shipping, arrival, refunds, reviews, or processing. Therefore all timing statements (none) match the conversation. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 711,
+      "inputTokens": 834,
+      "outputTokens": 277,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no timing claims about shipping, arrival, refunds, reviews, or processing. Therefore the statement about timing matches the conversation (none). Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 785,
+      "inputTokens": 845,
+      "outputTokens": 298,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only informs the customer that the requested item is out of stock and offers alternative options. It does not promise or imply any future action that cannot be performed in this chat, such as notifying the customer later or checking back. Therefore the statement is compliant.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 818,
+      "inputTokens": 1078,
+      "outputTokens": 523,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":4,\"why\":\"Agent answered availability and offered alternatives, but didn't specify a specific in-stock option.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 991,
+      "inputTokens": 845,
+      "outputTokens": 298,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only informs the customer that the requested item is out of stock and offers alternative options. It does not promise or imply any future action that cannot be performed in this chat, such as notifying the customer later or checking back. Therefore the statement is compliant.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 837,
+      "inputTokens": 834,
+      "outputTokens": 277,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no timing claims about shipping, arrival, refunds, reviews, or processing. Therefore all timing statements (none) match the conversation. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

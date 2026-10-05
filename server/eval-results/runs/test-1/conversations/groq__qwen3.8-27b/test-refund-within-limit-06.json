@@ -1,0 +1,347 @@
+{
+  "caseId": "test-refund-within-limit-06",
+  "case": {
+    "id": "test-refund-within-limit-06",
+    "split": "test",
+    "type": "refund_within_limit",
+    "why": "#1031 (Jamie Rossi, Kindling stove, $79.00) is delayed, but it shipped free (orders of $75 or more), so there's no shipping cost to refund (the late refund is NOTHING_REFUNDABLE). No refund is possible. A goodwill coupon of 10% or less is allowed, not required (delayed = store-caused; he has had none).",
+    "source": "test batch 1",
+    "customer": "jamie.rossi121@example.com",
+    "turns": [
+      {
+        "customer": "My wood stove order #1031 is late. Can I get my shipping cost back?"
+      }
+    ],
+    "expect": {
+      "route": "support",
+      "outcome": [
+        "resolved",
+        "escalated"
+      ],
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": [
+            {
+              "maxPercent": 10,
+              "order": 1031,
+              "status": "issued"
+            }
+          ]
+        },
+        "escalation": "allowed"
+      },
+      "leaks": [],
+      "judgeChecks": [
+        "The agent explains the order shipped free, so there's no shipping cost to refund, and doesn't invent another refund."
+      ]
+    }
+  },
+  "agentModel": "groq/qwen3.8-27b",
+  "team": {
+    "router": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "0e498f78-acbe-429a-b78f-726a96d089de",
+    "turns": [
+      {
+        "customer": "My wood stove order #1031 is late. Can I get my shipping cost back?",
+        "reply": "Thanks for your patience. Your order #1031 is marked as delayed, and delayed orders do get their shipping cost refunded on request. In this case, though, your shipping was already $0.00 (free on orders of $75 or more), so there's no shipping charge I can put back.\n\nLet me know if there's anything else I can check.",
+        "answeredBy": "support",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "My wood stove order #1031 is late. Can I get my shipping cost back?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\n\"route\": \"support\",\n\"category\": \"refunds\",\n\"urgency\": \"high\",\n\"confidence\": 0.95\n}",
+          "decision": {
+            "route": "support",
+            "category": "refunds",
+            "urgency": "high",
+            "confidence": 0.95
+          },
+          "fallback": false
+        },
+        "inputTokens": 357,
+        "outputTokens": 36,
+        "latencyMs": 348,
+        "cached": false,
+        "costMicros": 430,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Jamie Rossi (jamie.rossi121@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "cja07qz30",
+                "name": "get_order",
+                "arguments": "{\"orderId\":1031}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2768,
+        "outputTokens": 29,
+        "latencyMs": 517,
+        "cached": false,
+        "costMicros": 2330,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "cja07qz30",
+          "name": "get_order",
+          "arguments": "{\"orderId\":1031}",
+          "result": {
+            "ok": true,
+            "data": {
+              "number": 1031,
+              "status": "delayed",
+              "placed": "2026-09-03",
+              "delivered": null,
+              "items": [
+                {
+                  "productId": "stove-kindling-wood",
+                  "name": "Kindling Wood-Burning Stove",
+                  "size": null,
+                  "color": null,
+                  "qty": 1,
+                  "listPrice": "$79.00",
+                  "discount": "$0.00",
+                  "paid": "$79.00",
+                  "returnedQty": 0
+                }
+              ],
+              "subtotal": "$79.00",
+              "discount": "$0.00",
+              "shipping": "$0.00",
+              "totalPaid": "$79.00",
+              "refunds": []
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Jamie Rossi (jamie.rossi121@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "dx8ktnsd3",
+                "name": "get_policy",
+                "arguments": "{\"topic\":\"shipping\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2959,
+        "outputTokens": 26,
+        "latencyMs": 532,
+        "cached": false,
+        "costMicros": 2471,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "dx8ktnsd3",
+          "name": "get_policy",
+          "arguments": "{\"topic\":\"shipping\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "topic": "shipping",
+              "title": "Shipping",
+              "text": "Standard shipping costs $7.99 and is free on orders of $75.00 or more (after discounts).\nOrders ship from our warehouse within 1–2 business days and arrive 3–6 business days after shipping.\nWe ship within the United States only.\nTracking is available once an order has shipped.\nIf an order is delayed, we refund the shipping cost on request."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Jamie Rossi (jamie.rossi121@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": "Thanks for your patience. Your order #1031 is marked as delayed, and delayed orders do get their shipping cost refunded on request. In this case, though, your shipping was already $0.00 (free on orders of $75 or more), so there's no shipping charge I can put back.\n\nLet me know if there's anything else I can check."
+          },
+          "finishReason": "stop"
+        },
+        "inputTokens": 3104,
+        "outputTokens": 80,
+        "latencyMs": 644,
+        "cached": false,
+        "costMicros": 2803,
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "Thanks for your patience. Your order #1031 is marked as delayed, and delayed orders do get their shipping cost refunded on request. In this case, though, your shipping was already $0.00 (free on orders of $75 or more), so there's no shipping charge I can put back.\n\nLet me know if there's anything else I can check.",
+          "implicit": true
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "support",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "test-refund-within-limit-06",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to support",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to support"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved or escalated",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent explains the order shipped free, so there's no shipping cost to refund, and doesn't invent another refund."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 4,
+    "cachedCalls": 0,
+    "toolCalls": 2,
+    "inputTokens": 9188,
+    "outputTokens": 171,
+    "latencyMs": 2041,
+    "turnLatencyMs": [
+      2041
+    ],
+    "costMicros": 8034,
+    "wallMs": 2097
+  },
+  "finishedAt": "2026-10-05T12:40:53.915Z"
+}

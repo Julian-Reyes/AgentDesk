@@ -1,0 +1,672 @@
+{
+  "caseId": "test-price-deals-02",
+  "case": {
+    "id": "test-price-deals-02",
+    "split": "test",
+    "type": "price_deals",
+    "why": "Buy-2-get-1 across different headlamps: Beacon 500 ($49.00), Nightowl 200 ($34.00), Firefly Kids ($14.99). The cheapest (Firefly) is free: $83.00, which clears $75, so shipping is free.",
+    "source": "test batch 4",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "If I get a Beacon 500, a Nightowl 200 and a Firefly kids headlamp, what do I pay?"
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "price": {
+        "cart": [
+          {
+            "productId": "lamp-beacon-500",
+            "qty": 1
+          },
+          {
+            "productId": "lamp-nightowl-200",
+            "qty": 1
+          },
+          {
+            "productId": "lamp-firefly-kids",
+            "qty": 1
+          }
+        ],
+        "totalCents": 8300
+      },
+      "leaks": [],
+      "judge": "Explains the cheapest of the three (the Firefly) is free under the headlamp deal.",
+      "judgeChecks": []
+    }
+  },
+  "agentModel": "groq/qwen3.8-27b",
+  "team": {
+    "router": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "groq/qwen3.8-27b",
+      "provider": "groq",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "9e9286cb-f8bc-483c-97b8-e182450f5ca1",
+    "turns": [
+      {
+        "customer": "If I get a Beacon 500, a Nightowl 200 and a Firefly kids headlamp, what do I pay?",
+        "reply": "Here's what that cart comes to:\n\n- Beacon 500 Rechargeable Headlamp: $49.00\n- Nightowl 200 Red-Light Headlamp: $34.00\n- Firefly Kids Headlamp: FREE ($14.99) — with the \"Buy 2, get 1 free\" headlamp deal, the cheapest one is on the house\n\nTotal: **$83.00**, with free shipping.\n\nNote the Firefly Kids is running low on stock, so grab it while you can. Want a coupon check or anything else added?",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "If I get a Beacon 500, a Nightowl 200 and a Firefly kids headlamp, what do I pay?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\n  \"route\": \"shopping\",\n  \"category\": \"pricing_deals\",\n  \"urgency\": \"normal\",\n  \"confidence\": 0.98\n}",
+          "decision": {
+            "route": "shopping",
+            "category": "pricing_deals",
+            "urgency": "normal",
+            "confidence": 0.98
+          },
+          "fallback": false
+        },
+        "inputTokens": 367,
+        "outputTokens": 41,
+        "latencyMs": 351,
+        "cached": false,
+        "costMicros": 458,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "kxec5483b",
+                "name": "search_products",
+                "arguments": "{\"query\":\"Beacon 500\"}"
+              },
+              {
+                "id": "qy073dxbe",
+                "name": "search_products",
+                "arguments": "{\"query\":\"Nightowl 200\"}"
+              },
+              {
+                "id": "5stq8yhp8",
+                "name": "search_products",
+                "arguments": "{\"query\":\"Firefly kids headlamp\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2483,
+        "outputTokens": 95,
+        "latencyMs": 750,
+        "cached": false,
+        "costMicros": 2366,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "kxec5483b",
+          "name": "search_products",
+          "arguments": "{\"query\":\"Beacon 500\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 2,
+              "products": [
+                {
+                  "id": "lamp-beacon-500",
+                  "name": "Beacon 500 Rechargeable Headlamp",
+                  "category": "headlamps",
+                  "listPrice": "$49.00",
+                  "currentPrice": "$49.00",
+                  "rating": 4.6,
+                  "description": "USB-C rechargeable headlamp with a lock mode.",
+                  "specs": {
+                    "lumens": 500,
+                    "waterproof": true,
+                    "weightGrams": 86,
+                    "burnTimeMinutes": 1200
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Headlamps: buy 2, get 1 free"
+                  ]
+                },
+                {
+                  "id": "lamp-beacon-900",
+                  "name": "Beacon 900 Rechargeable Headlamp",
+                  "category": "headlamps",
+                  "listPrice": "$79.00",
+                  "currentPrice": "$79.00",
+                  "rating": 4.7,
+                  "description": "High-output rechargeable headlamp with a rear battery pack.",
+                  "specs": {
+                    "lumens": 900,
+                    "waterproof": true,
+                    "weightGrams": 140,
+                    "burnTimeMinutes": 900
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Headlamps: buy 2, get 1 free"
+                  ]
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "qy073dxbe",
+          "name": "search_products",
+          "arguments": "{\"query\":\"Nightowl 200\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 1,
+              "products": [
+                {
+                  "id": "lamp-nightowl-200",
+                  "name": "Nightowl 200 Red-Light Headlamp",
+                  "category": "headlamps",
+                  "listPrice": "$34.00",
+                  "currentPrice": "$34.00",
+                  "rating": 4.2,
+                  "description": "Headlamp with a strong red mode for stargazing.",
+                  "specs": {
+                    "lumens": 200,
+                    "waterproof": true,
+                    "weightGrams": 74,
+                    "burnTimeMinutes": 2000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Headlamps: buy 2, get 1 free"
+                  ]
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "5stq8yhp8",
+          "name": "search_products",
+          "arguments": "{\"query\":\"Firefly kids headlamp\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 11,
+              "products": [
+                {
+                  "id": "lamp-firefly-kids",
+                  "name": "Firefly Kids Headlamp",
+                  "category": "headlamps",
+                  "listPrice": "$14.99",
+                  "currentPrice": "$14.99",
+                  "rating": 4.3,
+                  "description": "Low-power kids' headlamp with a soft strap.",
+                  "specs": {
+                    "lumens": 100,
+                    "waterproof": false,
+                    "weightGrams": 50,
+                    "burnTimeMinutes": 1500
+                  },
+                  "availability": "low_stock",
+                  "activeDeals": [
+                    "Headlamps: buy 2, get 1 free"
+                  ]
+                },
+                {
+                  "id": "lamp-beacon-900",
+                  "name": "Beacon 900 Rechargeable Headlamp",
+                  "category": "headlamps",
+                  "listPrice": "$79.00",
+                  "currentPrice": "$79.00",
+                  "rating": 4.7,
+                  "description": "High-output rechargeable headlamp with a rear battery pack.",
+                  "specs": {
+                    "lumens": 900,
+                    "waterproof": true,
+                    "weightGrams": 140,
+                    "burnTimeMinutes": 900
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Headlamps: buy 2, get 1 free"
+                  ]
+                },
+                {
+                  "id": "lamp-beacon-500",
+                  "name": "Beacon 500 Rechargeable Headlamp",
+                  "category": "headlamps",
+                  "listPrice": "$49.00",
+                  "currentPrice": "$49.00",
+                  "rating": 4.6,
+                  "description": "USB-C rechargeable headlamp with a lock mode.",
+                  "specs": {
+                    "lumens": 500,
+                    "waterproof": true,
+                    "weightGrams": 86,
+                    "burnTimeMinutes": 1200
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Headlamps: buy 2, get 1 free"
+                  ]
+                },
+                {
+                  "id": "lamp-stride-400",
+                  "name": "Stride 400 Running Headlamp",
+                  "category": "headlamps",
+                  "listPrice": "$59.00",
+                  "currentPrice": "$59.00",
+                  "rating": 4.5,
+                  "description": "Bounce-free headlamp for trail running.",
+                  "specs": {
+                    "lumens": 400,
+                    "waterproof": true,
+                    "weightGrams": 60,
+                    "burnTimeMinutes": 600
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Headlamps: buy 2, get 1 free"
+                  ]
+                },
+                {
+                  "id": "bag-sprout-kids",
+                  "name": "Sprout 5°C Kids Sleeping Bag",
+                  "category": "sleeping_bags",
+                  "listPrice": "$49.00",
+                  "currentPrice": "$49.00",
+                  "rating": 4.4,
+                  "description": "Kid-sized synthetic bag for children up to 150 cm tall.",
+                  "specs": {
+                    "material": "synthetic fill",
+                    "tempRatingC": 5,
+                    "weightGrams": 900
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "lamp-glowworm-300",
+                  "name": "Glowworm 300 Headlamp",
+                  "category": "headlamps",
+                  "listPrice": "$29.00",
+                  "currentPrice": "$29.00",
+                  "rating": 4.4,
+                  "description": "All-round AAA headlamp with a red night mode.",
+                  "specs": {
+                    "lumens": 300,
+                    "waterproof": true,
+                    "weightGrams": 78,
+                    "burnTimeMinutes": 1800
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Headlamps: buy 2, get 1 free"
+                  ]
+                },
+                {
+                  "id": "boot-cub-kids",
+                  "name": "Cub Kids Hiking Boot",
+                  "category": "boots",
+                  "listPrice": "$69.00",
+                  "currentPrice": "$69.00",
+                  "rating": 4.3,
+                  "description": "Waterproof hiking boot for kids with easy hook-and-loop closure.",
+                  "specs": {
+                    "material": "synthetic",
+                    "waterproof": true,
+                    "weightGrams": 700
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "lamp-hearth-350",
+                  "name": "Hearth 350 Lantern Headlamp",
+                  "category": "headlamps",
+                  "listPrice": "$44.00",
+                  "currentPrice": "$44.00",
+                  "rating": 4.3,
+                  "description": "Headlamp that converts into a tent lantern with a diffuser.",
+                  "specs": {
+                    "lumens": 350,
+                    "waterproof": true,
+                    "weightGrams": 95,
+                    "burnTimeMinutes": 1400
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Headlamps: buy 2, get 1 free"
+                  ]
+                },
+                {
+                  "id": "lamp-nightowl-200",
+                  "name": "Nightowl 200 Red-Light Headlamp",
+                  "category": "headlamps",
+                  "listPrice": "$34.00",
+                  "currentPrice": "$34.00",
+                  "rating": 4.2,
+                  "description": "Headlamp with a strong red mode for stargazing.",
+                  "specs": {
+                    "lumens": 200,
+                    "waterproof": true,
+                    "weightGrams": 74,
+                    "burnTimeMinutes": 2000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Headlamps: buy 2, get 1 free"
+                  ]
+                },
+                {
+                  "id": "pack-cub-15",
+                  "name": "Cub 15 Kids Pack",
+                  "category": "backpacks",
+                  "listPrice": "$45.00",
+                  "currentPrice": "$45.00",
+                  "rating": 4.2,
+                  "description": "Small daypack sized for kids, with a chest strap and whistle.",
+                  "specs": {
+                    "material": "polyester",
+                    "waterproof": false,
+                    "weightGrams": 400,
+                    "volumeLiters": 15
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "qtct6a82q",
+                "name": "quote_price",
+                "arguments": "{\"cart\":[{\"productId\":\"lamp-beacon-500\",\"qty\":1},{\"productId\":\"lamp-nightowl-200\",\"qty\":1},{\"productId\":\"lamp-firefly-kids\",\"qty\":1}]}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 4240,
+        "outputTokens": 79,
+        "latencyMs": 729,
+        "cached": false,
+        "costMicros": 3708,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "qtct6a82q",
+          "name": "quote_price",
+          "arguments": "{\"cart\":[{\"productId\":\"lamp-beacon-500\",\"qty\":1},{\"productId\":\"lamp-nightowl-200\",\"qty\":1},{\"productId\":\"lamp-firefly-kids\",\"qty\":1}]}",
+          "result": {
+            "ok": true,
+            "data": {
+              "lines": [
+                {
+                  "productId": "lamp-beacon-500",
+                  "name": "Beacon 500 Rechargeable Headlamp",
+                  "qty": 1,
+                  "listPrice": "$49.00",
+                  "discounts": [],
+                  "lineTotal": "$49.00"
+                },
+                {
+                  "productId": "lamp-nightowl-200",
+                  "name": "Nightowl 200 Red-Light Headlamp",
+                  "qty": 1,
+                  "listPrice": "$34.00",
+                  "discounts": [],
+                  "lineTotal": "$34.00"
+                },
+                {
+                  "productId": "lamp-firefly-kids",
+                  "name": "Firefly Kids Headlamp",
+                  "qty": 1,
+                  "listPrice": "$14.99",
+                  "discounts": [
+                    {
+                      "deal": "Headlamps: buy 2, get 1 free",
+                      "amount": "-$14.99"
+                    }
+                  ],
+                  "lineTotal": "$0.00"
+                }
+              ],
+              "subtotal": "$97.99",
+              "coupon": null,
+              "totalDiscounts": "-$14.99",
+              "shipping": "FREE",
+              "total": "$83.00",
+              "totalCents": 8300
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 3,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": "Here's what that cart comes to:\n\n- Beacon 500 Rechargeable Headlamp: $49.00\n- Nightowl 200 Red-Light Headlamp: $34.00\n- Firefly Kids Headlamp: FREE ($14.99) — with the \"Buy 2, get 1 free\" headlamp deal, the cheapest one is on the house\n\nTotal: **$83.00**, with free shipping.\n\nNote the Firefly Kids is running low on stock, so grab it while you can. Want a coupon check or anything else added?"
+          },
+          "finishReason": "stop"
+        },
+        "inputTokens": 4569,
+        "outputTokens": 131,
+        "latencyMs": 980,
+        "cached": false,
+        "costMicros": 4179,
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "Here's what that cart comes to:\n\n- Beacon 500 Rechargeable Headlamp: $49.00\n- Nightowl 200 Red-Light Headlamp: $34.00\n- Firefly Kids Headlamp: FREE ($14.99) — with the \"Buy 2, get 1 free\" headlamp deal, the cheapest one is on the house\n\nTotal: **$83.00**, with free shipping.\n\nNote the Firefly Kids is running low on stock, so grab it while you can. Want a coupon check or anything else added?",
+          "implicit": true
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "shopping",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "test-price-deals-02",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to shopping"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "price_quoted",
+        "label": "quote_price for lamp-beacon-500×1,lamp-firefly-kids×1,lamp-nightowl-200×1",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "price_stated",
+        "label": "reply 1 states $83.00",
+        "pass": true,
+        "severity": "task",
+        "detail": "amounts in reply: $49.00, $34.00, $14.99, $83.00"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 4,
+    "cachedCalls": 0,
+    "toolCalls": 4,
+    "inputTokens": 11659,
+    "outputTokens": 346,
+    "latencyMs": 2810,
+    "turnLatencyMs": [
+      2810
+    ],
+    "costMicros": 10711,
+    "wallMs": 2865
+  },
+  "finishedAt": "2026-10-05T12:39:06.854Z"
+}

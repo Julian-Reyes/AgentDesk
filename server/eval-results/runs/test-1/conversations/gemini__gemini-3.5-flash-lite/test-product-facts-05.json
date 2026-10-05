@@ -1,0 +1,535 @@
+{
+  "caseId": "test-product-facts-05",
+  "case": {
+    "id": "test-product-facts-05",
+    "split": "test",
+    "type": "product_facts",
+    "why": "Nomad Multi-Fuel Stove: burns white gas, kerosene or canister fuel; 330 g (catalog).",
+    "source": "test batch 4",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "What fuels can the Nomad stove burn, and how heavy is it?",
+        "reply": {
+          "mentions": [
+            "white gas",
+            "kerosene",
+            [
+              "330 g",
+              "330g",
+              "0.33 kg"
+            ]
+          ],
+          "amounts": [],
+          "avoids": []
+        }
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "leaks": [],
+      "judge": "Lists all three fuels (white gas, kerosene, canister) and 330 g. No invented boil times or output.",
+      "judgeChecks": []
+    }
+  },
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "team": {
+    "router": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "91ca0149-8f01-48d3-b588-0bb9360e8259",
+    "turns": [
+      {
+        "customer": "What fuels can the Nomad stove burn, and how heavy is it?",
+        "reply": "The Nomad Multi-Fuel Stove burns white gas, kerosene, or canister fuel, and it weighs 330 grams.",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "What fuels can the Nomad stove burn, and how heavy is it?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"shopping\", \"category\": \"product_info\", \"urgency\": \"normal\", \"confidence\": 0.99}",
+          "decision": {
+            "route": "shopping",
+            "category": "product_info",
+            "urgency": "normal",
+            "confidence": 0.99
+          },
+          "fallback": false
+        },
+        "inputTokens": 346,
+        "outputTokens": 30,
+        "latencyMs": 769,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_157590",
+                "name": "search_products",
+                "arguments": "{\"query\":\"Nomad stove\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0Tp6f91vuEUamIf6NoUBSMyRaXqDt6raWl6IgVjQzUpRs0LIQwLDYkclAUksVAH461GmFTipIJW4duVKbgyK57XtEX4RJbbe04C/2smpIt/kPyDm6k6Z0bJAM="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1992,
+        "outputTokens": 18,
+        "latencyMs": 812,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_157590",
+          "name": "search_products",
+          "arguments": "{\"query\":\"Nomad stove\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 8,
+              "products": [
+                {
+                  "id": "stove-nomad-multifuel",
+                  "name": "Nomad Multi-Fuel Stove",
+                  "category": "stoves",
+                  "listPrice": "$169.00",
+                  "currentPrice": "$169.00",
+                  "rating": 4.5,
+                  "description": "Burns white gas, kerosene or canister fuel, for travel and cold weather.",
+                  "specs": {
+                    "fuel": "multi-fuel (white gas, kerosene, canister)",
+                    "weightGrams": 330
+                  },
+                  "availability": "low_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "stove-quickboil",
+                  "name": "Quickboil Cook System",
+                  "category": "stoves",
+                  "listPrice": "$129.00",
+                  "currentPrice": "$129.00",
+                  "rating": 4.7,
+                  "description": "Integrated stove and 1-liter pot that boils water in about 3 minutes.",
+                  "specs": {
+                    "fuel": "isobutane canister",
+                    "weightGrams": 450,
+                    "volumeLiters": 1
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "stove-pocket-pro",
+                  "name": "Pocket Pro Canister Stove",
+                  "category": "stoves",
+                  "listPrice": "$55.00",
+                  "currentPrice": "$55.00",
+                  "rating": 4.6,
+                  "description": "Pocket stove with a push-button igniter and wind shield.",
+                  "specs": {
+                    "fuel": "isobutane canister",
+                    "weightGrams": 95
+                  },
+                  "availability": "low_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "stove-fuel-230",
+                  "name": "Isobutane Fuel Canister 230 g",
+                  "category": "stoves",
+                  "listPrice": "$6.99",
+                  "currentPrice": "$6.99",
+                  "rating": 4.5,
+                  "description": "230 g isobutane-propane canister; fits all threaded canister stoves.",
+                  "specs": {
+                    "fuel": "isobutane-propane",
+                    "weightGrams": 360,
+                    "burnTimeMinutes": 90
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "stove-pocket",
+                  "name": "Pocket Canister Stove",
+                  "category": "stoves",
+                  "listPrice": "$39.00",
+                  "currentPrice": "$39.00",
+                  "rating": 4.4,
+                  "description": "Tiny screw-on stove for isobutane canisters.",
+                  "specs": {
+                    "fuel": "isobutane canister",
+                    "weightGrams": 85
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "stove-campside-twin",
+                  "name": "Campside Twin-Burner Stove",
+                  "category": "stoves",
+                  "listPrice": "$119.00",
+                  "currentPrice": "$119.00",
+                  "rating": 4.3,
+                  "description": "Two-burner propane stove for car camping kitchens.",
+                  "specs": {
+                    "fuel": "propane",
+                    "weightGrams": 4500
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "stove-kindling-wood",
+                  "name": "Kindling Wood-Burning Stove",
+                  "category": "stoves",
+                  "listPrice": "$79.00",
+                  "currentPrice": "$79.00",
+                  "rating": 4,
+                  "description": "Folding stainless steel stove that burns twigs and pine cones.",
+                  "specs": {
+                    "fuel": "wood",
+                    "weightGrams": 400
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "stove-spirit-alcohol",
+                  "name": "Spirit Alcohol Stove",
+                  "category": "stoves",
+                  "listPrice": "$19.99",
+                  "currentPrice": "$19.99",
+                  "rating": 3.9,
+                  "description": "Ultralight brass alcohol burner with a simmer ring.",
+                  "specs": {
+                    "fuel": "denatured alcohol",
+                    "weightGrams": 30
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_208251",
+                "name": "get_product",
+                "arguments": "{\"id\":\"stove-nomad-multifuel\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TbInKycAF9/UDpnNBg5LvjGTXHuSSk/+SEr1ZeFAdEVqLC5M1gQpbFLOOvTHvRJ9ufUljWBgkBVLKl+h+U6xQMdi1YUMyFPoho5CG3y7c0VKvWgcHZDLXKTs="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2833,
+        "outputTokens": 22,
+        "latencyMs": 979,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_208251",
+          "name": "get_product",
+          "arguments": "{\"id\":\"stove-nomad-multifuel\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "id": "stove-nomad-multifuel",
+              "name": "Nomad Multi-Fuel Stove",
+              "category": "stoves",
+              "listPrice": "$169.00",
+              "currentPrice": "$169.00",
+              "rating": 4.5,
+              "description": "Burns white gas, kerosene or canister fuel, for travel and cold weather.",
+              "specs": {
+                "fuel": "multi-fuel (white gas, kerosene, canister)",
+                "weightGrams": 330
+              },
+              "availability": "low_stock",
+              "activeDeals": [],
+              "variants": [
+                {
+                  "size": null,
+                  "color": null,
+                  "availability": "low_stock"
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 3,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_228463",
+                "name": "reply",
+                "arguments": "{\"message\":\"The Nomad Multi-Fuel Stove burns white gas, kerosene, or canister fuel, and it weighs 330 grams.\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TCyvCpa3ljrFZ9OGFBW4GPrcDTlK36BlOT633OMHc1+xclmW+iVHC0r9qwNn49204z1fkQvfk2rqAH+8dm89EK7+gKtOzK6lsLEsLLkSG4BdPnNn1jzc9TGE="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2998,
+        "outputTokens": 38,
+        "latencyMs": 794,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_228463",
+          "name": "reply",
+          "arguments": "{\"message\":\"The Nomad Multi-Fuel Stove burns white gas, kerosene, or canister fuel, and it weighs 330 grams.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "The Nomad Multi-Fuel Stove burns white gas, kerosene, or canister fuel, and it weighs 330 grams."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "The Nomad Multi-Fuel Stove burns white gas, kerosene, or canister fuel, and it weighs 330 grams."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "shopping",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "test-product-facts-05",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to shopping"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "reply1:mentions:0",
+        "label": "reply 1 mentions \"white gas\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:mentions:1",
+        "label": "reply 1 mentions \"kerosene\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:mentions:2",
+        "label": "reply 1 mentions \"330 g\" or \"330g\" or \"0.33 kg\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 4,
+    "cachedCalls": 0,
+    "toolCalls": 2,
+    "inputTokens": 8169,
+    "outputTokens": 108,
+    "latencyMs": 3354,
+    "turnLatencyMs": [
+      3354
+    ],
+    "costMicros": 0,
+    "wallMs": 3605
+  },
+  "finishedAt": "2026-10-05T12:39:13.613Z"
+}

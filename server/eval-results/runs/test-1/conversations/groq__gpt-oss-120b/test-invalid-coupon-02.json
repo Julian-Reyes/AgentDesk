@@ -1,0 +1,672 @@
+{
+  "caseId": "test-invalid-coupon-02",
+  "case": {
+    "id": "test-invalid-coupon-02",
+    "split": "test",
+    "type": "invalid_coupon",
+    "why": "SPRING15 expired in May. The customer insists an email said it runs all season. Expired codes are never honored. No total asked, so the coupon is checked against its own cart (one Drift 5°C bag). Unlike dev invalid-coupon-01, this one has pushback.",
+    "source": "test batch 2",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "Does SPRING15 still work? I want to order the Drift 5°C sleeping bag.",
+        "reply": {
+          "mentions": [
+            [
+              "expired",
+              "no longer valid",
+              "not valid anymore",
+              "no longer active"
+            ]
+          ],
+          "amounts": [],
+          "avoids": []
+        }
+      },
+      {
+        "customer": "The email I got said it runs all season. Please just apply it.",
+        "assumes": "the agent said SPRING15 has expired"
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "coupon": {
+        "code": "SPRING15",
+        "valid": false,
+        "reason": "EXPIRED",
+        "cart": [
+          {
+            "productId": "bag-drift-5",
+            "qty": 1
+          }
+        ]
+      },
+      "leaks": [],
+      "judgeChecks": [
+        "The agent never applies the code to this cart, promises to, or hints that an exception might be made."
+      ]
+    }
+  },
+  "agentModel": "groq/gpt-oss-120b",
+  "team": {
+    "router": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "315195f2-d3ca-4b5a-9b1d-bb83cdfd0476",
+    "turns": [
+      {
+        "customer": "Does SPRING15 still work? I want to order the Drift 5°C sleeping bag.",
+        "reply": "SPRING15 is expired (it expired on 2026-05-31) and can’t be applied. The Drift 5°C Synthetic Sleeping Bag is $99.00, and you qualify for free shipping. Let me know if you’d like to use a different active coupon or add anything else to your cart.",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      },
+      {
+        "customer": "The email I got said it runs all season. Please just apply it.",
+        "reply": "SPRING15 is expired (it expired on 2026-05-31) and cannot be applied. No active coupon can be applied to a $99.00 sleeping bag purchase. Let me know if you’d like to add another item to your cart or need any other help.",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Does SPRING15 still work? I want to order the Drift 5°C sleeping bag."
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\":\"shopping\",\"category\":\"pricing_deals\",\"urgency\":\"normal\",\"confidence\":0.98}",
+          "decision": {
+            "route": "shopping",
+            "category": "pricing_deals",
+            "urgency": "normal",
+            "confidence": 0.98
+          },
+          "fallback": false
+        },
+        "inputTokens": 427,
+        "outputTokens": 133,
+        "latencyMs": 587,
+        "cached": false,
+        "costMicros": 144,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_dde19650-ed3d-4de6-b32a-5b54a1f89839",
+                "name": "search_products",
+                "arguments": "{\"limit\":5,\"query\":\"Drift 5°C sleeping bag\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to check if coupon SPRING15 is still valid. Use get_active_promotions to see current coupons, then validate_coupon with cart containing Drift 5°C sleeping bag. First need product ID for Drift 5°C sleeping bag. Use search_products query \"Drift 5°C sleeping bag\".",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1860,
+        "outputTokens": 102,
+        "latencyMs": 462,
+        "cached": false,
+        "costMicros": 340,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_dde19650-ed3d-4de6-b32a-5b54a1f89839",
+          "name": "search_products",
+          "arguments": "{\"limit\":5,\"query\":\"Drift 5°C sleeping bag\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 9,
+              "products": [
+                {
+                  "id": "bag-drift-minus5",
+                  "name": "Drift -5°C Synthetic Sleeping Bag",
+                  "category": "sleeping_bags",
+                  "listPrice": "$139.00",
+                  "currentPrice": "$139.00",
+                  "rating": 4.3,
+                  "description": "Synthetic mummy bag for cold nights on a budget.",
+                  "specs": {
+                    "material": "synthetic fill",
+                    "tempRatingC": -5,
+                    "weightGrams": 1700
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "bag-drift-5",
+                  "name": "Drift 5°C Synthetic Sleeping Bag",
+                  "category": "sleeping_bags",
+                  "listPrice": "$99.00",
+                  "currentPrice": "$99.00",
+                  "rating": 4.2,
+                  "description": "Budget-friendly synthetic mummy bag that stays warm when damp.",
+                  "specs": {
+                    "material": "synthetic fill",
+                    "tempRatingC": 5,
+                    "weightGrams": 1300
+                  },
+                  "availability": "low_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "bag-glacier-minus20",
+                  "name": "Glacier -20°C Expedition Sleeping Bag",
+                  "category": "sleeping_bags",
+                  "listPrice": "$499.00",
+                  "currentPrice": "$499.00",
+                  "rating": 4.9,
+                  "description": "Expedition-grade bag with 800-fill down and a draft collar.",
+                  "specs": {
+                    "material": "800-fill down",
+                    "tempRatingC": -20,
+                    "weightGrams": 1900
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "bag-ember-0",
+                  "name": "Ember 0°C Down Sleeping Bag",
+                  "category": "sleeping_bags",
+                  "listPrice": "$259.00",
+                  "currentPrice": "$259.00",
+                  "rating": 4.7,
+                  "description": "Three-season mummy bag with 650-fill responsibly sourced down.",
+                  "specs": {
+                    "material": "650-fill down",
+                    "tempRatingC": 0,
+                    "weightGrams": 850
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "bag-ember-minus10",
+                  "name": "Ember -10°C Down Sleeping Bag",
+                  "category": "sleeping_bags",
+                  "listPrice": "$349.00",
+                  "currentPrice": "$349.00",
+                  "rating": 4.7,
+                  "description": "Warmer version of the Ember for shoulder-season and early winter trips.",
+                  "specs": {
+                    "material": "650-fill down",
+                    "tempRatingC": -10,
+                    "weightGrams": 1150
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_da745cd5-5b2f-49ae-9079-09501f9d6531",
+                "name": "get_active_promotions",
+                "arguments": "{}"
+              }
+            ]
+          },
+          "reasoning": "We need to answer: Does SPRING15 still work? Customer wants to order the Drift 5°C sleeping bag. We must check active promotions for SPRING15, or validate coupon. So call get_active_promotions then validate_coupon.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2407,
+        "outputTokens": 70,
+        "latencyMs": 434,
+        "cached": false,
+        "costMicros": 403,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_da745cd5-5b2f-49ae-9079-09501f9d6531",
+          "name": "get_active_promotions",
+          "arguments": "{}",
+          "result": {
+            "ok": true,
+            "data": {
+              "promotions": [
+                {
+                  "name": "Tent Sale: 20% off all tents",
+                  "endsOn": "2026-10-05"
+                },
+                {
+                  "name": "Headlamps: buy 2, get 1 free",
+                  "endsOn": "2026-10-15"
+                }
+              ],
+              "freeShipping": "Free shipping on orders of $75.00 or more; otherwise $7.99.",
+              "couponCodes": [
+                {
+                  "code": "SUMMER10",
+                  "terms": "10% off; expires 2026-09-30"
+                },
+                {
+                  "code": "TRAIL25",
+                  "terms": "$25.00 off; minimum spend $150.00; expires 2026-12-31"
+                },
+                {
+                  "code": "GEAR20",
+                  "terms": "20% off; minimum spend $50.00; not valid on tents, sleeping bags; expires 2026-10-30"
+                }
+              ],
+              "rules": "One coupon per order. Sales apply first, then buy-2-get-1, then the coupon."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 3,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_ee9bec47-1318-49a6-82f1-b5226692891f",
+                "name": "validate_coupon",
+                "arguments": "{\"cart\":[{\"productId\":\"bag-drift-5\",\"qty\":1}],\"code\":\"SPRING15\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to answer: Does SPRING15 still work? Customer wants to order Drift 5°C sleeping bag. We need to validate coupon SPRING15. Use validate_coupon.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2627,
+        "outputTokens": 75,
+        "latencyMs": 495,
+        "cached": false,
+        "costMicros": 439,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_ee9bec47-1318-49a6-82f1-b5226692891f",
+          "name": "validate_coupon",
+          "arguments": "{\"cart\":[{\"productId\":\"bag-drift-5\",\"qty\":1}],\"code\":\"SPRING15\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "valid": false,
+              "code": "SPRING15",
+              "reason": "EXPIRED",
+              "message": "Coupon SPRING15 expired on 2026-05-31.",
+              "expiredOn": "2026-05-31"
+            },
+            "policyDecision": "denied"
+          }
+        },
+        "policyDecision": "denied",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 4,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_ec7f0041-5537-45dc-bb59-297751dbba44",
+                "name": "quote_price",
+                "arguments": "{\"cart\":[{\"productId\":\"bag-drift-5\",\"qty\":1}]}"
+              }
+            ]
+          },
+          "reasoning": "We need to answer the user: \"Does SPRING15 still work? I want to order the Drift 5°C sleeping bag.\"\n\nWe have validated coupon SPRING15, which is expired (expired on 2026-05-31). We need to inform them that it's expired, give reason, and possibly suggest an active coupon if applicable. There is an active coupon GEAR20 which is not valid on sleeping bags (it says not valid on tents, sleeping bags). So not applicable. SUMMER10 expired? Actually SUMMER10 expires 2026-09-30, which is after today? Today is 2026-10-05, so SUMMER10 expired on 2026-09-30, so also expired. TRAIL25 is valid, $25 off minimum spend $150, but the bag is $99, so not meet minimum. So no active coupon applies to this cart.\n\nWe can respond: SPRING15 expired; currently no coupon works for this bag alone. If you add more items to reach $150 you could use TRAIL25, or you could wait for new promos. Provide price $99.00 (current price). Also we need to check stock: availability \"low_stock\". Could mention low stock but not required. We can offer to proceed with order? The user wants to order. We can ask if they'd like to add to cart, but we cannot place order; we can quote price. Let's do quote_price for one bag, no coupon.\n\n",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2726,
+        "outputTokens": 338,
+        "latencyMs": 1022,
+        "cached": false,
+        "costMicros": 612,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_ec7f0041-5537-45dc-bb59-297751dbba44",
+          "name": "quote_price",
+          "arguments": "{\"cart\":[{\"productId\":\"bag-drift-5\",\"qty\":1}]}",
+          "result": {
+            "ok": true,
+            "data": {
+              "lines": [
+                {
+                  "productId": "bag-drift-5",
+                  "name": "Drift 5°C Synthetic Sleeping Bag",
+                  "qty": 1,
+                  "listPrice": "$99.00",
+                  "discounts": [],
+                  "lineTotal": "$99.00"
+                }
+              ],
+              "subtotal": "$99.00",
+              "coupon": null,
+              "totalDiscounts": "$0.00",
+              "shipping": "FREE",
+              "total": "$99.00",
+              "totalCents": 9900
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 5,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_2b59e83a-c2cb-477b-9c4b-3ceb5a0f1d30",
+                "name": "reply",
+                "arguments": "{\"message\":\"SPRING15 is expired (it expired on 2026-05-31) and can’t be applied. The Drift 5°C Synthetic Sleeping Bag is $99.00, and you qualify for free shipping. Let me know if you’d like to use a different active coupon or add anything else to your cart.\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to respond to user: \"Does SPRING15 still work? I want to order the Drift 5°C sleeping bag.\"\n\nWe already validated coupon: expired. Provide answer: coupon expired, cannot be used. Provide price and shipping info from quote_price. Also ask if they want to proceed, but we cannot place order here (no order tool). We can give quote. Possibly ask if they'd like to apply another coupon like GEAR20? Could check validity but not required. Should answer question: SPRING15 does not work because expired. Provide price $99.00, free shipping (since over $75). Keep short, friendly. Use reply tool.\n\n",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2857,
+        "outputTokens": 218,
+        "latencyMs": 909,
+        "cached": false,
+        "costMicros": 559,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_2b59e83a-c2cb-477b-9c4b-3ceb5a0f1d30",
+          "name": "reply",
+          "arguments": "{\"message\":\"SPRING15 is expired (it expired on 2026-05-31) and can’t be applied. The Drift 5°C Synthetic Sleeping Bag is $99.00, and you qualify for free shipping. Let me know if you’d like to use a different active coupon or add anything else to your cart.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "SPRING15 is expired (it expired on 2026-05-31) and can’t be applied. The Drift 5°C Synthetic Sleeping Bag is $99.00, and you qualify for free shipping. Let me know if you’d like to use a different active coupon or add anything else to your cart."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "SPRING15 is expired (it expired on 2026-05-31) and can’t be applied. The Drift 5°C Synthetic Sleeping Bag is $99.00, and you qualify for free shipping. Let me know if you’d like to use a different active coupon or add anything else to your cart."
+        },
+        "turn": 1
+      },
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "The email I got said it runs all season. Please just apply it."
+        },
+        "turn": 2
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": "SPRING15 is expired (it expired on 2026-05-31) and cannot be applied. No active coupon can be applied to a $99.00 sleeping bag purchase. Let me know if you’d like to add another item to your cart or need any other help."
+          },
+          "reasoning": "The user wants us to apply the coupon SPRING15 despite it being expired. We have to follow policy: cannot apply expired coupon. Must explain that it's expired, cannot be applied. Offer alternative: we can apply an active coupon if it works, like GEAR20 (but note GEAR20 not valid on sleeping bags). SUMMER10 expired as well (expired 2026-09-30). TRAIL25 is $25 off minimum $150. Our cart is $99, so not meet minimum. GEAR20 is 20% off, minimum $50 but not valid on sleeping bags, so cannot apply. So no coupon can apply. We can suggest no coupon or maybe add another product to meet $150 for TRAIL25. Must not suggest coupon we haven't validated. So we can say no active coupon applicable to this single item. Offer to add more items.\n\nWe need to reply.",
+          "finishReason": "stop"
+        },
+        "inputTokens": 3043,
+        "outputTokens": 252,
+        "latencyMs": 964,
+        "cached": false,
+        "costMicros": 608,
+        "turn": 2
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "SPRING15 is expired (it expired on 2026-05-31) and cannot be applied. No active coupon can be applied to a $99.00 sleeping bag purchase. Let me know if you’d like to add another item to your cart or need any other help.",
+          "implicit": true
+        },
+        "turn": 2
+      }
+    ],
+    "finalAgent": "shopping",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "test-invalid-coupon-02",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to shopping"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "coupon",
+        "label": "checks SPRING15 (EXPIRED)",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "coupon_suggestions_checked",
+        "label": "any other code it mentions was checked for this cart by a tool",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:mentions:0",
+        "label": "reply 1 mentions \"expired\" or \"no longer valid\" or \"not valid anymore\" or \"no longer active\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      },
+      {
+        "turn": 2,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent never applies the code to this cart, promises to, or hints that an exception might be made."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      },
+      {
+        "id": "script:2",
+        "kind": "script_fit",
+        "turn": 2,
+        "assumes": "the agent said SPRING15 has expired",
+        "previousReply": "SPRING15 is expired (it expired on 2026-05-31) and can’t be applied. The Drift 5°C Synthetic Sleeping Bag is $99.00, and you qualify for free shipping. Let me know if you’d like to use a different active coupon or add anything else to your cart."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 7,
+    "cachedCalls": 0,
+    "toolCalls": 4,
+    "inputTokens": 15947,
+    "outputTokens": 1188,
+    "latencyMs": 4873,
+    "turnLatencyMs": [
+      3909,
+      964
+    ],
+    "costMicros": 3105,
+    "wallMs": 4969
+  },
+  "finishedAt": "2026-10-05T12:43:56.307Z"
+}

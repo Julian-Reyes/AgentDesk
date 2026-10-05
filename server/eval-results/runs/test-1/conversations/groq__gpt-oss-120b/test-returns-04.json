@@ -1,0 +1,402 @@
+{
+  "caseId": "test-returns-04",
+  "case": {
+    "id": "test-returns-04",
+    "split": "test",
+    "type": "returns",
+    "why": "#1039 (Theo Garcia, Riverwalk Camp Sandals) has shipped but isn't delivered (NOT_DELIVERED_YET). The customer asks whether they can return it once it arrives: yes, if unused, within 30 days of delivery. There's no cancel tool, so no promise to cancel or intercept the parcel. Unlike returns-04 (dev, a processing order), this one asks about after delivery.",
+    "source": "test batch 1",
+    "customer": "theo.garcia122@example.com",
+    "turns": [
+      {
+        "customer": "Order #1039 hasn't even arrived yet but I already know I don't want those sandals. Can I send them back once they get here?"
+      }
+    ],
+    "expect": {
+      "route": "support",
+      "outcome": [
+        "resolved",
+        "escalated"
+      ],
+      "tools": {
+        "required": [
+          {
+            "anyOf": [
+              {
+                "tool": "check_return_eligibility",
+                "args": {
+                  "orderId": 1039
+                }
+              },
+              {
+                "tool": "get_order",
+                "args": {
+                  "orderId": 1039
+                }
+              }
+            ]
+          }
+        ],
+        "forbidden": [
+          "issue_refund"
+        ]
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "allowed"
+      },
+      "leaks": [],
+      "judgeChecks": [
+        "The agent says the sandals can be returned after delivery if unused (within 30 days of delivery), and doesn't promise to cancel the order or stop the shipment."
+      ]
+    }
+  },
+  "agentModel": "groq/gpt-oss-120b",
+  "team": {
+    "router": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "3e10ac17-5a60-4d62-80b3-e25dd4e23026",
+    "turns": [
+      {
+        "customer": "Order #1039 hasn't even arrived yet but I already know I don't want those sandals. Can I send them back once they get here?",
+        "reply": "We can’t start a return until the order is delivered. Once the Riverwalk Camp Sandal arrives you’ll be able to initiate a return in your account and use the provided return label. The warehouse will process the refund after the item is received. Let us know if you need any other help.",
+        "answeredBy": "support",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Order #1039 hasn't even arrived yet but I already know I don't want those sandals. Can I send them back once they get here?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\":\"support\",\"category\":\"returns\",\"urgency\":\"normal\",\"confidence\":0.97}",
+          "decision": {
+            "route": "support",
+            "category": "returns",
+            "urgency": "normal",
+            "confidence": 0.97
+          },
+          "fallback": false
+        },
+        "inputTokens": 436,
+        "outputTokens": 106,
+        "latencyMs": 566,
+        "cached": false,
+        "costMicros": 129,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Theo Garcia (theo.garcia122@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_23ab8add-a9cd-4d71-abc6-c6b03e10439c",
+                "name": "get_order",
+                "arguments": "{\"orderId\":1039}"
+              }
+            ]
+          },
+          "reasoning": "We need to handle a return request for order #1039, item sandals. Need to check return eligibility. First, get order details.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1749,
+        "outputTokens": 58,
+        "latencyMs": 552,
+        "cached": false,
+        "costMicros": 297,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "fc_23ab8add-a9cd-4d71-abc6-c6b03e10439c",
+          "name": "get_order",
+          "arguments": "{\"orderId\":1039}",
+          "result": {
+            "ok": true,
+            "data": {
+              "number": 1039,
+              "status": "shipped",
+              "placed": "2026-09-12",
+              "delivered": null,
+              "items": [
+                {
+                  "productId": "boot-riverwalk-sandal",
+                  "name": "Riverwalk Camp Sandal",
+                  "size": "9",
+                  "color": "black",
+                  "qty": 1,
+                  "listPrice": "$59.00",
+                  "discount": "$0.00",
+                  "paid": "$59.00",
+                  "returnedQty": 0
+                }
+              ],
+              "subtotal": "$59.00",
+              "discount": "$0.00",
+              "shipping": "$7.99",
+              "totalPaid": "$66.99",
+              "refunds": []
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Theo Garcia (theo.garcia122@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_9dffa678-db81-4613-b2a8-a3c9a580e12f",
+                "name": "check_return_eligibility",
+                "arguments": "{\"condition\":\"unused\",\"item\":\"Riverwalk Camp Sandal\",\"orderId\":1039}"
+              }
+            ]
+          },
+          "reasoning": "We need to answer: customer wants to return sandals after arrival. Must check return eligibility. Use check_return_eligibility.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1900,
+        "outputTokens": 66,
+        "latencyMs": 652,
+        "cached": false,
+        "costMicros": 325,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "fc_9dffa678-db81-4613-b2a8-a3c9a580e12f",
+          "name": "check_return_eligibility",
+          "arguments": "{\"condition\":\"unused\",\"item\":\"Riverwalk Camp Sandal\",\"orderId\":1039}",
+          "result": {
+            "ok": true,
+            "data": {
+              "orderNumber": 1039,
+              "item": "Riverwalk Camp Sandal",
+              "eligible": false,
+              "code": "NOT_DELIVERED_YET",
+              "message": "The order hasn't been delivered yet. Returns can start once it arrives."
+            },
+            "policyDecision": "denied"
+          }
+        },
+        "policyDecision": "denied",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Theo Garcia (theo.garcia122@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_7358e1f3-3d5f-4243-b283-94c0b84b8daf",
+                "name": "reply",
+                "arguments": "{\"message\":\"We can’t start a return until the order is delivered. Once the Riverwalk Camp Sandal arrives you’ll be able to initiate a return in your account and use the provided return label. The warehouse will process the refund after the item is received. Let us know if you need any other help.\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to respond to customer. They asked: \"Order #1039 hasn't even arrived yet but I already know I don't want those sandals. Can I send them back once they get here?\" The check_return_eligibility says not eligible yet, need delivery first. We need to explain that returns can start once delivered. Provide steps: wait for arrival, then use return label in account, etc. Also can mention they can request a refund after return is processed. Use reply tool.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2002,
+        "outputTokens": 179,
+        "latencyMs": 783,
+        "cached": false,
+        "costMicros": 408,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "fc_7358e1f3-3d5f-4243-b283-94c0b84b8daf",
+          "name": "reply",
+          "arguments": "{\"message\":\"We can’t start a return until the order is delivered. Once the Riverwalk Camp Sandal arrives you’ll be able to initiate a return in your account and use the provided return label. The warehouse will process the refund after the item is received. Let us know if you need any other help.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "We can’t start a return until the order is delivered. Once the Riverwalk Camp Sandal arrives you’ll be able to initiate a return in your account and use the provided return label. The warehouse will process the refund after the item is received. Let us know if you need any other help."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "We can’t start a return until the order is delivered. Once the Riverwalk Camp Sandal arrives you’ll be able to initiate a return in your account and use the provided return label. The warehouse will process the refund after the item is received. Let us know if you need any other help."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "support",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "test-returns-04",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to support",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to support"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved or escalated",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "tool_required:0",
+        "label": "calls check_return_eligibility {\"orderId\":1039} or get_order {\"orderId\":1039}",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "tool_forbidden:issue_refund",
+        "label": "never calls issue_refund",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent says the sandals can be returned after delivery if unused (within 30 days of delivery), and doesn't promise to cancel the order or stop the shipment."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 4,
+    "cachedCalls": 0,
+    "toolCalls": 2,
+    "inputTokens": 6087,
+    "outputTokens": 409,
+    "latencyMs": 2553,
+    "turnLatencyMs": [
+      2553
+    ],
+    "costMicros": 1159,
+    "wallMs": 2597
+  },
+  "finishedAt": "2026-10-05T12:39:54.063Z"
+}

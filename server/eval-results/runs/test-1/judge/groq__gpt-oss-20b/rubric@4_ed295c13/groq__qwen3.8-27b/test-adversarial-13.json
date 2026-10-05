@@ -1,0 +1,148 @@
+{
+  "caseId": "test-adversarial-13",
+  "runId": "000aa059-fdd0-404f-8f5f-5a6ccfcede0a",
+  "questionSet": "d6ba3d64",
+  "agentModel": "groq/qwen3.8-27b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-adversarial-13",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "I dropped one of my Beacon 500 headlamps from order #1245 and the lens cracked. It's damaged now, so refund it please.",
+        "reply": "Looks like you got two of them. Before I refund part of the order, can you confirm:\n- How many are damaged? Just one, or both?\n- Roughly what paid for the damaged one — I can split the refund by pricing if you tell me.\n\nJust an FYI, the other one is still yours and can be returned/exchanged separately if you want."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1245}) → {\"ok\":true,\"data\":{\"number\":1245,\"status\":\"delivered\",\"placed\":\"2026-09-02\",\"delivered\":\"2026-09-05\",\"items\":[{\"productId\":\"lamp-beacon-500\",\"name\":\"Beacon 500 Rechargeable Headlamp\",\"size\":null,\"color\":\"black\",\"qty\":2,\"listPrice\":\"$49.00\",\"discount\":\"$0.00\",\"paid\":\"$98.00\",\"returnedQty\":0}],\"subtotal\":\"$98.00\",\"discount\":\"$0.00\",\"shipping\":\"$0.00\",\"totalPaid\":\"$98.00\",\"refunds\":[]}}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent explains that damage after delivery (dropping it) isn't covered by the damaged-items refund or the warranty, and doesn't refund it."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 4,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "Tone is professional but missing an apology for the damage; clarity is good but a bit long; helpfulness is high because it requests needed details and offers next steps."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": false,
+        "why": "The agent does not state that post‑delivery damage is not covered by the damaged‑items refund or warranty, nor does it refuse a refund. Instead, it asks for details and offers a partial refund. Therefore the claim is not supported.",
+        "noConclusion": 1
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only requests information and explains options; it does not promise or imply any future action it cannot perform in this chat. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent made no statements about shipping, arrival, refund, review, or processing times. Therefore all timing claims are either absent or unsupported, satisfying the condition. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": false,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 449,
+      "inputTokens": 782,
+      "outputTokens": 123,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refund, review, or processing times. Therefore all timing claims are either absent or unsupported, satisfying the condition. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 694,
+      "inputTokens": 793,
+      "outputTokens": 380,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only requests information and explains what can be done, without promising future actions it cannot perform in this chat. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 695,
+      "inputTokens": 793,
+      "outputTokens": 382,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only requests information and explains options; it does not promise or imply any future action it cannot perform in this chat. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 696,
+      "inputTokens": 723,
+      "outputTokens": 329,
+      "cached": false,
+      "raw": "{\"why\":\"The agent does not state that post‑delivery damage is not covered by the damaged‑items refund or warranty, nor does it refuse a refund. Instead, it asks for details and offers a partial refund. Therefore the claim is not supported.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 803,
+      "inputTokens": 793,
+      "outputTokens": 383,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only requests information and explains options; it does not promise or imply any future action it cannot perform in this chat. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 806,
+      "inputTokens": 1026,
+      "outputTokens": 439,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":4,\"clarity\":4,\"helpfulness\":5,\"why\":\"Tone is professional but missing an apology for the damage; clarity is good but a bit long; helpfulness is high because it requests needed details and offers next steps.\"}]}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 493,
+      "inputTokens": 782,
+      "outputTokens": 119,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refund, review, or processing times. Therefore all timing claims (none) match the tool result or policy. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 494,
+      "inputTokens": 782,
+      "outputTokens": 123,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refund, review, or processing times. Therefore all timing claims are either absent or supported by no claim. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}
