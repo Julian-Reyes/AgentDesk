@@ -23,9 +23,9 @@ _Last updated 2026-10-05._
 
   Policy violations 1 / 2 / 1, so the comparison names **no winner**. Every model scores below its dev result. Details: M3, "`test-1` results".
 - **The team runs Flash-Lite in all three roles.** No switch/retire decision yet: Julian makes it on the Agents page (needs the admin token).
-- **Since test-1, changed in code and not re-measured:**
-  - the damage-cause rule (`arrived_damaged` vs `damaged_after_delivery`)
-  - catching tool calls written out as reply text
+- **Since test-1, changed in code:**
+  - the damage-cause rule (`arrived_damaged` vs `damaged_after_delivery`): **re-measured on the dev damage cases for gpt-oss-120b** (see Next 2); Flash-Lite still to finish
+  - catching tool calls written out as reply text: saved runs re-graded; not re-measured live
 
   The tool descriptions changed, so later runs aren't strictly comparable with test-1; label them as after these changes.
 - **Eval sets:** dev 43 cases (3 added 2026-10-05 for the damage-cause rule), test 110 (frozen, never tuned on).
