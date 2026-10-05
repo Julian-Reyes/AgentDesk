@@ -22,7 +22,7 @@ _Last updated 2026-10-05._
   - qwen3.8-27b 65% (71/109, 56–73%)
 
   Policy violations 1 / 2 / 1, so the comparison names **no winner**. Every model scores below its dev result. Details: M3, "`test-1` results".
-- **The team runs Flash-Lite in all three roles.** No switch/retire decision yet: Julian makes it on the Agents page (needs the admin token).
+- **The team runs Flash-Lite in all three roles.** **First retire decision (Julian, 2026-10-05):** `groq/qwen3.8-27b` retired from the shopping role ("Worst performer of the group"; test-1 shopping cases: 59%, 43–72%, vs Flash-Lite 78%, gpt-oss-120b 83%). It's published on the public overview. Julian may make more decisions after the Ollama model, and maybe another, are compared.
 - **Since test-1, changed in code:**
   - the damage-cause rule (`arrived_damaged` vs `damaged_after_delivery`): **re-measured on the dev damage cases for gpt-oss-120b** (see Next 2); Flash-Lite still to finish
   - catching tool calls written out as reply text: saved runs re-graded; not re-measured live
@@ -50,7 +50,7 @@ _Last updated 2026-10-05._
    - judge calibration on weak replies
    - **the 4th (small open) model:** Ollama on the Mac mini for development, Modal for the official runs (cost estimate and spending limit first)
    - maybe another model
-4. **The switch/retire decision (Julian), after 3:** Julian wants the Ollama model and maybe another model in the comparison first. Then re-export and push, so the public decision card fills in.
+4. **Further switch/retire decisions (Julian), after 3:** with the Ollama model, and maybe another, in the comparison. Then re-export and push.
 
 ## Open items
 - **M3:**

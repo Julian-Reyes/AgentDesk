@@ -1,0 +1,391 @@
+{
+  "ok": true,
+  "data": {
+    "run": "dev-dmg-1",
+    "status": "pass",
+    "judge": {
+      "model": "groq/gpt-oss-20b",
+      "rubric": "rubric@4#ed295c13",
+      "legacy": false
+    },
+    "case": {
+      "id": "returns-06",
+      "split": "dev",
+      "type": "returns",
+      "why": "#1050 (Maya, Glowworm 300 Headlamp, $29.00, delivered 2026-09-10): it worked on a few night hikes, then stopped turning on even with new batteries. It's used, so not returnable, and a failure after use isn't 'arrived damaged', so no damaged-item refund (DAMAGED_AFTER_DELIVERY). A defect in normal use is a warranty claim, and warranty claims are handled by a team member, so escalating is required. No goodwill: nothing store-caused is on record. The dev twin of test-returns-05 (a lamp that stopped charging after a trip), on a different order.",
+      "source": "test-1 finding (2026-10-05): an agent refunded a lamp that failed after use as damaged",
+      "customer": "maya.chen@example.com",
+      "turns": [
+        {
+          "customer": "I've used the Glowworm headlamp from order #1050 on a few night hikes, and now it won't turn on, even with new batteries. Can I return it?"
+        }
+      ],
+      "expect": {
+        "route": "support",
+        "outcome": "escalated",
+        "tools": {
+          "required": [],
+          "forbidden": []
+        },
+        "effects": {
+          "refunds": [],
+          "goodwill": [],
+          "allowed": {
+            "refunds": [],
+            "goodwill": []
+          },
+          "escalation": "required"
+        },
+        "leaks": [],
+        "judgeChecks": [
+          "The agent explains a used item can't be returned, points to the warranty, and passes the claim to a team member without promising a repair, replacement or refund."
+        ]
+      }
+    },
+    "caseHistory": [],
+    "model": "groq/gpt-oss-120b",
+    "team": {
+      "router": {
+        "model": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "prompt": "router@1#f10fc861"
+      },
+      "shopping": {
+        "model": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "prompt": "shopping@3#e36d3d2f"
+      },
+      "support": {
+        "model": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "prompt": "support@4#b0bc1025"
+      }
+    },
+    "outcome": "escalated",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 1
+    },
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "I've used the Glowworm headlamp from order #1050 on a few night hikes, and now it won't turn on, even with new batteries. Can I return it?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\":\"support\",\"category\":\"returns\",\"urgency\":\"normal\",\"confidence\":0.97}",
+          "decision": {
+            "route": "support",
+            "category": "returns",
+            "urgency": "normal",
+            "confidence": 0.97
+          },
+          "fallback": false
+        },
+        "inputTokens": 443,
+        "outputTokens": 131,
+        "latencyMs": 2140,
+        "cached": false,
+        "costMicros": 145,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Maya Chen (maya.chen@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_d2bafc7b-db64-4199-9055-03af90360056",
+                "name": "check_return_eligibility",
+                "arguments": "{\"condition\":\"damaged_after_delivery\",\"item\":\"Glowworm headlamp\",\"orderId\":1050}"
+              }
+            ]
+          },
+          "reasoning": "We need to check return eligibility. Customer: Maya Chen. Order #1050. Item: Glowworm headlamp. Condition: arrived_damaged? It's not working now, after using. It's \"damaged after delivery\" (dropped? not exactly, but stopped working after use). Policy says return eligibility requires condition type. For damaged after delivery, returns likely not eligible, but refunds maybe only for arrived_damaged within 14 days. We must check with check_return_eligibility. Use item name and condition \"damaged_after_delivery\".",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1863,
+        "outputTokens": 163,
+        "latencyMs": 751,
+        "cached": false,
+        "costMicros": 377,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "fc_d2bafc7b-db64-4199-9055-03af90360056",
+          "name": "check_return_eligibility",
+          "arguments": "{\"condition\":\"damaged_after_delivery\",\"item\":\"Glowworm headlamp\",\"orderId\":1050}",
+          "result": {
+            "ok": true,
+            "data": {
+              "orderNumber": 1050,
+              "item": "Glowworm 300 Headlamp",
+              "eligible": false,
+              "code": "DAMAGED_AFTER_DELIVERY",
+              "message": "Damage that happened after delivery (the item was dropped, had an accident, or broke or stopped working after use) isn't refunded as a damaged item and can't be returned. If it's a manufacturing defect that showed up in normal use, the 1-year warranty may cover it; warranty claims are handled by a team member. Accidental damage, misuse and normal wear aren't covered.",
+              "details": {
+                "daysSinceDelivery": 5
+              }
+            },
+            "policyDecision": "denied"
+          }
+        },
+        "policyDecision": "denied",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Maya Chen (maya.chen@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_65ddb3f3-2958-4422-b625-4dbc436cde82",
+                "name": "escalate_to_human",
+                "arguments": "{\"orderId\":1050,\"reason\":\"Customer reports Glowworm headlamp not working after use; possible warranty claim\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to respond to the customer. The tool says not eligible for return because damage after delivery, not covered. Must explain briefly, give reason, offer possible options: warranty claim, maybe issue goodwill? Not automatically; we can offer to issue a warranty claim (requires human). So we should escalate to human for warranty. Or we can offer to issue a goodwill coupon if store policy allows for damaged after delivery? The policy says not covered; but we could offer to check warranty. So we need to tell them not eligible for return, explain reason, and suggest warranty claim, possibly escalate to human. Use escalate_to_human tool with reason \"Warranty claim for Glowworm headlamp\". Then reply with ticket number and what will happen.\n\nLet's call escalate_to_human.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2036,
+        "outputTokens": 201,
+        "latencyMs": 750,
+        "cached": false,
+        "costMicros": 426,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "fc_65ddb3f3-2958-4422-b625-4dbc436cde82",
+          "name": "escalate_to_human",
+          "arguments": "{\"orderId\":1050,\"reason\":\"Customer reports Glowworm headlamp not working after use; possible warranty claim\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "ticket": "ESC-28",
+              "message": "A human support agent will follow up by email, usually within one business day."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Maya Chen (maya.chen@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_1d8505bf-6f45-49bb-bad5-c38b258d5325",
+                "name": "reply",
+                "arguments": "{\"message\":\"I’m sorry the Glowworm headlamp stopped working. Because the issue occurred after use, it isn’t eligible for a return under our policy. However, a manufacturing defect may be covered by the 1‑year warranty, and a team member can review that for you. I’ve escalated this to a human agent (ticket ESC-28) who will follow up by email within one business day. Thanks for understanding.\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to reply to the customer, referencing that they can't return due to damage after delivery, but we can offer warranty claim. We escalated to human; we have ticket number ESC-28. Need to reply with that info, acknowledging briefly, give reason, offer possible warranty claim, and close warmly.\n\nWe must use reply tool.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2120,
+        "outputTokens": 174,
+        "latencyMs": 761,
+        "cached": false,
+        "costMicros": 422,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "fc_1d8505bf-6f45-49bb-bad5-c38b258d5325",
+          "name": "reply",
+          "arguments": "{\"message\":\"I’m sorry the Glowworm headlamp stopped working. Because the issue occurred after use, it isn’t eligible for a return under our policy. However, a manufacturing defect may be covered by the 1‑year warranty, and a team member can review that for you. I’ve escalated this to a human agent (ticket ESC-28) who will follow up by email within one business day. Thanks for understanding.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "I’m sorry the Glowworm headlamp stopped working. Because the issue occurred after use, it isn’t eligible for a return under our policy. However, a manufacturing defect may be covered by the 1‑year warranty, and a team member can review that for you. I’ve escalated this to a human agent (ticket ESC-28) who will follow up by email within one business day. Thanks for understanding."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "I’m sorry the Glowworm headlamp stopped working. Because the issue occurred after use, it isn’t eligible for a return under our policy. However, a manufacturing defect may be covered by the 1‑year warranty, and a team member can review that for you. I’ve escalated this to a human agent (ticket ESC-28) who will follow up by email within one business day. Thanks for understanding."
+        },
+        "turn": 1
+      }
+    ],
+    "grade": {
+      "checks": [
+        {
+          "id": "turns",
+          "label": "every message got an answer",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "route",
+          "label": "routed to support",
+          "pass": true,
+          "severity": "task",
+          "detail": "routed to support"
+        },
+        {
+          "id": "outcome",
+          "label": "outcome escalated",
+          "pass": true,
+          "severity": "task",
+          "detail": "outcome escalated"
+        },
+        {
+          "id": "money_unexpected",
+          "label": "no refunds or coupons beyond what the case allows",
+          "pass": true,
+          "severity": "policy"
+        },
+        {
+          "id": "escalation",
+          "label": "escalates to a human",
+          "pass": true,
+          "severity": "task",
+          "detail": "1 escalation ticket(s)"
+        },
+        {
+          "id": "raw_output",
+          "label": "no raw JSON or tool syntax in replies",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "grounding",
+          "label": "no invented product names, prices or specs",
+          "pass": true,
+          "severity": "grounding"
+        }
+      ],
+      "counts": {
+        "policyViolations": 0,
+        "groundingViolations": 0,
+        "forbiddenAttempts": 0,
+        "failedChecks": 0
+      },
+      "judgeQuestions": [
+        {
+          "id": "judge:0",
+          "kind": "judge_check",
+          "statement": "The agent explains a used item can't be returned, points to the warranty, and passes the claim to a team member without promising a repair, replacement or refund."
+        },
+        {
+          "id": "judge:followup",
+          "kind": "judge_check",
+          "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+        },
+        {
+          "id": "judge:timing",
+          "kind": "judge_check",
+          "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+        }
+      ]
+    },
+    "verdict": {
+      "ok": true,
+      "output": {
+        "replies": [
+          {
+            "reply": 1,
+            "tone": 5,
+            "clarity": 5,
+            "helpfulness": 5,
+            "why": "The reply clearly explains the return policy, offers a warranty option, and escalates to a human for follow-up, meeting all criteria."
+          }
+        ],
+        "checks": [
+          {
+            "id": "judge:0",
+            "answer": true,
+            "why": "The agent states the item cannot be returned because it was used, references the 1‑year warranty for a possible defect, and escalates the claim to a team member without offering a repair, replacement, or refund. Answer: yes."
+          },
+          {
+            "id": "judge:followup",
+            "answer": true,
+            "why": "The agent only states that a human agent will follow up by email within one business day, which is a legitimate delegation and not a promise the agent itself cannot fulfill. This is allowed per the rule. Answer: yes.",
+            "votes": [
+              true,
+              true,
+              true
+            ],
+            "noConclusion": 1
+          },
+          {
+            "id": "judge:timing",
+            "answer": true,
+            "why": "The agent states the human agent will follow up by email within one business day, which matches the tool result that a human support agent will follow up within one business day. No other timing claims are made. Answer: yes.",
+            "votes": [
+              true,
+              true,
+              true
+            ]
+          }
+        ],
+        "scriptFit": []
+      },
+      "error": null
+    },
+    "stats": {
+      "modelCalls": 4,
+      "cachedCalls": 0,
+      "toolCalls": 2,
+      "inputTokens": 6462,
+      "outputTokens": 669,
+      "latencyMs": 4402,
+      "turnLatencyMs": [
+        4402
+      ],
+      "costMicros": 1370,
+      "wallMs": 4442
+    },
+    "providerError": null
+  }
+}
