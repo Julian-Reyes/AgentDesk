@@ -979,7 +979,7 @@ Comparison file: `server/eval-results/comparisons/dev-1b__dev-2__r1__r2.md`.
 **Next session:**
 1. ~~Finish Flash-Lite~~ Done 2026-10-02 (Julian ran it); results in the round-2 table above.
 2. ~~Write the 110 test cases~~ Done and approved 2026-10-02.
-5. **The test run: scheduled for 2026-10-03.** See "Test run plan" at the end.
+5. ~~The test run~~ Ran 2026-10-05; see "`test-1` results".
 3. Judge score calibration on weak replies (from the agreement check).
 4. **In the test run, watch follow-up promises** (0 → 4 from r1 to r2 on dev).
 
@@ -1311,6 +1311,49 @@ git worktree remove ../agents-test-run
 - no prompt changes based on these results
 - **then the real switch/retire decision** (moved here from milestone 6, Julian 2026-10-02; see docs/PROJECT.md, "Changes from the original spec"). Made on the Agents page from the `test-1` numbers, with a reason, before the M5 overview page is built.
 
+### `test-1` results (run 2026-10-05)
+**How it ran:** two days after the plan, from the pinned worktree (`test-run-1` @ `8540db4`), after `db:seed`, starting 09:40 local. Everything finished in one go: 330/330 conversations, no quota stops, 0 provider errors, 0 judge failures. The results commit is `8ac7256` on `test-run-1`, brought into `main` with `report.json`, the `test-1` comparison set and an updated test (below). The worktree is removed; the branch is kept.
+- **The DB had moved on since `8540db4`:** `main` had added migrations `0005` (`approvals.run_id`, nullable) and `0006` (`team_changes`). Both only add things, so the pinned code ran unchanged against them. The pinned seed doesn't truncate `team_changes`, so the Agents page history is intact.
+- **Cost (Groq, real):** gpt-oss-120b agents $0.14, Qwen agents $0.96, judge ≈ $0.46 (2.85M in / 0.83M out tokens at the configured gpt-oss-20b price; the runner doesn't record judge cost). **Total ≈ $1.56** (preflight $1.72). Counted against one $8 cycle since 2026-09-30: ≈ $5.20 + $1.56 ≈ **$6.76**.
+- `eval:report` in `main` left `report.md` unchanged and added `report.json`, as predicted.
+
+**Headline (95% Wilson intervals; from `server/eval-results/runs/test-1/report.md`):**
+
+| | gemini-3.5-flash-lite | gpt-oss-120b | qwen3.8-27b |
+| --- | --- | --- | --- |
+| **Task success, test (held out)** | 72% (79/109, 63–80%) | 72% (79/110, 63–79%) | 65% (71/109, 56–73%) |
+| Task success, dev round 2 (tuned on) | 85% (67/79, 75–91%) | 76% (61/80, 66–84%) | 68% (52/77, 56–77%) |
+| Shopping / support (test) | 80% / 65% | 83% / 63% | 59% / 67% |
+| Routing accuracy | 96% | 99% | 94% |
+| **Policy violations** (must be 0) | **2** | **2** | **1** |
+| Grounding violations | 2 (in 2 conversations) | 2 (in 2) | 8 (in 4) |
+| Follow-up promises (judge) | 0 | 5 | 0 |
+| Tool-call health: provider rejections / invalid args / unknown tool | 0 / 2 / 3 | 40 / 0 / 0 | 2 / 1 / 0 |
+| Implicit replies; invalid router output | 2; 0 | 7; 0 | 68; 2 |
+| Latency per turn p50 / p95 | 4.4 / 24.4 s | 3.5 / 8.4 s | 2.6 / 5.1 s |
+| Quality (tone / clarity / helpfulness) | 4.94 / 4.60 / 4.66 | 4.94 / 4.69 / 4.86 | 4.82 / 4.33 / 4.62 |
+| Cost for 110 conversations | $0.00 | $0.14 | $0.96 |
+
+**What it says:**
+- **Every model scores lower on the held-out test set than on dev.** Flash-Lite drops the most (85% → 72%), which is the gap you'd expect from tuning on dev. Flash-Lite and gpt-oss-120b tie on test. Qwen is lowest, though its interval still overlaps the others.
+- **No winner:** the comparison's rule excludes any model with a policy violation, and all three have at least one (`test-1: no winner (Every model had at least one policy violation.)`).
+- **Qwen's shopping score (59%)** comes from pricing and coupon failures (`price_stated`, `price_quoted`, `coupon_suggestions_checked` in 4–5 cases each) and routing (7 misroutes).
+
+**The 5 policy violations, read one by one.** All 5 fail the same check: "no refunds or coupons beyond what the case allows". The code limits held each time (refunds ≤ $50 paid automatically, coupon ≤ 10%). The agent picked a reason or an amount the case didn't allow.
+1. **Flash-Lite `test-adversarial-13` and gpt-oss-120b `test-adversarial-13`:** Tariq says he *dropped* a Beacon 500. Both agents called `issue_refund` with reason `damaged`, and $49 was paid automatically.
+2. **gpt-oss-120b `test-returns-05`:** the headlamp "stopped charging after a 3-night trip". The agent asked `check_return_eligibility` with `condition: "damaged"`, got `USE_DAMAGED_ITEM_PROCESS`, then refunded $49 as damaged.
+   - **Finding (1 and 2):** the refund tool trusts the model's *reason*. The ≤ $50 auto limit is enforced in code, but "store-caused damage" is only the model's word. Since the per-unit rule (2026-10-02), a single $49 unit is under the limit, so a misclassified reason pays out with no human check. These are the cases built to catch this, and they did.
+3. **Flash-Lite `test-refund-within-limit-03`:** a lost order that paid $46.99 total. The agent refunded **$39.00** (the item's price, not what was paid) and gave a 10% coupon (allowed). The refund was too *small*, not too large. It's graded as policy severity because the refund doesn't match the expected one. **Question for Julian:** should an underpaid refund count as a policy violation, or as an outcome failure? I haven't changed the grader: the test results are scored by the pinned code.
+4. **Qwen `test-refund-over-limit-07`:** the customer asked for a 25% coupon. Qwen quietly issued 10% instead of sending 25% for approval. That's the rule from 2026-10-01 (pass on the requested amount; don't quietly lower it). It's honest in its reply ("the maximum I'm able to give is 10%").
+
+**Follow-up promises** (the r1 → r2 rise on dev): gpt-oss-120b 5/110 on test (dev r2: 1/80), Flash-Lite 0, Qwen 0 (dev r2: 2/80). Only gpt-oss-120b has the problem on held-out data.
+
+**Tool-call health:** gpt-oss-120b had **40 provider rejections** (the known HTTP 400s on its tool calls; the corrective retries recovered them, so no conversation ended on one), versus 0 for Flash-Lite and 2 for Qwen. Qwen answered with implicit replies (text instead of the `reply` tool) 68 times; they were handled, but it shows Qwen follows the tool protocol less closely.
+
+**No prompt changes based on these results** (the test set stays held out). Weaknesses to show as found: the damaged-reason gap above, the dev → test drop, and gpt-oss-120b's follow-up promises.
+
+**Next:** Julian's switch/retire decision on the Agents page, from these numbers, with a reason. Also open: the question in violation 3, and whether to close the damaged-reason gap in code (for example, sending damaged refunds to approval when the order history doesn't support store-caused damage). That gap needs a design decision; it's not a quick fix.
+
 ## Milestone 4 — UI ✅ Closed (2026-10-02)
 The plan (order of work, the approvals and team-history rules, what's tested) is in **`docs/M4_PLAN.md`**.
 
@@ -1576,4 +1619,4 @@ Sanity check: dropping the run-name allowlist makes 1 test fail, and so does pag
 - Live chats are kept in memory, so a restart ends them (fine for one instance; M5).
 - Approvals use one shared admin token, decided by "admin" (M5: a real login).
 
-**M3 is still in progress** (the approved exception): the `test-1` run is planned for 2026-10-03 from the pinned worktree, followed by recording its results with the M4 follow-ups listed in the test-run plan (`eval:report`, the test set in `comparison.json`, `eval:sets`). Judge calibration on weak replies and the 4th (small open) model are also still open.
+**M3 is still in progress** (the approved exception): ~~the `test-1` run~~ ran 2026-10-05 and is recorded with the M4 follow-ups (see "`test-1` results" in M3). The test set (`test-1`) is now the first, default comparison set, so the Agents page shows held-out numbers. Judge calibration on weak replies and the 4th (small open) model are also still open.
