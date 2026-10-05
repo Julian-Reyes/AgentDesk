@@ -210,6 +210,13 @@ export type AgentsEval = {
   models: { model: string; taskSuccess: Rate; policyViolations: number; byRole: Record<TeamRole, Rate | null> }[];
 } | null;
 
+// ---------- Ops dashboard: overview ----------
+
+/** A "safety by design" example; the server only sends ones whose conversation passed. */
+export type SafetyFact = { title: string; text: string; run: string; model: string; caseId: string };
+export type Finding = { date: string; title: string; text: string; status: "fixed" | "fixed_not_remeasured" | "open" };
+export const getOverview = () => request<{ safety: SafetyFact[]; findings: Finding[] }>("/api/overview");
+
 // ---------- Ops dashboard: runs ----------
 
 /** One trace step, as the live trace (database) and saved eval runs both store it. */

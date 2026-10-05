@@ -1364,6 +1364,24 @@ git worktree remove ../agents-test-run
 - **GitHub:** Julian created a private repo, AgentDesk. Pushing `main` is next.
 - **Overview page:** mockup first, before the switch/retire decision (gate relaxed; see docs/PROJECT.md, "Changes from the original spec"). Built in the existing dashboard style.
 
+### The /ops overview page (built 2026-10-05, Milestone 5 in progress)
+Julian approved the mockup (https://claude.ai/artifact/Lvwjjp8rXrYM2cHFV5uodU). `/ops/` (and any unknown hash) now opens on the overview. Approvals moved to `#/approvals`, and "Overview" is first in the nav.
+
+**Where each part comes from:**
+- **Headline, four tiles, chart, verdict:** the default comparison set (`test-1`), through pure functions in `web/src/ops/overview.ts` (`headline`, `kpiTiles`, `devGap`, `latestDecision`).
+  - A web test reads the committed `server/eval-results/comparisons/sets/test-1.json` and checks that the headline and every tile value equal the file's numbers.
+  - The tiles describe the team's support model (currently Flash-Lite). If the set didn't evaluate it, they show the best-scoring model and say it isn't on the team.
+- **Team diagram and decision card:** `/api/agents`. The card shows "No decision yet" until a switch, retire or reinstate exists. Then it shows the change, the reason, who decided, and the set's task success for each model involved.
+- **"Held-out scores are lower than dev for every model":** generated from `test-1` vs `dev-round-2` (85→72, 76→72, 68→65).
+- **Safety examples and the dated findings:** curated in `server/config/overview.json`, served by `GET /api/overview`. The server re-grades the linked run (shared `evalResults` helper, factored out of `api/runs.ts`) and **drops any example whose conversation didn't pass**. A test fails if a configured example ever drops out. All four link to Flash-Lite test-1 conversations that passed.
+
+**Checked:**
+- 489 server + 54 web tests pass, and the web build succeeds.
+- A desktop screenshot (1280 px) on a separate server: every number matches `report.md`.
+- **Phone width not checked:** headless Chrome hung again. Julian, please look at it on a phone or a narrow window.
+
+**Julian's ADMIN_TOKEN is 5 characters.** The server requires 24 or more and refuses to start otherwise. Replace it (e.g. `openssl rand -hex 24`).
+
 ### The damage-cause rule (Julian's decision, 2026-10-05)
 **Why:** in test-1, agents refunded a *dropped* headlamp and one that *stopped charging after a trip* as "damaged" (violations 1 and 2 above). The tools only had one word, "damaged", so the model picked the nearest one, and code paid out anything ≤ $50. Julian: keep the $50 automatic refunds; make the tools ask when the damage happened, enforced in code. Not done: requiring a quote of the customer's words (option 3).
 

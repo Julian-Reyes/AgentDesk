@@ -3,6 +3,7 @@ import { checkAdmin } from "../lib/api.ts";
 import { AgentsPage } from "./AgentsPage.tsx";
 import { ApprovalsPage } from "./ApprovalsPage.tsx";
 import { ComparisonPage } from "./ComparisonPage.tsx";
+import { OverviewPage } from "./OverviewPage.tsx";
 import { parseRoute } from "./route.ts";
 import { EvalConversationPage, EvalRunPage, EvalRunsPage, LiveRunPage, LiveRunsPage } from "./RunsPages.tsx";
 
@@ -38,8 +39,8 @@ export function Ops() {
   const page = route.page;
   // Which nav item is current: the Runs pages all count as "runs".
   const section = page === "run" || page === "evals" || page === "evalRun" || page === "evalConversation" ? "runs" : page;
-  // The comparison table is wide; the other pages read better narrower.
-  const width = page === "comparison" ? "max-w-7xl" : "max-w-5xl";
+  // The comparison table and the overview's grids are wide; the other pages read better narrower.
+  const width = page === "comparison" ? "max-w-7xl" : page === "overview" ? "max-w-6xl" : "max-w-5xl";
 
   const saveToken = (t: string | null) => {
     setToken(t);
@@ -62,13 +63,14 @@ export function Ops() {
           <nav aria-label="Dashboard" className="flex gap-3 text-sm">
             {(
               [
+                ["overview", "Overview"],
                 ["approvals", "Approvals"],
                 ["agents", "Agents"],
                 ["comparison", "Model comparison"],
                 ["runs", "Runs"],
               ] as const
             ).map(([p, label]) => (
-              <a key={p} href={`#/${p}`} aria-current={section === p ? "page" : undefined} className={section === p ? "font-semibold text-forest-800" : "text-stone-600 hover:text-forest-700"}>
+              <a key={p} href={p === "overview" ? "#/" : `#/${p}`} aria-current={section === p ? "page" : undefined} className={section === p ? "font-semibold text-forest-800" : "text-stone-600 hover:text-forest-700"}>
                 {label}
               </a>
             ))}
@@ -94,8 +96,10 @@ export function Ops() {
           <ComparisonPage />
         ) : page === "agents" ? (
           <AgentsPage token={token} />
-        ) : (
+        ) : page === "approvals" ? (
           <ApprovalsPage token={token} />
+        ) : (
+          <OverviewPage />
         )}
       </main>
     </div>

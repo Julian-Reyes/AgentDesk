@@ -4,6 +4,8 @@
 
 ## Item: the `/ops` overview page (Julian, 2026-10-02)
 
+**Built 2026-10-05** from the mockup Julian approved (https://claude.ai/artifact/Lvwjjp8rXrYM2cHFV5uodU), before the switch/retire decision (gate relaxed by Julian). `/ops/` now opens on it. See PROGRESS.md, "The /ops overview page". The plan below is kept as written.
+
 `/ops` opens on an overview page instead of an empty Approvals page. It's the first thing a visitor to the public demo sees, so it should be visually distinctive and screenshot-friendly, not a generic dashboard.
 
 ### Gates

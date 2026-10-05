@@ -27,7 +27,7 @@ import type { AppDeps } from "./app.ts";
 
 export type RunsDeps = { resultsDir: string; judge: () => { model: string; rubric: string } };
 
-const runsDeps = (deps: AppDeps): RunsDeps => ({
+export const runsDeps = (deps: AppDeps): RunsDeps => ({
   resultsDir: DEFAULT_RESULTS_DIR,
   judge: () => ({ model: getJudgeIds().main, rubric: promptId(JUDGE_RUBRIC) }),
   ...deps.runs,
@@ -128,13 +128,25 @@ function evalRunNames(dir: string): string[] {
     .sort();
 }
 
+/** A saved eval run, or null if there's no run of that name. */
+export const openEvalRun = (r: RunsDeps, name: string) => (evalRunNames(r.resultsDir).includes(name) ? new RunStore(name, r.resultsDir) : null);
+
+/**
+ * A run's conversations graded with the current grader and judged by the main
+ * judge, exactly as the Runs page and the reports show them; null if there's
+ * no such run. Shared with the overview page, which checks its examples here.
+ */
+export function evalResults(r: RunsDeps, name: string) {
+  const store = openEvalRun(r, name);
+  return store ? runResults(store, r.judge()) : null;
+}
+
 const STATUSES = ["pass", "fail", "script_mismatch", "judge_pending", "judge_failed", "provider_error"] as const;
 const ConvQuery = z.object({ model: z.string().optional(), status: z.enum(STATUSES).optional() });
 const OneQuery = z.object({ model: z.string().min(1), case: z.string().min(1) });
 
 export function evalRunRoutes(deps: AppDeps) {
   const r = runsDeps(deps);
-  const open = (name: string) => (evalRunNames(r.resultsDir).includes(name) ? new RunStore(name, r.resultsDir) : null);
 
   return new Hono()
     .get("/", (c) => {
@@ -145,11 +157,11 @@ export function evalRunRoutes(deps: AppDeps) {
       return c.json(ok({ runs: runs.sort((a, b) => b.createdAt.localeCompare(a.createdAt)), judge: r.judge() }));
     })
     .get("/:run/conversations", (c) => {
-      const store = open(c.req.param("run"));
-      if (!store) return c.json(fail("NOT_FOUND", `No eval run ${c.req.param("run")}.`), 404);
+      const graded = evalResults(r, c.req.param("run"));
+      if (!graded) return c.json(fail("NOT_FOUND", `No eval run ${c.req.param("run")}.`), 404);
       const q = ConvQuery.safeParse(c.req.query());
       if (!q.success) return c.json(fail("INVALID_QUERY", `status must be one of: ${STATUSES.join(", ")}.`), 400);
-      const { results, models } = runResults(store, r.judge());
+      const { results, models } = graded;
       const rows = results
         .filter((x) => (!q.data.model || x.record.agentModel === q.data.model) && (!q.data.status || x.status === q.data.status))
         .map((x) => ({
@@ -166,11 +178,11 @@ export function evalRunRoutes(deps: AppDeps) {
       return c.json(ok({ run: c.req.param("run"), models, judge: r.judge(), conversations: rows }));
     })
     .get("/:run/conversation", (c) => {
-      const store = open(c.req.param("run"));
-      if (!store) return c.json(fail("NOT_FOUND", `No eval run ${c.req.param("run")}.`), 404);
+      const graded = evalResults(r, c.req.param("run"));
+      if (!graded) return c.json(fail("NOT_FOUND", `No eval run ${c.req.param("run")}.`), 404);
       const q = OneQuery.safeParse(c.req.query());
       if (!q.success) return c.json(fail("INVALID_QUERY", "Give model and case."), 400);
-      const { results } = runResults(store, r.judge());
+      const { results } = graded;
       const x = results.find((y) => y.record.agentModel === q.data.model && y.record.caseId === q.data.case);
       if (!x) return c.json(fail("NOT_FOUND", `No conversation for ${q.data.case} with ${q.data.model} in ${c.req.param("run")}.`), 404);
       const { record, judge, status } = x;

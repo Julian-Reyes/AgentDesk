@@ -8,6 +8,7 @@ import { requireAdmin } from "./admin.ts";
 import { agentAdminRoutes, agentRoutes, type AgentsDeps } from "./agents.ts";
 import { approvalAdminRoutes, approvalRoutes } from "./approvals.ts";
 import { comparisonRoutes, type ComparisonDeps } from "./comparison.ts";
+import { overviewRoutes, type OverviewDeps } from "./overview.ts";
 import { evalRunRoutes, runRoutes, type RunsDeps } from "./runs.ts";
 import { ChatSessions, chatRoutes, type ChatLimits } from "./chat.ts";
 import { productRoutes } from "./products.ts";
@@ -39,6 +40,8 @@ export type AppDeps = {
   comparison?: Partial<ComparisonDeps>;
   /** For the Runs page's eval tab; defaults read eval-results/runs with the main judge. */
   runs?: Partial<RunsDeps>;
+  /** For the ops overview's examples and findings; defaults read config/overview.json. */
+  overview?: Partial<OverviewDeps>;
   /** Where chat traces go (DbTracer in the server, MemoryTracer in tests). */
   tracer: Tracer;
   chatLimits?: Partial<ChatLimits>;
@@ -70,6 +73,7 @@ export function createApp(deps: AppDeps) {
     // 2026-10-02). Eval traces are fixed, fictional scripts and stay public.
     .route("/api/admin/runs", runRoutes(deps))
     .route("/api/eval-runs", evalRunRoutes(deps))
+    .route("/api/overview", overviewRoutes(deps))
     // The dashboard calls this to check a pasted token before showing actions.
     .get("/api/admin/check", (c) => c.json(ok({ admin: true })));
 

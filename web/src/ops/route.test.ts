@@ -2,10 +2,10 @@ import { describe, expect, it } from "vitest";
 import { href, parseRoute } from "./route.ts";
 
 describe("dashboard routes", () => {
-  it("top-level pages, approvals by default", () => {
-    expect(parseRoute("")).toEqual({ page: "approvals" });
-    expect(parseRoute("#/nonsense/x/y")).toEqual({ page: "approvals" });
-    for (const p of ["agents", "comparison", "runs", "evals"]) expect(parseRoute(`#/${p}`)).toEqual({ page: p });
+  it("top-level pages, the overview by default (Julian, 2026-10-05; was approvals)", () => {
+    expect(parseRoute("")).toEqual({ page: "overview" });
+    expect(parseRoute("#/nonsense/x/y")).toEqual({ page: "overview" });
+    for (const p of ["approvals", "agents", "comparison", "runs", "evals"]) expect(parseRoute(`#/${p}`)).toEqual({ page: p });
   });
 
   it("round-trips ids, including model ids with a slash", () => {
