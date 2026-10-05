@@ -69,4 +69,28 @@ export const REFUND_WITHIN_LIMIT = defineCases([
       judgeChecks: ["In its first reply, the agent asks which item is broken (or what's wrong) instead of guessing or refunding an item."],
     },
   },
+  {
+    id: "refund-within-limit-04",
+    split: "dev",
+    type: "refund_within_limit",
+    why: "#1050 (Maya, Glowworm 300 Headlamp, $29.00, delivered 2026-09-10, inside the 14-day window): it never worked, from the day it arrived. Not working on delivery is 'arrived damaged' even with nothing visibly broken, so the damage-cause rule (Julian, 2026-10-05) must not block it: $29.00 is refunded automatically with cause arrived_damaged. The contrast to returns-06 (the same lamp failing after use). A goodwill coupon of 10% or less is allowed, not required, as in refund-within-limit-01.",
+    source: "test-1 follow-up (2026-10-05): the real arrived-damaged case for the damage-cause rule",
+    customer: "maya.chen@example.com",
+    turns: [
+      {
+        customer: "The Glowworm headlamp from order #1050 never worked. I put new batteries in the day it arrived and it won't turn on at all.",
+        reply: { amounts: [2900] },
+      },
+    ],
+    expect: {
+      route: "support",
+      outcome: "resolved",
+      effects: {
+        refunds: [{ order: 1050, amountCents: 2900, reason: "damaged", item: "lamp-glowworm-300", status: "issued" }],
+        allowed: { goodwill: [{ maxPercent: 10, order: 1050, status: ["issued", "pending_approval"] }] },
+        escalation: "forbidden",
+      },
+      judgeChecks: ["The agent treats an item that never worked from delivery as arrived damaged and refunds it, rather than calling it used or a warranty claim."],
+    },
+  },
 ]);

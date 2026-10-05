@@ -7,6 +7,20 @@ import { RULES } from "./rules.ts";
 export const AGENT_REFUND_REASONS = ["damaged", "lost", "late"] as const;
 export type AgentRefundReason = (typeof AGENT_REFUND_REASONS)[number];
 
+/**
+ * When the damage happened. Only damage the item arrived with is the store's
+ * problem. Damage after delivery (a drop, an accident, a failure after use) is
+ * the warranty's question, or nobody's. The tools ask for this explicitly
+ * because, with only the word "damaged" to choose from, agents refunded a
+ * dropped headlamp and one that stopped charging after a trip (test-1, 2026-10-05).
+ */
+export const DAMAGE_CAUSES = ["arrived_damaged", "damaged_after_delivery"] as const;
+export type DamageCause = (typeof DAMAGE_CAUSES)[number];
+
+/** Shared by issue_refund and check_return_eligibility, so both tools say the same thing. */
+export const DAMAGED_AFTER_DELIVERY_MESSAGE =
+  "Damage that happened after delivery (the item was dropped, had an accident, or broke or stopped working after use) isn't refunded as a damaged item and can't be returned. If it's a manufacturing defect that showed up in normal use, the 1-year warranty may cover it; warranty claims are handled by a team member. Accidental damage, misuse and normal wear aren't covered.";
+
 export type RefundOrderState = {
   status: OrderStatus;
   deliveredAt: Date | null;
@@ -36,7 +50,8 @@ export type RefundDecision =
 
 /**
  * The refund rules, in order:
- *  1. the reason must match the order's actual state
+ *  1. the reason must match the order's actual state; a "damaged" refund also
+ *     needs the cause, and only "arrived_damaged" is refunded
  *  2. the amount can never exceed what's still refundable (paid − issued − pending),
  *     and a "late" refund covers shipping only
  *     and a "damaged" refund covers the named item only
@@ -57,6 +72,7 @@ export function decideRefund(
   amountCents: Cents,
   now: Date,
   item?: RefundItem,
+  damageCause?: DamageCause,
 ): RefundDecision {
   if (!Number.isSafeInteger(amountCents) || amountCents <= 0) {
     return deny("INVALID_AMOUNT", "Refund amount must be a positive number of cents.");
@@ -66,6 +82,15 @@ export function decideRefund(
     case "damaged": {
       if (order.status !== "delivered" || !order.deliveredAt) {
         return deny("REASON_DOES_NOT_MATCH_ORDER", "A damaged-item refund needs a delivered order.");
+      }
+      if (!damageCause) {
+        return deny(
+          "DAMAGE_CAUSE_REQUIRED",
+          'A damaged-item refund needs the cause: "arrived_damaged" (damaged or not working when it was delivered) or "damaged_after_delivery" (dropped, broken, or stopped working after it arrived).',
+        );
+      }
+      if (damageCause === "damaged_after_delivery") {
+        return deny("DAMAGED_AFTER_DELIVERY", DAMAGED_AFTER_DELIVERY_MESSAGE);
       }
       const days = calendarDaysBetween(order.deliveredAt, now);
       if (days > RULES.damageReportWindowDays) {

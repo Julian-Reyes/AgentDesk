@@ -46,7 +46,7 @@ function goodScript(caseIds: string[]): { router: FakeStep[]; agent: FakeStep[] 
       router.push(route("out_of_scope", "I can't help with weather, but I can help with gear and orders."));
     } else if (id === "refund-within-limit-01") {
       router.push(route("support"));
-      agent.push(fake.tools(["issue_refund", { orderId: 1050, amount: 29, reason: "damaged", item: "lamp-glowworm-300" }]), fake.reply("Refunded $29.00 to your original payment method."));
+      agent.push(fake.tools(["issue_refund", { orderId: 1050, amount: 29, reason: "damaged", cause: "arrived_damaged", item: "lamp-glowworm-300" }]), fake.reply("Refunded $29.00 to your original payment method."));
     }
   }
   return { router, agent };
@@ -268,7 +268,7 @@ describe("applying approved case changes to a saved run", () => {
   const couponScript = {
     router: [route("support")],
     agent: [
-      fake.tools(["issue_refund", { orderId: 1050, amount: 29, reason: "damaged", item: "lamp-glowworm-300" }]),
+      fake.tools(["issue_refund", { orderId: 1050, amount: 29, reason: "damaged", cause: "arrived_damaged", item: "lamp-glowworm-300" }]),
       fake.tools(["issue_goodwill_coupon", { customer: "maya.chen@example.com", orderId: 1050, percent: 10, reason: "sorry" }]),
       fake.reply("Refunded $29.00 to your original payment method, and here's 10% off your next order."),
     ],

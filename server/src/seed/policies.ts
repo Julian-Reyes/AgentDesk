@@ -29,6 +29,7 @@ export const POLICY_DOCS: { topic: PolicyTopic; title: string; body: string }[] 
       "Used or worn items can't be returned. If a used item is defective, see the warranty policy.",
       "To return an item, send it back using the return label from your account. The refund is issued to your original payment method once the warehouse receives it, usually within 5 business days.",
       "Items that arrived damaged follow the damaged-items policy instead.",
+      "Items damaged after delivery (dropped, broken in an accident, or stopped working after use) can't be returned. If it's a manufacturing defect, see the warranty policy.",
     ].join("\n"),
   },
   {
@@ -37,7 +38,7 @@ export const POLICY_DOCS: { topic: PolicyTopic; title: string; body: string }[] 
     body: [
       "Refunds go back to the original payment method.",
       "A refund can never be more than what was paid for the order.",
-      `Our support team can issue refunds for damaged items, lost orders and late deliveries (shipping cost only). Refunds up to ${formatCents(RULES.autoRefundLimitCents)} per order are processed right away; larger amounts are reviewed by a team member, usually within one business day.`,
+      `Our support team can issue refunds for items that arrived damaged, lost orders and late deliveries (shipping cost only). Refunds up to ${formatCents(RULES.autoRefundLimitCents)} per order are processed right away; larger amounts are reviewed by a team member, usually within one business day.`,
       `Damaged items are refunded per item, up to what was paid for that item. An item that cost more than ${formatCents(RULES.autoRefundLimitCents)} (per unit) is always reviewed by a team member, whatever amount is requested.`,
       "Refunds for returned items are issued when the warehouse receives the return.",
     ].join("\n"),
@@ -48,6 +49,7 @@ export const POLICY_DOCS: { topic: PolicyTopic; title: string; body: string }[] 
     body: [
       "Larchgrove Supply Co. products carry a 1-year warranty against manufacturing defects (seams, zippers, buckles, poles, electronics).",
       "The warranty doesn't cover normal wear, misuse, or accidental damage.",
+      "A product that develops a defect in normal use after it arrived (for example, it stops working) is a warranty claim, not a damaged-item refund or a return.",
       "Warranty claims are handled by a team member: we repair, replace, or refund at our discretion.",
     ].join("\n"),
   },
@@ -63,6 +65,8 @@ export const POLICY_DOCS: { topic: PolicyTopic; title: string; body: string }[] 
     topic: "damaged_items",
     title: "Damaged items",
     body: [
+      "This policy covers items that arrived damaged: broken, defective or not working when they were delivered.",
+      "It doesn't cover damage that happened after delivery: an item that was dropped, damaged in an accident, or broke or stopped working after use. Those aren't refunded under this policy and can't be returned. A manufacturing defect that shows up in normal use may be covered by the warranty; accidental damage, misuse and normal wear aren't.",
       `If an item arrives damaged, report it within ${RULES.damageReportWindowDays} days of delivery.`,
       "We'll refund the item or send a replacement; you don't need to send the damaged item back unless we ask.",
       `A damaged item that cost ${formatCents(RULES.autoRefundLimitCents)} or less per unit is refunded right away, as long as the order's refunds stay within ${formatCents(RULES.autoRefundLimitCents)} in total; pricier items and larger totals are reviewed by a team member, usually within one business day.`,

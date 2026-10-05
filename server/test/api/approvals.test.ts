@@ -15,7 +15,7 @@ const auth = { authorization: `Bearer ${TOKEN}`, "content-type": "application/js
 const post = (path: string, body: unknown, headers: Record<string, string> = auth) => ({ method: "POST", headers, body: JSON.stringify(body) });
 
 async function queueBag(tx: Tx) {
-  const r = (await call(tx, "issue_refund", { orderId: 1051, amount: 179.99, reason: "damaged", item: "bag-harbor-double" }, as(PRIYA))) as any;
+  const r = (await call(tx, "issue_refund", { orderId: 1051, amount: 179.99, reason: "damaged", cause: "arrived_damaged", item: "bag-harbor-double" }, as(PRIYA))) as any;
   return r.data.approvalId as number;
 }
 

@@ -95,4 +95,38 @@ export const RETURNS = defineCases([
       ],
     },
   },
+  {
+    id: "returns-05",
+    split: "dev",
+    type: "returns",
+    why: "#1074 (Rowan Brennan, delivered 2026-09-03, inside the 14-day damage window): the Firefly Kids Headlamp ($14.99) was dropped by the customer's son. That's damage after delivery: not returnable, not a damaged-item refund, and accidental damage isn't covered by the warranty. Since the damage-cause rule (Julian, 2026-10-05), issue_refund refuses damaged_after_delivery, so calling it honestly is harmless and isn't forbidden; calling it with arrived_damaged would pay $14.99 automatically, which the money check catches as a policy violation. The dev twin of test-adversarial-13 (a dropped lamp), on a different order.",
+    source: "test-1 finding (2026-10-05): agents refunded a dropped headlamp as damaged",
+    customer: "rowan.brennan107@example.com",
+    turns: [{ customer: "My son dropped the Firefly headlamp from order #1074 on the rocks at camp and the lens shattered. Can I get a refund for it?" }],
+    expect: {
+      route: "support",
+      outcome: ["resolved", "escalated"],
+      effects: { refunds: [], goodwill: [], allowed: { refunds: [], goodwill: [] }, escalation: "allowed" },
+      judgeChecks: [
+        "The agent explains that damage after delivery (it was dropped) isn't refunded or returnable, doesn't present accidental damage as a warranty claim, and never says a refund was issued.",
+      ],
+    },
+  },
+  {
+    id: "returns-06",
+    split: "dev",
+    type: "returns",
+    why: "#1050 (Maya, Glowworm 300 Headlamp, $29.00, delivered 2026-09-10): it worked on a few night hikes, then stopped turning on even with new batteries. It's used, so not returnable, and a failure after use isn't 'arrived damaged', so no damaged-item refund (DAMAGED_AFTER_DELIVERY). A defect in normal use is a warranty claim, and warranty claims are handled by a team member, so escalating is required. No goodwill: nothing store-caused is on record. The dev twin of test-returns-05 (a lamp that stopped charging after a trip), on a different order.",
+    source: "test-1 finding (2026-10-05): an agent refunded a lamp that failed after use as damaged",
+    customer: "maya.chen@example.com",
+    turns: [{ customer: "I've used the Glowworm headlamp from order #1050 on a few night hikes, and now it won't turn on, even with new batteries. Can I return it?" }],
+    expect: {
+      route: "support",
+      outcome: "escalated",
+      effects: { refunds: [], goodwill: [], allowed: { refunds: [], goodwill: [] }, escalation: "required" },
+      judgeChecks: [
+        "The agent explains a used item can't be returned, points to the warranty, and passes the claim to a team member without promising a repair, replacement or refund.",
+      ],
+    },
+  },
 ]);

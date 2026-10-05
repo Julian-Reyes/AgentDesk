@@ -85,11 +85,18 @@ describe("checkReturnEligibility", () => {
   it("rejects used items", () => {
     expect(checkReturnEligibility({ ...deliveredDaysAgo(5), condition: "used" })).toMatchObject({ code: "ITEM_USED" });
   });
-  it("routes damaged items to the damaged-items process", () => {
-    expect(checkReturnEligibility({ ...deliveredDaysAgo(5), condition: "damaged" })).toMatchObject({
+  it("routes items that arrived damaged to the damaged-items process", () => {
+    expect(checkReturnEligibility({ ...deliveredDaysAgo(5), condition: "arrived_damaged" })).toMatchObject({
       code: "USE_DAMAGED_ITEM_PROCESS",
       details: { withinDamageWindow: true },
     });
+  });
+  it("damage after delivery is neither a return nor a damaged-item refund; it points to the warranty", () => {
+    const r = checkReturnEligibility({ ...deliveredDaysAgo(5), condition: "damaged_after_delivery" });
+    expect(r).toMatchObject({ eligible: false, code: "DAMAGED_AFTER_DELIVERY" });
+    expect(r.message).toMatch(/warranty/);
+    // Inside the return window too: a dropped item is never returnable.
+    expect(checkReturnEligibility({ ...deliveredDaysAgo(1), condition: "damaged_after_delivery" }).code).toBe("DAMAGED_AFTER_DELIVERY");
   });
   it("rejects items already returned", () => {
     expect(checkReturnEligibility({ ...deliveredDaysAgo(5), item: { qty: 2, returnedQty: 2 } })).toMatchObject({ code: "ALREADY_RETURNED" });

@@ -119,6 +119,8 @@ export function validateCases(cases: EvalCase[], seed: SeedData = buildSeedData(
         r.amountCents,
         now,
         item,
+        // A case's expected damaged refund is for an item that arrived damaged; damage after delivery is never refunded.
+        r.reason === "damaged" ? "arrived_damaged" : undefined,
       );
       const expected = r.status === "issued" ? "auto_approved" : "queued_for_approval";
       if (decision.decision !== expected) {

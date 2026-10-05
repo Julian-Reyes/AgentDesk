@@ -32,7 +32,7 @@ describe("time and the bottleneck, per model", () => {
 
   it("Groq free tier: the daily token limit decides, and the dev set needs more than one day", () => {
     const e = estimateAgents(groqFree("groq/qwen3.8-27b"), dev, []);
-    expect(e.conversations).toBe(40);
+    expect(e.conversations).toBe(dev.length);
     expect(e.days.tokens!).toBeGreaterThan(1);
     expect(e.daysNeeded).toBe(Math.ceil(e.days.tokens!));
     expect(e.bottleneck).toBe("tokens/day (200,000)");
@@ -75,8 +75,8 @@ describe("time and the bottleneck, per model", () => {
 
   it("renders one row per model, the parallel total, and the unknown daily limits", () => {
     const text = renderEstimate([estimateAgents(cfg("gemini/gemini-3.5-flash-lite"), dev, []), estimateAgents(groqFree("groq/gpt-oss-120b"), dev, []), estimateJudge(cfg("gemini/gemma-4-31b"), 80)]);
-    expect(text).toMatch(/\| gemini\/gemini-3\.5-flash-lite \(agents\) \| 40 \|/);
-    expect(text).toMatch(/\| groq\/gpt-oss-120b \(agents\) \| 40 \|.*% of tok\/day/);
+    expect(text).toContain(`| gemini/gemini-3.5-flash-lite (agents) | ${dev.length} |`);
+    expect(text).toMatch(new RegExp(`\\| groq/gpt-oss-120b \\(agents\\) \\| ${dev.length} \\|.*% of tok/day`));
     expect(text).toMatch(/\| gemini\/gemma-4-31b \(judge\) \| 80 \|/);
     expect(text).toContain("Agents run in parallel");
     expect(text).toContain("Daily limit unknown for gemini/gemini-3.5-flash-lite, gemini/gemma-4-31b");

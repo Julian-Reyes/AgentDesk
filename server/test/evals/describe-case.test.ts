@@ -38,7 +38,7 @@ describe("the review sheet", () => {
     const dev = ALL_CASES.filter((c) => c.split === "dev");
     const s = describeCases(dev, "Eval cases: dev split");
     expect(s).toContain(`# Eval cases: dev split (${dev.length} cases)`);
-    expect(s).toContain("| returns | 4 |");
+    expect(s).toContain("| returns | 6 |");
     expect(s.match(/^### \d+\. /gm)).toHaveLength(dev.length);
   });
 });

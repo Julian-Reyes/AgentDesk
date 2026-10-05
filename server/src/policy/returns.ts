@@ -1,8 +1,11 @@
 import type { OrderStatus } from "../db/schema.ts";
 import { addDays, calendarDaysBetween } from "../domain/clock.ts";
+import { DAMAGED_AFTER_DELIVERY_MESSAGE } from "./refunds.ts";
 import { RULES } from "./rules.ts";
 
-export type ItemCondition = "unused" | "used" | "damaged";
+/** "used" is worn or used with nothing wrong with it; damage has its own two conditions (see DAMAGE_CAUSES). */
+export const ITEM_CONDITIONS = ["unused", "used", "arrived_damaged", "damaged_after_delivery"] as const;
+export type ItemCondition = (typeof ITEM_CONDITIONS)[number];
 
 export type ReturnCheckInput = {
   orderStatus: OrderStatus;
@@ -23,7 +26,8 @@ export type ReturnCheck =
         | "ALREADY_RETURNED"
         | "WINDOW_EXPIRED"
         | "ITEM_USED"
-        | "USE_DAMAGED_ITEM_PROCESS";
+        | "USE_DAMAGED_ITEM_PROCESS"
+        | "DAMAGED_AFTER_DELIVERY";
       message: string;
       details?: Record<string, unknown>;
     };
@@ -44,7 +48,10 @@ export function checkReturnEligibility(input: ReturnCheckInput): ReturnCheck {
   const daysSince = calendarDaysBetween(deliveredAt, now);
   const returnBy = addDays(deliveredAt, RULES.returnWindowDays).toISOString().slice(0, 10);
 
-  if (condition === "damaged") {
+  if (condition === "damaged_after_delivery") {
+    return { eligible: false, code: "DAMAGED_AFTER_DELIVERY", message: DAMAGED_AFTER_DELIVERY_MESSAGE, details: { daysSinceDelivery: daysSince } };
+  }
+  if (condition === "arrived_damaged") {
     return {
       eligible: false,
       code: "USE_DAMAGED_ITEM_PROCESS",

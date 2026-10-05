@@ -36,7 +36,7 @@ describe("order ownership", () => {
         ["get_order", { orderId: 1042 }],
         ["get_tracking", { orderId: 1042 }],
         ["check_return_eligibility", { orderId: 1042, item: "tent" }],
-        ["issue_refund", { orderId: 1042, amount: 10, reason: "damaged", item: "tent" }],
+        ["issue_refund", { orderId: 1042, amount: 10, reason: "damaged", cause: "arrived_damaged", item: "tent" }],
         ["find_customer", { email: "maya.chen@example.com" }],
       ] as const) {
         expect(await call(tx, name, args), name).toMatchObject({ ok: false, error: { code: "AUTH_REQUIRED" } });
@@ -46,7 +46,7 @@ describe("order ownership", () => {
   it("tracking and refunds also refuse another customer's order", () =>
     inTx(async (tx) => {
       expect(await call(tx, "get_tracking", { orderId: 1043 }, as(MAYA))).toMatchObject({ error: { code: "ORDER_NOT_FOUND" } });
-      expect(await call(tx, "issue_refund", { orderId: 1051, amount: 10, reason: "damaged", item: "sleeping bag" }, as(MAYA))).toMatchObject({
+      expect(await call(tx, "issue_refund", { orderId: 1051, amount: 10, reason: "damaged", cause: "arrived_damaged", item: "sleeping bag" }, as(MAYA))).toMatchObject({
         error: { code: "ORDER_NOT_FOUND" },
       });
     }));
@@ -141,7 +141,7 @@ describe("issue_refund", () => {
 
   it("refunds a $29 damaged item immediately", () =>
     inTx(async (tx) => {
-      const r = await call(tx, "issue_refund", { orderId: 1050, amount: 29, reason: "damaged", item: "headlamp" }, as(MAYA));
+      const r = await call(tx, "issue_refund", { orderId: 1050, amount: 29, reason: "damaged", cause: "arrived_damaged", item: "headlamp" }, as(MAYA));
       expect(r).toMatchObject({ ok: true, policyDecision: "auto_approved", data: { status: "refunded", amount: "$29.00" } });
       const [refund] = await refundsFor(tx, 1050);
       expect(refund).toMatchObject({ amountCents: 2900, status: "issued", reason: "damaged" });
@@ -150,7 +150,7 @@ describe("issue_refund", () => {
 
   it("sends $179.99 to the approvals queue and refunds nothing", () =>
     inTx(async (tx) => {
-      const r = await call(tx, "issue_refund", { orderId: 1051, amount: 179.99, reason: "damaged", item: "Harbor" }, as(PRIYA));
+      const r = await call(tx, "issue_refund", { orderId: 1051, amount: 179.99, reason: "damaged", cause: "arrived_damaged", item: "Harbor" }, as(PRIYA));
       expect(r).toMatchObject({ ok: true, policyDecision: "queued_for_approval", data: { status: "pending_approval" } });
       expect(await approvalsFor(tx, 1051)).toMatchObject([{ kind: "refund", status: "pending", payload: { amountCents: 17999, item: "Harbor 3°C Double Sleeping Bag" } }]);
       const refunds = await refundsFor(tx, 1051);
@@ -162,8 +162,8 @@ describe("issue_refund", () => {
     inTx(async (tx) => {
       // Rule change (2026-09-29): the bag cost $179.99, so even the first $45 now goes to approval.
       // Before, the first $45 was automatic; an agent used that to split a claim into "$50 now + escalate".
-      const first = await call(tx, "issue_refund", { orderId: 1051, amount: 45, reason: "damaged", item: "sleeping bag" }, as(PRIYA));
-      const second = await call(tx, "issue_refund", { orderId: 1051, amount: 45, reason: "damaged", item: "sleeping bag" }, as(PRIYA));
+      const first = await call(tx, "issue_refund", { orderId: 1051, amount: 45, reason: "damaged", cause: "arrived_damaged", item: "sleeping bag" }, as(PRIYA));
+      const second = await call(tx, "issue_refund", { orderId: 1051, amount: 45, reason: "damaged", cause: "arrived_damaged", item: "sleeping bag" }, as(PRIYA));
       expect(first).toMatchObject({ policyDecision: "queued_for_approval" });
       expect(second).toMatchObject({ policyDecision: "queued_for_approval" });
       expect((await refundsFor(tx, 1051)).some((x: any) => x.status === "issued")).toBe(false);
@@ -192,11 +192,11 @@ describe("issue_refund", () => {
       // Move the delivery inside the 14-day damage window (rolled back with the transaction).
       await tx.update(s.orders).set({ deliveredAt: addDays(TEST_NOW, -5) }).where(eq(s.orders.number, number));
 
-      const first = await call(tx, "issue_refund", { orderId: number, amount: paid(a), reason: "damaged", item: a.productId }, as(customerId));
+      const first = await call(tx, "issue_refund", { orderId: number, amount: paid(a), reason: "damaged", cause: "arrived_damaged", item: a.productId }, as(customerId));
       expect(first).toMatchObject({ ok: true, policyDecision: "auto_approved", data: { status: "refunded" } });
 
       // Item B is under $50 on its own, but the order's refunds would total more than $50.
-      const second = await call(tx, "issue_refund", { orderId: number, amount: paid(b), reason: "damaged", item: b.productId }, as(customerId));
+      const second = await call(tx, "issue_refund", { orderId: number, amount: paid(b), reason: "damaged", cause: "arrived_damaged", item: b.productId }, as(customerId));
       expect(second).toMatchObject({ ok: true, policyDecision: "queued_for_approval", data: { status: "pending_approval" } });
 
       const [approval] = await approvalsFor(tx, number);
@@ -211,23 +211,23 @@ describe("issue_refund", () => {
   it("units already returned (refunded by the warehouse) can't also be refunded as damaged", () =>
     inTx(async (tx) => {
       await tx.update(s.orderItems).set({ returnedQty: 1 }).where(eq(s.orderItems.orderNumber, 1050));
-      expect(await call(tx, "issue_refund", { orderId: 1050, amount: 29, reason: "damaged", item: "headlamp" }, as(MAYA))).toMatchObject({
+      expect(await call(tx, "issue_refund", { orderId: 1050, amount: 29, reason: "damaged", cause: "arrived_damaged", item: "headlamp" }, as(MAYA))).toMatchObject({
         ok: false, error: { code: "NOTHING_REFUNDABLE" },
       });
     }));
 
   it("the exact split from the 2026-09-29 chat ($50 of a $179.99 item) goes to approval", () =>
     inTx(async (tx) => {
-      const r = await call(tx, "issue_refund", { orderId: 1051, amount: 50, reason: "damaged", item: "Harbor 3°C Double Sleeping Bag" }, as(PRIYA));
+      const r = await call(tx, "issue_refund", { orderId: 1051, amount: 50, reason: "damaged", cause: "arrived_damaged", item: "Harbor 3°C Double Sleeping Bag" }, as(PRIYA));
       expect(r).toMatchObject({ policyDecision: "queued_for_approval", data: { status: "pending_approval" } });
     }));
 
   it("a damaged refund must name an item that is in the order", () =>
     inTx(async (tx) => {
-      expect(await call(tx, "issue_refund", { orderId: 1050, amount: 29, reason: "damaged" }, as(MAYA))).toMatchObject({
+      expect(await call(tx, "issue_refund", { orderId: 1050, amount: 29, reason: "damaged", cause: "arrived_damaged" }, as(MAYA))).toMatchObject({
         ok: false, policyDecision: "denied", error: { code: "ITEM_REQUIRED" },
       });
-      expect(await call(tx, "issue_refund", { orderId: 1050, amount: 29, reason: "damaged", item: "tent" }, as(MAYA))).toMatchObject({
+      expect(await call(tx, "issue_refund", { orderId: 1050, amount: 29, reason: "damaged", cause: "arrived_damaged", item: "tent" }, as(MAYA))).toMatchObject({
         ok: false, policyDecision: "denied", error: { code: "ITEM_NOT_IN_ORDER", details: { itemsInOrder: [{ name: "Glowworm 300 Headlamp" }] } },
       });
       expect(await refundsFor(tx, 1050)).toEqual([]);
@@ -235,8 +235,8 @@ describe("issue_refund", () => {
 
   it("refunds for one item add up: a second claim on the same item can't exceed what's left", () =>
     inTx(async (tx) => {
-      expect(await call(tx, "issue_refund", { orderId: 1050, amount: 20, reason: "damaged", item: "headlamp" }, as(MAYA))).toMatchObject({ policyDecision: "auto_approved" });
-      expect(await call(tx, "issue_refund", { orderId: 1050, amount: 10, reason: "damaged", item: "headlamp" }, as(MAYA))).toMatchObject({
+      expect(await call(tx, "issue_refund", { orderId: 1050, amount: 20, reason: "damaged", cause: "arrived_damaged", item: "headlamp" }, as(MAYA))).toMatchObject({ policyDecision: "auto_approved" });
+      expect(await call(tx, "issue_refund", { orderId: 1050, amount: 10, reason: "damaged", cause: "arrived_damaged", item: "headlamp" }, as(MAYA))).toMatchObject({
         error: { code: "AMOUNT_EXCEEDS_REFUNDABLE", details: { maxRefundable: "$9.00" } },
       });
     }));
@@ -244,7 +244,7 @@ describe("issue_refund", () => {
   it("never refunds more than was paid", () =>
     inTx(async (tx) => {
       // Rule change (2026-09-29): a damaged refund is capped at the item ($29.00), not the order total with shipping ($36.99).
-      const r = await call(tx, "issue_refund", { orderId: 1050, amount: 500, reason: "damaged", item: "headlamp" }, as(MAYA));
+      const r = await call(tx, "issue_refund", { orderId: 1050, amount: 500, reason: "damaged", cause: "arrived_damaged", item: "headlamp" }, as(MAYA));
       expect(r).toMatchObject({ ok: false, policyDecision: "denied", error: { code: "AMOUNT_EXCEEDS_REFUNDABLE", details: { maxRefundable: "$29.00" } } });
       expect(await refundsFor(tx, 1050)).toEqual([]);
     }));
@@ -253,7 +253,7 @@ describe("issue_refund", () => {
     inTx(async (tx) => {
       // #1057 was returned; the $69 item was refunded, only the $7.99 shipping remains.
       // Named precisely so the denial is about the refund, not "item not found".
-      const r = await call(tx, "issue_refund", { orderId: 1057, amount: 69, reason: "damaged", item: "fleece" }, as(DANIEL));
+      const r = await call(tx, "issue_refund", { orderId: 1057, amount: 69, reason: "damaged", cause: "arrived_damaged", item: "fleece" }, as(DANIEL));
       expect(r).toMatchObject({ ok: false, policyDecision: "denied" });
       expect((r as any).error.code).not.toBe("ITEM_NOT_IN_ORDER");
     }));
@@ -281,11 +281,11 @@ describe("issue_refund", () => {
   it("rejects bad arguments before any rule runs", () =>
     inTx(async (tx) => {
       for (const args of [
-        { orderId: 1050, amount: -5, reason: "damaged" },
-        { orderId: 1050, amount: 10.001, reason: "damaged" },
+        { orderId: 1050, amount: -5, reason: "damaged", cause: "arrived_damaged" },
+        { orderId: 1050, amount: 10.001, reason: "damaged", cause: "arrived_damaged" },
         { orderId: 1050, amount: 10, reason: "return" },
         { orderId: 1050, amount: 10, reason: "because I said so" },
-        { orderId: "abc", amount: 10, reason: "damaged" },
+        { orderId: "abc", amount: 10, reason: "damaged", cause: "arrived_damaged" },
       ]) {
         expect(await call(tx, "issue_refund", args, as(MAYA)), JSON.stringify(args)).toMatchObject({ ok: false, error: { code: "INVALID_ARGS" } });
       }
@@ -294,7 +294,7 @@ describe("issue_refund", () => {
 
 describe("a damaged item on a two-unit line (#1245: two Beacon 500 headlamps, $98.00 for the line)", () => {
   const owner = async (tx: Tx) => (await tx.select({ id: s.orders.customerId }).from(s.orders).where(eq(s.orders.number, 1245)))[0]!.id;
-  const refund = async (tx: Tx, amount: number) => call(tx, "issue_refund", { orderId: 1245, amount, reason: "damaged", item: "lamp-beacon-500" }, as(await owner(tx)));
+  const refund = async (tx: Tx, amount: number) => call(tx, "issue_refund", { orderId: 1245, amount, reason: "damaged", cause: "arrived_damaged", item: "lamp-beacon-500" }, as(await owner(tx)));
 
   it("one damaged $49 lamp is refunded automatically: the limit is judged per unit (Julian, 2026-10-02)", () =>
     inTx(async (tx) => {
@@ -305,12 +305,28 @@ describe("a damaged item on a two-unit line (#1245: two Beacon 500 headlamps, $9
     inTx(async (tx) => {
       expect(await refund(tx, 98)).toMatchObject({ ok: true, policyDecision: "queued_for_approval" });
     }));
+
+  it("a dropped lamp is refused and nothing is refunded; without a cause it's refused too (test-1, 2026-10-05)", () =>
+    inTx(async (tx) => {
+      const customer = as(await owner(tx));
+      const dropped = await call(tx, "issue_refund", { orderId: 1245, amount: 49, reason: "damaged", cause: "damaged_after_delivery", item: "lamp-beacon-500" }, customer);
+      expect(dropped).toMatchObject({ ok: false, error: { code: "DAMAGED_AFTER_DELIVERY" }, policyDecision: "denied" });
+      const noCause = await call(tx, "issue_refund", { orderId: 1245, amount: 49, reason: "damaged", item: "lamp-beacon-500" }, customer);
+      expect(noCause).toMatchObject({ ok: false, error: { code: "DAMAGE_CAUSE_REQUIRED" } });
+      expect(await tx.select().from(s.refunds).where(eq(s.refunds.orderNumber, 1245))).toEqual([]);
+    }));
+
+  it("check_return_eligibility says the same for a lamp that stopped charging after use", () =>
+    inTx(async (tx) => {
+      const r = await call(tx, "check_return_eligibility", { orderId: 1245, item: "lamp-beacon-500", condition: "damaged_after_delivery" }, as(await owner(tx)));
+      expect(r).toMatchObject({ ok: true, data: { eligible: false, code: "DAMAGED_AFTER_DELIVERY" }, policyDecision: "denied" });
+    }));
 });
 
 describe("finding the item in a multi-item order (#1074: Voyager 80 pack, Squall jacket, Firefly Kids Headlamp)", () => {
   /** Rowan Brennan's id, from the seed. */
   const owner = async (tx: Tx) => (await tx.select({ id: s.orders.customerId }).from(s.orders).where(eq(s.orders.number, 1074)))[0]!.id;
-  const refundFor = async (tx: Tx, item: string) => call(tx, "issue_refund", { orderId: 1074, amount: 14.99, reason: "damaged", item }, as(await owner(tx)));
+  const refundFor = async (tx: Tx, item: string) => call(tx, "issue_refund", { orderId: 1074, amount: 14.99, reason: "damaged", cause: "arrived_damaged", item }, as(await owner(tx)));
   const refundedItem = async (tx: Tx) => {
     const rows = await tx.select({ product: s.orderItems.productId }).from(s.refunds).innerJoin(s.orderItems, eq(s.orderItems.id, s.refunds.orderItemId)).where(eq(s.refunds.orderNumber, 1074));
     return rows.map((r) => r.product);
@@ -381,14 +397,14 @@ describe("issue_goodwill_coupon", () => {
       // #1050 delivered with a cracked lamp, but nothing on record yet.
       expect(await coupon(1050)).toMatchObject({ policyDecision: "queued_for_approval" });
       await tx.delete(s.approvals); // otherwise the first request, still pending, queues the second
-      await call(tx, "issue_refund", { orderId: 1050, amount: 29, reason: "damaged", item: "lamp-glowworm-300" }, as(MAYA));
+      await call(tx, "issue_refund", { orderId: 1050, amount: 29, reason: "damaged", cause: "arrived_damaged", item: "lamp-glowworm-300" }, as(MAYA));
       expect(await coupon(1050)).toMatchObject({ policyDecision: "auto_approved", data: { status: "issued" } });
     }));
 
   it("a damaged-item refund waiting for approval counts too", () =>
     inTx(async (tx) => {
       // Priya's $179.99 bag goes to approval: the damage is on record while it waits.
-      await call(tx, "issue_refund", { orderId: 1051, amount: 179.99, reason: "damaged", item: "bag-harbor-double" }, as(PRIYA));
+      await call(tx, "issue_refund", { orderId: 1051, amount: 179.99, reason: "damaged", cause: "arrived_damaged", item: "bag-harbor-double" }, as(PRIYA));
       const pending = await call(tx, "issue_goodwill_coupon", { customer: "priya.raman@example.com", orderId: 1051, percent: 10, reason: "sorry" }, as(PRIYA));
       expect(pending).toMatchObject({ policyDecision: "auto_approved" });
     }));
@@ -427,7 +443,7 @@ describe("issue_goodwill_coupon", () => {
 
   it("the issued code works in quote_price for its owner only", () =>
     inTx(async (tx) => {
-      await call(tx, "issue_refund", { orderId: 1050, amount: 29, reason: "damaged", item: "lamp-glowworm-300" }, as(MAYA));
+      await call(tx, "issue_refund", { orderId: 1050, amount: 29, reason: "damaged", cause: "arrived_damaged", item: "lamp-glowworm-300" }, as(MAYA));
       const issued = (await call(tx, "issue_goodwill_coupon", { customer: "maya.chen@example.com", orderId: 1050, percent: 10, reason: "sorry" }, as(MAYA))) as any;
       const cart = [{ productId: "stove-quickboil", qty: 1 }];
       expect(await call(tx, "quote_price", { cart, coupon: issued.data.code }, as(MAYA))).toMatchObject({

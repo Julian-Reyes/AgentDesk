@@ -4,8 +4,8 @@ import * as s from "../db/schema.ts";
 import { addDays } from "../domain/clock.ts";
 import { formatCents } from "../domain/money.ts";
 import { decideGoodwill, storeCausedProblem, type StoreCausedProblem } from "../policy/goodwill.ts";
-import { AGENT_REFUND_REASONS, decideRefund, type RefundItem } from "../policy/refunds.ts";
-import { checkReturnEligibility } from "../policy/returns.ts";
+import { AGENT_REFUND_REASONS, DAMAGE_CAUSES, decideRefund, type RefundItem } from "../policy/refunds.ts";
+import { checkReturnEligibility, ITEM_CONDITIONS } from "../policy/returns.ts";
 import { RULES } from "../policy/rules.ts";
 import { day, dollarsArg, findOrderItem, itemRefundableCents, linePaidCents, loadOwnedOrder, orderNumberArg, orderRefundSums, toCents } from "./common.ts";
 import { defineTool, fail, ok, type ToolContext } from "./define.ts";
@@ -124,12 +124,12 @@ export const getTracking = defineTool({
 export const checkReturnEligibilityTool = defineTool({
   name: "check_return_eligibility",
   description:
-    "Whether an item from the signed-in customer's order can be returned under the returns policy. Pass the item's product id or name, and the item's condition if the customer mentioned it.",
+    "Whether an item from the signed-in customer's order can be returned under the returns policy. Pass the item's product id or name, and the item's condition if the customer mentioned it: unused; used (worn or used, nothing wrong with it); arrived_damaged (damaged or not working when it was delivered); damaged_after_delivery (dropped, broken, or stopped working after it arrived).",
   agents: ["support"],
   args: z.object({
     orderId: orderNumberArg,
     item: z.string().min(1),
-    condition: z.enum(["unused", "used", "damaged"]).optional(),
+    condition: z.enum(ITEM_CONDITIONS).optional(),
   }),
   async run(ctx, { orderId, item, condition }) {
     const owned = await loadOwnedOrder(ctx, orderId);
@@ -151,7 +151,7 @@ export const checkReturnEligibilityTool = defineTool({
 
 export const issueRefund = defineTool({
   name: "issue_refund",
-  description: `Refund part or all of one of the signed-in customer's orders. Reasons: damaged (reported within ${RULES.damageReportWindowDays} days of delivery; pass the damaged item, refunded up to what was paid for it), lost (order lost in transit), late (delayed order; shipping cost only). Amount in dollars. The tool decides whether the refund is immediate or goes to a human for approval, and says which. Returns are refunded by the warehouse, not with this tool.`,
+  description: `Refund part or all of one of the signed-in customer's orders. Reasons: damaged (reported within ${RULES.damageReportWindowDays} days of delivery; pass the damaged item, refunded up to what was paid for it, and the cause: arrived_damaged if it was damaged or not working when it was delivered, damaged_after_delivery if it was dropped, broken or stopped working after it arrived. Only arrived_damaged is refunded), lost (order lost in transit), late (delayed order; shipping cost only). Amount in dollars. The tool decides whether the refund is immediate or goes to a human for approval, and says which. Returns are refunded by the warehouse, not with this tool.`,
   agents: ["support"],
   args: z.object({
     orderId: orderNumberArg,
@@ -159,9 +159,11 @@ export const issueRefund = defineTool({
     reason: z.enum(AGENT_REFUND_REASONS),
     /** Required for "damaged": the item's product id or name. */
     item: z.string().trim().min(1).optional(),
+    /** Required for "damaged": when the damage happened. Checked by decideRefund, so a missing cause is a refusal the model can act on. */
+    cause: z.enum(DAMAGE_CAUSES).optional(),
     note: z.string().max(500).optional(),
   }),
-  async run(ctx, { orderId, amount, reason, item, note }) {
+  async run(ctx, { orderId, amount, reason, item, cause, note }) {
     const amountCents = toCents(amount);
     return ctx.db.transaction(async (tx) => {
       const tctx = { ...ctx, db: tx };
@@ -190,6 +192,7 @@ export const issueRefund = defineTool({
         amountCents,
         ctx.now,
         refundItem,
+        cause,
       );
 
       if (decision.decision === "denied") {

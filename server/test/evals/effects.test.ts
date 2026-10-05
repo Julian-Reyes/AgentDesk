@@ -8,7 +8,7 @@ describe("reading what a conversation changed in the store", () => {
       const snap = await snapshotStore(tx);
       expect(await effectsSince(tx, snap)).toEqual({ refunds: [], goodwill: [], escalations: 0 });
 
-      await call(tx, "issue_refund", { orderId: 1050, amount: 29, reason: "damaged", item: "lamp-glowworm-300" }, as(MAYA));
+      await call(tx, "issue_refund", { orderId: 1050, amount: 29, reason: "damaged", cause: "arrived_damaged", item: "lamp-glowworm-300" }, as(MAYA));
       await call(tx, "issue_goodwill_coupon", { customer: "maya.chen@example.com", orderId: 1050, percent: 10, reason: "sorry" }, as(MAYA));
       // Sofia got one 10 days ago, so hers is queued.
       await call(tx, "issue_goodwill_coupon", { customer: "sofia.alvarez@example.com", percent: 10, reason: "sorry" }, as(SOFIA));
@@ -28,7 +28,7 @@ describe("reading what a conversation changed in the store", () => {
   it("reports queued refunds with their item, and order-level refunds without one", () =>
     inTx(async (tx) => {
       const snap = await snapshotStore(tx);
-      await call(tx, "issue_refund", { orderId: 1051, amount: 179.99, reason: "damaged", item: "bag-harbor-double" }, as(3));
+      await call(tx, "issue_refund", { orderId: 1051, amount: 179.99, reason: "damaged", cause: "arrived_damaged", item: "bag-harbor-double" }, as(3));
       await call(tx, "issue_refund", { orderId: 1055, amount: 7.99, reason: "late" }, as(SOFIA));
       expect((await effectsSince(tx, snap)).refunds).toEqual([
         { order: 1051, amountCents: 17999, reason: "damaged", status: "pending_approval", item: "bag-harbor-double" },

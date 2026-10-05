@@ -1352,7 +1352,55 @@ git worktree remove ../agents-test-run
 
 **No prompt changes based on these results** (the test set stays held out). Weaknesses to show as found: the damaged-reason gap above, the dev → test drop, and gpt-oss-120b's follow-up promises.
 
-**Next:** Julian's switch/retire decision on the Agents page, from these numbers, with a reason. Also open: whether to close the damaged-reason gap in code (for example, sending damaged refunds to approval when the order history doesn't support store-caused damage). That gap needs a design decision; it's not a quick fix.
+**Next:** Julian's switch/retire decision on the Agents page (Julian does it himself). The damaged-reason gap: see below.
+
+### The damage-cause rule (Julian's decision, 2026-10-05)
+**Why:** in test-1, agents refunded a *dropped* headlamp and one that *stopped charging after a trip* as "damaged" (violations 1 and 2 above). The tools only had one word, "damaged", so the model picked the nearest one, and code paid out anything ≤ $50. Julian: keep the $50 automatic refunds; make the tools ask when the damage happened, enforced in code. Not done: requiring a quote of the customer's words (option 3).
+
+**Code:**
+- `policy/refunds.ts`: `DAMAGE_CAUSES = arrived_damaged | damaged_after_delivery`. `decideRefund` takes the cause for a `damaged` refund: missing → `DAMAGE_CAUSE_REQUIRED`; `damaged_after_delivery` → `DAMAGED_AFTER_DELIVERY` (not refunded, not returnable; a defect in normal use may be a warranty claim for a team member; accidental damage, misuse and wear aren't covered). Only `arrived_damaged` goes on to the existing $50 / per-unit / window rules.
+- `policy/returns.ts`: the item condition is now `unused | used | arrived_damaged | damaged_after_delivery` (was `unused | used | damaged`). `damaged_after_delivery` returns `DAMAGED_AFTER_DELIVERY` with the same message as the refund.
+- `tools/support.ts`: `issue_refund` has a `cause` argument, and both tool descriptions define the two causes.
+- The refund *reason* is still `damaged`, so the DB, approvals, goodwill and the web app are unchanged.
+- **Policy text** (`seed/policies.ts`, generated from the same constants; the dev DB needs `npm run db:seed` before the next run):
+  - damaged items: "This policy covers items that arrived damaged: broken, defective or not working when they were delivered." Then: "It doesn't cover damage that happened after delivery: an item that was dropped, damaged in an accident, or broke or stopped working after use…"
+  - returns: items damaged after delivery can't be returned; for a manufacturing defect, see the warranty.
+  - refunds: "refunds for items that arrived damaged".
+  - warranty: "A product that develops a defect in normal use after it arrived (for example, it stops working) is a warranty claim, not a damaged-item refund or a return."
+- **Agent prompts are unchanged** (still round-2). The tool descriptions *are* part of what the models see, though, so runs after this aren't strictly comparable with dev-3 or test-1. Label them as after the damage-cause rule.
+
+**Eval cases changed:** none. No existing dev or test case's text or expectations changed. `validate-cases.ts` (which replays each case's expected refunds through the refund rules) now passes `arrived_damaged` for an expected damaged refund, because every expected damaged refund is for an item that arrived damaged.
+
+**New dev cases (dev is now 43 cases):**
+- `returns-05`: #1074, Rowan's son dropped the $14.99 Firefly Kids Headlamp (inside the 14-day window, so a wrongly labelled refund would be paid automatically). No refunds or coupons; outcome resolved or escalated. `issue_refund` is *not* forbidden: a call with `damaged_after_delivery` is now refused and harmless, and one with `arrived_damaged` pays money, which the money check catches as a policy violation. (test-adversarial-13 still forbids the call; test cases unchanged.)
+- `returns-06`: #1050, Maya's Glowworm 300 ($29, AAA batteries) stopped turning on after a few night hikes. Used, failed after use: warranty, so escalation is required, with no refunds or coupons.
+- `refund-within-limit-04`: #1050, the same lamp "never worked" from the day it arrived: arrived damaged with nothing visibly broken, $29.00 refunded automatically. The contrast case, so the rule can't be passed by refusing everything.
+- Orders: no unused seeded order has a recently delivered item ≤ $50. #1050 and #1074 are dev orders; #1245 (Beacon 500) is test-only, so it wasn't reused.
+
+**Unit tests changed, and why** (no expectation weakened):
+- Every test damaged refund was a real arrived-damaged item, so it now passes `cause: "arrived_damaged"` and keeps its expected result. That's 41 tool-call lines in `tools/support.test.ts`, `agents/conversation.test.ts`, `approvals/decide.test.ts`, `api/approvals.test.ts`, `evals/grade.test.ts`, `evals/runner.test.ts`, `evals/effects.test.ts` and `tracing/db-tracer.test.ts`, plus 25 `decideRefund` calls in `policy/refunds.test.ts`.
+- `policy/goodwill-returns.test.ts`: `condition: "damaged"` became `"arrived_damaged"` (the old value no longer exists).
+- `evals/estimate.test.ts`: two checks hard-coded the dev set at 40 conversations; they now use the dev set's size.
+- `evals/describe-case.test.ts`: dev "returns" count 4 → 6.
+- **New tests:**
+  - the cause is required, and `damaged_after_delivery` is refused even when small and inside the window
+  - the return check for `damaged_after_delivery`
+  - the tool refuses the dropped #1245 lamp and nothing is refunded; it also refuses with no cause
+  - `check_return_eligibility` on the lamp that stopped charging
+  - the policy text separates the two causes
+- 486 server + 43 web tests pass.
+
+**Cost estimate: the new and affected damaged-refund cases on gpt-oss-120b and Flash-Lite** (the runner's preflight; judge gpt-oss-20b; Flash-Lite free):
+
+| Run | Cases | Conversations | Agents | Judge | Total | Time |
+| --- | --- | --- | --- | --- | --- | --- |
+| Dev: 3 new + `refund-within-limit-01`, `-03`, `refund-over-limit-01` | 6 | 12 | $0.01 | $0.02 | **$0.03** | ~7 min |
+| Optional, test: the 13 damage cases | 13 | 26 | $0.02 | $0.03 | **$0.05** | ~13 min |
+
+- Plan on ≤ $0.05 for dev and ≤ $0.07 for the test subset, with retries (gpt-oss-120b had 40 provider rejections in 330 test-1 conversations).
+- Single conversations are noisy, so 3 repeats of the dev subset (≈ $0.10) say more than one.
+- Against the $8 cycle: ≈ $6.76 so far.
+
 
 ## Milestone 4 — UI ✅ Closed (2026-10-02)
 The plan (order of work, the approvals and team-history rules, what's tested) is in **`docs/M4_PLAN.md`**.

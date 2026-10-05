@@ -22,7 +22,7 @@ const ctxFor = (tx: Tx): DecisionContext => ({ db: tx, storeNow: TEST_NOW, decid
 
 /** Priya's $179.99 damaged sleeping bag on #1051: always queued (the item costs more than $50). */
 async function queueBagRefund(tx: Tx, amount = 179.99) {
-  const r = (await call(tx, "issue_refund", { orderId: 1051, amount, reason: "damaged", item: "bag-harbor-double" }, as(PRIYA))) as any;
+  const r = (await call(tx, "issue_refund", { orderId: 1051, amount, reason: "damaged", cause: "arrived_damaged", item: "bag-harbor-double" }, as(PRIYA))) as any;
   expect(r.data.status).toBe("pending_approval");
   return r.data.approvalId as number;
 }
@@ -132,7 +132,7 @@ describe("approvals link to their conversation", () => {
   it("both tools store the run id they're given", () =>
     inTx(async (tx) => {
       const ctx = (customerId: number) => ({ db: tx, now: TEST_NOW, session: { customerId }, runId: "run-abc" });
-      const r = (await callTool(getTool("issue_refund")!, ctx(PRIYA), { orderId: 1051, amount: 179.99, reason: "damaged", item: "bag-harbor-double" })) as any;
+      const r = (await callTool(getTool("issue_refund")!, ctx(PRIYA), { orderId: 1051, amount: 179.99, reason: "damaged", cause: "arrived_damaged", item: "bag-harbor-double" })) as any;
       const g = (await callTool(getTool("issue_goodwill_coupon")!, ctx(SOFIA), { customer: "sofia.alvarez@example.com", percent: 20, reason: "Sorry" })) as any;
       expect((await approvalRow(tx, r.data.approvalId)).runId).toBe("run-abc");
       expect((await approvalRow(tx, g.data.approvalId)).runId).toBe("run-abc");
@@ -153,7 +153,7 @@ describe("rejections become draft cases", () => {
       const router = new FakeProvider([fake.json({ route: "support", category: "refunds", urgency: "high", confidence: 0.9 })]);
       const agent = new FakeProvider([
         fake.reply("Which item is damaged?"),
-        fake.tools(["issue_refund", { orderId: 1051, amount: 179.99, reason: "damaged", item: "sleeping bag" }]),
+        fake.tools(["issue_refund", { orderId: 1051, amount: 179.99, reason: "damaged", cause: "arrived_damaged", item: "sleeping bag" }]),
         fake.reply("Sent for approval."),
       ]);
       const team = buildTeam(loadTeamSpec({ MODEL: "fake" }), { fakes: { router, shopping: agent, support: agent }, env: {} });

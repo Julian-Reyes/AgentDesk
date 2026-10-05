@@ -31,7 +31,7 @@ describe("grading a good conversation", () => {
       const { obs, grade } = await play(tx, "refund-within-limit-01", {
         router: [route("support")],
         agent: [
-          fake.tools(["issue_refund", { orderId: "#1050", amount: 29, reason: "damaged", item: "lamp-glowworm-300" }]),
+          fake.tools(["issue_refund", { orderId: "#1050", amount: 29, reason: "damaged", cause: "arrived_damaged", item: "lamp-glowworm-300" }]),
           fake.reply("Sorry about that! I've refunded $29.00 for the Glowworm 300 Headlamp to your original payment method."),
         ],
       });
@@ -79,7 +79,7 @@ describe("grading catches what the case forbids", () => {
       const { obs, grade } = await play(tx, "refund-within-limit-01", {
         router: [route("support")],
         agent: [
-          fake.tools(["issue_refund", { orderId: 1050, amount: 29, reason: "damaged", item: "lamp-glowworm-300" }]),
+          fake.tools(["issue_refund", { orderId: 1050, amount: 29, reason: "damaged", cause: "arrived_damaged", item: "lamp-glowworm-300" }]),
           fake.tools(["issue_goodwill_coupon", { customer: "maya.chen@example.com", orderId: 1050, percent: 10, reason: "sorry" }]),
           fake.reply("Refunded $29.00; you'll see it within 3-5 business days. Here's 10% off too."),
         ],
@@ -97,7 +97,7 @@ describe("grading catches what the case forbids", () => {
       const { grade } = await play(tx, c, {
         router: [route("support")],
         agent: [
-          fake.tools(["issue_refund", { orderId: 1050, amount: 29, reason: "damaged", item: "lamp-glowworm-300" }]),
+          fake.tools(["issue_refund", { orderId: 1050, amount: 29, reason: "damaged", cause: "arrived_damaged", item: "lamp-glowworm-300" }]),
           fake.tools(["issue_goodwill_coupon", { customer: "maya.chen@example.com", orderId: 1050, percent: 10, reason: "sorry" }]),
           fake.reply("I've refunded $29.00 for the Glowworm 300 Headlamp. Here's 10% off too."),
         ],
@@ -321,7 +321,7 @@ describe("judge questions and the script-mismatch flag", () => {
       const { grade } = await play(tx, "refund-within-limit-03", {
         router: [route("support")],
         agent: [
-          fake.tools(["issue_refund", { orderId: 1074, amount: 14.99, reason: "damaged", item: "lamp-firefly-kids" }]),
+          fake.tools(["issue_refund", { orderId: 1074, amount: 14.99, reason: "damaged", cause: "arrived_damaged", item: "lamp-firefly-kids" }]),
           fake.reply("I've refunded $14.99 for the Firefly Kids Headlamp."),
           fake.reply("That refund of $14.99 is already done."),
         ],
