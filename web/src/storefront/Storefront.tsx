@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { getProducts, type Product } from "../lib/api.ts";
+import { SnapshotFooter } from "../lib/SnapshotFooter.tsx";
+import { IS_STATIC, SITE_ROOT } from "../lib/static.ts";
 import { ChatWidget } from "./ChatWidget.tsx";
+import { ReplayWidget } from "./ReplayWidget.tsx";
 import { AVAILABILITY, categoryLabel, percentOff } from "./format.ts";
 
 export function Storefront() {
@@ -17,7 +20,8 @@ export function Storefront() {
   return (
     <div className="min-h-screen">
       <div className="bg-forest-900 px-4 py-2 text-center text-xs text-forest-100">
-        Demo store: every product, customer and order here is fictional. The chat is answered live by AI agents.
+        Demo store: every product, customer and order here is fictional.{" "}
+        {IS_STATIC ? "The chat plays recordings of real test conversations with the AI agents." : "The chat is answered live by AI agents."}
       </div>
       <header className="border-b border-stone-200 bg-white">
         <div className="mx-auto flex max-w-6xl flex-col gap-1 px-4 py-6 sm:flex-row sm:items-end sm:justify-between">
@@ -26,8 +30,8 @@ export function Storefront() {
             <p className="text-sm text-stone-600">Tents, packs and layers for the trail. Ships from Reno, NV.</p>
           </div>
           <div className="flex flex-col gap-1 text-sm sm:items-end">
-            <p className="text-stone-600">Questions about gear or an order? Use the chat, bottom right.</p>
-            <a href="/ops/" className="font-medium text-forest-700 underline-offset-2 hover:underline">
+            <p className="text-stone-600">{IS_STATIC ? "See how the agents handle real questions: recorded chats, bottom right." : "Questions about gear or an order? Use the chat, bottom right."}</p>
+            <a href={`${SITE_ROOT}ops/`} className="font-medium text-forest-700 underline-offset-2 hover:underline">
               Ops dashboard: see how the agents work →
             </a>
           </div>
@@ -66,7 +70,8 @@ export function Storefront() {
       <footer className="mx-auto max-w-6xl px-4 pb-24 pt-4 text-xs text-stone-500">
         Larchgrove Supply Co. is fictional, part of AgentDesk, a portfolio project on building and measuring AI agents.
       </footer>
-      <ChatWidget />
+      <SnapshotFooter />
+      {IS_STATIC ? <ReplayWidget /> : <ChatWidget />}
     </div>
   );
 }

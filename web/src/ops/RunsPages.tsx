@@ -12,6 +12,7 @@ import {
   type RunJudge,
   type TraceStep,
 } from "../lib/api.ts";
+import { IS_STATIC } from "../lib/static.ts";
 import { when } from "./approvals.ts";
 import { href } from "./route.ts";
 import { Timeline } from "./Timeline.tsx";
@@ -46,7 +47,7 @@ export function RunsTabs({ active }: { active: "live" | "eval" }) {
   return (
     <div className="mb-4 flex items-center gap-2">
       <h1 className="mr-2 text-xl font-semibold">Runs</h1>
-      {tab("live", "Live", "#/runs")}
+      {!IS_STATIC && tab("live", "Live", "#/runs")}
       {tab("eval", "Eval", "#/evals")}
     </div>
   );

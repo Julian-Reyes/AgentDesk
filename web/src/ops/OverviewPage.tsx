@@ -3,6 +3,7 @@ import { getAgents, getComparisonList, getComparisonSet, getOverview, type Agent
 import { ROLE_LABEL } from "./agents.ts";
 import { ciBar, ciText, winnerText } from "./comparison.ts";
 import { SPLIT_LABEL, devGap, headline, kpiTiles, latestDecision, shortModel, teamModel } from "./overview.ts";
+import { IS_STATIC, SITE_ROOT } from "../lib/static.ts";
 import { href } from "./route.ts";
 
 /**
@@ -182,8 +183,8 @@ export function OverviewPage() {
       </Card>
 
       <nav aria-label="Next steps" className="flex flex-wrap gap-2.5">
-        <a href="/" className="rounded-lg bg-forest-800 px-4 py-3 text-sm font-semibold text-white hover:bg-forest-700">
-          Try the store chat
+        <a href={SITE_ROOT} className="rounded-lg bg-forest-800 px-4 py-3 text-sm font-semibold text-white hover:bg-forest-700">
+          {IS_STATIC ? "Watch recorded store chats" : "Try the store chat"}
         </a>
         {(
           [

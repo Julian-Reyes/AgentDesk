@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { decideApproval, getApprovals, type Approval } from "../lib/api.ts";
+import { IS_STATIC } from "../lib/static.ts";
 import { DRAFT_LABEL, noteProblem, requestSummary, shortRun, when } from "./approvals.ts";
 import { href } from "./route.ts";
 
@@ -25,14 +26,22 @@ export function ApprovalsPage({ token }: { token: string | null }) {
 
   return (
     <div className="space-y-8">
+      {IS_STATIC && (
+        <p className="rounded-md bg-amber-50 p-3 text-sm text-amber-900">
+          <strong>Examples.</strong> These requests were made up to show the workflow. Each one went through the real refund and coupon rules and the real approve/reject code;
+          the customers and orders are fictional, like the whole store. In the live app, refunds over $50 and goodwill over the limits wait here for a person.
+        </p>
+      )}
       <section aria-labelledby="pending-h">
         <div className="mb-3 flex items-baseline justify-between">
           <h1 id="pending-h" className="text-xl font-semibold">
             Waiting for a decision {pending && <span className="text-stone-500">({pending.length})</span>}
           </h1>
-          <button type="button" onClick={() => void load()} className="text-sm text-forest-700 underline">
-            Refresh
-          </button>
+          {!IS_STATIC && (
+            <button type="button" onClick={() => void load()} className="text-sm text-forest-700 underline">
+              Refresh
+            </button>
+          )}
         </div>
         {error && <p className="mb-3 rounded-md bg-rust-50 p-3 text-sm text-rust-600">{error}</p>}
         {!pending && !error && <p className="text-stone-500">Loading…</p>}
@@ -56,10 +65,12 @@ export function ApprovalsPage({ token }: { token: string | null }) {
               <li key={a.id} className="flex flex-col gap-1 p-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                   <p>
-                    <StatusBadge status={a.status} /> <span className="font-medium">{requestSummary(a)}</span> · {a.customer.name}
+                    <StatusBadge status={a.status} /> {a.example && <ExampleBadge />} <span className="font-medium">{requestSummary(a)}</span> · {a.customer.name}
                     {a.orderNumber !== null && ` · #${a.orderNumber}`}
                   </p>
-                  {a.decisionNote && <p className="text-stone-600">“{a.decisionNote}”</p>}
+                  {a.agentNote && <p className="text-xs text-stone-500">Agent's note: {a.agentNote}</p>}
+                  <p className="text-xs text-stone-500">Queued because: {a.queuedBecause}</p>
+                  {a.decisionNote && <p className="text-stone-600">Decision note: “{a.decisionNote}”</p>}
                   {a.draftCase && <p className="text-xs text-stone-500">{DRAFT_LABEL[a.draftCase]}</p>}
                 </div>
                 <p className="shrink-0 text-xs text-stone-500">
@@ -72,6 +83,10 @@ export function ApprovalsPage({ token }: { token: string | null }) {
       </section>
     </div>
   );
+}
+
+function ExampleBadge() {
+  return <span className="rounded-full bg-amber-50 px-2 py-0.5 text-xs text-amber-900">Example</span>;
 }
 
 function StatusBadge({ status }: { status: Approval["status"] }) {
@@ -103,7 +118,9 @@ function PendingCard({ approval: a, token, onDecided }: { approval: Approval; to
   return (
     <li className="rounded-md border border-stone-200 bg-white p-4">
       <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between">
-        <p className="font-semibold">{requestSummary(a)}</p>
+        <p className="font-semibold">
+          {a.example && <ExampleBadge />} {requestSummary(a)}
+        </p>
         <p className="text-xs text-stone-500">
           #{a.id} · requested {when(a.createdAt)}
         </p>
@@ -130,7 +147,7 @@ function PendingCard({ approval: a, token, onDecided }: { approval: Approval; to
           </>
         )}
       </dl>
-      <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-start">
+      {!IS_STATIC && <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-start">
         <label className="sr-only" htmlFor={`note-${a.id}`}>
           Note for approval #{a.id}
         </label>
@@ -150,7 +167,7 @@ function PendingCard({ approval: a, token, onDecided }: { approval: Approval; to
             Reject
           </button>
         </div>
-      </div>
+      </div>}
       {error && (
         <p role="alert" className="mt-2 text-sm text-rust-600">
           {error}

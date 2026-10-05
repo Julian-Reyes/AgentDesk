@@ -1,5 +1,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { checkAdmin } from "../lib/api.ts";
+import { SnapshotFooter } from "../lib/SnapshotFooter.tsx";
+import { IS_STATIC, SITE_ROOT } from "../lib/static.ts";
 import { AgentsPage } from "./AgentsPage.tsx";
 import { ApprovalsPage } from "./ApprovalsPage.tsx";
 import { ComparisonPage } from "./ComparisonPage.tsx";
@@ -74,18 +76,20 @@ export function Ops() {
                 {label}
               </a>
             ))}
-            <a href="/" className="text-stone-600 hover:text-forest-700">
+            <a href={SITE_ROOT} className="text-stone-600 hover:text-forest-700">
               Storefront
             </a>
           </nav>
         </div>
-        <AdminToken token={token} onChange={saveToken} width={width} />
+        {!IS_STATIC && <AdminToken token={token} onChange={saveToken} width={width} />}
       </header>
       <main className={`mx-auto px-4 py-6 ${width}`}>
         {route.page === "run" ? (
           <LiveRunPage id={route.id} token={token} />
-        ) : route.page === "runs" ? (
+        ) : route.page === "runs" && !IS_STATIC ? (
           <LiveRunsPage token={token} />
+        ) : route.page === "runs" ? (
+          <EvalRunsPage />
         ) : route.page === "evals" ? (
           <EvalRunsPage />
         ) : route.page === "evalRun" ? (
@@ -102,6 +106,7 @@ export function Ops() {
           <OverviewPage />
         )}
       </main>
+      <SnapshotFooter />
     </div>
   );
 }

@@ -25,7 +25,16 @@ import type { AppDeps } from "./app.ts";
  * Eval runs are public and read-only, like the rest of the dashboard.
  */
 
-export type RunsDeps = { resultsDir: string; judge: () => { model: string; rubric: string } };
+export type RunsDeps = {
+  resultsDir: string;
+  judge: () => { model: string; rubric: string };
+  /**
+   * Graded runs kept in memory, by run name. Off by default: the local server's
+   * runs can change while an eval is running. The static export (whose files
+   * can't change while it runs) passes one, so each run is graded once.
+   */
+  cache?: Map<string, ReturnType<typeof gradeRun>>;
+};
 
 export const runsDeps = (deps: AppDeps): RunsDeps => ({
   resultsDir: DEFAULT_RESULTS_DIR,
@@ -155,6 +164,12 @@ export function runJudge(r: RunsDeps, store: RunStore): RunJudge {
  * such run. Shared with the overview page, which checks its examples here.
  */
 export function evalResults(r: RunsDeps, name: string) {
+  if (!r.cache) return gradeRun(r, name);
+  if (!r.cache.has(name)) r.cache.set(name, gradeRun(r, name));
+  return r.cache.get(name)!;
+}
+
+function gradeRun(r: RunsDeps, name: string) {
   const store = openEvalRun(r, name);
   if (!store) return null;
   const judge = runJudge(r, store);

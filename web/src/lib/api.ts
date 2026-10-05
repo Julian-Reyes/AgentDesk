@@ -155,6 +155,8 @@ export type Approval = {
   runId: string | null;
   /** For rejections from a conversation: has `npm run eval:draft-from-rejections` written its draft case? */
   draftCase: "written" | "not_yet" | null;
+  /** Public site only: a made-up example (server/src/seed/demo-approvals.ts), not a real request. */
+  example?: boolean;
 };
 
 const bearer = (token: string) => ({ authorization: `Bearer ${token}` });
@@ -243,6 +245,20 @@ export type AgentsEval = {
 export type SafetyFact = { title: string; text: string; run: string; model: string; caseId: string };
 export type Finding = { date: string; title: string; text: string; status: "fixed" | "fixed_not_remeasured" | "open" };
 export const getOverview = () => request<{ safety: SafetyFact[]; findings: Finding[] }>("/api/overview");
+
+// ---------- Public site: chat recordings ----------
+
+/** A saved eval conversation the static storefront plays back (server/config/replays.json). */
+export type Replay = {
+  title: string;
+  run: string;
+  model: string;
+  caseId: string;
+  /** The signed-in demo customer, or null for a visitor who isn't signed in. */
+  customerName: string | null;
+  turns: { customer: string; progress: string[]; reply: string; answeredBy: AnsweredBy }[];
+};
+export const getReplays = () => request<{ replays: Replay[] }>("/api/replays");
 
 // ---------- Ops dashboard: runs ----------
 
