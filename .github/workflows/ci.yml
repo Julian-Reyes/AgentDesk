@@ -39,3 +39,32 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm test
+      # The public site (M5): built from the committed snapshot in site-data/.
+      - name: Build the static public site
+        run: npm run build:static -w web
+        env:
+          VITE_BASE: /${{ github.event.repository.name }}/
+      - name: Keep the built site for the deploy job
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: web/dist
+
+  # Deploys the public site to GitHub Pages, only from main and only after every check passed.
+  deploy-pages:
+    needs: check
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

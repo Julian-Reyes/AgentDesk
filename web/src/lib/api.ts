@@ -49,7 +49,8 @@ async function snapshot<T>(path: string, init?: RequestInit): Promise<T> {
   } catch {
     throw new ApiError("NETWORK", "We couldn't load this page's data. Please check your connection.", 0);
   }
-  if (res.status === 404) throw new ApiError("NOT_FOUND", "This isn't part of the snapshot.", 404);
+  // A missing file is a 404 on GitHub Pages, but some hosts answer with the site's HTML page instead.
+  if (res.status === 404 || !res.headers.get("content-type")?.includes("json")) throw new ApiError("NOT_FOUND", "This isn't part of the snapshot.", 404);
   return unwrap<T>(res);
 }
 

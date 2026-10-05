@@ -61,9 +61,9 @@ describe("the static export (the public site's data)", () => {
     const all = JSON.parse(first.get("api/approvals.json")!).data.approvals;
     expect(all.map((x: { id: number }) => x.id).sort()).toEqual([1, 2, 3, 4, 5]);
     expect(all.every((x: { example: boolean; runId: null }) => x.example === true && x.runId === null)).toBe(true);
-    expect(JSON.parse(first.get("api/approvals/status=pending.json")!).data.approvals).toHaveLength(3);
-    expect(JSON.parse(first.get("api/approvals/status=approved.json")!).data.approvals).toHaveLength(1);
-    expect(JSON.parse(first.get("api/approvals/status=rejected.json")!).data.approvals).toHaveLength(1);
+    expect(JSON.parse(first.get("api/approvals/status~pending.json")!).data.approvals).toHaveLength(3);
+    expect(JSON.parse(first.get("api/approvals/status~approved.json")!).data.approvals).toHaveLength(1);
+    expect(JSON.parse(first.get("api/approvals/status~rejected.json")!).data.approvals).toHaveLength(1);
 
     // Nothing written to the database: the examples were rolled back.
     expect((await db.select().from(s.approvals)).length).toBe(approvalsBefore);
