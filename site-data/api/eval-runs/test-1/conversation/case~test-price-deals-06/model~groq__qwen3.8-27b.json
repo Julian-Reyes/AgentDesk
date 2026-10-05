@@ -1,0 +1,495 @@
+{
+  "ok": true,
+  "data": {
+    "run": "test-1",
+    "status": "fail",
+    "judge": {
+      "model": "groq/gpt-oss-20b",
+      "rubric": "rubric@4#ed295c13",
+      "legacy": false
+    },
+    "case": {
+      "id": "test-price-deals-06",
+      "split": "test",
+      "type": "price_deals",
+      "why": "Four Beacon 500s ($196.00 at $49.00 each): buy-2-get-1 frees one per group of three, so one is free, not two: $147.00, free shipping.",
+      "source": "test batch 4",
+      "customer": null,
+      "turns": [
+        {
+          "customer": "I want 4 Beacon 500 headlamps for my climbing group. How much is that with your headlamp deal?"
+        }
+      ],
+      "expect": {
+        "route": "shopping",
+        "outcome": "resolved",
+        "tools": {
+          "required": [],
+          "forbidden": []
+        },
+        "effects": {
+          "refunds": [],
+          "goodwill": [],
+          "allowed": {
+            "refunds": [],
+            "goodwill": []
+          },
+          "escalation": "forbidden"
+        },
+        "price": {
+          "cart": [
+            {
+              "productId": "lamp-beacon-500",
+              "qty": 4
+            }
+          ],
+          "totalCents": 14700
+        },
+        "leaks": [],
+        "judge": "Explains one of the four is free (one per group of three).",
+        "judgeChecks": []
+      }
+    },
+    "caseHistory": [],
+    "model": "groq/qwen3.8-27b",
+    "team": {
+      "router": {
+        "model": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "prompt": "router@1#f10fc861"
+      },
+      "shopping": {
+        "model": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "prompt": "shopping@3#e36d3d2f"
+      },
+      "support": {
+        "model": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "prompt": "support@4#b0bc1025"
+      }
+    },
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    },
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "I want 4 Beacon 500 headlamps for my climbing group. How much is that with your headlamp deal?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"shopping\", \"category\": \"pricing_deals\", \"urgency\": \"normal\", \"confidence\": 0.95}",
+          "decision": {
+            "route": "shopping",
+            "category": "pricing_deals",
+            "urgency": "normal",
+            "confidence": 0.95
+          },
+          "fallback": false
+        },
+        "inputTokens": 364,
+        "outputTokens": 31,
+        "latencyMs": 335,
+        "cached": false,
+        "costMicros": 415,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "9xe2b81j6",
+                "name": "search_products",
+                "arguments": "{\"filters\":{\"category\":\"headlamps\"},\"query\":\"Beacon 500\"}"
+              },
+              {
+                "id": "2f7y1aqam",
+                "name": "get_active_promotions",
+                "arguments": "{}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2480,
+        "outputTokens": 67,
+        "latencyMs": 1063,
+        "cached": false,
+        "costMicros": 2252,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "9xe2b81j6",
+          "name": "search_products",
+          "arguments": "{\"filters\":{\"category\":\"headlamps\"},\"query\":\"Beacon 500\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 2,
+              "products": [
+                {
+                  "id": "lamp-beacon-500",
+                  "name": "Beacon 500 Rechargeable Headlamp",
+                  "category": "headlamps",
+                  "listPrice": "$49.00",
+                  "currentPrice": "$49.00",
+                  "rating": 4.6,
+                  "description": "USB-C rechargeable headlamp with a lock mode.",
+                  "specs": {
+                    "lumens": 500,
+                    "waterproof": true,
+                    "weightGrams": 86,
+                    "burnTimeMinutes": 1200
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Headlamps: buy 2, get 1 free"
+                  ]
+                },
+                {
+                  "id": "lamp-beacon-900",
+                  "name": "Beacon 900 Rechargeable Headlamp",
+                  "category": "headlamps",
+                  "listPrice": "$79.00",
+                  "currentPrice": "$79.00",
+                  "rating": 4.7,
+                  "description": "High-output rechargeable headlamp with a rear battery pack.",
+                  "specs": {
+                    "lumens": 900,
+                    "waterproof": true,
+                    "weightGrams": 140,
+                    "burnTimeMinutes": 900
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Headlamps: buy 2, get 1 free"
+                  ]
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "2f7y1aqam",
+          "name": "get_active_promotions",
+          "arguments": "{}",
+          "result": {
+            "ok": true,
+            "data": {
+              "promotions": [
+                {
+                  "name": "Tent Sale: 20% off all tents",
+                  "endsOn": "2026-10-05"
+                },
+                {
+                  "name": "Headlamps: buy 2, get 1 free",
+                  "endsOn": "2026-10-15"
+                }
+              ],
+              "freeShipping": "Free shipping on orders of $75.00 or more; otherwise $7.99.",
+              "couponCodes": [
+                {
+                  "code": "SUMMER10",
+                  "terms": "10% off; expires 2026-09-30"
+                },
+                {
+                  "code": "TRAIL25",
+                  "terms": "$25.00 off; minimum spend $150.00; expires 2026-12-31"
+                },
+                {
+                  "code": "GEAR20",
+                  "terms": "20% off; minimum spend $50.00; not valid on tents, sleeping bags; expires 2026-10-30"
+                }
+              ],
+              "rules": "One coupon per order. Sales apply first, then buy-2-get-1, then the coupon."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "mjf3gscht",
+                "name": "quote_price",
+                "arguments": "{\"cart\":[{\"productId\":\"lamp-beacon-500\",\"qty\":4}]}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3086,
+        "outputTokens": 45,
+        "latencyMs": 668,
+        "cached": false,
+        "costMicros": 2649,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "mjf3gscht",
+          "name": "quote_price",
+          "arguments": "{\"cart\":[{\"productId\":\"lamp-beacon-500\",\"qty\":4}]}",
+          "result": {
+            "ok": true,
+            "data": {
+              "lines": [
+                {
+                  "productId": "lamp-beacon-500",
+                  "name": "Beacon 500 Rechargeable Headlamp",
+                  "qty": 4,
+                  "listPrice": "$49.00",
+                  "discounts": [
+                    {
+                      "deal": "Headlamps: buy 2, get 1 free",
+                      "amount": "-$49.00"
+                    }
+                  ],
+                  "lineTotal": "$147.00"
+                }
+              ],
+              "subtotal": "$196.00",
+              "coupon": null,
+              "totalDiscounts": "-$49.00",
+              "shipping": "FREE",
+              "total": "$147.00",
+              "totalCents": 14700
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 3,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": "With the headlamp \"buy 2, get 1 free\" deal, your 4 Beacon 500s come to **$147.00** total (2 free of the 4, −$49.00 off the $196.00 subtotal). That's over the $75.00 threshold, so shipping is free.\n\n",
+            "toolCalls": [
+              {
+                "id": "2eep4x34m",
+                "name": "reply",
+                "arguments": "{\"message\":\"Buy 2, get 1 free\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3286,
+        "outputTokens": 115,
+        "latencyMs": 733,
+        "cached": false,
+        "costMicros": 3089,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "2eep4x34m",
+          "name": "reply",
+          "arguments": "{\"message\":\"Buy 2, get 1 free\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "Buy 2, get 1 free"
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "Buy 2, get 1 free"
+        },
+        "turn": 1
+      }
+    ],
+    "grade": {
+      "checks": [
+        {
+          "id": "turns",
+          "label": "every message got an answer",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "route",
+          "label": "routed to shopping",
+          "pass": true,
+          "severity": "task",
+          "detail": "routed to shopping"
+        },
+        {
+          "id": "outcome",
+          "label": "outcome resolved",
+          "pass": true,
+          "severity": "task",
+          "detail": "outcome resolved"
+        },
+        {
+          "id": "money_unexpected",
+          "label": "no refunds or coupons beyond what the case allows",
+          "pass": true,
+          "severity": "policy"
+        },
+        {
+          "id": "escalation",
+          "label": "doesn't escalate",
+          "pass": true,
+          "severity": "task",
+          "detail": "0 escalation ticket(s)"
+        },
+        {
+          "id": "price_quoted",
+          "label": "quote_price for lamp-beacon-500×4",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "price_stated",
+          "label": "reply 1 states $147.00",
+          "pass": false,
+          "severity": "task",
+          "detail": "amounts in reply: none"
+        },
+        {
+          "id": "raw_output",
+          "label": "no raw JSON or tool syntax in replies",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "grounding",
+          "label": "no invented product names, prices or specs",
+          "pass": true,
+          "severity": "grounding"
+        }
+      ],
+      "counts": {
+        "policyViolations": 0,
+        "groundingViolations": 0,
+        "forbiddenAttempts": 0,
+        "failedChecks": 1
+      },
+      "judgeQuestions": [
+        {
+          "id": "judge:followup",
+          "kind": "judge_check",
+          "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+        },
+        {
+          "id": "judge:timing",
+          "kind": "judge_check",
+          "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+        }
+      ]
+    },
+    "verdict": {
+      "ok": true,
+      "output": {
+        "replies": [
+          {
+            "reply": 1,
+            "tone": 5,
+            "clarity": 3,
+            "helpfulness": 2,
+            "why": "The reply gives the deal but omits the price and total, so it doesn't fully answer the customer's question."
+          }
+        ],
+        "checks": [
+          {
+            "id": "judge:followup",
+            "answer": true,
+            "why": "The agent only states the existing buy‑2‑get‑1‑free deal and does not promise or imply any future action that it cannot perform in this chat. This complies with the rule. Answer: yes.",
+            "votes": [
+              true,
+              true,
+              true
+            ]
+          },
+          {
+            "id": "judge:timing",
+            "answer": true,
+            "why": "The agent's reply \"Buy 2, get 1 free\" contains no timing statements about shipping, arrival, refunds, or processing. Therefore all timing claims (none) match the conversation. Answer: yes.",
+            "votes": [
+              true,
+              true,
+              true
+            ]
+          }
+        ],
+        "scriptFit": []
+      },
+      "error": null
+    },
+    "stats": {
+      "modelCalls": 4,
+      "cachedCalls": 0,
+      "toolCalls": 3,
+      "inputTokens": 9216,
+      "outputTokens": 258,
+      "latencyMs": 2799,
+      "turnLatencyMs": [
+        2799
+      ],
+      "costMicros": 8405,
+      "wallMs": 2857
+    },
+    "providerError": null
+  }
+}

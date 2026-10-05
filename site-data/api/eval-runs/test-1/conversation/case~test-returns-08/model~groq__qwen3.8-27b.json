@@ -1,0 +1,519 @@
+{
+  "ok": true,
+  "data": {
+    "run": "test-1",
+    "status": "pass",
+    "judge": {
+      "model": "groq/gpt-oss-20b",
+      "rubric": "rubric@4#ed295c13",
+      "legacy": false
+    },
+    "case": {
+      "id": "test-returns-08",
+      "split": "test",
+      "type": "returns",
+      "why": "Elena Kaur doesn't have the order number. Her account has #1331 (a Squall Rain Jacket, delivered 2026-08-25, eligible until 2026-09-24), #1107 (processing, with a Squall Pro Rain Jacket) and #1138 (delayed trail runners). The agent should look it up and pick #1331, not confuse the Squall with the Squall Pro on the undelivered order.",
+      "source": "test batch 1",
+      "customer": "elena.kaur148@example.com",
+      "turns": [
+        {
+          "customer": "I want to return the Squall rain jacket that came a few weeks ago. Tags are still on. I don't have the order number, can you find it on my account?",
+          "reply": {
+            "mentions": [
+              [
+                "September 24",
+                "Sep 24",
+                "Sept 24",
+                "2026-09-24",
+                "9/24"
+              ]
+            ],
+            "amounts": [],
+            "avoids": [
+              "I'll process",
+              "I have processed",
+              "I've processed",
+              "I will process"
+            ]
+          }
+        }
+      ],
+      "expect": {
+        "route": "support",
+        "outcome": "resolved",
+        "tools": {
+          "required": [
+            {
+              "tool": "check_return_eligibility",
+              "args": {
+                "orderId": 1331
+              }
+            }
+          ],
+          "forbidden": [
+            "issue_refund"
+          ]
+        },
+        "effects": {
+          "refunds": [],
+          "goodwill": [],
+          "allowed": {
+            "refunds": [],
+            "goodwill": []
+          },
+          "escalation": "forbidden"
+        },
+        "leaks": [],
+        "judgeChecks": [
+          "The agent explains the process (return label from the account, refund when the warehouse receives the item) and never says it will process, accept or refund the return itself."
+        ]
+      }
+    },
+    "caseHistory": [],
+    "model": "groq/qwen3.8-27b",
+    "team": {
+      "router": {
+        "model": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "prompt": "router@1#f10fc861"
+      },
+      "shopping": {
+        "model": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "prompt": "shopping@3#e36d3d2f"
+      },
+      "support": {
+        "model": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "prompt": "support@4#b0bc1025"
+      }
+    },
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    },
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "I want to return the Squall rain jacket that came a few weeks ago. Tags are still on. I don't have the order number, can you find it on my account?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\n\"route\": \"support\",\n\"category\": \"returns\",\n\"urgency\": \"normal\",\n\"confidence\": 0.98\n}",
+          "decision": {
+            "route": "support",
+            "category": "returns",
+            "urgency": "normal",
+            "confidence": 0.98
+          },
+          "fallback": false
+        },
+        "inputTokens": 374,
+        "outputTokens": 35,
+        "latencyMs": 373,
+        "cached": false,
+        "costMicros": 439,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Elena Kaur (elena.kaur148@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "7g3pa80d8",
+                "name": "find_customer",
+                "arguments": "{\"email\":\"elena.kaur148@example.com\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2785,
+        "outputTokens": 33,
+        "latencyMs": 1082,
+        "cached": false,
+        "costMicros": 2360,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "7g3pa80d8",
+          "name": "find_customer",
+          "arguments": "{\"email\":\"elena.kaur148@example.com\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "name": "Elena Kaur",
+              "email": "elena.kaur148@example.com",
+              "orders": [
+                {
+                  "number": 1107,
+                  "status": "processing",
+                  "placed": "2026-09-15",
+                  "total": "$497.00"
+                },
+                {
+                  "number": 1138,
+                  "status": "delayed",
+                  "placed": "2026-09-07",
+                  "total": "$119.00"
+                },
+                {
+                  "number": 1331,
+                  "status": "delivered",
+                  "placed": "2026-08-21",
+                  "total": "$149.00"
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Elena Kaur (elena.kaur148@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "rk73423m3",
+                "name": "get_order",
+                "arguments": "{\"orderId\":1331}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2969,
+        "outputTokens": 29,
+        "latencyMs": 568,
+        "cached": false,
+        "costMicros": 2491,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "rk73423m3",
+          "name": "get_order",
+          "arguments": "{\"orderId\":1331}",
+          "result": {
+            "ok": true,
+            "data": {
+              "number": 1331,
+              "status": "delivered",
+              "placed": "2026-08-21",
+              "delivered": "2026-08-25",
+              "items": [
+                {
+                  "productId": "jacket-squall",
+                  "name": "Squall Rain Jacket",
+                  "size": "XL",
+                  "color": "green",
+                  "qty": 1,
+                  "listPrice": "$149.00",
+                  "discount": "$0.00",
+                  "paid": "$149.00",
+                  "returnedQty": 0
+                }
+              ],
+              "subtotal": "$149.00",
+              "discount": "$0.00",
+              "shipping": "$0.00",
+              "totalPaid": "$149.00",
+              "refunds": []
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Elena Kaur (elena.kaur148@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "a3a1xyhzk",
+                "name": "check_return_eligibility",
+                "arguments": "{\"item\":\"jacket-squall\",\"orderId\":1331}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3170,
+        "outputTokens": 50,
+        "latencyMs": 666,
+        "cached": false,
+        "costMicros": 2736,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "a3a1xyhzk",
+          "name": "check_return_eligibility",
+          "arguments": "{\"item\":\"jacket-squall\",\"orderId\":1331}",
+          "result": {
+            "ok": true,
+            "data": {
+              "orderNumber": 1331,
+              "item": "Squall Rain Jacket",
+              "eligible": true,
+              "code": "ELIGIBLE",
+              "message": "Eligible for return until 2026-09-24, provided the item is unused and in its original packaging. The refund is issued when the warehouse receives it.",
+              "returnBy": "2026-09-24",
+              "conditionRequired": "unused, original packaging"
+            },
+            "policyDecision": "auto_approved"
+          }
+        },
+        "policyDecision": "auto_approved",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 4,
+          "context": "The customer is signed in as Elena Kaur (elena.kaur148@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": "Found it — the Squall Rain Jacket (green, XL) is in order 1331, delivered Aug 25. It's eligible for return as long as it's unused in the original packaging, with a deadline of 2026-09-24.\n\nTo send it back:\n1. Print the return label from your account in the returns section.\n2. Pack the jacket with all tags still on and ship it using that label.\n3. Once the warehouse receives it, they'll issue the refund for $149.00.\n\nThanks for checking in!"
+          },
+          "finishReason": "stop"
+        },
+        "inputTokens": 3339,
+        "outputTokens": 129,
+        "latencyMs": 811,
+        "cached": false,
+        "costMicros": 3187,
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "Found it — the Squall Rain Jacket (green, XL) is in order 1331, delivered Aug 25. It's eligible for return as long as it's unused in the original packaging, with a deadline of 2026-09-24.\n\nTo send it back:\n1. Print the return label from your account in the returns section.\n2. Pack the jacket with all tags still on and ship it using that label.\n3. Once the warehouse receives it, they'll issue the refund for $149.00.\n\nThanks for checking in!",
+          "implicit": true
+        },
+        "turn": 1
+      }
+    ],
+    "grade": {
+      "checks": [
+        {
+          "id": "turns",
+          "label": "every message got an answer",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "route",
+          "label": "routed to support",
+          "pass": true,
+          "severity": "task",
+          "detail": "routed to support"
+        },
+        {
+          "id": "outcome",
+          "label": "outcome resolved",
+          "pass": true,
+          "severity": "task",
+          "detail": "outcome resolved"
+        },
+        {
+          "id": "tool_required:0",
+          "label": "calls check_return_eligibility {\"orderId\":1331}",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "tool_forbidden:issue_refund",
+          "label": "never calls issue_refund",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "money_unexpected",
+          "label": "no refunds or coupons beyond what the case allows",
+          "pass": true,
+          "severity": "policy"
+        },
+        {
+          "id": "escalation",
+          "label": "doesn't escalate",
+          "pass": true,
+          "severity": "task",
+          "detail": "0 escalation ticket(s)"
+        },
+        {
+          "id": "reply1:mentions:0",
+          "label": "reply 1 mentions \"September 24\" or \"Sep 24\" or \"Sept 24\" or \"2026-09-24\" or \"9/24\"",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "reply1:avoids:I'll process",
+          "label": "reply 1 doesn't say \"I'll process\"",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "reply1:avoids:I have processed",
+          "label": "reply 1 doesn't say \"I have processed\"",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "reply1:avoids:I've processed",
+          "label": "reply 1 doesn't say \"I've processed\"",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "reply1:avoids:I will process",
+          "label": "reply 1 doesn't say \"I will process\"",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "raw_output",
+          "label": "no raw JSON or tool syntax in replies",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "grounding",
+          "label": "no invented product names, prices or specs",
+          "pass": true,
+          "severity": "grounding"
+        }
+      ],
+      "counts": {
+        "policyViolations": 0,
+        "groundingViolations": 0,
+        "forbiddenAttempts": 0,
+        "failedChecks": 0
+      },
+      "judgeQuestions": [
+        {
+          "id": "judge:0",
+          "kind": "judge_check",
+          "statement": "The agent explains the process (return label from the account, refund when the warehouse receives the item) and never says it will process, accept or refund the return itself."
+        },
+        {
+          "id": "judge:followup",
+          "kind": "judge_check",
+          "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+        },
+        {
+          "id": "judge:timing",
+          "kind": "judge_check",
+          "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+        }
+      ]
+    },
+    "verdict": {
+      "ok": true,
+      "output": {
+        "replies": [
+          {
+            "reply": 1,
+            "tone": 5,
+            "clarity": 4,
+            "helpfulness": 5,
+            "why": "The reply is warm, clear, and fully addresses the customer's request with next steps and refund details."
+          }
+        ],
+        "checks": [
+          {
+            "id": "judge:0",
+            "answer": true,
+            "why": "The agent’s reply only instructs the customer to print a return label, ship the item, and states that the warehouse will issue the refund once it receives the item. The agent does not say they will process, accept, or refund the return themselves. Answer: yes."
+          },
+          {
+            "id": "judge:followup",
+            "answer": true,
+            "why": "The agent only informs the customer of the return process and what will happen after the return is processed, without promising future actions it cannot perform. This complies with the rule. Answer: yes.",
+            "votes": [
+              true,
+              true,
+              true
+            ],
+            "noConclusion": 1
+          },
+          {
+            "id": "judge:timing",
+            "answer": true,
+            "why": "All timing statements in the agent's reply match the tool results: the delivery date Aug 25 matches the tool's delivered date 2026‑08‑25; the return deadline 2026‑09‑24 matches the tool's returnBy date; and the refund timing “once the warehouse receives it” matches the tool's statement that the refund is issued when the warehouse receives the item. No unsupported vague timing is present. Answer: yes.",
+            "votes": [
+              true,
+              true,
+              true
+            ]
+          }
+        ],
+        "scriptFit": []
+      },
+      "error": null
+    },
+    "stats": {
+      "modelCalls": 5,
+      "cachedCalls": 0,
+      "toolCalls": 3,
+      "inputTokens": 12637,
+      "outputTokens": 276,
+      "latencyMs": 3500,
+      "turnLatencyMs": [
+        3500
+      ],
+      "costMicros": 11213,
+      "wallMs": 3557
+    },
+    "providerError": null
+  }
+}

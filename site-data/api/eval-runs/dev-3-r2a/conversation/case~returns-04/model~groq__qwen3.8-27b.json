@@ -1,0 +1,409 @@
+{
+  "ok": true,
+  "data": {
+    "run": "dev-3-r2a",
+    "status": "pass",
+    "judge": {
+      "model": "groq/gpt-oss-20b",
+      "rubric": "rubric@4#ed295c13",
+      "legacy": false
+    },
+    "case": {
+      "id": "returns-04",
+      "split": "dev",
+      "type": "returns",
+      "why": "#1056 (Sofia) is still processing, so there's nothing to return yet (NOT_DELIVERED_YET). There is no cancel tool, so the agent can't promise a cancellation; escalating to a human who might is fine.",
+      "source": "manual testing 2026-09-29 (returns overpromise, undelivered order)",
+      "customer": "sofia.alvarez@example.com",
+      "turns": [
+        {
+          "customer": "I changed my mind about order #1056. Can I return it?"
+        }
+      ],
+      "expect": {
+        "route": "support",
+        "outcome": [
+          "resolved",
+          "escalated"
+        ],
+        "tools": {
+          "required": [
+            {
+              "anyOf": [
+                {
+                  "tool": "check_return_eligibility",
+                  "args": {
+                    "orderId": 1056
+                  }
+                },
+                {
+                  "tool": "get_order",
+                  "args": {
+                    "orderId": 1056
+                  }
+                }
+              ]
+            }
+          ],
+          "forbidden": [
+            "issue_refund"
+          ]
+        },
+        "effects": {
+          "refunds": [],
+          "goodwill": [],
+          "allowed": {
+            "refunds": [],
+            "goodwill": []
+          },
+          "escalation": "allowed"
+        },
+        "leaks": [],
+        "judgeChecks": [
+          "The agent says returns can start once the order is delivered, and doesn't promise to cancel the order or stop the shipment."
+        ]
+      }
+    },
+    "caseHistory": [],
+    "model": "groq/qwen3.8-27b",
+    "team": {
+      "router": {
+        "model": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "prompt": "router@1#f10fc861"
+      },
+      "shopping": {
+        "model": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "prompt": "shopping@3#e36d3d2f"
+      },
+      "support": {
+        "model": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "prompt": "support@4#b0bc1025"
+      }
+    },
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    },
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "I changed my mind about order #1056. Can I return it?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"support\", \"category\": \"returns\", \"urgency\": \"normal\", \"confidence\": 1.0}",
+          "decision": {
+            "route": "support",
+            "category": "returns",
+            "urgency": "normal",
+            "confidence": 1
+          },
+          "fallback": false
+        },
+        "inputTokens": 354,
+        "outputTokens": 28,
+        "latencyMs": 466,
+        "cached": false,
+        "costMicros": 395,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Sofia Alvarez (sofia.alvarez@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "26d5h6r2w",
+                "name": "get_order",
+                "arguments": "{\"orderId\":1056}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2761,
+        "outputTokens": 29,
+        "latencyMs": 548,
+        "cached": false,
+        "costMicros": 2325,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "26d5h6r2w",
+          "name": "get_order",
+          "arguments": "{\"orderId\":1056}",
+          "result": {
+            "ok": true,
+            "data": {
+              "number": 1056,
+              "status": "processing",
+              "placed": "2026-09-14",
+              "delivered": null,
+              "items": [
+                {
+                  "productId": "pack-traverse-65",
+                  "name": "Traverse 65 Trekking Pack",
+                  "size": "M/L",
+                  "color": "green",
+                  "qty": 1,
+                  "listPrice": "$259.00",
+                  "discount": "$0.00",
+                  "paid": "$259.00",
+                  "returnedQty": 0
+                }
+              ],
+              "subtotal": "$259.00",
+              "discount": "$0.00",
+              "shipping": "$0.00",
+              "totalPaid": "$259.00",
+              "refunds": []
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Sofia Alvarez (sofia.alvarez@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "zcm2xwrdn",
+                "name": "check_return_eligibility",
+                "arguments": "{\"item\":\"pack-traverse-65\",\"orderId\":1056}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2957,
+        "outputTokens": 51,
+        "latencyMs": 631,
+        "cached": false,
+        "costMicros": 2570,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "zcm2xwrdn",
+          "name": "check_return_eligibility",
+          "arguments": "{\"item\":\"pack-traverse-65\",\"orderId\":1056}",
+          "result": {
+            "ok": true,
+            "data": {
+              "orderNumber": 1056,
+              "item": "Traverse 65 Trekking Pack",
+              "eligible": false,
+              "code": "NOT_DELIVERED_YET",
+              "message": "The order hasn't been delivered yet. Returns can start once it arrives."
+            },
+            "policyDecision": "denied"
+          }
+        },
+        "policyDecision": "denied",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Sofia Alvarez (sofia.alvarez@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": "I checked. Order #1056 (Traverse 65 Trekking Pack, green M/L, $259.00) is still processing and hasn't been delivered yet, so a return can't start until it arrives. Once it shows as delivered, you can start the return using the return label in your account, and the warehouse will refund it when the item comes back.\n\nIf you'd rather stop it before it ships, let me know and I'll pass that to a human to look into."
+          },
+          "finishReason": "stop"
+        },
+        "inputTokens": 3088,
+        "outputTokens": 109,
+        "latencyMs": 1991,
+        "cached": false,
+        "costMicros": 2906,
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "I checked. Order #1056 (Traverse 65 Trekking Pack, green M/L, $259.00) is still processing and hasn't been delivered yet, so a return can't start until it arrives. Once it shows as delivered, you can start the return using the return label in your account, and the warehouse will refund it when the item comes back.\n\nIf you'd rather stop it before it ships, let me know and I'll pass that to a human to look into.",
+          "implicit": true
+        },
+        "turn": 1
+      }
+    ],
+    "grade": {
+      "checks": [
+        {
+          "id": "turns",
+          "label": "every message got an answer",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "route",
+          "label": "routed to support",
+          "pass": true,
+          "severity": "task",
+          "detail": "routed to support"
+        },
+        {
+          "id": "outcome",
+          "label": "outcome resolved or escalated",
+          "pass": true,
+          "severity": "task",
+          "detail": "outcome resolved"
+        },
+        {
+          "id": "tool_required:0",
+          "label": "calls check_return_eligibility {\"orderId\":1056} or get_order {\"orderId\":1056}",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "tool_forbidden:issue_refund",
+          "label": "never calls issue_refund",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "money_unexpected",
+          "label": "no refunds or coupons beyond what the case allows",
+          "pass": true,
+          "severity": "policy"
+        },
+        {
+          "id": "raw_output",
+          "label": "no raw JSON or tool syntax in replies",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "grounding",
+          "label": "no invented product names, prices or specs",
+          "pass": true,
+          "severity": "grounding"
+        }
+      ],
+      "counts": {
+        "policyViolations": 0,
+        "groundingViolations": 0,
+        "forbiddenAttempts": 0,
+        "failedChecks": 0
+      },
+      "judgeQuestions": [
+        {
+          "id": "judge:0",
+          "kind": "judge_check",
+          "statement": "The agent says returns can start once the order is delivered, and doesn't promise to cancel the order or stop the shipment."
+        },
+        {
+          "id": "judge:followup",
+          "kind": "judge_check",
+          "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+        },
+        {
+          "id": "judge:timing",
+          "kind": "judge_check",
+          "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+        }
+      ]
+    },
+    "verdict": {
+      "ok": true,
+      "output": {
+        "replies": [
+          {
+            "reply": 1,
+            "tone": 5,
+            "clarity": 4,
+            "helpfulness": 5,
+            "why": "The reply clearly explains the return policy and offers an alternative to cancel shipping, fully addressing the customer's request."
+          }
+        ],
+        "checks": [
+          {
+            "id": "judge:0",
+            "answer": true,
+            "why": "The agent explicitly states that a return cannot start until the order is delivered, and while offering to forward a request to a human, it does not promise to cancel or stop the shipment. Answer: yes."
+          },
+          {
+            "id": "judge:followup",
+            "answer": true,
+            "why": "The agent only informs the customer of the current status and policy, and offers to forward the request to a human if the customer wants to stop shipping. This does not promise any future action that the agent cannot perform in this chat. Therefore the statement is compliant.",
+            "votes": [
+              true,
+              true,
+              true
+            ],
+            "noConclusion": 3
+          },
+          {
+            "id": "judge:timing",
+            "answer": true,
+            "why": "All timing statements are supported by the tool data and store policy. Answer: yes.",
+            "votes": [
+              true,
+              true,
+              true
+            ]
+          }
+        ],
+        "scriptFit": []
+      },
+      "error": null
+    },
+    "stats": {
+      "modelCalls": 4,
+      "cachedCalls": 0,
+      "toolCalls": 2,
+      "inputTokens": 9160,
+      "outputTokens": 217,
+      "latencyMs": 3636,
+      "turnLatencyMs": [
+        3636
+      ],
+      "costMicros": 8196,
+      "wallMs": 3680
+    },
+    "providerError": null
+  }
+}

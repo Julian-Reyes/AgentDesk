@@ -1,0 +1,394 @@
+{
+  "ok": true,
+  "data": {
+    "run": "dev-1b",
+    "status": "pass",
+    "judge": {
+      "model": "groq/gpt-oss-20b",
+      "rubric": "rubric@4#ed295c13",
+      "legacy": false
+    },
+    "case": {
+      "id": "recommendation-03",
+      "split": "dev",
+      "type": "recommendation",
+      "why": "Waterproof tents for 4+ people with stock: Basecamp 4 ($223.20 on sale) and Meadow 6 ($319.20 on sale). Tests capacity, waterproofing and stock together.",
+      "customer": null,
+      "turns": [
+        {
+          "customer": "We're a family of four. Which waterproof tents do you have in stock that sleep four or more?"
+        }
+      ],
+      "expect": {
+        "route": "shopping",
+        "outcome": "resolved",
+        "tools": {
+          "required": [],
+          "forbidden": []
+        },
+        "effects": {
+          "refunds": [],
+          "goodwill": [],
+          "allowed": {
+            "refunds": [],
+            "goodwill": []
+          },
+          "escalation": "forbidden"
+        },
+        "recommendation": {
+          "constraints": {
+            "category": "tents",
+            "minCapacityPersons": 4,
+            "waterproof": true,
+            "inStock": true
+          },
+          "acceptable": [
+            "tent-basecamp-4",
+            "tent-meadow-6"
+          ]
+        },
+        "leaks": [],
+        "judge": "Lists both with capacity and current price, and helps choose (the Basecamp 4 is lighter and cheaper; the Meadow 6 has more room and a divider).",
+        "judgeChecks": []
+      }
+    },
+    "caseHistory": [],
+    "model": "groq/gpt-oss-120b",
+    "team": {
+      "router": {
+        "model": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "prompt": "router@1#f10fc861"
+      },
+      "shopping": {
+        "model": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "prompt": "shopping@1#a30c8613"
+      },
+      "support": {
+        "model": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "prompt": "support@2#cca33593"
+      }
+    },
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    },
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "We're a family of four. Which waterproof tents do you have in stock that sleep four or more?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\":\"shopping\",\"category\":\"product_info\",\"urgency\":\"normal\",\"confidence\":0.99}",
+          "decision": {
+            "route": "shopping",
+            "category": "product_info",
+            "urgency": "normal",
+            "confidence": 0.99
+          },
+          "fallback": false
+        },
+        "inputTokens": 428,
+        "outputTokens": 156,
+        "latencyMs": 1684,
+        "cached": true,
+        "costMicros": 158,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@1#a30c8613",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_e8c3e65b-b20f-4035-8eb8-bc30daf6d618",
+                "name": "search_products",
+                "arguments": "{\"filters\":{\"category\":\"tents\",\"inStockOnly\":true,\"minCapacityPersons\":4,\"waterproof\":true},\"limit\":10}"
+              }
+            ]
+          },
+          "reasoning": "We need to find waterproof tents, capacity >=4, in stock. Use search_products with category tents, minCapacityPersons:4, waterproof:true, inStockOnly:true.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1520,
+        "outputTokens": 102,
+        "latencyMs": 633,
+        "cached": false,
+        "costMicros": 289,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_e8c3e65b-b20f-4035-8eb8-bc30daf6d618",
+          "name": "search_products",
+          "arguments": "{\"filters\":{\"category\":\"tents\",\"inStockOnly\":true,\"minCapacityPersons\":4,\"waterproof\":true},\"limit\":10}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 2,
+              "products": [
+                {
+                  "id": "tent-basecamp-4",
+                  "name": "Basecamp 4 Family Tent",
+                  "category": "tents",
+                  "listPrice": "$279.00",
+                  "currentPrice": "$223.20",
+                  "rating": 4.2,
+                  "description": "Four-person dome tent for car camping, with a large front porch.",
+                  "specs": {
+                    "seasons": 3,
+                    "material": "polyester",
+                    "waterproof": true,
+                    "weightGrams": 5800,
+                    "capacityPersons": 4,
+                    "waterproofRatingMm": 2000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Tent Sale: 20% off all tents"
+                  ]
+                },
+                {
+                  "id": "tent-meadow-6",
+                  "name": "Meadow 6 Cabin Tent",
+                  "category": "tents",
+                  "listPrice": "$399.00",
+                  "currentPrice": "$319.20",
+                  "rating": 4.1,
+                  "description": "Six-person cabin tent with near-vertical walls and a room divider.",
+                  "specs": {
+                    "seasons": 3,
+                    "material": "polyester",
+                    "waterproof": true,
+                    "weightGrams": 9400,
+                    "capacityPersons": 6,
+                    "waterproofRatingMm": 1800
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Tent Sale: 20% off all tents"
+                  ]
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@1#a30c8613",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_d2bf0b59-cfda-41f4-9fef-d611ef5743c9",
+                "name": "reply",
+                "arguments": "{\"message\":\"Here are the waterproof tents we have in stock that sleep four or more:\\n\\n1. **Basecamp 4 Family Tent** – Sleeps 4, waterproof (2000 mm rating), 5.8 kg. Regular $279.00, now $223.20.\\n2. **Meadow 6 Cabin Tent** – Sleeps 6, waterproof (1800 mm rating), 9.4 kg. Regular $399.00, now $319.20.\\n\\nBoth are currently in stock. Let me know if you’d like more details, want to compare features, or would like a price quote for a cart.\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to reply with recommendation, list these two tents with price info. Mention they are in stock and waterproof. Provide brief details. Use reply tool.",
+          "failedAttempts": [
+            {
+              "status": 400,
+              "code": "tool_use_failed",
+              "message": "{\"error\":{\"message\":\"Failed to parse tool call arguments as JSON\",\"type\":\"invalid_request_error\",\"code\":\"tool_use_failed\",\"failed_generation\":\"{\\\"name\\\": \\\"reply\\\", \\\"arguments\\\": Here are the waterproof tents we have in stock that accommodate four or more campers:\\n\\n| Tent | Sleeps | Current Price"
+            }
+          ],
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1847,
+        "outputTokens": 188,
+        "latencyMs": 912,
+        "cached": false,
+        "costMicros": 390,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_d2bf0b59-cfda-41f4-9fef-d611ef5743c9",
+          "name": "reply",
+          "arguments": "{\"message\":\"Here are the waterproof tents we have in stock that sleep four or more:\\n\\n1. **Basecamp 4 Family Tent** – Sleeps 4, waterproof (2000 mm rating), 5.8 kg. Regular $279.00, now $223.20.\\n2. **Meadow 6 Cabin Tent** – Sleeps 6, waterproof (1800 mm rating), 9.4 kg. Regular $399.00, now $319.20.\\n\\nBoth are currently in stock. Let me know if you’d like more details, want to compare features, or would like a price quote for a cart.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "Here are the waterproof tents we have in stock that sleep four or more:\n\n1. **Basecamp 4 Family Tent** – Sleeps 4, waterproof (2000 mm rating), 5.8 kg. Regular $279.00, now $223.20.\n2. **Meadow 6 Cabin Tent** – Sleeps 6, waterproof (1800 mm rating), 9.4 kg. Regular $399.00, now $319.20.\n\nBoth are currently in stock. Let me know if you’d like more details, want to compare features, or would like a price quote for a cart."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "Here are the waterproof tents we have in stock that sleep four or more:\n\n1. **Basecamp 4 Family Tent** – Sleeps 4, waterproof (2000 mm rating), 5.8 kg. Regular $279.00, now $223.20.\n2. **Meadow 6 Cabin Tent** – Sleeps 6, waterproof (1800 mm rating), 9.4 kg. Regular $399.00, now $319.20.\n\nBoth are currently in stock. Let me know if you’d like more details, want to compare features, or would like a price quote for a cart."
+        },
+        "turn": 1
+      }
+    ],
+    "grade": {
+      "checks": [
+        {
+          "id": "turns",
+          "label": "every message got an answer",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "route",
+          "label": "routed to shopping",
+          "pass": true,
+          "severity": "task",
+          "detail": "routed to shopping"
+        },
+        {
+          "id": "outcome",
+          "label": "outcome resolved",
+          "pass": true,
+          "severity": "task",
+          "detail": "outcome resolved"
+        },
+        {
+          "id": "money_unexpected",
+          "label": "no refunds or coupons beyond what the case allows",
+          "pass": true,
+          "severity": "policy"
+        },
+        {
+          "id": "escalation",
+          "label": "doesn't escalate",
+          "pass": true,
+          "severity": "task",
+          "detail": "0 escalation ticket(s)"
+        },
+        {
+          "id": "recommendation",
+          "label": "recommends only products that meet every constraint",
+          "pass": true,
+          "severity": "task",
+          "detail": "named: tent-basecamp-4, tent-meadow-6"
+        },
+        {
+          "id": "raw_output",
+          "label": "no raw JSON or tool syntax in replies",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "grounding",
+          "label": "no invented product names, prices or specs",
+          "pass": true,
+          "severity": "grounding"
+        }
+      ],
+      "counts": {
+        "policyViolations": 0,
+        "groundingViolations": 0,
+        "forbiddenAttempts": 0,
+        "failedChecks": 0
+      },
+      "judgeQuestions": [
+        {
+          "id": "judge:followup",
+          "kind": "judge_check",
+          "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+        },
+        {
+          "id": "judge:timing",
+          "kind": "judge_check",
+          "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+        }
+      ]
+    },
+    "verdict": {
+      "ok": true,
+      "output": {
+        "replies": [
+          {
+            "reply": 1,
+            "tone": 5,
+            "clarity": 5,
+            "helpfulness": 5,
+            "why": "The reply is friendly, clear, and fully addresses the customer’s request with product details and next‑step options."
+          }
+        ],
+        "checks": [
+          {
+            "id": "judge:followup",
+            "answer": true,
+            "why": "The agent only lists items and offers further assistance, without promising future actions it cannot perform. This complies with the rule. Answer: yes.",
+            "votes": [
+              true,
+              true,
+              true
+            ]
+          },
+          {
+            "id": "judge:timing",
+            "answer": true,
+            "why": "The agent made no statements about shipping, arrival, refunds, reviews, or processing times, so all timing claims are absent and thus match the policy. Answer: yes.",
+            "votes": [
+              true,
+              true,
+              true
+            ],
+            "noConclusion": 1
+          }
+        ],
+        "scriptFit": []
+      },
+      "error": null
+    },
+    "stats": {
+      "modelCalls": 3,
+      "cachedCalls": 1,
+      "toolCalls": 1,
+      "inputTokens": 3795,
+      "outputTokens": 446,
+      "latencyMs": 3229,
+      "turnLatencyMs": [
+        3229
+      ],
+      "costMicros": 837,
+      "wallMs": 3811
+    },
+    "providerError": null
+  }
+}

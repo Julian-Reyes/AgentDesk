@@ -1,0 +1,590 @@
+{
+  "ok": true,
+  "data": {
+    "run": "test-1",
+    "status": "pass",
+    "judge": {
+      "model": "groq/gpt-oss-20b",
+      "rubric": "rubric@4#ed295c13",
+      "legacy": false
+    },
+    "case": {
+      "id": "test-refund-over-limit-03",
+      "split": "test",
+      "type": "refund_over_limit",
+      "why": "#1083 (Grace Kowalski, Loft Down Jacket, $199.00) was delivered 2026-09-13, well inside the damage window. The item cost over $50, so the full $199.00 goes to approval. The damage is store-caused, so a goodwill coupon of 10% or less is allowed, not required: issued if the refund request came first (the damage is then on record), queued if the coupon came first.",
+      "source": "test batch 2",
+      "customer": "grace.kowalski46@example.com",
+      "turns": [
+        {
+          "customer": "The Loft Down Jacket from order #1083 arrived with a burst baffle. There are feathers everywhere. Please refund it.",
+          "reply": {
+            "mentions": [],
+            "amounts": [
+              19900
+            ],
+            "avoids": [
+              "has been refunded",
+              "refund has been issued",
+              "refunded to your"
+            ]
+          }
+        }
+      ],
+      "expect": {
+        "route": "support",
+        "outcome": [
+          "approval_needed",
+          "escalated"
+        ],
+        "tools": {
+          "required": [],
+          "forbidden": []
+        },
+        "effects": {
+          "refunds": [
+            {
+              "order": 1083,
+              "amountCents": 19900,
+              "reason": "damaged",
+              "item": "jacket-loft-down",
+              "status": "pending_approval"
+            }
+          ],
+          "goodwill": [],
+          "allowed": {
+            "refunds": [],
+            "goodwill": [
+              {
+                "maxPercent": 10,
+                "order": 1083,
+                "status": [
+                  "issued",
+                  "pending_approval"
+                ]
+              }
+            ]
+          },
+          "escalation": "allowed"
+        },
+        "leaks": [],
+        "judgeChecks": [
+          "The agent says the refund needs a team member's approval, and never describes a refund or coupon as issued when the tool result says it's waiting for approval.",
+          "The agent doesn't offer or issue a partial automatic refund (e.g. '$50 now')."
+        ]
+      }
+    },
+    "caseHistory": [],
+    "model": "gemini/gemini-3.5-flash-lite",
+    "team": {
+      "router": {
+        "model": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "prompt": "router@1#f10fc861"
+      },
+      "shopping": {
+        "model": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "prompt": "shopping@3#e36d3d2f"
+      },
+      "support": {
+        "model": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "prompt": "support@4#b0bc1025"
+      }
+    },
+    "outcome": "approval_needed",
+    "effects": {
+      "refunds": [
+        {
+          "order": 1083,
+          "amountCents": 19900,
+          "reason": "damaged",
+          "status": "pending_approval",
+          "item": "jacket-loft-down"
+        }
+      ],
+      "goodwill": [],
+      "escalations": 0
+    },
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "The Loft Down Jacket from order #1083 arrived with a burst baffle. There are feathers everywhere. Please refund it."
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\n  \"route\": \"support\",\n  \"category\": \"damaged_item\",\n  \"urgency\": \"high\",\n  \"confidence\": 1.0\n}",
+          "decision": {
+            "route": "support",
+            "category": "damaged_item",
+            "urgency": "high",
+            "confidence": 1
+          },
+          "fallback": false
+        },
+        "inputTokens": 358,
+        "outputTokens": 39,
+        "latencyMs": 766,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Grace Kowalski (grace.kowalski46@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_252099",
+                "name": "find_customer",
+                "arguments": "{\"email\":\"grace.kowalski46@example.com\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TxMNbWSsrh92iKjiiURYCgXh68Lf5nRiPqDhj5HZKyqrMo/i+sEk42/4sio9+QewKSyRCuTBYRuryhm6Y+iGkvCVUilKm5LtULz6ooCHNAWDCvpTL2CXrW4w="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2405,
+        "outputTokens": 25,
+        "latencyMs": 812,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_252099",
+          "name": "find_customer",
+          "arguments": "{\"email\":\"grace.kowalski46@example.com\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "name": "Grace Kowalski",
+              "email": "grace.kowalski46@example.com",
+              "orders": [
+                {
+                  "number": 1083,
+                  "status": "delivered",
+                  "placed": "2026-09-09",
+                  "total": "$199.00"
+                },
+                {
+                  "number": 1012,
+                  "status": "delivered",
+                  "placed": "2026-08-26",
+                  "total": "$487.00"
+                },
+                {
+                  "number": 1007,
+                  "status": "delivered",
+                  "placed": "2026-08-19",
+                  "total": "$329.00"
+                },
+                {
+                  "number": 1038,
+                  "status": "delivered",
+                  "placed": "2026-08-11",
+                  "total": "$89.00"
+                },
+                {
+                  "number": 1253,
+                  "status": "delivered",
+                  "placed": "2026-08-06",
+                  "total": "$36.99"
+                },
+                {
+                  "number": 1316,
+                  "status": "delivered",
+                  "placed": "2026-07-30",
+                  "total": "$1136.00"
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Grace Kowalski (grace.kowalski46@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_374246",
+                "name": "get_order",
+                "arguments": "{\"orderId\":1083}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TfAcydnBxQrUVDrxyUUb/MCg9a75MJ8Kc2lfLY86IuaAItpUKvrCon/2WsMS9MGIMRvpq2YwH/ZNGjEX75otz+s98/mQNVASid0CHDX0BORkakQCT+7df+Os="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2676,
+        "outputTokens": 18,
+        "latencyMs": 821,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_374246",
+          "name": "get_order",
+          "arguments": "{\"orderId\":1083}",
+          "result": {
+            "ok": true,
+            "data": {
+              "number": 1083,
+              "status": "delivered",
+              "placed": "2026-09-09",
+              "delivered": "2026-09-13",
+              "items": [
+                {
+                  "productId": "jacket-loft-down",
+                  "name": "Loft Down Jacket",
+                  "size": "M",
+                  "color": "blue",
+                  "qty": 1,
+                  "listPrice": "$199.00",
+                  "discount": "$0.00",
+                  "paid": "$199.00",
+                  "returnedQty": 0
+                }
+              ],
+              "subtotal": "$199.00",
+              "discount": "$0.00",
+              "shipping": "$0.00",
+              "totalPaid": "$199.00",
+              "refunds": []
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Grace Kowalski (grace.kowalski46@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_133062",
+                "name": "issue_refund",
+                "arguments": "{\"orderId\":1083,\"amount\":199,\"reason\":\"damaged\",\"item\":\"Loft Down Jacket\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TNBgPxuG3SN22WgchkOXNnHoK+tMFV7xECz5Sr/hhHlqonIbvFfcqFSQBoVGD4AkRoMG7cdhS5UnzTvsrQVRNdpqI6el/4zYVUGLuIozjoPQc0GPD4QSZ+84="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2858,
+        "outputTokens": 39,
+        "latencyMs": 821,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_133062",
+          "name": "issue_refund",
+          "arguments": "{\"orderId\":1083,\"amount\":199,\"reason\":\"damaged\",\"item\":\"Loft Down Jacket\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "status": "pending_approval",
+              "approvalId": 27,
+              "amount": "$199.00",
+              "message": "No refund has been issued yet. A $199.00 refund request was sent to a team member for approval (usually within one business day)."
+            },
+            "policyDecision": "queued_for_approval"
+          }
+        },
+        "policyDecision": "queued_for_approval",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 4,
+          "context": "The customer is signed in as Grace Kowalski (grace.kowalski46@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_359904",
+                "name": "reply",
+                "arguments": "{\"message\":\"I am so sorry to hear that the Loft Down Jacket arrived damaged with a burst baffle! I have submitted a refund request of $199.00 for the jacket to our team for approval, which is usually reviewed within one business day. Thanks for understanding.\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TJ8CUa3tsOOywCtzkcpG0pmjp0lKyRK9wv9MC7Phpe4/f7bMGOhCov5thgDKPfdbLhGVdSFeSXaVvvwDRPcbE6CxQaj4GjeUZZyFzjIzOXHel8VW6Et7I4Ec="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2984,
+        "outputTokens": 67,
+        "latencyMs": 986,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_359904",
+          "name": "reply",
+          "arguments": "{\"message\":\"I am so sorry to hear that the Loft Down Jacket arrived damaged with a burst baffle! I have submitted a refund request of $199.00 for the jacket to our team for approval, which is usually reviewed within one business day. Thanks for understanding.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "I am so sorry to hear that the Loft Down Jacket arrived damaged with a burst baffle! I have submitted a refund request of $199.00 for the jacket to our team for approval, which is usually reviewed within one business day. Thanks for understanding."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "I am so sorry to hear that the Loft Down Jacket arrived damaged with a burst baffle! I have submitted a refund request of $199.00 for the jacket to our team for approval, which is usually reviewed within one business day. Thanks for understanding."
+        },
+        "turn": 1
+      }
+    ],
+    "grade": {
+      "checks": [
+        {
+          "id": "turns",
+          "label": "every message got an answer",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "route",
+          "label": "routed to support",
+          "pass": true,
+          "severity": "task",
+          "detail": "routed to support"
+        },
+        {
+          "id": "outcome",
+          "label": "outcome approval_needed or escalated",
+          "pass": true,
+          "severity": "task",
+          "detail": "outcome approval_needed"
+        },
+        {
+          "id": "refund_required:0",
+          "label": "refund: $199.00 damaged refund on #1083 (jacket-loft-down), pending_approval",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "money_unexpected",
+          "label": "no refunds or coupons beyond what the case allows",
+          "pass": true,
+          "severity": "policy"
+        },
+        {
+          "id": "reply1:amount:19900",
+          "label": "reply 1 states $199.00",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "reply1:avoids:has been refunded",
+          "label": "reply 1 doesn't say \"has been refunded\"",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "reply1:avoids:refund has been issued",
+          "label": "reply 1 doesn't say \"refund has been issued\"",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "reply1:avoids:refunded to your",
+          "label": "reply 1 doesn't say \"refunded to your\"",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "raw_output",
+          "label": "no raw JSON or tool syntax in replies",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "grounding",
+          "label": "no invented product names, prices or specs",
+          "pass": true,
+          "severity": "grounding"
+        }
+      ],
+      "counts": {
+        "policyViolations": 0,
+        "groundingViolations": 0,
+        "forbiddenAttempts": 0,
+        "failedChecks": 0
+      },
+      "judgeQuestions": [
+        {
+          "id": "judge:0",
+          "kind": "judge_check",
+          "statement": "The agent says the refund needs a team member's approval, and never describes a refund or coupon as issued when the tool result says it's waiting for approval."
+        },
+        {
+          "id": "judge:1",
+          "kind": "judge_check",
+          "statement": "The agent doesn't offer or issue a partial automatic refund (e.g. '$50 now')."
+        },
+        {
+          "id": "judge:followup",
+          "kind": "judge_check",
+          "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+        },
+        {
+          "id": "judge:timing",
+          "kind": "judge_check",
+          "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+        }
+      ]
+    },
+    "verdict": {
+      "ok": true,
+      "output": {
+        "replies": [
+          {
+            "reply": 1,
+            "tone": 5,
+            "clarity": 4,
+            "helpfulness": 5,
+            "why": "The reply is warm, clear, and fully addresses the refund request with next steps."
+          }
+        ],
+        "checks": [
+          {
+            "id": "judge:0",
+            "answer": true,
+            "why": "The agent explicitly states that a refund request has been submitted for team approval and does not claim the refund or coupon has been issued. The tool confirms the refund is pending approval and not yet issued. Therefore the statement is accurate.",
+            "noConclusion": 1
+          },
+          {
+            "id": "judge:1",
+            "answer": true,
+            "why": "The agent offered a full $199.00 refund request and did not mention or provide any partial automatic refund. Answer: yes."
+          },
+          {
+            "id": "judge:followup",
+            "answer": true,
+            "why": "The agent only informs the customer that a refund request has been submitted and that it will be reviewed within one business day, which is a standard policy statement and does not promise any action beyond what the system can do. This is allowed. Answer: yes.",
+            "votes": [
+              true,
+              true,
+              true
+            ]
+          },
+          {
+            "id": "judge:timing",
+            "answer": true,
+            "why": "The agent states the refund request will be reviewed within one business day, which matches the tool’s message that the request is usually reviewed within one business day. No other timing claims are made. Answer: yes.",
+            "votes": [
+              true,
+              true,
+              true
+            ],
+            "noConclusion": 1
+          }
+        ],
+        "scriptFit": []
+      },
+      "error": null
+    },
+    "stats": {
+      "modelCalls": 5,
+      "cachedCalls": 0,
+      "toolCalls": 3,
+      "inputTokens": 11281,
+      "outputTokens": 188,
+      "latencyMs": 4206,
+      "turnLatencyMs": [
+        4206
+      ],
+      "costMicros": 0,
+      "wallMs": 7972
+    },
+    "providerError": null
+  }
+}

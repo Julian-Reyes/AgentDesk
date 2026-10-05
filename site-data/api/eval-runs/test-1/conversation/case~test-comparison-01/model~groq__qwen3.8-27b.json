@@ -1,0 +1,722 @@
+{
+  "ok": true,
+  "data": {
+    "run": "test-1",
+    "status": "fail",
+    "judge": {
+      "model": "groq/gpt-oss-20b",
+      "rubric": "rubric@4#ed295c13",
+      "legacy": false
+    },
+    "case": {
+      "id": "test-comparison-01",
+      "split": "test",
+      "type": "comparison",
+      "why": "Squall ($149.00, 10000 mm, 2.5-layer, 380 g) vs Squall Pro ($229.00, 20000 mm, 3-layer, 420 g). Also a name trap: the grounding checker's aliases must keep 'Squall' and 'Squall Pro' apart.",
+      "source": "test batch 4",
+      "customer": null,
+      "turns": [
+        {
+          "customer": "Squall or Squall Pro rain jacket: what do I get for the extra money?",
+          "reply": {
+            "mentions": [
+              [
+                "10000 mm",
+                "10,000 mm",
+                "10000mm",
+                "10,000mm",
+                "10k mm"
+              ],
+              [
+                "20000 mm",
+                "20,000 mm",
+                "20000mm",
+                "20,000mm",
+                "20k mm"
+              ]
+            ],
+            "amounts": [],
+            "avoids": []
+          }
+        }
+      ],
+      "expect": {
+        "route": "shopping",
+        "outcome": "resolved",
+        "tools": {
+          "required": [],
+          "forbidden": []
+        },
+        "effects": {
+          "refunds": [],
+          "goodwill": [],
+          "allowed": {
+            "refunds": [],
+            "goodwill": []
+          },
+          "escalation": "forbidden"
+        },
+        "leaks": [],
+        "judge": "Waterproofing (10000 vs 20000 mm) and construction (2.5- vs 3-layer) are the differences; weight is close. Prices from the tools.",
+        "judgeChecks": []
+      }
+    },
+    "caseHistory": [],
+    "model": "groq/qwen3.8-27b",
+    "team": {
+      "router": {
+        "model": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "prompt": "router@1#f10fc861"
+      },
+      "shopping": {
+        "model": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "prompt": "shopping@3#e36d3d2f"
+      },
+      "support": {
+        "model": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "prompt": "support@4#b0bc1025"
+      }
+    },
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    },
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Squall or Squall Pro rain jacket: what do I get for the extra money?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"shopping\", \"category\": \"comparison\", \"urgency\": \"normal\", \"confidence\": 0.95}",
+          "decision": {
+            "route": "shopping",
+            "category": "comparison",
+            "urgency": "normal",
+            "confidence": 0.95
+          },
+          "fallback": false
+        },
+        "inputTokens": 356,
+        "outputTokens": 29,
+        "latencyMs": 367,
+        "cached": false,
+        "costMicros": 401,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "45d352hbg",
+                "name": "search_products",
+                "arguments": "{\"query\":\"Squall rain jacket\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2472,
+        "outputTokens": 30,
+        "latencyMs": 726,
+        "cached": false,
+        "costMicros": 2098,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "45d352hbg",
+          "name": "search_products",
+          "arguments": "{\"query\":\"Squall rain jacket\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 10,
+              "products": [
+                {
+                  "id": "jacket-squall-pro",
+                  "name": "Squall Pro Rain Jacket",
+                  "category": "jackets",
+                  "listPrice": "$229.00",
+                  "currentPrice": "$229.00",
+                  "rating": 4.7,
+                  "description": "3-layer storm shell for mountain weather.",
+                  "specs": {
+                    "material": "3-layer nylon",
+                    "waterproof": true,
+                    "weightGrams": 420,
+                    "waterproofRatingMm": 20000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "jacket-squall",
+                  "name": "Squall Rain Jacket",
+                  "category": "jackets",
+                  "listPrice": "$149.00",
+                  "currentPrice": "$149.00",
+                  "rating": 4.5,
+                  "description": "Packable 2.5-layer rain jacket with pit zips.",
+                  "specs": {
+                    "material": "2.5-layer nylon",
+                    "waterproof": true,
+                    "weightGrams": 380,
+                    "waterproofRatingMm": 10000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "jacket-tundra-parka",
+                  "name": "Tundra Insulated Parka",
+                  "category": "jackets",
+                  "listPrice": "$329.00",
+                  "currentPrice": "$329.00",
+                  "rating": 4.8,
+                  "description": "Waterproof insulated parka for deep winter.",
+                  "specs": {
+                    "material": "down + waterproof shell",
+                    "waterproof": true,
+                    "tempRatingC": -25,
+                    "weightGrams": 1100,
+                    "waterproofRatingMm": 15000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "boot-crag-mountaineering",
+                  "name": "Crag Mountaineering Boot",
+                  "category": "boots",
+                  "listPrice": "$329.00",
+                  "currentPrice": "$329.00",
+                  "rating": 4.7,
+                  "description": "Stiff, crampon-compatible leather boot for alpine routes.",
+                  "specs": {
+                    "material": "full-grain leather",
+                    "waterproof": true,
+                    "weightGrams": 1900
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "jacket-loft-down",
+                  "name": "Loft Down Jacket",
+                  "category": "jackets",
+                  "listPrice": "$199.00",
+                  "currentPrice": "$199.00",
+                  "rating": 4.6,
+                  "description": "Warm, packable down jacket for cold camps.",
+                  "specs": {
+                    "material": "800-fill down",
+                    "waterproof": false,
+                    "weightGrams": 350
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "jacket-loft-synthetic",
+                  "name": "Loft Synthetic Jacket",
+                  "category": "jackets",
+                  "listPrice": "$149.00",
+                  "currentPrice": "$149.00",
+                  "rating": 4.4,
+                  "description": "Synthetic insulated jacket that keeps insulating when wet.",
+                  "specs": {
+                    "material": "synthetic insulation",
+                    "waterproof": false,
+                    "weightGrams": 400
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "pack-swift-30",
+                  "name": "Swift 30 Daypack",
+                  "category": "backpacks",
+                  "listPrice": "$119.00",
+                  "currentPrice": "$119.00",
+                  "rating": 4.4,
+                  "description": "Day-hike pack with hip belt pockets and a rain cover.",
+                  "specs": {
+                    "material": "100D nylon",
+                    "waterproof": false,
+                    "weightGrams": 900,
+                    "volumeLiters": 30
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "jacket-thicket-fleece",
+                  "name": "Thicket Fleece Jacket",
+                  "category": "jackets",
+                  "listPrice": "$69.00",
+                  "currentPrice": "$69.00",
+                  "rating": 4.3,
+                  "description": "Mid-weight grid fleece for layering.",
+                  "specs": {
+                    "material": "polyester fleece",
+                    "waterproof": false,
+                    "weightGrams": 320
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "jacket-gale-softshell",
+                  "name": "Gale Softshell Jacket",
+                  "category": "jackets",
+                  "listPrice": "$129.00",
+                  "currentPrice": "$129.00",
+                  "rating": 4.2,
+                  "description": "Stretchy, wind-resistant softshell for active days.",
+                  "specs": {
+                    "material": "softshell",
+                    "waterproof": false,
+                    "weightGrams": 480,
+                    "waterproofRatingMm": 5000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "jacket-breeze-wind",
+                  "name": "Breeze Wind Shell",
+                  "category": "jackets",
+                  "listPrice": "$89.00",
+                  "currentPrice": "$89.00",
+                  "rating": 4.1,
+                  "description": "Featherweight wind shell that packs into its own pocket.",
+                  "specs": {
+                    "material": "10D nylon",
+                    "waterproof": false,
+                    "weightGrams": 90,
+                    "waterproofRatingMm": 1500
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "69e99evfd",
+                "name": "get_product",
+                "arguments": "{\"id\":\"jacket-squall-pro\"}"
+              },
+              {
+                "id": "bp5fn0dje",
+                "name": "get_product",
+                "arguments": "{\"id\":\"jacket-squall\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3592,
+        "outputTokens": 63,
+        "latencyMs": 918,
+        "cached": false,
+        "costMicros": 3126,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "69e99evfd",
+          "name": "get_product",
+          "arguments": "{\"id\":\"jacket-squall-pro\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "id": "jacket-squall-pro",
+              "name": "Squall Pro Rain Jacket",
+              "category": "jackets",
+              "listPrice": "$229.00",
+              "currentPrice": "$229.00",
+              "rating": 4.7,
+              "description": "3-layer storm shell for mountain weather.",
+              "specs": {
+                "material": "3-layer nylon",
+                "waterproof": true,
+                "weightGrams": 420,
+                "waterproofRatingMm": 20000
+              },
+              "availability": "in_stock",
+              "activeDeals": [],
+              "variants": [
+                {
+                  "size": "L",
+                  "color": "black",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "L",
+                  "color": "red",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "M",
+                  "color": "black",
+                  "availability": "low_stock"
+                },
+                {
+                  "size": "M",
+                  "color": "red",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "S",
+                  "color": "black",
+                  "availability": "low_stock"
+                },
+                {
+                  "size": "S",
+                  "color": "red",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "XL",
+                  "color": "black",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "XL",
+                  "color": "red",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "XS",
+                  "color": "black",
+                  "availability": "low_stock"
+                },
+                {
+                  "size": "XS",
+                  "color": "red",
+                  "availability": "in_stock"
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "bp5fn0dje",
+          "name": "get_product",
+          "arguments": "{\"id\":\"jacket-squall\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "id": "jacket-squall",
+              "name": "Squall Rain Jacket",
+              "category": "jackets",
+              "listPrice": "$149.00",
+              "currentPrice": "$149.00",
+              "rating": 4.5,
+              "description": "Packable 2.5-layer rain jacket with pit zips.",
+              "specs": {
+                "material": "2.5-layer nylon",
+                "waterproof": true,
+                "weightGrams": 380,
+                "waterproofRatingMm": 10000
+              },
+              "availability": "in_stock",
+              "activeDeals": [],
+              "variants": [
+                {
+                  "size": "L",
+                  "color": "green",
+                  "availability": "out_of_stock"
+                },
+                {
+                  "size": "L",
+                  "color": "navy",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "M",
+                  "color": "green",
+                  "availability": "low_stock"
+                },
+                {
+                  "size": "M",
+                  "color": "navy",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "S",
+                  "color": "green",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "S",
+                  "color": "navy",
+                  "availability": "out_of_stock"
+                },
+                {
+                  "size": "XL",
+                  "color": "green",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "XL",
+                  "color": "navy",
+                  "availability": "out_of_stock"
+                },
+                {
+                  "size": "XS",
+                  "color": "green",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "XS",
+                  "color": "navy",
+                  "availability": "low_stock"
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 3,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": "For the $80 step up ($149 to $229), the Squall Pro gives you a stormier build:\n\n- Waterproof rating: 20,000mm vs 10,000mm on the regular Squall\n- Construction: 3-layer nylon vs 2.5-layer nylon\n- Weight: 420g vs 380g (the Pro is a bit heavier)\n- Rating: 4.7 vs 4.5\n- Colors: Pro comes in black and red; regular comes in green and navy\n\nBoth are waterproof. The regular Squall adds pit zips and packs up smaller, which suits everyday trail use. The Pro is the pick for mountain weather where you want double the waterproof headroom. If you do big wet uphill days and active use, the Pro's 3-layer shell holds up better; otherwise the Squall at $149 is the value play.\n\n",
+            "toolCalls": [
+              {
+                "id": "2p57vat4f",
+                "name": "reply",
+                "arguments": "{\"message\":\"Why is it waterproof\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 4177,
+        "outputTokens": 230,
+        "latencyMs": 1017,
+        "cached": false,
+        "costMicros": 4262,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "2p57vat4f",
+          "name": "reply",
+          "arguments": "{\"message\":\"Why is it waterproof\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "Why is it waterproof"
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "Why is it waterproof"
+        },
+        "turn": 1
+      }
+    ],
+    "grade": {
+      "checks": [
+        {
+          "id": "turns",
+          "label": "every message got an answer",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "route",
+          "label": "routed to shopping",
+          "pass": true,
+          "severity": "task",
+          "detail": "routed to shopping"
+        },
+        {
+          "id": "outcome",
+          "label": "outcome resolved",
+          "pass": true,
+          "severity": "task",
+          "detail": "outcome resolved"
+        },
+        {
+          "id": "money_unexpected",
+          "label": "no refunds or coupons beyond what the case allows",
+          "pass": true,
+          "severity": "policy"
+        },
+        {
+          "id": "escalation",
+          "label": "doesn't escalate",
+          "pass": true,
+          "severity": "task",
+          "detail": "0 escalation ticket(s)"
+        },
+        {
+          "id": "reply1:mentions:0",
+          "label": "reply 1 mentions \"10000 mm\" or \"10,000 mm\" or \"10000mm\" or \"10,000mm\" or \"10k mm\"",
+          "pass": false,
+          "severity": "task"
+        },
+        {
+          "id": "reply1:mentions:1",
+          "label": "reply 1 mentions \"20000 mm\" or \"20,000 mm\" or \"20000mm\" or \"20,000mm\" or \"20k mm\"",
+          "pass": false,
+          "severity": "task"
+        },
+        {
+          "id": "raw_output",
+          "label": "no raw JSON or tool syntax in replies",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "grounding",
+          "label": "no invented product names, prices or specs",
+          "pass": true,
+          "severity": "grounding"
+        }
+      ],
+      "counts": {
+        "policyViolations": 0,
+        "groundingViolations": 0,
+        "forbiddenAttempts": 0,
+        "failedChecks": 2
+      },
+      "judgeQuestions": [
+        {
+          "id": "judge:followup",
+          "kind": "judge_check",
+          "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+        },
+        {
+          "id": "judge:timing",
+          "kind": "judge_check",
+          "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+        }
+      ]
+    },
+    "verdict": {
+      "ok": true,
+      "output": {
+        "replies": [
+          {
+            "reply": 1,
+            "tone": 3,
+            "clarity": 1,
+            "helpfulness": 1,
+            "why": "The reply does not address the customer's question and is not helpful."
+          }
+        ],
+        "checks": [
+          {
+            "id": "judge:followup",
+            "answer": true,
+            "why": "The agent only asked a question and did not promise or imply any future action that it cannot perform in this chat. Therefore the rule is satisfied.",
+            "votes": [
+              true,
+              true,
+              true
+            ],
+            "noConclusion": 3
+          },
+          {
+            "id": "judge:timing",
+            "answer": true,
+            "why": "The agent made no timing claims in the conversation. Answer: yes.",
+            "votes": [
+              true,
+              true,
+              true
+            ]
+          }
+        ],
+        "scriptFit": []
+      },
+      "error": null
+    },
+    "stats": {
+      "modelCalls": 4,
+      "cachedCalls": 0,
+      "toolCalls": 3,
+      "inputTokens": 10597,
+      "outputTokens": 352,
+      "latencyMs": 3028,
+      "turnLatencyMs": [
+        3028
+      ],
+      "costMicros": 9887,
+      "wallMs": 3082
+    },
+    "providerError": null
+  }
+}

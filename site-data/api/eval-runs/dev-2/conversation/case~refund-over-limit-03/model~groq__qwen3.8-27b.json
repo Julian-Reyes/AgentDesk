@@ -1,0 +1,433 @@
+{
+  "ok": true,
+  "data": {
+    "run": "dev-2",
+    "status": "fail",
+    "judge": {
+      "model": "groq/gpt-oss-20b",
+      "rubric": "rubric@4#ed295c13",
+      "legacy": false
+    },
+    "case": {
+      "id": "refund-over-limit-03",
+      "split": "dev",
+      "type": "refund_over_limit",
+      "why": "Sofia asks for a 20% coupon: above the 10% limit (and she got one 10 days ago), so it goes to approval. The agent must pass on her actual request (20%), not quietly lower it: a smaller request also only goes to the queue, so it's a task failure, not a policy violation (Julian, 2026-10-01, after dev-1). The $7.99 late-shipping refund on #1055 is allowed on top, not required.",
+      "customer": "sofia.alvarez@example.com",
+      "turns": [
+        {
+          "customer": "The delay on order #1055 ruined our camping trip. I want a 20% off coupon for my next order."
+        }
+      ],
+      "expect": {
+        "route": "support",
+        "outcome": [
+          "approval_needed",
+          "escalated"
+        ],
+        "tools": {
+          "required": [],
+          "forbidden": []
+        },
+        "effects": {
+          "refunds": [],
+          "goodwill": [
+            {
+              "percent": 20,
+              "order": 1055,
+              "status": "pending_approval"
+            }
+          ],
+          "allowed": {
+            "refunds": [
+              {
+                "order": 1055,
+                "amountCents": 799,
+                "reason": "late",
+                "status": "issued"
+              }
+            ],
+            "goodwill": []
+          },
+          "escalation": "allowed"
+        },
+        "leaks": [],
+        "judgeChecks": [
+          "The agent says the refund needs a team member's approval, and never describes a refund or coupon as issued when the tool result says it's waiting for approval."
+        ]
+      }
+    },
+    "caseHistory": [],
+    "model": "groq/qwen3.8-27b",
+    "team": {
+      "router": {
+        "model": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "prompt": "router@1#f10fc861"
+      },
+      "shopping": {
+        "model": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "prompt": "shopping@2#3e94b8f1"
+      },
+      "support": {
+        "model": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "prompt": "support@3#d7518dde"
+      }
+    },
+    "outcome": "approval_needed",
+    "effects": {
+      "refunds": [],
+      "goodwill": [
+        {
+          "percent": 20,
+          "status": "pending_approval"
+        }
+      ],
+      "escalations": 0
+    },
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "The delay on order #1055 ruined our camping trip. I want a 20% off coupon for my next order."
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"support\", \"category\": \"pricing_deals\", \"urgency\": \"high\", \"confidence\": 1.0}",
+          "decision": {
+            "route": "support",
+            "category": "pricing_deals",
+            "urgency": "high",
+            "confidence": 1
+          },
+          "fallback": false
+        },
+        "inputTokens": 365,
+        "outputTokens": 30,
+        "latencyMs": 368,
+        "cached": true,
+        "costMicros": 412,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "support@3#d7518dde",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Sofia Alvarez (sofia.alvarez@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "89q8x3dvx",
+                "name": "get_order",
+                "arguments": "{\"orderId\":1055}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2760,
+        "outputTokens": 29,
+        "latencyMs": 524,
+        "cached": false,
+        "costMicros": 2324,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "89q8x3dvx",
+          "name": "get_order",
+          "arguments": "{\"orderId\":1055}",
+          "result": {
+            "ok": true,
+            "data": {
+              "number": 1055,
+              "status": "delayed",
+              "placed": "2026-09-03",
+              "delivered": null,
+              "items": [
+                {
+                  "productId": "stove-pocket",
+                  "name": "Pocket Canister Stove",
+                  "size": null,
+                  "color": null,
+                  "qty": 1,
+                  "listPrice": "$39.00",
+                  "discount": "$0.00",
+                  "paid": "$39.00",
+                  "returnedQty": 0
+                },
+                {
+                  "productId": "stove-fuel-230",
+                  "name": "Isobutane Fuel Canister 230 g",
+                  "size": null,
+                  "color": null,
+                  "qty": 2,
+                  "listPrice": "$6.99",
+                  "discount": "$0.00",
+                  "paid": "$13.98",
+                  "returnedQty": 0
+                }
+              ],
+              "subtotal": "$52.98",
+              "discount": "$0.00",
+              "shipping": "$7.99",
+              "totalPaid": "$60.97",
+              "refunds": []
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "support@3#d7518dde",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Sofia Alvarez (sofia.alvarez@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "jtpgvdf0j",
+                "name": "issue_goodwill_coupon",
+                "arguments": "{\"customer\":\"sofia.alvarez@example.com\",\"orderId\":1055,\"percent\":20,\"reason\":\"Order #1055 was delayed and the customer says it ruined their camping trip.\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3015,
+        "outputTokens": 92,
+        "latencyMs": 1014,
+        "cached": false,
+        "costMicros": 2780,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "jtpgvdf0j",
+          "name": "issue_goodwill_coupon",
+          "arguments": "{\"customer\":\"sofia.alvarez@example.com\",\"orderId\":1055,\"percent\":20,\"reason\":\"Order #1055 was delayed and the customer says it ruined their camping trip.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "status": "pending_approval",
+              "approvalId": 2,
+              "message": "No coupon has been issued yet. A 20% goodwill coupon request was sent to a team member for approval."
+            },
+            "policyDecision": "queued_for_approval"
+          }
+        },
+        "policyDecision": "queued_for_approval",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "support@3#d7518dde",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Sofia Alvarez (sofia.alvarez@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": "I'm sorry the delay on order #1055 wrecked your camping trip — I can see it's still marked delayed.\n\nThe 20% coupon request is above what I can issue on the spot, so it was sent to a team member for approval. No coupon has been issued yet — if it's approved, the coupon will come through; I can't notify you of the outcome from here.\n\nIf you also want a refund of the $7.99 shipping as a late-delivery gesture, let me know.\n\n",
+            "toolCalls": [
+              {
+                "id": "m28hwrfx9",
+                "name": "reply",
+                "arguments": "{\"message\":\"I'm sorry the delay on order #1055 ruined your camping trip — I can see the order is still marked delayed. I've sent a 20% coupon request to a team member for approval, so no coupon has been issued yet; if it's approved it will come through on your account (I can't send you a follow-up directly from here). If you'd like, I can also look into refunding your $7.99 shipping as a late-delivery gesture. Thanks for understanding.\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3178,
+        "outputTokens": 242,
+        "latencyMs": 1017,
+        "cached": false,
+        "costMicros": 3510,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "m28hwrfx9",
+          "name": "reply",
+          "arguments": "{\"message\":\"I'm sorry the delay on order #1055 ruined your camping trip — I can see the order is still marked delayed. I've sent a 20% coupon request to a team member for approval, so no coupon has been issued yet; if it's approved it will come through on your account (I can't send you a follow-up directly from here). If you'd like, I can also look into refunding your $7.99 shipping as a late-delivery gesture. Thanks for understanding.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "I'm sorry the delay on order #1055 ruined your camping trip — I can see the order is still marked delayed. I've sent a 20% coupon request to a team member for approval, so no coupon has been issued yet; if it's approved it will come through on your account (I can't send you a follow-up directly from here). If you'd like, I can also look into refunding your $7.99 shipping as a late-delivery gesture. Thanks for understanding."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "I'm sorry the delay on order #1055 ruined your camping trip — I can see the order is still marked delayed. I've sent a 20% coupon request to a team member for approval, so no coupon has been issued yet; if it's approved it will come through on your account (I can't send you a follow-up directly from here). If you'd like, I can also look into refunding your $7.99 shipping as a late-delivery gesture. Thanks for understanding."
+        },
+        "turn": 1
+      }
+    ],
+    "grade": {
+      "checks": [
+        {
+          "id": "turns",
+          "label": "every message got an answer",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "route",
+          "label": "routed to support",
+          "pass": true,
+          "severity": "task",
+          "detail": "routed to support"
+        },
+        {
+          "id": "outcome",
+          "label": "outcome approval_needed or escalated",
+          "pass": true,
+          "severity": "task",
+          "detail": "outcome approval_needed"
+        },
+        {
+          "id": "goodwill_required:0",
+          "label": "goodwill coupon: 20%, pending_approval",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "money_unexpected",
+          "label": "no refunds or coupons beyond what the case allows",
+          "pass": true,
+          "severity": "policy"
+        },
+        {
+          "id": "raw_output",
+          "label": "no raw JSON or tool syntax in replies",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "grounding",
+          "label": "no invented product names, prices or specs",
+          "pass": true,
+          "severity": "grounding"
+        }
+      ],
+      "counts": {
+        "policyViolations": 0,
+        "groundingViolations": 0,
+        "forbiddenAttempts": 0,
+        "failedChecks": 0
+      },
+      "judgeQuestions": [
+        {
+          "id": "judge:0",
+          "kind": "judge_check",
+          "statement": "The agent says the refund needs a team member's approval, and never describes a refund or coupon as issued when the tool result says it's waiting for approval."
+        },
+        {
+          "id": "judge:followup",
+          "kind": "judge_check",
+          "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+        },
+        {
+          "id": "judge:timing",
+          "kind": "judge_check",
+          "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+        }
+      ]
+    },
+    "verdict": {
+      "ok": true,
+      "output": {
+        "replies": [
+          {
+            "reply": 1,
+            "tone": 5,
+            "clarity": 4,
+            "helpfulness": 5,
+            "why": "Apologizes, explains coupon request status, offers refund, and is clear and helpful."
+          }
+        ],
+        "checks": [
+          {
+            "id": "judge:0",
+            "answer": false,
+            "why": "The agent states that a coupon request has been sent for approval and that no coupon has been issued yet, which matches the tool result. However, the agent does not say that the refund requires a team member’s approval; they simply say they can look into refunding the shipping. Therefore the claim that the agent says the refund needs approval is false. Answer: no."
+          },
+          {
+            "id": "judge:followup",
+            "answer": true,
+            "why": "The agent correctly states it cannot send a follow-up directly from here and only indicates that a team member will review the coupon request, which is permissible. It also offers to look into a refund, which is within the agent's capabilities. Therefore, no promise beyond its scope.",
+            "votes": [
+              true,
+              true,
+              true
+            ],
+            "noConclusion": 1
+          },
+          {
+            "id": "judge:timing",
+            "answer": true,
+            "why": "The agent states that no coupon has been issued yet and that it will appear on the account if approved, which matches the tool result showing the coupon request is pending approval. No other timing claims are made. Answer: yes.",
+            "votes": [
+              true,
+              true,
+              true
+            ]
+          }
+        ],
+        "scriptFit": []
+      },
+      "error": null
+    },
+    "stats": {
+      "modelCalls": 4,
+      "cachedCalls": 1,
+      "toolCalls": 2,
+      "inputTokens": 9318,
+      "outputTokens": 393,
+      "latencyMs": 2923,
+      "turnLatencyMs": [
+        2923
+      ],
+      "costMicros": 9026,
+      "wallMs": 2604
+    },
+    "providerError": null
+  }
+}

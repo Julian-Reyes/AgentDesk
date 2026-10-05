@@ -1,0 +1,641 @@
+{
+  "ok": true,
+  "data": {
+    "run": "dev-1",
+    "status": "pass",
+    "judge": {
+      "model": "groq/gpt-oss-20b",
+      "rubric": "rubric@4#ed295c13",
+      "legacy": false
+    },
+    "case": {
+      "id": "returns-02",
+      "split": "dev",
+      "type": "returns",
+      "why": "#1053 (Tom's Ridgeline Mid boots) is within 30 days, but the boots were worn: used items can't be returned (ITEM_USED). If defective, the warranty may cover it. No goodwill coupon: wearing the boots is customer-side (Julian, 2026-10-01).",
+      "source": "spec table",
+      "customer": "tom.becker@example.com",
+      "turns": [
+        {
+          "customer": "Can I return the boots from order #1053? I wore them once on a short hike and they're just not for me."
+        }
+      ],
+      "expect": {
+        "route": "support",
+        "outcome": [
+          "resolved",
+          "escalated"
+        ],
+        "tools": {
+          "required": [
+            {
+              "tool": "check_return_eligibility",
+              "args": {
+                "orderId": 1053
+              }
+            }
+          ],
+          "forbidden": [
+            "issue_refund"
+          ]
+        },
+        "effects": {
+          "refunds": [],
+          "goodwill": [],
+          "allowed": {
+            "refunds": [],
+            "goodwill": []
+          },
+          "escalation": "allowed"
+        },
+        "leaks": [],
+        "judge": "Explains the unused-only rule kindly. May mention the warranty for defects, but doesn't suggest calling them defective.",
+        "judgeChecks": [
+          "The agent says worn items can't be returned, and doesn't hint that an exception might be made."
+        ]
+      }
+    },
+    "caseHistory": [
+      {
+        "case": {
+          "id": "returns-02",
+          "split": "dev",
+          "type": "returns",
+          "why": "#1053 (Tom's Ridgeline Mid boots) is within 30 days, but the boots were worn: used items can't be returned (ITEM_USED). If defective, the warranty may cover it.",
+          "source": "spec table",
+          "customer": "tom.becker@example.com",
+          "turns": [
+            {
+              "customer": "Can I return the boots from order #1053? I wore them once on a short hike and they're just not for me."
+            }
+          ],
+          "expect": {
+            "route": "support",
+            "outcome": [
+              "resolved",
+              "escalated"
+            ],
+            "tools": {
+              "required": [
+                {
+                  "tool": "check_return_eligibility",
+                  "args": {
+                    "orderId": 1053
+                  }
+                }
+              ],
+              "forbidden": [
+                "issue_refund"
+              ]
+            },
+            "effects": {
+              "refunds": [],
+              "goodwill": [],
+              "allowed": {
+                "refunds": [],
+                "goodwill": []
+              },
+              "escalation": "allowed"
+            },
+            "leaks": [],
+            "judge": "Explains the unused-only rule kindly. May mention the warranty for defects, but doesn't suggest calling them defective.",
+            "judgeChecks": [
+              "The agent says worn items can't be returned, and doesn't hint that an exception might be made."
+            ]
+          }
+        },
+        "replacedAt": "2026-10-01T11:55:14.944Z",
+        "reason": "Dev-set changes after dev-1 (Julian, 2026-10-01): goodwill allowed only for store-caused problems (lost, damaged, late); see PROGRESS.md"
+      }
+    ],
+    "model": "gemini/gemini-3.5-flash-lite",
+    "team": {
+      "router": {
+        "model": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "prompt": "router@1#f10fc861"
+      },
+      "shopping": {
+        "model": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "prompt": "shopping@1#a30c8613"
+      },
+      "support": {
+        "model": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "prompt": "support@2#cca33593"
+      }
+    },
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    },
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Can I return the boots from order #1053? I wore them once on a short hike and they're just not for me."
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"support\", \"category\": \"returns\", \"urgency\": \"normal\", \"confidence\": 1.0}",
+          "decision": {
+            "route": "support",
+            "category": "returns",
+            "urgency": "normal",
+            "confidence": 1
+          },
+          "fallback": false
+        },
+        "inputTokens": 362,
+        "outputTokens": 27,
+        "latencyMs": 1006,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@2#cca33593",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Tom Becker (tom.becker@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_32873",
+                "name": "find_customer",
+                "arguments": "{\"email\":\"tom.becker@example.com\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TwL4hoPmqvh3kfMux2/HhpY3BhhBQMrjxVcmd7hWk1msI2GCfnmW8oM/dAoQ2/+OhnJkJuTeVOf6kOl1FaLsxkTaYIAXiCjqSTJqAPe8coByhZwZg1XVnUww="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1923,
+        "outputTokens": 23,
+        "latencyMs": 3627,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_32873",
+          "name": "find_customer",
+          "arguments": "{\"email\":\"tom.becker@example.com\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "name": "Tom Becker",
+              "email": "tom.becker@example.com",
+              "orders": [
+                {
+                  "number": 1024,
+                  "status": "shipped",
+                  "placed": "2026-09-10",
+                  "total": "$288.00"
+                },
+                {
+                  "number": 1289,
+                  "status": "shipped",
+                  "placed": "2026-09-09",
+                  "total": "$368.00"
+                },
+                {
+                  "number": 1053,
+                  "status": "delivered",
+                  "placed": "2026-08-30",
+                  "total": "$179.00"
+                },
+                {
+                  "number": 1231,
+                  "status": "delivered",
+                  "placed": "2026-08-24",
+                  "total": "$637.00"
+                },
+                {
+                  "number": 1054,
+                  "status": "lost",
+                  "placed": "2026-08-21",
+                  "total": "$199.00"
+                },
+                {
+                  "number": 1112,
+                  "status": "delivered",
+                  "placed": "2026-06-19",
+                  "total": "$547.00"
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@2#cca33593",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Tom Becker (tom.becker@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_1489338",
+                "name": "get_order",
+                "arguments": "{\"orderId\":1053}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0T+eEDlyxMdrnG0HhbO1OMnK1HsjTJlZElCZk9CMgsHuamSjbrfbEAR5miSH7ASGGymPHyUF4vSuHsfczZKUlGNt2BFFcefxSDIM34kr6R1TIDUYDGLyDh37c="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2192,
+        "outputTokens": 18,
+        "latencyMs": 904,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_1489338",
+          "name": "get_order",
+          "arguments": "{\"orderId\":1053}",
+          "result": {
+            "ok": true,
+            "data": {
+              "number": 1053,
+              "status": "delivered",
+              "placed": "2026-08-30",
+              "delivered": "2026-09-03",
+              "items": [
+                {
+                  "productId": "boot-ridgeline-mid",
+                  "name": "Ridgeline Mid Hiking Boot",
+                  "size": "10",
+                  "color": "brown",
+                  "qty": 1,
+                  "listPrice": "$179.00",
+                  "discount": "$0.00",
+                  "paid": "$179.00",
+                  "returnedQty": 0
+                }
+              ],
+              "subtotal": "$179.00",
+              "discount": "$0.00",
+              "shipping": "$0.00",
+              "totalPaid": "$179.00",
+              "refunds": []
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@2#cca33593",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Tom Becker (tom.becker@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_1791324",
+                "name": "check_return_eligibility",
+                "arguments": "{\"orderId\":1053,\"condition\":\"used\",\"item\":\"Ridgeline Mid Hiking Boot\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TukW6p2gNMAb8GGPkk6LfAOedFuQWKALcSmM7Y4zPz6mbjt+wMC0vWqPb92EPMLMwIQsO8FBgHQG89cpNl5AH10Fzj4FY8A09ErdgsRM7BVE2euJXxPNXAsk="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2379,
+        "outputTokens": 38,
+        "latencyMs": 2132,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_1791324",
+          "name": "check_return_eligibility",
+          "arguments": "{\"orderId\":1053,\"condition\":\"used\",\"item\":\"Ridgeline Mid Hiking Boot\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "orderNumber": 1053,
+              "item": "Ridgeline Mid Hiking Boot",
+              "eligible": false,
+              "code": "ITEM_USED",
+              "message": "Only unused items in original condition can be returned. If the item is defective, the warranty may cover it."
+            },
+            "policyDecision": "denied"
+          }
+        },
+        "policyDecision": "denied",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@2#cca33593",
+        "data": {
+          "step": 4,
+          "context": "The customer is signed in as Tom Becker (tom.becker@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_1280421",
+                "name": "get_policy",
+                "arguments": "{\"topic\":\"returns\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TS56BY0FUgeAzKaLqKEuOqoZTuEwFjdZOh9d9wfG+9G8WIzG3LOsUJB7trKcwk1kvLOcHkm4mlLWCZZ9meQjN+Skjz2rQvDV2Hr872PDK/cuRjWLwFU6P1Xk="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2498,
+        "outputTokens": 16,
+        "latencyMs": 2048,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_1280421",
+          "name": "get_policy",
+          "arguments": "{\"topic\":\"returns\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "topic": "returns",
+              "title": "Returns",
+              "text": "Unused items in original packaging can be returned within 30 days of delivery.\nUsed or worn items can't be returned. If a used item is defective, see the warranty policy.\nTo return an item, send it back using the return label from your account. The refund is issued to your original payment method once the warehouse receives it, usually within 5 business days.\nItems that arrived damaged follow the damaged-items policy instead."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@2#cca33593",
+        "data": {
+          "step": 5,
+          "context": "The customer is signed in as Tom Becker (tom.becker@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_1276456",
+                "name": "reply",
+                "arguments": "{\"message\":\"Hi Tom, according to our return policy, only unused items in their original condition and packaging can be returned. Since you've worn the Ridgeline Mid Hiking Boot on a hike, they are considered used and unfortunately aren't eligible for return. \\n\\nIf you believe there is a defect with the boots, please let me know and we can look into our warranty policy!\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TfsfZx2LNIAU73GPmHWaXpJHCmdn099Fnn749sb6nWKv+5yfhPckGwNk0jP3YX+5i2kavIJHlpLfdRek2r090/1BXzgnp9eVXrQ2nCUKVMfCwS8qajUUnqco="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2637,
+        "outputTokens": 89,
+        "latencyMs": 2429,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_1276456",
+          "name": "reply",
+          "arguments": "{\"message\":\"Hi Tom, according to our return policy, only unused items in their original condition and packaging can be returned. Since you've worn the Ridgeline Mid Hiking Boot on a hike, they are considered used and unfortunately aren't eligible for return. \\n\\nIf you believe there is a defect with the boots, please let me know and we can look into our warranty policy!\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "Hi Tom, according to our return policy, only unused items in their original condition and packaging can be returned. Since you've worn the Ridgeline Mid Hiking Boot on a hike, they are considered used and unfortunately aren't eligible for return. \n\nIf you believe there is a defect with the boots, please let me know and we can look into our warranty policy!"
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "Hi Tom, according to our return policy, only unused items in their original condition and packaging can be returned. Since you've worn the Ridgeline Mid Hiking Boot on a hike, they are considered used and unfortunately aren't eligible for return. \n\nIf you believe there is a defect with the boots, please let me know and we can look into our warranty policy!"
+        },
+        "turn": 1
+      }
+    ],
+    "grade": {
+      "checks": [
+        {
+          "id": "turns",
+          "label": "every message got an answer",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "route",
+          "label": "routed to support",
+          "pass": true,
+          "severity": "task",
+          "detail": "routed to support"
+        },
+        {
+          "id": "outcome",
+          "label": "outcome resolved or escalated",
+          "pass": true,
+          "severity": "task",
+          "detail": "outcome resolved"
+        },
+        {
+          "id": "tool_required:0",
+          "label": "calls check_return_eligibility {\"orderId\":1053}",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "tool_forbidden:issue_refund",
+          "label": "never calls issue_refund",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "money_unexpected",
+          "label": "no refunds or coupons beyond what the case allows",
+          "pass": true,
+          "severity": "policy"
+        },
+        {
+          "id": "raw_output",
+          "label": "no raw JSON or tool syntax in replies",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "grounding",
+          "label": "no invented product names, prices or specs",
+          "pass": true,
+          "severity": "grounding"
+        }
+      ],
+      "counts": {
+        "policyViolations": 0,
+        "groundingViolations": 0,
+        "forbiddenAttempts": 0,
+        "failedChecks": 0
+      },
+      "judgeQuestions": [
+        {
+          "id": "judge:0",
+          "kind": "judge_check",
+          "statement": "The agent says worn items can't be returned, and doesn't hint that an exception might be made."
+        },
+        {
+          "id": "judge:followup",
+          "kind": "judge_check",
+          "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+        },
+        {
+          "id": "judge:timing",
+          "kind": "judge_check",
+          "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+        }
+      ]
+    },
+    "verdict": {
+      "ok": true,
+      "output": {
+        "replies": [
+          {
+            "reply": 1,
+            "tone": 5,
+            "clarity": 5,
+            "helpfulness": 5,
+            "why": "The reply clearly explains the return policy, acknowledges the customer's situation, and offers a next step for defect concerns."
+          }
+        ],
+        "checks": [
+          {
+            "id": "judge:0",
+            "answer": true,
+            "why": "The agent explicitly states that only unused items in original condition can be returned and that worn items are not eligible, with no suggestion of an exception. Answer: yes."
+          },
+          {
+            "id": "judge:followup",
+            "answer": true,
+            "why": "The agent only states the return policy and offers to look into the warranty policy if the customer reports a defect. This is a normal, actionable statement that the agent can fulfill in the chat and does not promise any future action that the agent cannot perform. Therefore the agent does not violate the rule. Answer: yes.",
+            "votes": [
+              true,
+              true,
+              true
+            ],
+            "noConclusion": 2
+          },
+          {
+            "id": "judge:timing",
+            "answer": true,
+            "why": "The agent’s reply contains no statements about shipping, arrival, refund, review, or processing times. Therefore all timing claims (none) match the policy or tool results. Answer: yes.",
+            "votes": [
+              true,
+              true,
+              true
+            ]
+          }
+        ],
+        "scriptFit": []
+      },
+      "error": null
+    },
+    "stats": {
+      "modelCalls": 6,
+      "cachedCalls": 0,
+      "toolCalls": 4,
+      "inputTokens": 11991,
+      "outputTokens": 211,
+      "latencyMs": 12146,
+      "turnLatencyMs": [
+        12146
+      ],
+      "costMicros": 0,
+      "wallMs": 34388
+    },
+    "providerError": null
+  }
+}

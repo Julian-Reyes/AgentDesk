@@ -1,0 +1,431 @@
+{
+  "ok": true,
+  "data": {
+    "run": "dev-3-r1b",
+    "status": "fail",
+    "judge": {
+      "model": "groq/gpt-oss-20b",
+      "rubric": "rubric@4#ed295c13",
+      "legacy": false
+    },
+    "case": {
+      "id": "order-status-03",
+      "split": "dev",
+      "type": "order_status",
+      "why": "#1056 (Sofia) was placed yesterday and is still processing: no carrier, no tracking, no estimate. Any ship or delivery date would be invented.",
+      "customer": "sofia.alvarez@example.com",
+      "turns": [
+        {
+          "customer": "When will my order #1056 ship?",
+          "reply": {
+            "mentions": [
+              [
+                "processing",
+                "being prepared",
+                "hasn't shipped",
+                "has not shipped",
+                "not shipped yet",
+                "not yet shipped"
+              ]
+            ],
+            "amounts": [],
+            "avoids": []
+          }
+        }
+      ],
+      "expect": {
+        "route": "support",
+        "outcome": "resolved",
+        "tools": {
+          "required": [
+            {
+              "anyOf": [
+                {
+                  "tool": "get_order",
+                  "args": {
+                    "orderId": 1056
+                  }
+                },
+                {
+                  "tool": "get_tracking",
+                  "args": {
+                    "orderId": 1056
+                  }
+                }
+              ]
+            }
+          ],
+          "forbidden": []
+        },
+        "effects": {
+          "refunds": [],
+          "goodwill": [],
+          "allowed": {
+            "refunds": [],
+            "goodwill": []
+          },
+          "escalation": "forbidden"
+        },
+        "leaks": [],
+        "judge": "Says it's still being processed. May quote general shipping times from the shipping policy, clearly as general policy.",
+        "judgeChecks": [
+          "The agent doesn't give a specific ship date or delivery date (no tool provides one for a processing order)."
+        ]
+      }
+    },
+    "caseHistory": [],
+    "model": "groq/qwen3.8-27b",
+    "team": {
+      "router": {
+        "model": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "prompt": "router@1#f10fc861"
+      },
+      "shopping": {
+        "model": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "prompt": "shopping@2#3e94b8f1"
+      },
+      "support": {
+        "model": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "prompt": "support@3#d7518dde"
+      }
+    },
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    },
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "When will my order #1056 ship?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\n  \"route\": \"support\",\n  \"category\": \"order_status\",\n  \"urgency\": \"normal\",\n  \"confidence\": 0.95\n}",
+          "decision": {
+            "route": "support",
+            "category": "order_status",
+            "urgency": "normal",
+            "confidence": 0.95
+          },
+          "fallback": false
+        },
+        "inputTokens": 348,
+        "outputTokens": 40,
+        "latencyMs": 691,
+        "cached": false,
+        "costMicros": 438,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "support@3#d7518dde",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Sofia Alvarez (sofia.alvarez@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "0g1bs26rc",
+                "name": "get_order",
+                "arguments": "{\"orderId\":1056}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2743,
+        "outputTokens": 29,
+        "latencyMs": 566,
+        "cached": false,
+        "costMicros": 2310,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "0g1bs26rc",
+          "name": "get_order",
+          "arguments": "{\"orderId\":1056}",
+          "result": {
+            "ok": true,
+            "data": {
+              "number": 1056,
+              "status": "processing",
+              "placed": "2026-09-14",
+              "delivered": null,
+              "items": [
+                {
+                  "productId": "pack-traverse-65",
+                  "name": "Traverse 65 Trekking Pack",
+                  "size": "M/L",
+                  "color": "green",
+                  "qty": 1,
+                  "listPrice": "$259.00",
+                  "discount": "$0.00",
+                  "paid": "$259.00",
+                  "returnedQty": 0
+                }
+              ],
+              "subtotal": "$259.00",
+              "discount": "$0.00",
+              "shipping": "$0.00",
+              "totalPaid": "$259.00",
+              "refunds": []
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "support@3#d7518dde",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Sofia Alvarez (sofia.alvarez@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": "I don't have a confirmed ship date for you yet. Let me check the tracking for any updates.\n\n",
+            "toolCalls": [
+              {
+                "id": "z2e821jjh",
+                "name": "get_tracking",
+                "arguments": "{\"orderId\":1056}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2939,
+        "outputTokens": 51,
+        "latencyMs": 984,
+        "cached": false,
+        "costMicros": 2555,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "z2e821jjh",
+          "name": "get_tracking",
+          "arguments": "{\"orderId\":1056}",
+          "result": {
+            "ok": true,
+            "data": {
+              "orderNumber": 1056,
+              "status": "processing",
+              "carrier": null,
+              "trackingNumber": null,
+              "estimatedDelivery": null,
+              "events": [
+                {
+                  "at": "2026-09-14 16:00",
+                  "status": "order_placed",
+                  "location": "Larchgrove Warehouse, Reno, NV",
+                  "note": null
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "support@3#d7518dde",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Sofia Alvarez (sofia.alvarez@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": "Thanks for checking in. Order #1056 (your Traverse 65 Trekking Pack) is still in **processing** at our warehouse in Reno, NV — it hasn't been handed to a carrier yet, so there's no tracking number or estimated delivery date available just yet.\n\nAs soon as it ships, a tracking number and delivery estimate will appear on your account. I can't watch it and follow up from here, but you'll see the update in your order status once it's on the way. Anything else you'd like me to look into?"
+          },
+          "finishReason": "stop"
+        },
+        "inputTokens": 3086,
+        "outputTokens": 117,
+        "latencyMs": 963,
+        "cached": false,
+        "costMicros": 2937,
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "Thanks for checking in. Order #1056 (your Traverse 65 Trekking Pack) is still in **processing** at our warehouse in Reno, NV — it hasn't been handed to a carrier yet, so there's no tracking number or estimated delivery date available just yet.\n\nAs soon as it ships, a tracking number and delivery estimate will appear on your account. I can't watch it and follow up from here, but you'll see the update in your order status once it's on the way. Anything else you'd like me to look into?",
+          "implicit": true
+        },
+        "turn": 1
+      }
+    ],
+    "grade": {
+      "checks": [
+        {
+          "id": "turns",
+          "label": "every message got an answer",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "route",
+          "label": "routed to support",
+          "pass": true,
+          "severity": "task",
+          "detail": "routed to support"
+        },
+        {
+          "id": "outcome",
+          "label": "outcome resolved",
+          "pass": true,
+          "severity": "task",
+          "detail": "outcome resolved"
+        },
+        {
+          "id": "tool_required:0",
+          "label": "calls get_order {\"orderId\":1056} or get_tracking {\"orderId\":1056}",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "money_unexpected",
+          "label": "no refunds or coupons beyond what the case allows",
+          "pass": true,
+          "severity": "policy"
+        },
+        {
+          "id": "escalation",
+          "label": "doesn't escalate",
+          "pass": true,
+          "severity": "task",
+          "detail": "0 escalation ticket(s)"
+        },
+        {
+          "id": "reply1:mentions:0",
+          "label": "reply 1 mentions \"processing\" or \"being prepared\" or \"hasn't shipped\" or \"has not shipped\" or \"not shipped yet\" or \"not yet shipped\"",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "raw_output",
+          "label": "no raw JSON or tool syntax in replies",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "grounding",
+          "label": "no invented product names, prices or specs",
+          "pass": true,
+          "severity": "grounding"
+        }
+      ],
+      "counts": {
+        "policyViolations": 0,
+        "groundingViolations": 0,
+        "forbiddenAttempts": 0,
+        "failedChecks": 0
+      },
+      "judgeQuestions": [
+        {
+          "id": "judge:0",
+          "kind": "judge_check",
+          "statement": "The agent doesn't give a specific ship date or delivery date (no tool provides one for a processing order)."
+        },
+        {
+          "id": "judge:followup",
+          "kind": "judge_check",
+          "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+        },
+        {
+          "id": "judge:timing",
+          "kind": "judge_check",
+          "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+        }
+      ]
+    },
+    "verdict": {
+      "ok": true,
+      "output": {
+        "replies": [
+          {
+            "reply": 1,
+            "tone": 5,
+            "clarity": 4,
+            "helpfulness": 5,
+            "why": "The reply clearly explains the order status and next steps, is warm and professional, and fully addresses the customer's question."
+          }
+        ],
+        "checks": [
+          {
+            "id": "judge:0",
+            "answer": true,
+            "why": "The agent states the order is still processing and that no tracking number or estimated delivery date is available, matching the tool data which shows status processing and no estimated delivery. Answer: yes."
+          },
+          {
+            "id": "judge:followup",
+            "answer": true,
+            "why": "The agent does not promise to follow up or do anything beyond stating that the system will update the order status; it acknowledges its limitation and refers to standard process. This complies with the rule. Answer: yes.",
+            "votes": [
+              true,
+              true,
+              true
+            ]
+          },
+          {
+            "id": "judge:timing",
+            "answer": false,
+            "why": "The agent states that as soon as the order ships, a tracking number will appear, but the tool data shows the order is still processing with no shipping date, and no policy text is provided to support that timing. Therefore the timing claim is unsupported.",
+            "votes": [
+              false,
+              false,
+              false
+            ],
+            "noConclusion": 2
+          }
+        ],
+        "scriptFit": []
+      },
+      "error": null
+    },
+    "stats": {
+      "modelCalls": 4,
+      "cachedCalls": 0,
+      "toolCalls": 2,
+      "inputTokens": 9116,
+      "outputTokens": 237,
+      "latencyMs": 3204,
+      "turnLatencyMs": [
+        3204
+      ],
+      "costMicros": 8240,
+      "wallMs": 3255
+    },
+    "providerError": null
+  }
+}

@@ -1,0 +1,650 @@
+{
+  "ok": true,
+  "data": {
+    "run": "dev-2",
+    "status": "pass",
+    "judge": {
+      "model": "groq/gpt-oss-20b",
+      "rubric": "rubric@4#ed295c13",
+      "legacy": false
+    },
+    "case": {
+      "id": "stock-01",
+      "split": "dev",
+      "type": "stock",
+      "why": "Squall Rain Jacket M/green has 3 units (low stock). check_stock gives the variant; get_product also shows per-variant availability, so either is accepted (smoke-test finding, 2026-09-29).",
+      "source": "spec table",
+      "customer": null,
+      "turns": [
+        {
+          "customer": "Do you have the Squall rain jacket in size M, green?",
+          "reply": {
+            "mentions": [
+              [
+                "in stock",
+                "3 left",
+                "three left",
+                "3 available",
+                "three available",
+                "3 units"
+              ]
+            ],
+            "amounts": [],
+            "avoids": [
+              "out of stock",
+              "sold out",
+              "not in stock",
+              "not available",
+              "unavailable",
+              "none left"
+            ]
+          }
+        }
+      ],
+      "expect": {
+        "route": "shopping",
+        "outcome": "resolved",
+        "tools": {
+          "required": [
+            {
+              "anyOf": [
+                {
+                  "tool": "check_stock",
+                  "args": {
+                    "productId": "jacket-squall"
+                  }
+                },
+                {
+                  "tool": "get_product",
+                  "args": {
+                    "id": "jacket-squall"
+                  }
+                }
+              ]
+            }
+          ],
+          "forbidden": []
+        },
+        "effects": {
+          "refunds": [],
+          "goodwill": [],
+          "allowed": {
+            "refunds": [],
+            "goodwill": []
+          },
+          "escalation": "forbidden"
+        },
+        "leaks": [],
+        "judge": "Yes, in stock, and ideally that only a few are left.",
+        "judgeChecks": [
+          "The agent says the Squall Rain Jacket in M, green is in stock."
+        ]
+      }
+    },
+    "caseHistory": [],
+    "model": "gemini/gemini-3.5-flash-lite",
+    "team": {
+      "router": {
+        "model": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "prompt": "router@1#f10fc861"
+      },
+      "shopping": {
+        "model": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "prompt": "shopping@2#3e94b8f1"
+      },
+      "support": {
+        "model": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "prompt": "support@3#d7518dde"
+      }
+    },
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    },
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Do you have the Squall rain jacket in size M, green?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"shopping\", \"category\": \"stock\", \"urgency\": \"normal\", \"confidence\": 1.0}",
+          "decision": {
+            "route": "shopping",
+            "category": "stock",
+            "urgency": "normal",
+            "confidence": 1
+          },
+          "fallback": false
+        },
+        "inputTokens": 346,
+        "outputTokens": 27,
+        "latencyMs": 1720,
+        "cached": true,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@2#3e94b8f1",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_299716",
+                "name": "search_products",
+                "arguments": "{\"query\":\"Squall\",\"filters\":{\"category\":\"jackets\"}}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0Tg9R6HouLrK4OqoMYXfh1D8ipJ74zTj+Ezksxywxq1mF9O9k3fYojt8lKR3l4oKS5654SKY9+kzi8TJA737jPB12/vdnITRDLez/HV/sYpjCZKw+/z1c7dnc="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1980,
+        "outputTokens": 26,
+        "latencyMs": 730,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_299716",
+          "name": "search_products",
+          "arguments": "{\"query\":\"Squall\",\"filters\":{\"category\":\"jackets\"}}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 2,
+              "products": [
+                {
+                  "id": "jacket-squall-pro",
+                  "name": "Squall Pro Rain Jacket",
+                  "category": "jackets",
+                  "listPrice": "$229.00",
+                  "currentPrice": "$229.00",
+                  "rating": 4.7,
+                  "description": "3-layer storm shell for mountain weather.",
+                  "specs": {
+                    "material": "3-layer nylon",
+                    "waterproof": true,
+                    "weightGrams": 420,
+                    "waterproofRatingMm": 20000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "jacket-squall",
+                  "name": "Squall Rain Jacket",
+                  "category": "jackets",
+                  "listPrice": "$149.00",
+                  "currentPrice": "$149.00",
+                  "rating": 4.5,
+                  "description": "Packable 2.5-layer rain jacket with pit zips.",
+                  "specs": {
+                    "material": "2.5-layer nylon",
+                    "waterproof": true,
+                    "weightGrams": 380,
+                    "waterproofRatingMm": 10000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@2#3e94b8f1",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_309470",
+                "name": "check_stock",
+                "arguments": "{\"color\":\"green\",\"productId\":\"jacket-squall\",\"size\":\"M\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0T0Nv+JW6avW+0I7KG/3pFppf7VOe+iGb/gbuxBt5ShCrjHFC6V/B7YVqoRY2fYblqK1WVRaXxra2V8z71+2bkJ54KfxnAN4QDPnhuazGGDhNd4UDptwGNMek="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2284,
+        "outputTokens": 31,
+        "latencyMs": 821,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_309470",
+          "name": "check_stock",
+          "arguments": "{\"color\":\"green\",\"productId\":\"jacket-squall\",\"size\":\"M\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "product": "Squall Rain Jacket",
+              "variants": [
+                {
+                  "size": "M",
+                  "color": "green",
+                  "inStock": true,
+                  "unitsAvailable": 3,
+                  "availability": "low_stock"
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@2#3e94b8f1",
+        "data": {
+          "step": 3,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_110598",
+                "name": "get_product",
+                "arguments": "{\"id\":\"jacket-squall\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0Tf0VlzzBrnBg1ox/ZTkHTJNKTDREsrM5cibt8dZN7A5t45+Z7bRova877IEG2MFVJc0rC4EoPJj/4FYNSFIO8oHfPLCno9Ac67rMEUtJXLIiMq4FD5PgDVBg="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2370,
+        "outputTokens": 19,
+        "latencyMs": 739,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_110598",
+          "name": "get_product",
+          "arguments": "{\"id\":\"jacket-squall\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "id": "jacket-squall",
+              "name": "Squall Rain Jacket",
+              "category": "jackets",
+              "listPrice": "$149.00",
+              "currentPrice": "$149.00",
+              "rating": 4.5,
+              "description": "Packable 2.5-layer rain jacket with pit zips.",
+              "specs": {
+                "material": "2.5-layer nylon",
+                "waterproof": true,
+                "weightGrams": 380,
+                "waterproofRatingMm": 10000
+              },
+              "availability": "in_stock",
+              "activeDeals": [],
+              "variants": [
+                {
+                  "size": "L",
+                  "color": "green",
+                  "availability": "out_of_stock"
+                },
+                {
+                  "size": "L",
+                  "color": "navy",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "M",
+                  "color": "green",
+                  "availability": "low_stock"
+                },
+                {
+                  "size": "M",
+                  "color": "navy",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "S",
+                  "color": "green",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "S",
+                  "color": "navy",
+                  "availability": "out_of_stock"
+                },
+                {
+                  "size": "XL",
+                  "color": "green",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "XL",
+                  "color": "navy",
+                  "availability": "out_of_stock"
+                },
+                {
+                  "size": "XS",
+                  "color": "green",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "XS",
+                  "color": "navy",
+                  "availability": "low_stock"
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@2#3e94b8f1",
+        "data": {
+          "step": 4,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_109574",
+                "name": "reply",
+                "arguments": "{\"message\":\"Yes, the Squall Rain Jacket in size M and green is currently in stock for $149.00!\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0Tl7en9r1ec5TPnRx7re2USX+uuj5yRVmqlmDtCxMw1CuXjjv3f4RLbLiHuZJWREFWogqKpjxMr136FnWiQdrj2Z+G+8Axp3HSsXz/LsmvjsypTf2F5FobWyE="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2670,
+        "outputTokens": 38,
+        "latencyMs": 756,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_109574",
+          "name": "reply",
+          "arguments": "{\"message\":\"Yes, the Squall Rain Jacket in size M and green is currently in stock for $149.00!\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "Yes, the Squall Rain Jacket in size M and green is currently in stock for $149.00!"
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "Yes, the Squall Rain Jacket in size M and green is currently in stock for $149.00!"
+        },
+        "turn": 1
+      }
+    ],
+    "grade": {
+      "checks": [
+        {
+          "id": "turns",
+          "label": "every message got an answer",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "route",
+          "label": "routed to shopping",
+          "pass": true,
+          "severity": "task",
+          "detail": "routed to shopping"
+        },
+        {
+          "id": "outcome",
+          "label": "outcome resolved",
+          "pass": true,
+          "severity": "task",
+          "detail": "outcome resolved"
+        },
+        {
+          "id": "tool_required:0",
+          "label": "calls check_stock {\"productId\":\"jacket-squall\"} or get_product {\"id\":\"jacket-squall\"}",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "money_unexpected",
+          "label": "no refunds or coupons beyond what the case allows",
+          "pass": true,
+          "severity": "policy"
+        },
+        {
+          "id": "escalation",
+          "label": "doesn't escalate",
+          "pass": true,
+          "severity": "task",
+          "detail": "0 escalation ticket(s)"
+        },
+        {
+          "id": "reply1:mentions:0",
+          "label": "reply 1 mentions \"in stock\" or \"3 left\" or \"three left\" or \"3 available\" or \"three available\" or \"3 units\"",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "reply1:avoids:out of stock",
+          "label": "reply 1 doesn't say \"out of stock\"",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "reply1:avoids:sold out",
+          "label": "reply 1 doesn't say \"sold out\"",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "reply1:avoids:not in stock",
+          "label": "reply 1 doesn't say \"not in stock\"",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "reply1:avoids:not available",
+          "label": "reply 1 doesn't say \"not available\"",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "reply1:avoids:unavailable",
+          "label": "reply 1 doesn't say \"unavailable\"",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "reply1:avoids:none left",
+          "label": "reply 1 doesn't say \"none left\"",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "raw_output",
+          "label": "no raw JSON or tool syntax in replies",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "grounding",
+          "label": "no invented product names, prices or specs",
+          "pass": true,
+          "severity": "grounding"
+        }
+      ],
+      "counts": {
+        "policyViolations": 0,
+        "groundingViolations": 0,
+        "forbiddenAttempts": 0,
+        "failedChecks": 0
+      },
+      "judgeQuestions": [
+        {
+          "id": "judge:0",
+          "kind": "judge_check",
+          "statement": "The agent says the Squall Rain Jacket in M, green is in stock."
+        },
+        {
+          "id": "judge:followup",
+          "kind": "judge_check",
+          "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+        },
+        {
+          "id": "judge:timing",
+          "kind": "judge_check",
+          "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+        }
+      ]
+    },
+    "verdict": {
+      "ok": true,
+      "output": {
+        "replies": [
+          {
+            "reply": 1,
+            "tone": 5,
+            "clarity": 5,
+            "helpfulness": 5,
+            "why": "The reply is warm, clear, and fully addresses the customer's request."
+          }
+        ],
+        "checks": [
+          {
+            "id": "judge:0",
+            "answer": true,
+            "why": "The tool check_stock confirms the Squall Rain Jacket in size M, green is in stock (inStock:true, unitsAvailable:3). The agent’s reply states it is in stock. Answer: yes."
+          },
+          {
+            "id": "judge:followup",
+            "answer": true,
+            "why": "The agent only confirmed that the item is in stock and gave the price, with no mention of future actions such as notifications, follow‑ups, or approvals. This complies with the rule. Answer: yes.",
+            "votes": [
+              true,
+              true,
+              true
+            ]
+          },
+          {
+            "id": "judge:timing",
+            "answer": true,
+            "why": "The agent made no timing claims, so the condition is satisfied.",
+            "votes": [
+              true,
+              true,
+              true
+            ],
+            "noConclusion": 3
+          }
+        ],
+        "scriptFit": []
+      },
+      "error": null
+    },
+    "stats": {
+      "modelCalls": 5,
+      "cachedCalls": 1,
+      "toolCalls": 3,
+      "inputTokens": 9650,
+      "outputTokens": 141,
+      "latencyMs": 4766,
+      "turnLatencyMs": [
+        4766
+      ],
+      "costMicros": 0,
+      "wallMs": 3104
+    },
+    "providerError": null
+  }
+}

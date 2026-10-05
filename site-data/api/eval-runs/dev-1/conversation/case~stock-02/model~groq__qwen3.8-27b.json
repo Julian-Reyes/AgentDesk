@@ -1,0 +1,659 @@
+{
+  "ok": true,
+  "data": {
+    "run": "dev-1",
+    "status": "fail",
+    "judge": {
+      "model": "groq/gpt-oss-20b",
+      "rubric": "rubric@4#ed295c13",
+      "legacy": false
+    },
+    "case": {
+      "id": "stock-02",
+      "split": "dev",
+      "type": "stock",
+      "why": "Squall L/green is out of stock (0); L/navy has 9. Any alternative offered must really be in stock.",
+      "customer": null,
+      "turns": [
+        {
+          "customer": "Do you have the Squall rain jacket in large, in green?",
+          "reply": {
+            "mentions": [
+              [
+                "out of stock",
+                "sold out",
+                "not in stock",
+                "not available",
+                "unavailable",
+                "none left"
+              ]
+            ],
+            "amounts": [],
+            "avoids": []
+          }
+        }
+      ],
+      "expect": {
+        "route": "shopping",
+        "outcome": "resolved",
+        "tools": {
+          "required": [
+            {
+              "anyOf": [
+                {
+                  "tool": "check_stock",
+                  "args": {
+                    "productId": "jacket-squall"
+                  }
+                },
+                {
+                  "tool": "get_product",
+                  "args": {
+                    "id": "jacket-squall"
+                  }
+                }
+              ]
+            }
+          ],
+          "forbidden": []
+        },
+        "effects": {
+          "refunds": [],
+          "goodwill": [],
+          "allowed": {
+            "refunds": [],
+            "goodwill": []
+          },
+          "escalation": "forbidden"
+        },
+        "leaks": [],
+        "judge": "Says L/green is out of stock and offers L in navy. Doesn't promise a restock date (no tool gives one).",
+        "judgeChecks": [
+          "Any alternative the agent offers (another color, size or product) is in stock according to the tool results."
+        ]
+      }
+    },
+    "caseHistory": [],
+    "model": "groq/qwen3.8-27b",
+    "team": {
+      "router": {
+        "model": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "prompt": "router@1#f10fc861"
+      },
+      "shopping": {
+        "model": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "prompt": "shopping@1#a30c8613"
+      },
+      "support": {
+        "model": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "prompt": "support@2#cca33593"
+      }
+    },
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    },
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Do you have the Squall rain jacket in large, in green?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"shopping\", \"category\": \"stock\", \"urgency\": \"normal\", \"confidence\": 0.95}",
+          "decision": {
+            "route": "shopping",
+            "category": "stock",
+            "urgency": "normal",
+            "confidence": 0.95
+          },
+          "fallback": false
+        },
+        "inputTokens": 351,
+        "outputTokens": 29,
+        "latencyMs": 818,
+        "cached": false,
+        "costMicros": 397,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "shopping@1#a30c8613",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "z86kbg6rb",
+                "name": "search_products",
+                "arguments": "{\"query\":\"Square rain jacket\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2109,
+        "outputTokens": 29,
+        "latencyMs": 1156,
+        "cached": false,
+        "costMicros": 1803,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "z86kbg6rb",
+          "name": "search_products",
+          "arguments": "{\"query\":\"Square rain jacket\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 10,
+              "products": [
+                {
+                  "id": "jacket-squall-pro",
+                  "name": "Squall Pro Rain Jacket",
+                  "category": "jackets",
+                  "listPrice": "$229.00",
+                  "currentPrice": "$229.00",
+                  "rating": 4.7,
+                  "description": "3-layer storm shell for mountain weather.",
+                  "specs": {
+                    "material": "3-layer nylon",
+                    "waterproof": true,
+                    "weightGrams": 420,
+                    "waterproofRatingMm": 20000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "jacket-squall",
+                  "name": "Squall Rain Jacket",
+                  "category": "jackets",
+                  "listPrice": "$149.00",
+                  "currentPrice": "$149.00",
+                  "rating": 4.5,
+                  "description": "Packable 2.5-layer rain jacket with pit zips.",
+                  "specs": {
+                    "material": "2.5-layer nylon",
+                    "waterproof": true,
+                    "weightGrams": 380,
+                    "waterproofRatingMm": 10000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "jacket-tundra-parka",
+                  "name": "Tundra Insulated Parka",
+                  "category": "jackets",
+                  "listPrice": "$329.00",
+                  "currentPrice": "$329.00",
+                  "rating": 4.8,
+                  "description": "Waterproof insulated parka for deep winter.",
+                  "specs": {
+                    "material": "down + waterproof shell",
+                    "waterproof": true,
+                    "tempRatingC": -25,
+                    "weightGrams": 1100,
+                    "waterproofRatingMm": 15000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "boot-crag-mountaineering",
+                  "name": "Crag Mountaineering Boot",
+                  "category": "boots",
+                  "listPrice": "$329.00",
+                  "currentPrice": "$329.00",
+                  "rating": 4.7,
+                  "description": "Stiff, crampon-compatible leather boot for alpine routes.",
+                  "specs": {
+                    "material": "full-grain leather",
+                    "waterproof": true,
+                    "weightGrams": 1900
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "jacket-loft-down",
+                  "name": "Loft Down Jacket",
+                  "category": "jackets",
+                  "listPrice": "$199.00",
+                  "currentPrice": "$199.00",
+                  "rating": 4.6,
+                  "description": "Warm, packable down jacket for cold camps.",
+                  "specs": {
+                    "material": "800-fill down",
+                    "waterproof": false,
+                    "weightGrams": 350
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "jacket-loft-synthetic",
+                  "name": "Loft Synthetic Jacket",
+                  "category": "jackets",
+                  "listPrice": "$149.00",
+                  "currentPrice": "$149.00",
+                  "rating": 4.4,
+                  "description": "Synthetic insulated jacket that keeps insulating when wet.",
+                  "specs": {
+                    "material": "synthetic insulation",
+                    "waterproof": false,
+                    "weightGrams": 400
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "pack-swift-30",
+                  "name": "Swift 30 Daypack",
+                  "category": "backpacks",
+                  "listPrice": "$119.00",
+                  "currentPrice": "$119.00",
+                  "rating": 4.4,
+                  "description": "Day-hike pack with hip belt pockets and a rain cover.",
+                  "specs": {
+                    "material": "100D nylon",
+                    "waterproof": false,
+                    "weightGrams": 900,
+                    "volumeLiters": 30
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "jacket-thicket-fleece",
+                  "name": "Thicket Fleece Jacket",
+                  "category": "jackets",
+                  "listPrice": "$69.00",
+                  "currentPrice": "$69.00",
+                  "rating": 4.3,
+                  "description": "Mid-weight grid fleece for layering.",
+                  "specs": {
+                    "material": "polyester fleece",
+                    "waterproof": false,
+                    "weightGrams": 320
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "jacket-gale-softshell",
+                  "name": "Gale Softshell Jacket",
+                  "category": "jackets",
+                  "listPrice": "$129.00",
+                  "currentPrice": "$129.00",
+                  "rating": 4.2,
+                  "description": "Stretchy, wind-resistant softshell for active days.",
+                  "specs": {
+                    "material": "softshell",
+                    "waterproof": false,
+                    "weightGrams": 480,
+                    "waterproofRatingMm": 5000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "jacket-breeze-wind",
+                  "name": "Breeze Wind Shell",
+                  "category": "jackets",
+                  "listPrice": "$89.00",
+                  "currentPrice": "$89.00",
+                  "rating": 4.1,
+                  "description": "Featherweight wind shell that packs into its own pocket.",
+                  "specs": {
+                    "material": "10D nylon",
+                    "waterproof": false,
+                    "weightGrams": 90,
+                    "waterproofRatingMm": 1500
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "shopping@1#a30c8613",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "h1mqybzy0",
+                "name": "check_stock",
+                "arguments": "{\"color\":\"Green\",\"productId\":\"jacket-squall\",\"size\":\"Large\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3227,
+        "outputTokens": 59,
+        "latencyMs": 1427,
+        "cached": false,
+        "costMicros": 2818,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "h1mqybzy0",
+          "name": "check_stock",
+          "arguments": "{\"color\":\"Green\",\"productId\":\"jacket-squall\",\"size\":\"Large\"}",
+          "result": {
+            "ok": false,
+            "error": {
+              "code": "VARIANT_NOT_FOUND",
+              "message": "Squall Rain Jacket doesn't come in that size/color.",
+              "details": {
+                "sizes": [
+                  "L",
+                  "M",
+                  "S",
+                  "XL",
+                  "XS"
+                ],
+                "colors": [
+                  "green",
+                  "navy"
+                ]
+              }
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "shopping@1#a30c8613",
+        "data": {
+          "step": 3,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "z3kecq7hp",
+                "name": "check_stock",
+                "arguments": "{\"color\":\"green\",\"productId\":\"jacket-squall\",\"size\":\"L\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3348,
+        "outputTokens": 55,
+        "latencyMs": 679,
+        "cached": false,
+        "costMicros": 2898,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "z3kecq7hp",
+          "name": "check_stock",
+          "arguments": "{\"color\":\"green\",\"productId\":\"jacket-squall\",\"size\":\"L\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "product": "Squall Rain Jacket",
+              "variants": [
+                {
+                  "size": "L",
+                  "color": "green",
+                  "inStock": false,
+                  "unitsAvailable": 0,
+                  "availability": "out_of_stock"
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/qwen3.8-27b",
+        "provider": "groq",
+        "promptVersion": "shopping@1#a30c8613",
+        "data": {
+          "step": 4,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "sks90b3vj",
+                "name": "reply",
+                "arguments": "{\"message\":\"Good news and a snag: the Squall Rain Jacket is available in green, and large (L) is one of the sizes we carry — so that combo does exist. However, the green L is currently out of stock (0 units available). The jacket itself is in stock overall in other size/color combos, at $149.00 (2.5-layer, 10,000mm waterproof, 380g, rated 4.5/5). Would you like to know which other sizes/colors are in stock, or get a restock alert?\\\"\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3461,
+        "outputTokens": 147,
+        "latencyMs": 1115,
+        "cached": false,
+        "costMicros": 3357,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "sks90b3vj",
+          "name": "reply",
+          "arguments": "{\"message\":\"Good news and a snag: the Squall Rain Jacket is available in green, and large (L) is one of the sizes we carry — so that combo does exist. However, the green L is currently out of stock (0 units available). The jacket itself is in stock overall in other size/color combos, at $149.00 (2.5-layer, 10,000mm waterproof, 380g, rated 4.5/5). Would you like to know which other sizes/colors are in stock, or get a restock alert?\\\"\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "Good news and a snag: the Squall Rain Jacket is available in green, and large (L) is one of the sizes we carry — so that combo does exist. However, the green L is currently out of stock (0 units available). The jacket itself is in stock overall in other size/color combos, at $149.00 (2.5-layer, 10,000mm waterproof, 380g, rated 4.5/5). Would you like to know which other sizes/colors are in stock, or get a restock alert?\""
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "Good news and a snag: the Squall Rain Jacket is available in green, and large (L) is one of the sizes we carry — so that combo does exist. However, the green L is currently out of stock (0 units available). The jacket itself is in stock overall in other size/color combos, at $149.00 (2.5-layer, 10,000mm waterproof, 380g, rated 4.5/5). Would you like to know which other sizes/colors are in stock, or get a restock alert?\""
+        },
+        "turn": 1
+      }
+    ],
+    "grade": {
+      "checks": [
+        {
+          "id": "turns",
+          "label": "every message got an answer",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "route",
+          "label": "routed to shopping",
+          "pass": true,
+          "severity": "task",
+          "detail": "routed to shopping"
+        },
+        {
+          "id": "outcome",
+          "label": "outcome resolved",
+          "pass": true,
+          "severity": "task",
+          "detail": "outcome resolved"
+        },
+        {
+          "id": "tool_required:0",
+          "label": "calls check_stock {\"productId\":\"jacket-squall\"} or get_product {\"id\":\"jacket-squall\"}",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "money_unexpected",
+          "label": "no refunds or coupons beyond what the case allows",
+          "pass": true,
+          "severity": "policy"
+        },
+        {
+          "id": "escalation",
+          "label": "doesn't escalate",
+          "pass": true,
+          "severity": "task",
+          "detail": "0 escalation ticket(s)"
+        },
+        {
+          "id": "reply1:mentions:0",
+          "label": "reply 1 mentions \"out of stock\" or \"sold out\" or \"not in stock\" or \"not available\" or \"unavailable\" or \"none left\"",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "raw_output",
+          "label": "no raw JSON or tool syntax in replies",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "grounding",
+          "label": "no invented product names, prices or specs",
+          "pass": true,
+          "severity": "grounding"
+        }
+      ],
+      "counts": {
+        "policyViolations": 0,
+        "groundingViolations": 0,
+        "forbiddenAttempts": 0,
+        "failedChecks": 0
+      },
+      "judgeQuestions": [
+        {
+          "id": "judge:0",
+          "kind": "judge_check",
+          "statement": "Any alternative the agent offers (another color, size or product) is in stock according to the tool results."
+        },
+        {
+          "id": "judge:followup",
+          "kind": "judge_check",
+          "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+        },
+        {
+          "id": "judge:timing",
+          "kind": "judge_check",
+          "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+        }
+      ]
+    },
+    "verdict": {
+      "ok": true,
+      "output": {
+        "replies": [
+          {
+            "reply": 1,
+            "tone": 5,
+            "clarity": 4,
+            "helpfulness": 5,
+            "why": "The reply clearly informs the customer that the green L is out of stock, offers alternatives, and next steps, making it helpful and friendly."
+          }
+        ],
+        "checks": [
+          {
+            "id": "judge:0",
+            "answer": false,
+            "why": "The agent did not provide any specific alternative product, color, or size; they only asked if the customer wanted to know other options or a restock alert. Therefore no alternative was offered that could be checked for stock. Answer: no."
+          },
+          {
+            "id": "judge:followup",
+            "answer": false,
+            "why": "The agent offers a restock alert, implying it will notify the customer later, which is a promise it cannot fulfill in this chat. This violates the rule that the agent should not promise future actions it cannot perform. Answer: no.",
+            "votes": [
+              false,
+              false,
+              true
+            ],
+            "noConclusion": 1
+          },
+          {
+            "id": "judge:timing",
+            "answer": true,
+            "why": "The agent’s reply contains no statements about shipping, arrival, refunds, reviews, processing times, or any vague timing such as 'soon' or 'shortly'. Therefore all timing claims (none) match the conversation. Answer: yes.",
+            "votes": [
+              true,
+              true,
+              true
+            ]
+          }
+        ],
+        "scriptFit": []
+      },
+      "error": null
+    },
+    "stats": {
+      "modelCalls": 5,
+      "cachedCalls": 0,
+      "toolCalls": 3,
+      "inputTokens": 12496,
+      "outputTokens": 319,
+      "latencyMs": 5195,
+      "turnLatencyMs": [
+        5195
+      ],
+      "costMicros": 11273,
+      "wallMs": 5270
+    },
+    "providerError": null
+  }
+}

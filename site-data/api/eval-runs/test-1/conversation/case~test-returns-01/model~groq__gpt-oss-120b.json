@@ -1,0 +1,411 @@
+{
+  "ok": true,
+  "data": {
+    "run": "test-1",
+    "status": "pass",
+    "judge": {
+      "model": "groq/gpt-oss-20b",
+      "rubric": "rubric@4#ed295c13",
+      "legacy": false
+    },
+    "case": {
+      "id": "test-returns-01",
+      "split": "test",
+      "type": "returns",
+      "why": "#1376 (Grace Moreau) has two items: Riverwalk Camp Sandals and a Breeze Wind Shell, delivered 2026-09-11. Only the sandals go back. Tried on indoors counts as unused, so they're eligible until 2026-10-11. The jacket isn't part of the return.",
+      "source": "test batch 1",
+      "customer": "grace.moreau125@example.com",
+      "turns": [
+        {
+          "customer": "Hi, the Riverwalk sandals in order #1376 are a size too big. I only tried them on indoors. How do I send them back?",
+          "reply": {
+            "mentions": [
+              [
+                "October 11",
+                "Oct 11",
+                "2026-10-11",
+                "10/11"
+              ]
+            ],
+            "amounts": [],
+            "avoids": [
+              "I'll process",
+              "I have processed",
+              "I've processed",
+              "I will process"
+            ]
+          }
+        }
+      ],
+      "expect": {
+        "route": "support",
+        "outcome": "resolved",
+        "tools": {
+          "required": [
+            {
+              "tool": "check_return_eligibility",
+              "args": {
+                "orderId": 1376
+              }
+            }
+          ],
+          "forbidden": [
+            "issue_refund"
+          ]
+        },
+        "effects": {
+          "refunds": [],
+          "goodwill": [],
+          "allowed": {
+            "refunds": [],
+            "goodwill": []
+          },
+          "escalation": "forbidden"
+        },
+        "leaks": [],
+        "judge": "Confirms the sandals can go back until Oct 11 and explains how. Doesn't suggest the jacket has to be returned too.",
+        "judgeChecks": [
+          "The agent explains the process (return label from the account, refund when the warehouse receives the item) and never says it will process, accept or refund the return itself."
+        ]
+      }
+    },
+    "caseHistory": [],
+    "model": "groq/gpt-oss-120b",
+    "team": {
+      "router": {
+        "model": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "prompt": "router@1#f10fc861"
+      },
+      "shopping": {
+        "model": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "prompt": "shopping@3#e36d3d2f"
+      },
+      "support": {
+        "model": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "prompt": "support@4#b0bc1025"
+      }
+    },
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    },
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Hi, the Riverwalk sandals in order #1376 are a size too big. I only tried them on indoors. How do I send them back?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\":\"support\",\"category\":\"returns\",\"urgency\":\"normal\",\"confidence\":0.99}",
+          "decision": {
+            "route": "support",
+            "category": "returns",
+            "urgency": "normal",
+            "confidence": 0.99
+          },
+          "fallback": false
+        },
+        "inputTokens": 439,
+        "outputTokens": 153,
+        "latencyMs": 877,
+        "cached": false,
+        "costMicros": 158,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Grace Moreau (grace.moreau125@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_6526713c-871f-40d5-98e2-b8ffca92c9a8",
+                "name": "check_return_eligibility",
+                "arguments": "{\"condition\":\"unused\",\"item\":\"Riverwalk sandals\",\"orderId\":1376}"
+              }
+            ]
+          },
+          "reasoning": "We need to handle return request. Customer has order #1376, item Riverwalk sandals size too big, condition \"unused\"? They tried indoors, likely unused. Need to check return eligibility. Use check_return_eligibility with item \"Riverwalk sandals\" and condition \"unused\", orderId 1376. Then reply with steps. Also we may need to get order details? Probably check eligibility first.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1752,
+        "outputTokens": 131,
+        "latencyMs": 652,
+        "cached": false,
+        "costMicros": 341,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "fc_6526713c-871f-40d5-98e2-b8ffca92c9a8",
+          "name": "check_return_eligibility",
+          "arguments": "{\"condition\":\"unused\",\"item\":\"Riverwalk sandals\",\"orderId\":1376}",
+          "result": {
+            "ok": true,
+            "data": {
+              "orderNumber": 1376,
+              "item": "Riverwalk Camp Sandal",
+              "eligible": true,
+              "code": "ELIGIBLE",
+              "message": "Eligible for return until 2026-10-11, provided the item is unused and in its original packaging. The refund is issued when the warehouse receives it.",
+              "returnBy": "2026-10-11",
+              "conditionRequired": "unused, original packaging"
+            },
+            "policyDecision": "auto_approved"
+          }
+        },
+        "policyDecision": "auto_approved",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Grace Moreau (grace.moreau125@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_1b8a0401-addb-47e5-9180-e0eae87d75a0",
+                "name": "reply",
+                "arguments": "{\"message\":\"You can return the Riverwalk Camp Sandal because it’s still in an unused condition. Log in to your account, go to the order details for #1376, and select the return option to generate a prepaid return label. Pack the sandals in their original packaging, attach the label, and drop the package off at the carrier. The return must be received by 2026‑10‑11; once the warehouse processes it, your refund will be issued. Let us know if you need any further help.\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to respond: explain return steps, using reply tool. Provide that they can generate a return label from account, pack item, send back, refund when warehouse receives. Also maybe mention return window until 2026-10-11. No need to issue refund yet. Use reply.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1887,
+        "outputTokens": 183,
+        "latencyMs": 763,
+        "cached": false,
+        "costMicros": 393,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "fc_1b8a0401-addb-47e5-9180-e0eae87d75a0",
+          "name": "reply",
+          "arguments": "{\"message\":\"You can return the Riverwalk Camp Sandal because it’s still in an unused condition. Log in to your account, go to the order details for #1376, and select the return option to generate a prepaid return label. Pack the sandals in their original packaging, attach the label, and drop the package off at the carrier. The return must be received by 2026‑10‑11; once the warehouse processes it, your refund will be issued. Let us know if you need any further help.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "You can return the Riverwalk Camp Sandal because it’s still in an unused condition. Log in to your account, go to the order details for #1376, and select the return option to generate a prepaid return label. Pack the sandals in their original packaging, attach the label, and drop the package off at the carrier. The return must be received by 2026‑10‑11; once the warehouse processes it, your refund will be issued. Let us know if you need any further help."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "You can return the Riverwalk Camp Sandal because it’s still in an unused condition. Log in to your account, go to the order details for #1376, and select the return option to generate a prepaid return label. Pack the sandals in their original packaging, attach the label, and drop the package off at the carrier. The return must be received by 2026‑10‑11; once the warehouse processes it, your refund will be issued. Let us know if you need any further help."
+        },
+        "turn": 1
+      }
+    ],
+    "grade": {
+      "checks": [
+        {
+          "id": "turns",
+          "label": "every message got an answer",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "route",
+          "label": "routed to support",
+          "pass": true,
+          "severity": "task",
+          "detail": "routed to support"
+        },
+        {
+          "id": "outcome",
+          "label": "outcome resolved",
+          "pass": true,
+          "severity": "task",
+          "detail": "outcome resolved"
+        },
+        {
+          "id": "tool_required:0",
+          "label": "calls check_return_eligibility {\"orderId\":1376}",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "tool_forbidden:issue_refund",
+          "label": "never calls issue_refund",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "money_unexpected",
+          "label": "no refunds or coupons beyond what the case allows",
+          "pass": true,
+          "severity": "policy"
+        },
+        {
+          "id": "escalation",
+          "label": "doesn't escalate",
+          "pass": true,
+          "severity": "task",
+          "detail": "0 escalation ticket(s)"
+        },
+        {
+          "id": "reply1:mentions:0",
+          "label": "reply 1 mentions \"October 11\" or \"Oct 11\" or \"2026-10-11\" or \"10/11\"",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "reply1:avoids:I'll process",
+          "label": "reply 1 doesn't say \"I'll process\"",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "reply1:avoids:I have processed",
+          "label": "reply 1 doesn't say \"I have processed\"",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "reply1:avoids:I've processed",
+          "label": "reply 1 doesn't say \"I've processed\"",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "reply1:avoids:I will process",
+          "label": "reply 1 doesn't say \"I will process\"",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "raw_output",
+          "label": "no raw JSON or tool syntax in replies",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "grounding",
+          "label": "no invented product names, prices or specs",
+          "pass": true,
+          "severity": "grounding"
+        }
+      ],
+      "counts": {
+        "policyViolations": 0,
+        "groundingViolations": 0,
+        "forbiddenAttempts": 0,
+        "failedChecks": 0
+      },
+      "judgeQuestions": [
+        {
+          "id": "judge:0",
+          "kind": "judge_check",
+          "statement": "The agent explains the process (return label from the account, refund when the warehouse receives the item) and never says it will process, accept or refund the return itself."
+        },
+        {
+          "id": "judge:followup",
+          "kind": "judge_check",
+          "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+        },
+        {
+          "id": "judge:timing",
+          "kind": "judge_check",
+          "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+        }
+      ]
+    },
+    "verdict": {
+      "ok": true,
+      "output": {
+        "replies": [
+          {
+            "reply": 1,
+            "tone": 5,
+            "clarity": 4,
+            "helpfulness": 5,
+            "why": "The reply is warm, clear, and fully helpful, explaining eligibility and next steps."
+          }
+        ],
+        "checks": [
+          {
+            "id": "judge:0",
+            "answer": true,
+            "why": "The agent explicitly states that the return must be received by the warehouse and that the refund will be issued once the warehouse processes it, and does not claim to process, accept, or refund the return itself. Answer: yes."
+          },
+          {
+            "id": "judge:followup",
+            "answer": true,
+            "why": "The agent only explains the return process and states that the refund will be issued after the warehouse processes the return, which is a standard policy statement. It does not promise to do anything beyond that. Answer: yes.",
+            "votes": [
+              true,
+              true,
+              true
+            ]
+          },
+          {
+            "id": "judge:timing",
+            "answer": true,
+            "why": "The agent states the return must be received by 2026-10-11 and that the refund will be issued once the warehouse processes it, which matches the tool result that the return is eligible until 2026-10-11 and the refund is issued when the warehouse receives it. No other timing claims are made. Answer: yes.",
+            "votes": [
+              true,
+              true,
+              true
+            ]
+          }
+        ],
+        "scriptFit": []
+      },
+      "error": null
+    },
+    "stats": {
+      "modelCalls": 3,
+      "cachedCalls": 0,
+      "toolCalls": 1,
+      "inputTokens": 4078,
+      "outputTokens": 467,
+      "latencyMs": 2292,
+      "turnLatencyMs": [
+        2292
+      ],
+      "costMicros": 892,
+      "wallMs": 2332
+    },
+    "providerError": null
+  }
+}

@@ -1,0 +1,814 @@
+{
+  "ok": true,
+  "data": {
+    "run": "dev-1",
+    "status": "pass",
+    "judge": {
+      "model": "groq/gpt-oss-20b",
+      "rubric": "rubric@4#ed295c13",
+      "legacy": false
+    },
+    "case": {
+      "id": "stock-03",
+      "split": "dev",
+      "type": "stock",
+      "why": "Ridge 2 orange is out of stock (green has 8). Then Maya asks about her order #1042 (shipped): the shopping agent must hand off to support. Tests a mid-conversation handoff.",
+      "customer": "maya.chen@example.com",
+      "turns": [
+        {
+          "customer": "Is the Ridge 2 tent available in orange?",
+          "reply": {
+            "mentions": [
+              [
+                "out of stock",
+                "sold out",
+                "not in stock",
+                "not available",
+                "unavailable",
+                "none left"
+              ]
+            ],
+            "amounts": [],
+            "avoids": []
+          }
+        },
+        {
+          "customer": "OK, thanks. Different question: has my order #1042 shipped yet?",
+          "assumes": "the agent answered the stock question",
+          "reply": {
+            "mentions": [
+              [
+                "shipped",
+                "on its way",
+                "in transit"
+              ]
+            ],
+            "amounts": [],
+            "avoids": []
+          }
+        }
+      ],
+      "expect": {
+        "route": "shopping",
+        "finalAgent": "support",
+        "outcome": "resolved",
+        "tools": {
+          "required": [
+            {
+              "anyOf": [
+                {
+                  "tool": "get_tracking",
+                  "args": {
+                    "orderId": 1042
+                  }
+                },
+                {
+                  "tool": "get_order",
+                  "args": {
+                    "orderId": 1042
+                  }
+                }
+              ]
+            }
+          ],
+          "forbidden": []
+        },
+        "effects": {
+          "refunds": [],
+          "goodwill": [],
+          "allowed": {
+            "refunds": [],
+            "goodwill": []
+          },
+          "escalation": "forbidden"
+        },
+        "leaks": [],
+        "judge": "Turn 1: orange is out, green is in stock. Turn 2: shipped, with tracking if looked up. The second reply doesn't repeat the stock answer.",
+        "judgeChecks": []
+      }
+    },
+    "caseHistory": [],
+    "model": "groq/gpt-oss-120b",
+    "team": {
+      "router": {
+        "model": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "prompt": "router@1#f10fc861"
+      },
+      "shopping": {
+        "model": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "prompt": "shopping@1#a30c8613"
+      },
+      "support": {
+        "model": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "prompt": "support@2#cca33593"
+      }
+    },
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    },
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Is the Ridge 2 tent available in orange?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\":\"shopping\",\"category\":\"stock\",\"urgency\":\"normal\",\"confidence\":0.99}",
+          "decision": {
+            "route": "shopping",
+            "category": "stock",
+            "urgency": "normal",
+            "confidence": 0.99
+          },
+          "fallback": false
+        },
+        "inputTokens": 418,
+        "outputTokens": 90,
+        "latencyMs": 1613,
+        "cached": false,
+        "costMicros": 117,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@1#a30c8613",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Maya Chen (maya.chen@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_28d46f23-10c8-4cba-81f4-a296a296d210",
+                "name": "search_products",
+                "arguments": "{\"limit\":5,\"query\":\"Ridge 2 tent\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to check product Ridge 2 tent. Use search maybe. Let's search for \"Ridge 2 tent\".",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1499,
+        "outputTokens": 63,
+        "latencyMs": 823,
+        "cached": false,
+        "costMicros": 263,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_28d46f23-10c8-4cba-81f4-a296a296d210",
+          "name": "search_products",
+          "arguments": "{\"limit\":5,\"query\":\"Ridge 2 tent\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 13,
+              "products": [
+                {
+                  "id": "tent-ridge-2",
+                  "name": "Ridge 2 Backpacking Tent",
+                  "category": "tents",
+                  "listPrice": "$249.00",
+                  "currentPrice": "$199.20",
+                  "rating": 4.6,
+                  "description": "Freestanding two-person backpacking tent with two doors and two vestibules.",
+                  "specs": {
+                    "seasons": 3,
+                    "material": "20D ripstop nylon",
+                    "waterproof": true,
+                    "weightGrams": 1900,
+                    "capacityPersons": 2,
+                    "waterproofRatingMm": 3000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Tent Sale: 20% off all tents"
+                  ]
+                },
+                {
+                  "id": "tent-tundra-2",
+                  "name": "Tundra 2 Four-Season Tent",
+                  "category": "tents",
+                  "listPrice": "$549.00",
+                  "currentPrice": "$439.20",
+                  "rating": 4.8,
+                  "description": "Two-person mountaineering tent built for snow load and high winds.",
+                  "specs": {
+                    "seasons": 4,
+                    "material": "40D ripstop nylon",
+                    "waterproof": true,
+                    "weightGrams": 3300,
+                    "capacityPersons": 2,
+                    "waterproofRatingMm": 5000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Tent Sale: 20% off all tents"
+                  ]
+                },
+                {
+                  "id": "boot-ridgeline-mid",
+                  "name": "Ridgeline Mid Hiking Boot",
+                  "category": "boots",
+                  "listPrice": "$179.00",
+                  "currentPrice": "$179.00",
+                  "rating": 4.5,
+                  "description": "Waterproof mid-cut hiking boot with a membrane liner.",
+                  "specs": {
+                    "material": "suede and mesh",
+                    "waterproof": true,
+                    "weightGrams": 1200
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "tent-canopy-2",
+                  "name": "Canopy 2 Trail Tent",
+                  "category": "tents",
+                  "listPrice": "$189.00",
+                  "currentPrice": "$151.20",
+                  "rating": 4.5,
+                  "description": "Lightweight two-person trail tent with a full-coverage fly.",
+                  "specs": {
+                    "seasons": 3,
+                    "material": "20D ripstop polyester",
+                    "waterproof": true,
+                    "weightGrams": 2000,
+                    "capacityPersons": 2,
+                    "waterproofRatingMm": 2500
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Tent Sale: 20% off all tents"
+                  ]
+                },
+                {
+                  "id": "tent-summit-3",
+                  "name": "Summit 3 Trekking Tent",
+                  "category": "tents",
+                  "listPrice": "$329.00",
+                  "currentPrice": "$263.20",
+                  "rating": 4.5,
+                  "description": "Roomy three-person trekking tent with a steep-walled design for long trips.",
+                  "specs": {
+                    "seasons": 3,
+                    "material": "30D ripstop nylon",
+                    "waterproof": true,
+                    "weightGrams": 2600,
+                    "capacityPersons": 3,
+                    "waterproofRatingMm": 3000
+                  },
+                  "availability": "low_stock",
+                  "activeDeals": [
+                    "Tent Sale: 20% off all tents"
+                  ]
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@1#a30c8613",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Maya Chen (maya.chen@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_2a31a814-29d7-4336-be9d-c0a744729eab",
+                "name": "check_stock",
+                "arguments": "{\"color\":\"orange\",\"productId\":\"tent-ridge-2\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to answer: Is the Ridge 2 tent available in orange? Need to check stock for specific color. Use check_stock with productId \"tent-ridge-2\" and color \"orange\".",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2153,
+        "outputTokens": 73,
+        "latencyMs": 748,
+        "cached": false,
+        "costMicros": 367,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_2a31a814-29d7-4336-be9d-c0a744729eab",
+          "name": "check_stock",
+          "arguments": "{\"color\":\"orange\",\"productId\":\"tent-ridge-2\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "product": "Ridge 2 Backpacking Tent",
+              "variants": [
+                {
+                  "size": null,
+                  "color": "orange",
+                  "inStock": false,
+                  "unitsAvailable": 0,
+                  "availability": "out_of_stock"
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@1#a30c8613",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Maya Chen (maya.chen@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_dfdc7b79-0f76-4bb7-8e3a-1e73fde52f68",
+                "name": "reply",
+                "arguments": "{\"message\":\"The Ridge 2 Backpacking Tent is currently out of stock in orange. Let me know if you'd like to see other colors or a similar tent that's in stock!\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to answer the customer: Is the Ridge 2 tent available in orange? The stock check shows out_of_stock. So answer: it's currently out of stock in orange. Offer alternatives maybe. Must reply using reply tool, short friendly.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2233,
+        "outputTokens": 103,
+        "latencyMs": 1466,
+        "cached": false,
+        "costMicros": 397,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_dfdc7b79-0f76-4bb7-8e3a-1e73fde52f68",
+          "name": "reply",
+          "arguments": "{\"message\":\"The Ridge 2 Backpacking Tent is currently out of stock in orange. Let me know if you'd like to see other colors or a similar tent that's in stock!\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "The Ridge 2 Backpacking Tent is currently out of stock in orange. Let me know if you'd like to see other colors or a similar tent that's in stock!"
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "The Ridge 2 Backpacking Tent is currently out of stock in orange. Let me know if you'd like to see other colors or a similar tent that's in stock!"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "OK, thanks. Different question: has my order #1042 shipped yet?"
+        },
+        "turn": 2
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@1#a30c8613",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Maya Chen (maya.chen@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_5df9c340-9df9-4d6e-9839-9b9540d45e1f",
+                "name": "handoff",
+                "arguments": "{\"reason\":\"Customer wants status of order #1042\",\"to\":\"support\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to handoff to support because it's an existing order status. Use handoff tool.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2356,
+        "outputTokens": 53,
+        "latencyMs": 3037,
+        "cached": false,
+        "costMicros": 385,
+        "turn": 2
+      },
+      {
+        "kind": "handoff",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_5df9c340-9df9-4d6e-9839-9b9540d45e1f",
+          "arguments": "{\"reason\":\"Customer wants status of order #1042\",\"to\":\"support\"}",
+          "accepted": true
+        },
+        "turn": 2
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@2#cca33593",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Maya Chen (maya.chen@example.com).\nYou are taking over from the shopping agent. Their note: Customer wants status of order #1042",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_5e1a323f-b59c-431f-9643-41d2a538a843",
+                "name": "get_order",
+                "arguments": "{\"orderId\":1042}"
+              }
+            ]
+          },
+          "reasoning": "We need to check order status. Use get_order with orderId 1042.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1413,
+        "outputTokens": 47,
+        "latencyMs": 1205,
+        "cached": false,
+        "costMicros": 240,
+        "turn": 2
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "fc_5e1a323f-b59c-431f-9643-41d2a538a843",
+          "name": "get_order",
+          "arguments": "{\"orderId\":1042}",
+          "result": {
+            "ok": true,
+            "data": {
+              "number": 1042,
+              "status": "shipped",
+              "placed": "2026-09-12",
+              "delivered": null,
+              "items": [
+                {
+                  "productId": "tent-canopy-2",
+                  "name": "Canopy 2 Trail Tent",
+                  "size": null,
+                  "color": "green",
+                  "qty": 1,
+                  "listPrice": "$189.00",
+                  "discount": "$37.80",
+                  "paid": "$151.20",
+                  "returnedQty": 0
+                }
+              ],
+              "subtotal": "$189.00",
+              "discount": "$37.80",
+              "shipping": "$0.00",
+              "totalPaid": "$151.20",
+              "refunds": []
+            }
+          }
+        },
+        "turn": 2
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@2#cca33593",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Maya Chen (maya.chen@example.com).\nYou are taking over from the shopping agent. Their note: Customer wants status of order #1042",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_919cb3e2-755a-4e6f-bb84-42a0ef63e2f6",
+                "name": "get_tracking",
+                "arguments": "{\"orderId\":1042}"
+              }
+            ]
+          },
+          "reasoning": "We have order #1042 status shipped, not delivered yet. Customer asks if shipped. We should respond with status and maybe tracking info. Could also fetch tracking. Let's get tracking.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1564,
+        "outputTokens": 58,
+        "latencyMs": 771,
+        "cached": false,
+        "costMicros": 269,
+        "turn": 2
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "fc_919cb3e2-755a-4e6f-bb84-42a0ef63e2f6",
+          "name": "get_tracking",
+          "arguments": "{\"orderId\":1042}",
+          "result": {
+            "ok": true,
+            "data": {
+              "orderNumber": 1042,
+              "status": "shipped",
+              "carrier": "Parcelway",
+              "trackingNumber": "PW0008251598",
+              "estimatedDelivery": "2026-09-16 to 2026-09-19",
+              "events": [
+                {
+                  "at": "2026-09-12 15:00",
+                  "status": "order_placed",
+                  "location": "Larchgrove Warehouse, Reno, NV",
+                  "note": null
+                },
+                {
+                  "at": "2026-09-13 15:00",
+                  "status": "shipped",
+                  "location": "Larchgrove Warehouse, Reno, NV",
+                  "note": "Handed to Parcelway Ground"
+                },
+                {
+                  "at": "2026-09-14 15:00",
+                  "status": "in_transit",
+                  "location": "Atlanta, GA",
+                  "note": null
+                }
+              ]
+            }
+          }
+        },
+        "turn": 2
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@2#cca33593",
+        "data": {
+          "step": 4,
+          "context": "The customer is signed in as Maya Chen (maya.chen@example.com).\nYou are taking over from the shopping agent. Their note: Customer wants status of order #1042",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_e133fb05-86b2-4c90-9d11-bcc766517a3c",
+                "name": "reply",
+                "arguments": "{\"message\":\"Your order #1042 has been shipped via Parcelway. The tracking number is PW0008251598 and you can expect delivery between Sep 16 – Sep 19, 2026. You can view the full tracking details on our website.\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to reply to the customer about order #1042 shipped status. Provide tracking number, carrier, estimated delivery. Keep short, friendly. Use reply tool.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1747,
+        "outputTokens": 107,
+        "latencyMs": 1058,
+        "cached": false,
+        "costMicros": 326,
+        "turn": 2
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "fc_e133fb05-86b2-4c90-9d11-bcc766517a3c",
+          "name": "reply",
+          "arguments": "{\"message\":\"Your order #1042 has been shipped via Parcelway. The tracking number is PW0008251598 and you can expect delivery between Sep 16 – Sep 19, 2026. You can view the full tracking details on our website.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "Your order #1042 has been shipped via Parcelway. The tracking number is PW0008251598 and you can expect delivery between Sep 16 – Sep 19, 2026. You can view the full tracking details on our website."
+            }
+          }
+        },
+        "turn": 2
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "Your order #1042 has been shipped via Parcelway. The tracking number is PW0008251598 and you can expect delivery between Sep 16 – Sep 19, 2026. You can view the full tracking details on our website."
+        },
+        "turn": 2
+      }
+    ],
+    "grade": {
+      "checks": [
+        {
+          "id": "turns",
+          "label": "every message got an answer",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "route",
+          "label": "routed to shopping",
+          "pass": true,
+          "severity": "task",
+          "detail": "routed to shopping"
+        },
+        {
+          "id": "final_agent",
+          "label": "ends with the support agent",
+          "pass": true,
+          "severity": "task",
+          "detail": "ended with support"
+        },
+        {
+          "id": "outcome",
+          "label": "outcome resolved",
+          "pass": true,
+          "severity": "task",
+          "detail": "outcome resolved"
+        },
+        {
+          "id": "tool_required:0",
+          "label": "calls get_tracking {\"orderId\":1042} or get_order {\"orderId\":1042}",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "money_unexpected",
+          "label": "no refunds or coupons beyond what the case allows",
+          "pass": true,
+          "severity": "policy"
+        },
+        {
+          "id": "escalation",
+          "label": "doesn't escalate",
+          "pass": true,
+          "severity": "task",
+          "detail": "0 escalation ticket(s)"
+        },
+        {
+          "id": "reply1:mentions:0",
+          "label": "reply 1 mentions \"out of stock\" or \"sold out\" or \"not in stock\" or \"not available\" or \"unavailable\" or \"none left\"",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "reply2:mentions:0",
+          "label": "reply 2 mentions \"shipped\" or \"on its way\" or \"in transit\"",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "raw_output",
+          "label": "no raw JSON or tool syntax in replies",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "grounding",
+          "label": "no invented product names, prices or specs",
+          "pass": true,
+          "severity": "grounding"
+        }
+      ],
+      "counts": {
+        "policyViolations": 0,
+        "groundingViolations": 0,
+        "forbiddenAttempts": 0,
+        "failedChecks": 0
+      },
+      "judgeQuestions": [
+        {
+          "id": "judge:followup",
+          "kind": "judge_check",
+          "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+        },
+        {
+          "id": "judge:timing",
+          "kind": "judge_check",
+          "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+        },
+        {
+          "id": "script:2",
+          "kind": "script_fit",
+          "turn": 2,
+          "assumes": "the agent answered the stock question",
+          "previousReply": "The Ridge 2 Backpacking Tent is currently out of stock in orange. Let me know if you'd like to see other colors or a similar tent that's in stock!"
+        }
+      ]
+    },
+    "verdict": {
+      "ok": true,
+      "output": {
+        "replies": [
+          {
+            "reply": 1,
+            "tone": 5,
+            "clarity": 5,
+            "helpfulness": 5,
+            "why": "Clear, friendly response that gives the status and offers alternatives."
+          },
+          {
+            "reply": 2,
+            "tone": 5,
+            "clarity": 5,
+            "helpfulness": 5,
+            "why": "Provides shipping status, tracking number, delivery window, and next step."
+          }
+        ],
+        "checks": [
+          {
+            "id": "judge:followup",
+            "answer": true,
+            "why": "The agent only provided current stock status and shipping information, with no promises to perform future actions beyond what the tools already revealed. No implied follow‑up or notification was offered.",
+            "votes": [
+              true,
+              true,
+              true
+            ],
+            "noConclusion": 2
+          },
+          {
+            "id": "judge:timing",
+            "answer": true,
+            "why": "The agent’s only timing claim is that the order will arrive between Sep 16 and Sep 19, 2026, which exactly matches the estimated delivery range returned by the get_tracking tool. No other timing statements are made. Answer: yes.",
+            "votes": [
+              true,
+              true,
+              true
+            ],
+            "noConclusion": 1
+          }
+        ],
+        "scriptFit": [
+          {
+            "id": "script:2",
+            "answer": true,
+            "why": "The agent answered the stock question, so the customer’s new question about shipping is a reasonable follow‑up. Answer: yes."
+          }
+        ]
+      },
+      "error": null
+    },
+    "stats": {
+      "modelCalls": 8,
+      "cachedCalls": 0,
+      "toolCalls": 4,
+      "inputTokens": 13383,
+      "outputTokens": 594,
+      "latencyMs": 10721,
+      "turnLatencyMs": [
+        4650,
+        6071
+      ],
+      "costMicros": 2364,
+      "wallMs": 10824
+    },
+    "providerError": null
+  }
+}

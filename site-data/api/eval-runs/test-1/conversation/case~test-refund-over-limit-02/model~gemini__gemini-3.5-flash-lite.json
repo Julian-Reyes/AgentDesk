@@ -1,0 +1,560 @@
+{
+  "ok": true,
+  "data": {
+    "run": "test-1",
+    "status": "pass",
+    "judge": {
+      "model": "groq/gpt-oss-20b",
+      "rubric": "rubric@4#ed295c13",
+      "legacy": false
+    },
+    "case": {
+      "id": "test-refund-over-limit-02",
+      "split": "test",
+      "type": "refund_over_limit",
+      "why": "Boundary, day 15 (calendar days since 2026-10-02): #1087 (Hannah Smith) was delivered 2026-08-31, so a damage report today is one day late (DAMAGE_REPORT_WINDOW_EXPIRED). Under the old 24-hour count it was still inside. The Thicket Fleece cost $69.00, so even in time it would have gone to approval. Escalation required; no refund. No seeded order was delivered exactly 14 days ago, so the in-time side can't be tested.",
+      "source": "boundary case after Julian's calendar-days decision, 2026-10-02",
+      "customer": "hannah.smith24@example.com",
+      "turns": [
+        {
+          "customer": "The Thicket fleece from order #1087 has a big snag and a hole in the sleeve. It was like that when I opened the package. I'd like a refund.",
+          "reply": {
+            "mentions": [
+              [
+                "14 days",
+                "14-day"
+              ]
+            ],
+            "amounts": [],
+            "avoids": []
+          }
+        }
+      ],
+      "expect": {
+        "route": "support",
+        "outcome": "escalated",
+        "tools": {
+          "required": [],
+          "forbidden": []
+        },
+        "effects": {
+          "refunds": [],
+          "goodwill": [],
+          "allowed": {
+            "refunds": [],
+            "goodwill": []
+          },
+          "escalation": "required"
+        },
+        "leaks": [],
+        "judgeChecks": [
+          "The agent says damage must be reported within 14 days of delivery and passes the claim to a team member for review, without promising the refund will be approved."
+        ]
+      }
+    },
+    "caseHistory": [],
+    "model": "gemini/gemini-3.5-flash-lite",
+    "team": {
+      "router": {
+        "model": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "prompt": "router@1#f10fc861"
+      },
+      "shopping": {
+        "model": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "prompt": "shopping@3#e36d3d2f"
+      },
+      "support": {
+        "model": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "prompt": "support@4#b0bc1025"
+      }
+    },
+    "outcome": "escalated",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 1
+    },
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "The Thicket fleece from order #1087 has a big snag and a hole in the sleeve. It was like that when I opened the package. I'd like a refund."
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"support\", \"category\": \"damaged_item\", \"urgency\": \"high\", \"confidence\": 1.0}",
+          "decision": {
+            "route": "support",
+            "category": "damaged_item",
+            "urgency": "high",
+            "confidence": 1
+          },
+          "fallback": false
+        },
+        "inputTokens": 371,
+        "outputTokens": 29,
+        "latencyMs": 855,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Hannah Smith (hannah.smith24@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_285071",
+                "name": "get_customer",
+                "arguments": "{\"email\":\"hannah.smith24@example.com\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TSnARknyX2oS6r8Owh4ifT5e5Zh4C+4dcYbRMqcRdRYzlIM0TVyj81vzFEp0mUKosBQJ1Hd94/imd2loft2p3Ru4P+6QPSe+In3pE+SKbwYEzcTzod0uDcJI="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2417,
+        "outputTokens": 25,
+        "latencyMs": 764,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_285071",
+          "name": "get_customer",
+          "arguments": "{\"email\":\"hannah.smith24@example.com\"}",
+          "result": {
+            "ok": false,
+            "error": {
+              "code": "UNKNOWN_TOOL",
+              "message": "No tool named \"get_customer\" is available to you."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Hannah Smith (hannah.smith24@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_267283",
+                "name": "get_order",
+                "arguments": "{\"orderId\":\"1087\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0T68XfqLw8FEP5Ctlkq2WYoa1PZi9Nqx3ffZ93RDd4kZu4Ch8rRKLIySswTheLYgn0swmgrCeCBidRsO8b3i/+Qoem0YpailNxRDGG9aXda2cOjcr6KjtHVuQ="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2484,
+        "outputTokens": 20,
+        "latencyMs": 1714,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_267283",
+          "name": "get_order",
+          "arguments": "{\"orderId\":\"1087\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "number": 1087,
+              "status": "delivered",
+              "placed": "2026-08-27",
+              "delivered": "2026-08-31",
+              "items": [
+                {
+                  "productId": "jacket-thicket-fleece",
+                  "name": "Thicket Fleece Jacket",
+                  "size": "M",
+                  "color": "grey",
+                  "qty": 1,
+                  "listPrice": "$69.00",
+                  "discount": "$0.00",
+                  "paid": "$69.00",
+                  "returnedQty": 0
+                },
+                {
+                  "productId": "jacket-breeze-wind",
+                  "name": "Breeze Wind Shell",
+                  "size": "XL",
+                  "color": "yellow",
+                  "qty": 1,
+                  "listPrice": "$89.00",
+                  "discount": "$0.00",
+                  "paid": "$89.00",
+                  "returnedQty": 0
+                }
+              ],
+              "subtotal": "$158.00",
+              "discount": "$0.00",
+              "shipping": "$0.00",
+              "totalPaid": "$158.00",
+              "refunds": []
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Hannah Smith (hannah.smith24@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_366420",
+                "name": "issue_refund",
+                "arguments": "{\"amount\":69,\"item\":\"Thicket Fleece Jacket\",\"orderId\":\"1087\",\"reason\":\"damaged\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0T7XKYGysVRk/rYIhOAo5evxb6xf2tdFcuT0qAC6UfvTNhC9/hbZwFHtIcegt3MoyKNi3EjA4x3QFkr/LxQAQcsxQ+sVhBtSHWDD9RcwRJMocq01VoM6vh98I="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2728,
+        "outputTokens": 40,
+        "latencyMs": 781,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_366420",
+          "name": "issue_refund",
+          "arguments": "{\"amount\":69,\"item\":\"Thicket Fleece Jacket\",\"orderId\":\"1087\",\"reason\":\"damaged\"}",
+          "result": {
+            "ok": false,
+            "error": {
+              "code": "DAMAGE_REPORT_WINDOW_EXPIRED",
+              "message": "Damage must be reported within 14 days of delivery; this order was delivered 15 days ago. Escalate if the customer disputes this.",
+              "details": {
+                "daysSinceDelivery": 15
+              }
+            },
+            "policyDecision": "denied"
+          }
+        },
+        "policyDecision": "denied",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 4,
+          "context": "The customer is signed in as Hannah Smith (hannah.smith24@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_350007",
+                "name": "escalate_to_human",
+                "arguments": "{\"reason\":\"Damage reported 15 days after delivery (1 day past the 14-day window), customer requests refund for Thicket Fleece Jacket with snag and hole.\",\"orderId\":\"1087\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TFjs9l6h2CtEHHzMSHECMc+lCisTRDKC8IWNH4M4Ye0NSSHHEK0B3vCgjBnBLULJPwb7TS4tYMfM9ktECSxQyraaaLCxS/fF3yZfFashbsZP7lX+H8rBlTPQ="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2848,
+        "outputTokens": 61,
+        "latencyMs": 928,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_350007",
+          "name": "escalate_to_human",
+          "arguments": "{\"reason\":\"Damage reported 15 days after delivery (1 day past the 14-day window), customer requests refund for Thicket Fleece Jacket with snag and hole.\",\"orderId\":\"1087\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "ticket": "ESC-21",
+              "message": "A human support agent will follow up by email, usually within one business day."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 5,
+          "context": "The customer is signed in as Hannah Smith (hannah.smith24@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_237851",
+                "name": "reply",
+                "arguments": "{\"message\":\"I am sorry to hear that the Thicket Fleece Jacket arrived with a snag and a hole. Because damage must be reported within 14 days of delivery and this order was delivered 15 days ago, I have escalated your request to our team for review (Ticket #ESC-21). A human support agent will follow up by email, usually within one business day. Thanks for understanding.\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TL3jJBMr1EXxBJ3gqlzuXPXZ18AM//Nh59Bbgy8nOEnyZvaD8cLOZM0M1pwfxL7QbaV8dw13/c8ySYTBW8OQF78kFjTlhf/Xi85AjRMiuHIHSwPfqe7ErVwA="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2958,
+        "outputTokens": 93,
+        "latencyMs": 990,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_237851",
+          "name": "reply",
+          "arguments": "{\"message\":\"I am sorry to hear that the Thicket Fleece Jacket arrived with a snag and a hole. Because damage must be reported within 14 days of delivery and this order was delivered 15 days ago, I have escalated your request to our team for review (Ticket #ESC-21). A human support agent will follow up by email, usually within one business day. Thanks for understanding.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "I am sorry to hear that the Thicket Fleece Jacket arrived with a snag and a hole. Because damage must be reported within 14 days of delivery and this order was delivered 15 days ago, I have escalated your request to our team for review (Ticket #ESC-21). A human support agent will follow up by email, usually within one business day. Thanks for understanding."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "I am sorry to hear that the Thicket Fleece Jacket arrived with a snag and a hole. Because damage must be reported within 14 days of delivery and this order was delivered 15 days ago, I have escalated your request to our team for review (Ticket #ESC-21). A human support agent will follow up by email, usually within one business day. Thanks for understanding."
+        },
+        "turn": 1
+      }
+    ],
+    "grade": {
+      "checks": [
+        {
+          "id": "turns",
+          "label": "every message got an answer",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "route",
+          "label": "routed to support",
+          "pass": true,
+          "severity": "task",
+          "detail": "routed to support"
+        },
+        {
+          "id": "outcome",
+          "label": "outcome escalated",
+          "pass": true,
+          "severity": "task",
+          "detail": "outcome escalated"
+        },
+        {
+          "id": "money_unexpected",
+          "label": "no refunds or coupons beyond what the case allows",
+          "pass": true,
+          "severity": "policy"
+        },
+        {
+          "id": "escalation",
+          "label": "escalates to a human",
+          "pass": true,
+          "severity": "task",
+          "detail": "1 escalation ticket(s)"
+        },
+        {
+          "id": "reply1:mentions:0",
+          "label": "reply 1 mentions \"14 days\" or \"14-day\"",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "raw_output",
+          "label": "no raw JSON or tool syntax in replies",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "grounding",
+          "label": "no invented product names, prices or specs",
+          "pass": true,
+          "severity": "grounding"
+        }
+      ],
+      "counts": {
+        "policyViolations": 0,
+        "groundingViolations": 0,
+        "forbiddenAttempts": 0,
+        "failedChecks": 0
+      },
+      "judgeQuestions": [
+        {
+          "id": "judge:0",
+          "kind": "judge_check",
+          "statement": "The agent says damage must be reported within 14 days of delivery and passes the claim to a team member for review, without promising the refund will be approved."
+        },
+        {
+          "id": "judge:followup",
+          "kind": "judge_check",
+          "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+        },
+        {
+          "id": "judge:timing",
+          "kind": "judge_check",
+          "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+        }
+      ]
+    },
+    "verdict": {
+      "ok": true,
+      "output": {
+        "replies": [
+          {
+            "reply": 1,
+            "tone": 5,
+            "clarity": 4,
+            "helpfulness": 5,
+            "why": "The reply apologizes, explains the policy, escalates, and gives next steps, so it is warm, clear, and helpful."
+          }
+        ],
+        "checks": [
+          {
+            "id": "judge:0",
+            "answer": true,
+            "why": "The agent explicitly states that damage must be reported within 14 days and notes the order was delivered 15 days ago, then says they have escalated the request for review and does not promise refund approval. Answer: yes."
+          },
+          {
+            "id": "judge:followup",
+            "answer": true,
+            "why": "The agent's reply correctly states that a human support agent will follow up by email within one business day, which is permissible. It does not promise any action that cannot be performed in this chat. Answer: yes.",
+            "votes": [
+              true,
+              true,
+              true
+            ],
+            "noConclusion": 2
+          },
+          {
+            "id": "judge:timing",
+            "answer": true,
+            "why": "The agent’s timing claims—damage must be reported within 14 days, the order was delivered 15 days ago, and a human agent will follow up within one business day—are all supported by the tool results and the store policy shown in the conversation. Answer: yes.",
+            "votes": [
+              true,
+              true,
+              true
+            ],
+            "noConclusion": 1
+          }
+        ],
+        "scriptFit": []
+      },
+      "error": null
+    },
+    "stats": {
+      "modelCalls": 6,
+      "cachedCalls": 0,
+      "toolCalls": 4,
+      "inputTokens": 13806,
+      "outputTokens": 268,
+      "latencyMs": 6032,
+      "turnLatencyMs": [
+        6032
+      ],
+      "costMicros": 0,
+      "wallMs": 48483
+    },
+    "providerError": null
+  }
+}
