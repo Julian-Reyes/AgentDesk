@@ -85,6 +85,24 @@ Every number below comes from the provider's **official docs**. Third-party blog
 - The OpenAI-compatible endpoint can't set the context size per request, so the server must be started with `OLLAMA_CONTEXT_LENGTH` (we use 16384). Otherwise long prompts are silently truncated at 4096 tokens.
 - Sources: [OpenAI compatibility](https://docs.ollama.com/api/openai-compatibility), [FAQ](https://docs.ollama.com/faq), [macOS requirements](https://docs.ollama.com/macos), [tools models](https://ollama.com/search?c=tools).
 
+### Hosting for M5 (checked 2026-10-05; nothing signed up)
+- **Render, free web service** ([docs](https://render.com/docs/free)):
+  - 750 instance-hours/month per workspace, one instance
+  - spins down after 15 min without traffic; ~1 min to restart
+  - no persistent disk (the filesystem resets on redeploy)
+  - **over a limit: billed if a payment method is on file, otherwise suspended.** So: no card.
+  - Static sites are free, use the same bandwidth/build allowances, and don't spin down.
+  - Rewrites can point at a full external URL ([docs](https://render.com/docs/redirects-rewrites)); streaming through them isn't documented.
+- **Render, free Postgres:** **expires 30 days after creation**, then a 14-day grace period before deletion ([docs](https://render.com/docs/free)). Not usable for a lasting demo.
+- **Neon, free plan** ([FAQ](https://neon.com/faqs/free-plan-limits-and-quotas)):
+  - 100 CU-hours per project per month; 1 GB storage per project (20 GB total)
+  - 5 GB public egress per project per month
+  - scales to zero after 5 min (can't be disabled)
+  - **at a limit, compute is suspended or writes fail; "Neon does not bill overages on the Free plan."**
+- **Supabase, free plan** (third-party summaries, e.g. [UI Bakery](https://uibakery.io/blog/supabase-pricing)): 500 MB database; **a project pauses after 7 days without database activity** and must be un-paused by hand.
+- **Google Cloud Run, always free:** 2M requests, 180K vCPU-s and 360K GiB-s per month, but **a billing account must be linked** ([summary](https://lalatenduswain.medium.com/building-cloud-native-apps-for-free-in-2026-the-complete-developers-guide-to-google-cloud-s-3d93b77c4adb)).
+- **Gemini API free tier for a public demo:** Google may use free-tier prompts and responses to improve its products, and human reviewers may read them ([summary](https://apisrouter.com/gemini-ai-free)). Fine for fictional store data, but visitors must be told not to type personal information. Quotas are per project, so a separate demo project keeps the demo from using the eval quota.
+
 ## What the limits mean for eval runs (rough, to be replaced by measured numbers)
 
 The binding limit is usually **tokens per day**, not requests. Each model call re-sends the system prompt, the tool schemas and the conversation so far.
