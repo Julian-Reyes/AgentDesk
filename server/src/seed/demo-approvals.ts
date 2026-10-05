@@ -63,7 +63,7 @@ export const DEMO_APPROVALS: DemoApproval[] = [
         reason: "damaged",
         item: "bag-ember-minus10",
         cause: "arrived_damaged",
-        note: "The Ember -10°C sleeping bag arrived with a torn baffle and down coming out. Reported 8 days after delivery, with photos offered.",
+        note: "The Ember -10°C sleeping bag arrived with a torn baffle and down coming out. Reported 8 days after delivery.",
       },
     },
   },
