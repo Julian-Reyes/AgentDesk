@@ -112,6 +112,18 @@ describe("GET /api/eval-runs (saved eval runs, from their files)", () => {
       expect(data.judge.model).toBe("groq/gpt-oss-20b");
     }));
 
+  it("each run is shown with the judge that judged it; pilot-1's older Gemma/rubric@1 setup is marked legacy (Julian, 2026-10-05)", () =>
+    inTx(async (tx) => {
+      const app = appFor(tx);
+      const runs = (await get(app, "/api/eval-runs")).data.runs;
+      expect(runs.find((r: any) => r.name === "test-1").judge).toEqual({ model: "groq/gpt-oss-20b", rubric: expect.stringMatching(/^rubric@4#/), legacy: false });
+      expect(runs.find((r: any) => r.name === "pilot-1").judge).toEqual({ model: "gemini/gemma-4-31b", rubric: "rubric@1#c190deec", legacy: true });
+      // With its own judge, pilot-1 reads as its report did at the time: 3 pass, 2 fail (with today's judge, all 5 would be "judge pending").
+      const { data } = await get(app, "/api/eval-runs/pilot-1/conversations");
+      expect(data.judge.legacy).toBe(true);
+      expect(data.conversations.map((c: any) => c.status).sort()).toEqual(["fail", "fail", "pass", "pass", "pass"]);
+    }));
+
   it("names that aren't saved runs are 404, including paths that try to leave the folder", () =>
     inTx(async (tx) => {
       const app = appFor(tx);

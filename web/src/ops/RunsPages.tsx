@@ -9,6 +9,7 @@ import {
   type EvalConversationRow,
   type EvalRunInfo,
   type LiveRun,
+  type RunJudge,
   type TraceStep,
 } from "../lib/api.ts";
 import { when } from "./approvals.ts";
@@ -193,7 +194,7 @@ export function EvalRunsPage() {
       {data && (
         <>
           <p className="mb-3 text-xs text-stone-500">
-            Saved eval runs, graded with the current grader and judged by {data.judge.model} ({data.judge.rubric}), as in their reports.
+            Saved eval runs, graded with the current grader and judged by {data.judge.model} ({data.judge.rubric}), as in their reports, unless marked as an older judge setup.
           </p>
           <ul className="divide-y divide-stone-200 rounded-md border border-stone-200 bg-white text-sm">
             {data.runs.map((r: EvalRunInfo) => (
@@ -204,6 +205,7 @@ export function EvalRunsPage() {
                     · {r.split} set · prompts {r.promptSet ?? "round-0"} · {r.cases} cases × {r.models.length} model{r.models.length === 1 ? "" : "s"}
                   </span>
                   <span className="block text-xs text-stone-500">{r.models.join(", ")}</span>
+                  {r.judge.legacy && <LegacyJudge judge={r.judge} />}
                 </a>
               </li>
             ))}
@@ -211,6 +213,15 @@ export function EvalRunsPage() {
         </>
       )}
     </div>
+  );
+}
+
+/** The label for a run judged by an older setup (pilot-1), so its results aren't read as comparable. */
+function LegacyJudge({ judge }: { judge: RunJudge }) {
+  return (
+    <span className="mt-1 mb-2 block rounded bg-amber-50 px-2 py-1 text-xs text-amber-800">
+      Older judge setup: judged by {judge.model} with {judge.rubric.split("#")[0]}, before the switch to today's judge. Not comparable with later runs.
+    </span>
   );
 }
 
@@ -225,6 +236,7 @@ export function EvalRunPage({ run }: { run: string }) {
     <div>
       <RunsTabs active="eval" />
       <h2 className="mb-2 text-lg font-semibold">{run}</h2>
+      {data?.judge.legacy && <LegacyJudge judge={data.judge} />}
       {error && <p className="rounded-md bg-rust-50 p-3 text-sm text-rust-600">{error}</p>}
       {!data && !error && <p className="text-stone-500">Grading…</p>}
       {data && (
@@ -286,7 +298,7 @@ function EvalConversationView({ c }: { c: EvalConversation }) {
           ["Model", c.model],
           ["Final status", c.status.replace("_", " ")],
           ["Outcome", c.outcome],
-          ["Judge", `${c.judge.model}, ${c.judge.rubric}`],
+          ["Judge", `${c.judge.model}, ${c.judge.rubric}${c.judge.legacy ? " (older judge setup, not comparable with later runs)" : ""}`],
           ...(c.providerError ? ([["Provider error", c.providerError]] as [string, string][]) : []),
         ]}
       />

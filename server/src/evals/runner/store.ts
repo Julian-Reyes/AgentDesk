@@ -141,6 +141,24 @@ export class RunStore {
     const p = this.judgePath(judgeModel, rubric, model, caseId);
     return existsSync(p) ? readJson<JudgeRecord>(p) : null;
   }
+  /** Every judge (model + rubric) with at least one saved verdict in this run, read from the verdicts themselves. */
+  judges(): { model: string; rubric: string }[] {
+    const root = join(this.dir, "judge");
+    if (!existsSync(root)) return [];
+    const found = new Map<string, { model: string; rubric: string }>();
+    for (const judgeDir of readdirSync(root).sort()) {
+      for (const rubricDir of readdirSync(join(root, judgeDir)).sort()) {
+        for (const modelDir of readdirSync(join(root, judgeDir, rubricDir)).sort()) {
+          const file = readdirSync(join(root, judgeDir, rubricDir, modelDir)).find((f) => f.endsWith(".json"));
+          if (!file) continue;
+          const r = readJson<JudgeRecord>(join(root, judgeDir, rubricDir, modelDir, file));
+          found.set(`${r.judgeModel} ${r.rubric}`, { model: r.judgeModel, rubric: r.rubric });
+          break;
+        }
+      }
+    }
+    return [...found.values()];
+  }
   saveJudge(r: JudgeRecord) {
     writeJson(this.judgePath(r.judgeModel, r.rubric, r.agentModel, r.caseId), r);
   }

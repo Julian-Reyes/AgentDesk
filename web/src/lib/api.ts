@@ -251,7 +251,9 @@ export type LiveRun = {
   firstMessage?: string | null;
 };
 export type EvalStatus = "pass" | "fail" | "script_mismatch" | "judge_pending" | "judge_failed" | "provider_error";
-export type EvalRunInfo = { name: string; split: string; promptSet: string | null; models: string[]; cases: number; createdAt: string };
+/** The judge a run is shown with; legacy = an older judge setup (pilot-1: Gemma 4 31B, rubric@1), not comparable with later runs. */
+export type RunJudge = { model: string; rubric: string; legacy: boolean };
+export type EvalRunInfo = { name: string; split: string; promptSet: string | null; models: string[]; cases: number; createdAt: string; judge: RunJudge };
 export type EvalConversationRow = {
   caseId: string;
   type: string;
@@ -267,7 +269,7 @@ export type JudgeAnswer = { id: string; answer: boolean; why: string; votes?: bo
 export type EvalConversation = {
   run: string;
   status: EvalStatus;
-  judge: { model: string; rubric: string };
+  judge: RunJudge;
   case: { id: string; type: string; split: string; why: string; customer?: string | null; turns: { customer: string; assumes?: string }[]; expect: Record<string, unknown> };
   model: string;
   outcome: Outcome;
@@ -290,6 +292,6 @@ export const getLiveRun = (id: string, token: string) =>
   request<{ run: LiveRun; steps: TraceStep[] }>(`/api/admin/runs/${encodeURIComponent(id)}`, { headers: bearer(token) });
 export const getEvalRuns = () => request<{ runs: EvalRunInfo[]; judge: { model: string; rubric: string } }>("/api/eval-runs");
 export const getEvalConversations = (run: string) =>
-  request<{ run: string; models: string[]; conversations: EvalConversationRow[] }>(`/api/eval-runs/${encodeURIComponent(run)}/conversations`);
+  request<{ run: string; models: string[]; judge: RunJudge; conversations: EvalConversationRow[] }>(`/api/eval-runs/${encodeURIComponent(run)}/conversations`);
 export const getEvalConversation = (run: string, model: string, caseId: string) =>
   request<EvalConversation>(`/api/eval-runs/${encodeURIComponent(run)}/conversation?${new URLSearchParams({ model, case: caseId })}`);
