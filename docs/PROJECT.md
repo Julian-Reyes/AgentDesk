@@ -5,7 +5,7 @@ This is a portfolio project for **AI Agent Engineer / Applied AI** roles. Those 
 
 Keep it **simple, polished, and honest.** A small system that works, with real numbers, beats a big one that's half built.
 
-**No fixed deadline.** Finish each milestone fully (tests passing, `PROGRESS.md` updated) before starting the next.
+**No fixed deadline.** Finish each milestone fully (tests passing, `PROGRESS.md` updated) before starting the next. `PROGRESS.md` is the short current status; the detailed record is in `docs/history/`.
 
 **Related project:** a separate project, ShopRoute-SLM, benchmarks small decision models for support triage. Later, its winning model may become this project's Router (see "Later: ShopRoute router"). Keep the Router behind a clean interface so it can be swapped, but don't build anything for ShopRoute now.
 
@@ -169,7 +169,7 @@ Once both projects are done, the Router can be swapped for the best model from S
 ## Working rules (also put these in CLAUDE.md)
 - **Explain non-obvious decisions in plain language as you go.** I want to understand the code, not just have it.
 - Run the tests before saying something works. Never weaken tests to make them pass.
-- After each milestone: update `PROGRESS.md` and commit.
+- After each milestone: update `PROGRESS.md` (current status) and `docs/history/M<n>.md` (the detailed record), and commit.
 - Keep secrets out of the repo, and provide a `.env.example`.
 - Ask before adding dependencies beyond those listed, and before any spending.
 

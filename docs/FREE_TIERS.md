@@ -103,7 +103,7 @@ A typical one-turn conversation used **4–6 calls and ~4.5–9K input tokens** 
 | | Calls per 150-conversation run | Tokens per run | Days per full run at the free limit |
 | --- | --- | --- | --- |
 | Groq gpt-oss-120b (200K TPD, 8K TPM) | ~600–900 | ~1–1.5M (measured ~4.5–9K per conversation) | **~5–7 days** per model; at 8K TPM, ~3 agent calls/minute, so a multi-step turn can take 1–2 minutes |
-| Gemini 3.8 Flash (5 RPM, **20 RPD**) | ~600–900 | ~1.2–3.5M | **~30–45 days** per model at 20 requests/day. Not viable without a change (see PROGRESS.md) |
+| Gemini 3.8 Flash (5 RPM, **20 RPD**) | ~600–900 | ~1.2–3.5M | **~30–45 days** per model at 20 requests/day. Not viable without a change (see docs/history/M2.md) |
 | Ollama (Mac mini) | ~600–900 | n/a | limited by speed; measured in the smoke test |
 
 What follows from this:

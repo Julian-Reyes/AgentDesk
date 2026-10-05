@@ -4,7 +4,7 @@
 
 ## Item: the `/ops` overview page (Julian, 2026-10-02)
 
-**Built 2026-10-05** from the mockup Julian approved (https://claude.ai/artifact/Lvwjjp8rXrYM2cHFV5uodU), before the switch/retire decision (gate relaxed by Julian). `/ops/` now opens on it. See PROGRESS.md, "The /ops overview page". The plan below is kept as written.
+**Built 2026-10-05** from the mockup Julian approved (https://claude.ai/artifact/Lvwjjp8rXrYM2cHFV5uodU), before the switch/retire decision (gate relaxed by Julian). `/ops/` now opens on it. See docs/history/M5.md, "The /ops overview page". The plan below is kept as written.
 
 `/ops` opens on an overview page instead of an empty Approvals page. It's the first thing a visitor to the public demo sees, so it should be visually distinctive and screenshot-friendly, not a generic dashboard.
 
@@ -33,7 +33,7 @@
    - an expired coupon rejected
 
    **Links go to public eval traces** (`#/evals/<run>/<model>/<case>`). Live traces are admin-only (Julian, 2026-10-02), so they can't be the public evidence.
-7. **"What the evals caught".** Real findings from the eval history, each with its run and its fix. Examples already in PROGRESS: the $50-split refund bypass (2026-09-29), lenient order-item matching, the cart claim and follow-up promises, garbled replies being held back. Weaknesses stay visible.
+7. **"What the evals caught".** Real findings from the eval history, each with its run and its fix. Examples already in docs/history/: the $50-split refund bypass (2026-09-29), lenient order-item matching, the cart claim and follow-up promises, garbled replies being held back. Weaknesses stay visible.
 8. **Clear next-step links:** try the chat (storefront), the Model comparison, Runs (eval traces), Approvals, and Agents.
 
 ### Rules

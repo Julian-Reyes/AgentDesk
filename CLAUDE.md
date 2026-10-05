@@ -1,10 +1,12 @@
 # AgentDesk — working rules
-Full spec: docs/PROJECT.md. Progress: PROGRESS.md.
+Full spec: docs/PROJECT.md. Current status: PROGRESS.md. History: docs/history/M1.md … M5.md.
+
+**At session start, read only PROGRESS.md.** Open docs/history/ or the plans only when a task needs that detail.
 
 ## How to work with me
 - Explain non-obvious decisions in plain language as you go. I want to understand the code, not just have it.
 - Run the tests before saying something works. Never weaken tests to make them pass.
-- After each milestone: update PROGRESS.md and commit.
+- After each milestone: update PROGRESS.md and commit. Keep PROGRESS.md short (current status, next steps, open items, budget); the detailed record (decisions, numbers, what changed and why) goes in docs/history/M<n>.md for that milestone.
 - Within a milestone, commit at sensible checkpoints (a coherent chunk with tests and typecheck passing), with a message saying the milestone is in progress.
 - A pre-commit hook (`.githooks/pre-commit`) runs `npm run typecheck && npm test` and blocks the commit if either fails. Enable it once per clone with `git config core.hooksPath .githooks`. Never bypass it with `--no-verify`; fix the failure instead.
 - Keep secrets out of the repo; maintain .env.example.
