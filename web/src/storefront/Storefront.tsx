@@ -25,7 +25,12 @@ export function Storefront() {
             <p className="text-2xl font-semibold tracking-tight text-forest-800">Larchgrove Supply Co.</p>
             <p className="text-sm text-stone-600">Tents, packs and layers for the trail. Ships from Reno, NV.</p>
           </div>
-          <p className="text-sm text-stone-600">Questions about gear or an order? Use the chat, bottom right.</p>
+          <div className="flex flex-col gap-1 text-sm sm:items-end">
+            <p className="text-stone-600">Questions about gear or an order? Use the chat, bottom right.</p>
+            <a href="/ops/" className="font-medium text-forest-700 underline-offset-2 hover:underline">
+              Ops dashboard: see how the agents work →
+            </a>
+          </div>
         </div>
       </header>
 

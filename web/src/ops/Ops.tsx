@@ -72,6 +72,9 @@ export function Ops() {
                 {label}
               </a>
             ))}
+            <a href="/" className="text-stone-600 hover:text-forest-700">
+              Storefront
+            </a>
           </nav>
         </div>
         <AdminToken token={token} onChange={saveToken} width={width} />
