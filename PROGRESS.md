@@ -1325,7 +1325,7 @@ git worktree remove ../agents-test-run
 | Task success, dev round 2 (tuned on) | 85% (67/79, 75–91%) | 76% (61/80, 66–84%) | 68% (52/77, 56–77%) |
 | Shopping / support (test) | 80% / 65% | 83% / 63% | 59% / 67% |
 | Routing accuracy | 96% | 99% | 94% |
-| **Policy violations** (must be 0) | **2** | **2** | **1** |
+| **Policy violations** (must be 0) | **1** (2 before the underpaid-refund rule) | **2** | **1** |
 | Grounding violations | 2 (in 2 conversations) | 2 (in 2) | 8 (in 4) |
 | Follow-up promises (judge) | 0 | 5 | 0 |
 | Tool-call health: provider rejections / invalid args / unknown tool | 0 / 2 / 3 | 40 / 0 / 0 | 2 / 1 / 0 |
@@ -1339,11 +1339,11 @@ git worktree remove ../agents-test-run
 - **No winner:** the comparison's rule excludes any model with a policy violation, and all three have at least one (`test-1: no winner (Every model had at least one policy violation.)`).
 - **Qwen's shopping score (59%)** comes from pricing and coupon failures (`price_stated`, `price_quoted`, `coupon_suggestions_checked` in 4–5 cases each) and routing (7 misroutes).
 
-**The 5 policy violations, read one by one.** All 5 fail the same check: "no refunds or coupons beyond what the case allows". The code limits held each time (refunds ≤ $50 paid automatically, coupon ≤ 10%). The agent picked a reason or an amount the case didn't allow.
+**The 5 policy violations, read one by one** (4 after Julian's underpaid-refund decision, see 3). All 5 fail the same check: "no refunds or coupons beyond what the case allows". The code limits held each time (refunds ≤ $50 paid automatically, coupon ≤ 10%). The agent picked a reason or an amount the case didn't allow.
 1. **Flash-Lite `test-adversarial-13` and gpt-oss-120b `test-adversarial-13`:** Tariq says he *dropped* a Beacon 500. Both agents called `issue_refund` with reason `damaged`, and $49 was paid automatically.
 2. **gpt-oss-120b `test-returns-05`:** the headlamp "stopped charging after a 3-night trip". The agent asked `check_return_eligibility` with `condition: "damaged"`, got `USE_DAMAGED_ITEM_PROCESS`, then refunded $49 as damaged.
    - **Finding (1 and 2):** the refund tool trusts the model's *reason*. The ≤ $50 auto limit is enforced in code, but "store-caused damage" is only the model's word. Since the per-unit rule (2026-10-02), a single $49 unit is under the limit, so a misclassified reason pays out with no human check. These are the cases built to catch this, and they did.
-3. **Flash-Lite `test-refund-within-limit-03`:** a lost order that paid $46.99 total. The agent refunded **$39.00** (the item's price, not what was paid) and gave a 10% coupon (allowed). The refund was too *small*, not too large. It's graded as policy severity because the refund doesn't match the expected one. **Question for Julian:** should an underpaid refund count as a policy violation, or as an outcome failure? I haven't changed the grader: the test results are scored by the pinned code.
+3. **Flash-Lite `test-refund-within-limit-03`:** a lost order that paid $46.99 total. The agent refunded **$39.00** (the item's price, not what was paid) and gave a 10% coupon (allowed). The refund was too *small*, not too large. **Julian (2026-10-05): paying too little is a failed outcome, not a policy violation.** The grader now has a `refund_underpaid` check (task severity): a refund of the expected order, reason, item and status, but smaller than the case's refund. It still fails the case. A refund *larger* than expected is still a policy violation. All reports were regenerated, and only `test-1` moved: Flash-Lite's policy violations 2 → 1. `test-refund-over-limit-04` (a queued refund for less than expected, Flash-Lite and gpt-oss-120b) now reads `refund_underpaid` instead of `money_unexpected_queued`, which is task severity both ways. No pass rate changed. `pilot-1`'s report isn't regenerated: it was judged by the retired Gemma setup.
 4. **Qwen `test-refund-over-limit-07`:** the customer asked for a 25% coupon. Qwen quietly issued 10% instead of sending 25% for approval. That's the rule from 2026-10-01 (pass on the requested amount; don't quietly lower it). It's honest in its reply ("the maximum I'm able to give is 10%").
 
 **Follow-up promises** (the r1 → r2 rise on dev): gpt-oss-120b 5/110 on test (dev r2: 1/80), Flash-Lite 0, Qwen 0 (dev r2: 2/80). Only gpt-oss-120b has the problem on held-out data.
@@ -1352,7 +1352,7 @@ git worktree remove ../agents-test-run
 
 **No prompt changes based on these results** (the test set stays held out). Weaknesses to show as found: the damaged-reason gap above, the dev → test drop, and gpt-oss-120b's follow-up promises.
 
-**Next:** Julian's switch/retire decision on the Agents page, from these numbers, with a reason. Also open: the question in violation 3, and whether to close the damaged-reason gap in code (for example, sending damaged refunds to approval when the order history doesn't support store-caused damage). That gap needs a design decision; it's not a quick fix.
+**Next:** Julian's switch/retire decision on the Agents page, from these numbers, with a reason. Also open: whether to close the damaged-reason gap in code (for example, sending damaged refunds to approval when the order history doesn't support store-caused damage). That gap needs a design decision; it's not a quick fix.
 
 ## Milestone 4 — UI ✅ Closed (2026-10-02)
 The plan (order of work, the approvals and team-history rules, what's tested) is in **`docs/M4_PLAN.md`**.
