@@ -1354,6 +1354,8 @@ git worktree remove ../agents-test-run
 
 **Next:** Julian's switch/retire decision on the Agents page (Julian does it himself). The damaged-reason gap: see below.
 
+**Grading miss, found 2026-10-05 (not fixed yet):** in test-1, Flash-Lite's reply on `test-invalid-coupon-01` begins with raw tool syntax: "Ibruf:default_api:reply{message:Coupon WELCOME5 could not be applied…". The customer would have seen that, yet the case passed and the report counts 0 garbled replies for Flash-Lite. The global "no raw JSON or tool syntax" check and the reply sanity check both missed this shape. Next: add it to the garbled-reply detector's tests, re-grade (`eval:report` per run, `eval:sets`), and record which numbers move.
+
 ### Renamed to AgentDesk; GitHub (2026-10-05)
 - **Rename** (Julian): "Switchyard Lite" became "AgentDesk" everywhere in the repo. That includes package names, `.env.example`, and the test DB fallbacks. The local Postgres databases were renamed with `ALTER DATABASE … RENAME TO` to `agentdesk_dev` / `agentdesk_test`, and the two DB lines in `.env` were updated.
   - **On another clone or machine:** rename the databases the same way (or `createdb agentdesk_dev && createdb agentdesk_test`, then migrate and seed), and update `.env`.
