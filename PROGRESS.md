@@ -44,20 +44,21 @@ _Last updated 2026-10-06._
    - The favicon was added 2026-10-05 (a router node handing off to two agents).
 2. **The damage-cause rule, re-measured** (`dev-dmg-1`…`3`, 18 conversations per model, ≈ $0.09 in all; details in M3 history, 2026-10-05 and -06).
    - **It held for both models:** 0 of 6 dropped or failed-after-use lamps refunded (test-1: gpt-oss refunded both), every legitimate damage refund made. 0 policy violations.
-   - Passed: **Flash-Lite 14/18, gpt-oss-120b 13/18.** gpt-oss fails on reply wording. Flash-Lite **guesses which item broke** instead of asking (3 of 3 tries on `refund-within-limit-03`; once it sent a $329 refund for the wrong item to approval). The code rules held. **Julian's call:** leave it, or add a prompt line later (prompts are frozen for the comparison).
+   - Passed: **Flash-Lite 14/18, gpt-oss-120b 13/18.** gpt-oss fails on reply wording. Flash-Lite **guesses which item broke** instead of asking (3 of 3 tries on `refund-within-limit-03`; once it sent a $329 refund for the wrong item to approval). The code rules held. **Julian (2026-10-06): left as a documented weakness; fixed in code in round 3** (see Next 5).
    - **The `approval_needed` puzzle was a case bug:** 3 dev cases allowed a queued coupon but didn't accept `approval_needed`. Fixed, and the case validator now catches this. The test set was clean.
 3. **Then M3's open items:**
    - judge calibration on weak replies
    - **the 4th (small open) model:** Ollama on the Mac mini for development, Modal for the official runs (cost estimate and spending limit first)
    - maybe another model
 4. **Further switch/retire decisions (Julian), after 3:** with the Ollama model, and maybe another, in the comparison. Then re-export and push.
+5. **Round 3 (planned, not started):** a code guard in `issue_refund`: a damaged refund on a multi-item order only for an item the customer named in their own messages, else "ask the customer which item". It ships with any prompt changes and is measured in a new labelled run. Design notes in M3 history, "Julian's decisions on `dev-dmg`".
 
 ## Open items
 - **M3:**
   - judge score calibration on weak replies
   - the 4th (small open, local) model
   - gpt-oss-120b's follow-up promises (5 of 110 on test)
-  - Flash-Lite guesses the damaged item instead of asking (dev only so far)
+  - Flash-Lite guesses the damaged item instead of asking (dev only so far; round-3 code guard planned)
 - **M4 → M5:**
   - quality intervals can go past 5 (clamp or use a bounded method, then re-generate the reports)
   - decide whether the Approvals page's model-written notes are admin-only
