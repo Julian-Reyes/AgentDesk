@@ -33,8 +33,8 @@ _Last updated 2026-10-06._
 - **Rename:** "Switchyard Lite" is now **AgentDesk**. The local databases are `agentdesk_dev` / `agentdesk_test`.
 
 ## Budget
-- **Groq:** ≈ $6.85 of the $8 cycle spent, counted from 2026-09-30. The reset date is unknown (Julian: Groq console → Settings → Billing).
-- **Flash-Lite:** free, ~500 requests/day, resets at 04:00 local.
+- **Groq:** ≈ $7.07 of the $8 cycle spent, counted from 2026-09-30. The reset date is unknown (Julian: Groq console → Settings → Billing).
+- **Flash-Lite:** paid tier since 2026-10-06 ($0.30 / $2.50 per 1M), no daily cap. ≈ $0.06 recorded so far (up to ≈ $0.22 if `dev-r3` was billed).
 - **Modal:** unused.
 - Any run costs: give an estimate first.
 
@@ -43,9 +43,10 @@ _Last updated 2026-10-06._
    - To update it: commit, `npm run export:static`, commit `site-data/`, push. CI rebuilds and deploys.
    - **Julian checks it on his phone.**
 2. **M6 (Story), in progress; plan `docs/M6_PLAN.md`.**
-   - ✅ Round 3's item guard built and tested (M6 history).
-   - Next: the dev check `dev-r3` (cost estimate first), then `test-2` on Flash-Lite and gpt-oss-120b (≈ $0.45, after 04:00 for Flash-Lite's quota).
-   - Then Julian's decisions, README, the case study (Claude drafts, Julian edits), polish.
+   - ✅ Round 3's item guard built and checked on dev (`dev-r3`: Flash-Lite 86%, gpt-oss-120b 69%; the guard fired once, and the agent asked).
+   - ✅ Flash-Lite on the paid tier (2026-10-06): real cost recorded, tier in manifests, latency flagged in reports.
+   - **Waiting on Julian:** gpt-oss refunded a lamp that failed after use as `arrived_damaged` (`dev-r3-dmg-2`); then go/no-go for `test-2` (≈ $0.80: Flash-Lite ≈ $0.38, Groq ≈ $0.45).
+   - Then Julian's switch/retire decisions, README, the case study (Claude drafts, Julian edits; sections 1–4 drafted), polish.
 
 ## Open items
 - **Carried from M3** (closed 2026-10-06; details in M3 history, "Milestone 3 closed"):
