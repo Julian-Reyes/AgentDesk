@@ -32,7 +32,7 @@ describe("GET /api/agents", () => {
       expect(data.roles[2].history).toEqual([expect.objectContaining({ action: "initial", toModel: LITE, decidedBy: "system" })]);
       expect(data.roles[2].since).toBeNull(); // the initial row only marks when the history began
       expect(data.envOverride).toBeNull();
-      expect(data.liveWindowDays).toBe(7);
+      expect(data).not.toHaveProperty("liveWindowDays"); // live numbers are all time since 2026-10-06
       const byId = new Map(data.models.map((m: any) => [m.id, m]));
       expect(byId.get(LITE)).toMatchObject({ paid: true }); // paid tier since 2026-10-06
       expect(byId.get(OSS)).toMatchObject({ paid: true });

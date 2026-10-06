@@ -36,19 +36,31 @@ describe("GET /api/comparison", () => {
 });
 
 describe("the Agents page's eval block", () => {
-  it("comes from the default set: per model, each role's result", () =>
+  it("per model, from the first agentsPage set that has it: test-2, and test-1 for Qwen (Julian, 2026-10-06)", () =>
     inTx(async (tx) => {
       const app = testApp(tx, { over: { agents: { teamFile: () => FILE } } }).app;
       const { data } = await json(await app.request("/api/agents"));
-      const set = readComparisonSet("test-1")!;
-      expect(data.eval.set).toEqual({ id: "test-1", label: set.label, split: "test" });
-      const lite = set.models[0]!.report;
+      const t2 = readComparisonSet("test-2")!;
+      const t1 = readComparisonSet("test-1")!;
+      expect(data.eval.sets).toEqual([
+        { id: "test-2", label: t2.label, split: "test" },
+        { id: "test-1", label: t1.label, split: "test" },
+      ]);
+      expect(data.eval.models.map((m: any) => [m.model, m.set])).toEqual([
+        ["gemini/gemini-3.5-flash-lite", "test-2"],
+        ["groq/gpt-oss-120b", "test-2"],
+        ["groq/qwen3.8-27b", "test-1"],
+      ]);
+      const lite = t2.models[0]!.report;
       expect(data.eval.models[0]).toEqual({
         model: "gemini/gemini-3.5-flash-lite",
+        set: "test-2",
         taskSuccess: lite.taskSuccess,
         policyViolations: lite.policyViolations,
         byRole: { router: lite.routing, shopping: lite.byAgent.shopping, support: lite.byAgent.support },
+        roleStats: lite.roleStats,
       });
+      expect(data.eval.models[2].roleStats.shopping).toMatchObject({ conversations: 38, outcomes: { resolved: 36, failed: 2 } }); // Qwen, test-1
     }));
 
   it("is null before the sets are generated", () =>

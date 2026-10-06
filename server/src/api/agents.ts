@@ -8,7 +8,7 @@ import { TEAM_ROLES, type TeamRole } from "../db/schema.ts";
 import { loadModelConfigs, type ModelConfig } from "../llm/config.ts";
 import { fail, ok } from "../tools/define.ts";
 import type { AppDeps } from "./app.ts";
-import { comparisonDeps, defaultSet } from "./comparison.ts";
+import { agentsPageSets, comparisonDeps } from "./comparison.ts";
 
 /**
  * The Agents page: per role, the current model and prompt version, retired
@@ -32,8 +32,6 @@ export type AgentsDeps = {
   canBuild?: (spec: TeamSpec) => string | null;
 };
 
-export const LIVE_WINDOW_DAYS = 7;
-
 const agentsDeps = (deps: AppDeps): AgentsDeps => ({
   teamFile: () => readTeamFile(),
   // The fake provider is for tests only; it can't run a real conversation.
@@ -50,8 +48,8 @@ export function agentRoutes(deps: AppDeps) {
     const now = deps.now();
     const { state, history } = await readTeam(deps.db, a.teamFile(), now);
     const models = a.models();
-    const since = new Date(now.getTime() - LIVE_WINDOW_DAYS * 86_400_000);
-    const live = await liveMetrics(deps.db, since, models);
+    // All time (Julian, 2026-10-06): a model's record in a role stays visible after it's switched out or retired.
+    const live = await liveMetrics(deps.db, null, models);
     const roles = TEAM_ROLES.map((role) => {
       const mine = history.filter((h) => h.role === role);
       const current = state.current[role];
@@ -70,21 +68,32 @@ export function agentRoutes(deps: AppDeps) {
         live: live.filter((l) => l.role === role),
       };
     });
-    const set = defaultSet(comparisonDeps(deps));
-    const evalBlock = set && {
-      set: { id: set.id, label: set.label, split: set.split },
-      models: set.models.map(({ model, report: r }) => ({
-        model,
-        taskSuccess: r.taskSuccess,
-        policyViolations: r.policyViolations,
-        byRole: { router: r.routing, shopping: r.byAgent.shopping ?? null, support: r.byAgent.support ?? null },
-      })),
-    };
+    // Eval figures per model from the first agentsPage set that has it (Julian, 2026-10-06):
+    // test-2 for the models it ran, test-1 for Qwen, which was retired before test-2.
+    const sets = agentsPageSets(comparisonDeps(deps));
+    const seen = new Set<string>();
+    const evalBlock = sets.length
+      ? {
+          sets: sets.map((s) => ({ id: s.id, label: s.label, split: s.split })),
+          models: sets.flatMap((s) =>
+            s.models
+              .filter(({ model }) => !seen.has(model) && Boolean(seen.add(model)))
+              .map(({ model, report: r }) => ({
+                model,
+                set: s.id,
+                taskSuccess: r.taskSuccess,
+                policyViolations: r.policyViolations,
+                byRole: { router: r.routing, shopping: r.byAgent.shopping ?? null, support: r.byAgent.support ?? null },
+                // Per-role figures from the eval conversations; absent in set files written before 2026-10-06.
+                roleStats: r.roleStats ?? null,
+              })),
+          ),
+        }
+      : null;
     return c.json(
       ok({
         eval: evalBlock,
         envOverride: a.envModel ?? null,
-        liveWindowDays: LIVE_WINDOW_DAYS,
         reasonMinLength: REASON_MIN_LENGTH,
         roles,
         models: models.map((m) => ({ id: m.id, provider: m.provider, pricing: m.pricing, paid: m.pricing.inputPerMTok > 0 || m.pricing.outputPerMTok > 0 })),

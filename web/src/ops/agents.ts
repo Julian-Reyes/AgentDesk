@@ -1,4 +1,4 @@
-import type { AgentsEval, LiveMetrics, ModelOption, RoleView, TeamChange, TeamRole } from "../lib/api.ts";
+import type { AgentsEval, ModelOption, RoleStats, RoleView, TeamChange, TeamRole } from "../lib/api.ts";
 
 /** The Agents page's display logic, as plain functions tested in Node. */
 
@@ -42,24 +42,47 @@ export const retireTargets = (role: Pick<RoleView, "retired">, models: ModelOpti
  */
 export function costWarning(model: ModelOption | undefined): string | null {
   if (!model?.paid) return null;
-  return `${model.id} is a paid model ($${model.pricing.inputPerMTok}/M input, $${model.pricing.outputPerMTok}/M output tokens). Every chat it answers spends against the $8/month Groq cap.`;
+  return `${model.id} is a paid model ($${model.pricing.inputPerMTok}/M input, $${model.pricing.outputPerMTok}/M output tokens). Every chat it answers spends against its provider's monthly cap (Groq $8, Gemini $5).`;
 }
 
-/** The live rows with the role's current model first. */
-export const liveRows = (role: Pick<RoleView, "model" | "live">): LiveMetrics[] => [...role.live].sort((a, b) => Number(b.model === role.model) - Number(a.model === role.model));
+/** Where a model stands in a role: on it now, retired from it, switched out of it, or only evaluated. */
+export type EvalStatus = "current" | "retired" | "former" | "other";
 
 /**
- * A model's latest eval result for one role, from the default comparison set:
- * routing accuracy for the router, success on that agent's cases otherwise.
- * null when the model wasn't evaluated (never a made-up number).
+ * One row of a role's eval table: the model's figures in this role
+ * (`roleStats`, counted from the eval conversations in which it played the
+ * role), its task success on this role's cases, and which set they come from.
  */
-export function evalFor(ev: AgentsEval, role: TeamRole, model: string): { text: string; label: string } | null {
+export type EvalRow = { model: string; status: EvalStatus; set: string | null; figures: RoleStats | null; success: string | null };
+const STATUS_ORDER: Record<EvalStatus, number> = { current: 0, retired: 1, former: 2, other: 3 };
+
+/**
+ * The Agents page shows eval results, not live chats (Julian, 2026-10-06):
+ * every evaluated model, plus the current and retired ones even without
+ * results (dashes, never invented). Current first, then retired, switched
+ * out, others. Each model's figures come from the first agentsPage set that
+ * has it (test-2, else test-1).
+ */
+export function evalRows(role: Pick<RoleView, "role" | "model" | "retired" | "history">, ev: AgentsEval): EvalRow[] {
+  const former = role.history.filter((h) => h.action === "switch" && h.fromModel).map((h) => h.fromModel!);
+  const ids = [...new Set([role.model, ...role.retired, ...(ev?.models.map((m) => m.model) ?? [])])];
+  const status = (m: string): EvalStatus => (m === role.model ? "current" : role.retired.includes(m) ? "retired" : former.includes(m) ? "former" : "other");
+  return ids
+    .map((model) => {
+      const m = ev?.models.find((x) => x.model === model);
+      return { model, status: status(model), set: m?.set ?? null, figures: m?.roleStats?.[role.role] ?? null, success: evalCell(ev, role.role, model) };
+    })
+    .sort((a, b) => STATUS_ORDER[a.status] - STATUS_ORDER[b.status]);
+}
+
+/**
+ * A table cell: "59% (24/41)", the role's own score; null without results
+ * (never invented). Policy violations are counted per model over the whole
+ * run, not per role, so they're on the Model comparison page, not here.
+ */
+export function evalCell(ev: AgentsEval, role: TeamRole, model: string): string | null {
   const m = ev?.models.find((x) => x.model === model);
   const r = m?.byRole[role];
   if (!ev || !m || !r || !r.n) return null;
-  const what = role === "router" ? "routing accuracy" : `${role} cases`;
-  return {
-    text: `${Math.round(r.rate * 100)}% ${what} (${r.k}/${r.n}, 95% CI ${Math.round(r.ci[0] * 100)}–${Math.round(r.ci[1] * 100)}%); ${m.policyViolations} policy violations`,
-    label: `${ev.set.label}${ev.set.split === "dev" ? ", tuned on these cases" : ""}`,
-  };
+  return `${Math.round(r.rate * 100)}% (${r.k}/${r.n})`;
 }

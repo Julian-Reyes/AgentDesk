@@ -1,3 +1,4 @@
+import type { RunOutcome } from "../../tracing/tracer.ts";
 import { emptyHealth, mergeHealth, toolCallHealth, type ToolCallHealth } from "../../tracing/tool-call-health.ts";
 import { finalizeGrade } from "../grading/grade.ts";
 import { pairsFromOutputs, renderReport as renderAgreement, report as agreementReport, wilson } from "../judge/agreement.ts";
@@ -72,7 +73,50 @@ export type ModelReport = {
   health: ToolCallHealth;
   quality: { tone: Mean | null; clarity: Mean | null; helpfulness: Mean | null; lowShare: Rate } | null;
   topFailures: { check: string; count: number; cases: string[] }[];
+  /** Per role, computed like the Agents page's live numbers (agents/live-metrics.ts), from these eval conversations. */
+  roleStats: Record<EvalRole, RoleStats | null>;
 };
+
+export type EvalRole = "router" | "shopping" | "support";
+/**
+ * A role's record in these conversations, with the live table's meaning:
+ * conversations in which the role made at least one model call, their
+ * outcomes, and the role's own calls (latency per call; tokens; cost of
+ * uncached calls). So a retired model that only ran in evals (Qwen in
+ * shopping) has the same figures as a live one (Julian, 2026-10-06).
+ */
+export type RoleStats = {
+  conversations: number;
+  outcomes: Record<RunOutcome, number>;
+  /** failed ÷ conversations; null with none. */
+  failureRate: number | null;
+  calls: number;
+  latencyMs: { p50: number | null; p95: number | null };
+  inputTokens: number;
+  outputTokens: number;
+  costMicros: number;
+};
+
+const isRoleCall = (role: EvalRole, s: { kind: string; agent?: string }) => (role === "router" ? s.kind === "router" && s.agent === "router" : s.kind === "model_call" && s.agent === role);
+
+export function roleStats(role: EvalRole, results: ConversationResult[]): RoleStats | null {
+  const mine = results.map((r) => ({ outcome: r.record.observation.outcome, calls: r.record.observation.steps.filter((s) => isRoleCall(role, s)) })).filter((x) => x.calls.length > 0);
+  if (mine.length === 0) return null;
+  const outcomes: Record<RunOutcome, number> = { resolved: 0, approval_needed: 0, escalated: 0, failed: 0 };
+  for (const m of mine) outcomes[m.outcome] += 1;
+  const calls = mine.flatMap((m) => m.calls);
+  const latencies = calls.map((s) => s.latencyMs ?? 0);
+  return {
+    conversations: mine.length,
+    outcomes,
+    failureRate: outcomes.failed / mine.length,
+    calls: calls.length,
+    latencyMs: { p50: percentile(latencies, 50), p95: percentile(latencies, 95) },
+    inputTokens: calls.reduce((n, s) => n + (s.inputTokens ?? 0), 0),
+    outputTokens: calls.reduce((n, s) => n + (s.outputTokens ?? 0), 0),
+    costMicros: calls.filter((s) => !s.cached).reduce((n, s) => n + (s.costMicros ?? 0), 0),
+  };
+}
 
 const agentGroup = (r: ConversationRecord) => {
   const route = Array.isArray(r.case.expect.route) ? r.case.expect.route[0]! : r.case.expect.route;
@@ -148,6 +192,7 @@ export function modelReport(model: string, results: ConversationResult[]): Model
     costUsd: valid.reduce((n, r) => n + r.record.stats.costMicros, 0) / 1e6,
     health: totalHealth,
     quality,
+    roleStats: { router: roleStats("router", results), shopping: roleStats("shopping", results), support: roleStats("support", results) },
     topFailures: [...failures].map(([check, cases]) => ({ check, count: cases.size, cases: [...cases].sort() })).sort((a, b) => b.count - a.count || a.check.localeCompare(b.check)),
   };
 }

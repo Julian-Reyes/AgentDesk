@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { loadComparisonConfig, readComparisonSet, SETS_DIR, type ComparisonSet, type ComparisonSetSpec } from "../evals/runner/comparison-sets.ts";
+import { loadAgentsPageSetIds, loadComparisonConfig, readComparisonSet, SETS_DIR, type ComparisonSet, type ComparisonSetSpec } from "../evals/runner/comparison-sets.ts";
 import { fail, ok } from "../tools/define.ts";
 import type { AppDeps } from "./app.ts";
 
@@ -8,9 +8,15 @@ import type { AppDeps } from "./app.ts";
  * never grading anything per request, so the page shows exactly the committed
  * numbers. Public and read-only.
  */
-export type ComparisonDeps = { config: () => ComparisonSetSpec[]; dir: string };
+export type ComparisonDeps = { config: () => ComparisonSetSpec[]; dir: string; agentsPage?: () => string[] };
 
-export const comparisonDeps = (deps: AppDeps): ComparisonDeps => ({ config: () => loadComparisonConfig(), dir: SETS_DIR, ...deps.comparison });
+export const comparisonDeps = (deps: AppDeps): ComparisonDeps => ({ config: () => loadComparisonConfig(), dir: SETS_DIR, agentsPage: () => loadAgentsPageSetIds(), ...deps.comparison });
+
+/** The Agents page's sets, in priority order (config agentsPage; else the default set); ones not generated yet are skipped. */
+export function agentsPageSets(c: ComparisonDeps): ComparisonSet[] {
+  const ids = c.agentsPage?.() ?? (c.config()[0] ? [c.config()[0]!.id] : []);
+  return ids.map((id) => readComparisonSet(id, c.dir)).filter((s): s is ComparisonSet => s !== null);
+}
 
 /** The default set (first in config/comparison.json), for the Agents page; null if it hasn't been generated. */
 export function defaultSet(c: ComparisonDeps): ComparisonSet | null {

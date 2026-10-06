@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { changeTeam, getAgents, type AgentsView, type RoleView } from "../lib/api.ts";
-import { ROLE_LABEL, costWarning, describeChange, evalFor, liveRows, ms, pct, retireTargets, switchTargets, tokens, usd } from "./agents.ts";
+import { ROLE_LABEL, costWarning, describeChange, evalCell, evalRows, pct, retireTargets, switchTargets, tokens, usd, type EvalStatus } from "./agents.ts";
 import { when } from "./approvals.ts";
 
 /** One card per role: current model, prompt version, live numbers, history, and (with the token) switch / retire / reinstate. */
@@ -35,19 +35,30 @@ export function AgentsPage({ token }: { token: string | null }) {
       ))}
       {data && (
         <p className="text-xs text-stone-500">
-          Live numbers: demo and CLI conversations in the last {data.liveWindowDays} days, from the traces (evals excluded). Latency is per model call. Eval numbers: the first set on the{" "}
+          Eval results: the held-out test set, never tuned on; each run uses one model in all three roles.{" "}
+          {data.eval?.sets.map((s) => `${s.id}: ${s.label}`).join("; ")}
+          {(data.eval?.sets.length ?? 0) > 1 ? " (each model from the first run that has it)" : ""}. Chats: the test conversations in which the model played the role.
+          Errored: the customer got the error message instead of an answer. Task success: the role's cases graded correct by the code checks and the judge; for the router,
+          conversations sent to the right agent. Policy violations and more on the{" "}
           <a href="#/comparison" className="underline">
             Model comparison
           </a>{" "}
-          page; evals run one model in all three roles.
+          page.
         </p>
       )}
     </div>
   );
 }
 
+const STATUS_TAG: Record<EvalStatus, { text: string; tone: string } | null> = {
+  current: { text: "(current)", tone: "text-forest-700" },
+  retired: { text: "(retired)", tone: "text-red-600" },
+  former: { text: "(switched out)", tone: "text-stone-500" },
+  other: null,
+};
+
 function RoleCard({ role: r, data, token, onChanged }: { role: RoleView; data: AgentsView; token: string | null; onChanged: () => Promise<void> }) {
-  const rows = liveRows(r);
+  const rows = evalRows(r, data.eval);
   return (
     <section aria-labelledby={`role-${r.role}`} className="rounded-md border border-stone-200 bg-white p-4">
       <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between">
@@ -62,78 +73,68 @@ function RoleCard({ role: r, data, token, onChanged }: { role: RoleView; data: A
       </p>
       {r.retired.length > 0 && <p className="text-xs text-stone-500">Retired here: {r.retired.join(", ")}</p>}
 
-      <h3 className="mt-4 mb-1 text-sm font-semibold">Latest eval</h3>
-      <EvalLine role={r} model={r.model} data={data} />
-
-      <h3 className="mt-4 mb-1 text-sm font-semibold">Live, last {data.liveWindowDays} days</h3>
-      {rows.length === 0 ? (
-        <p className="text-sm text-stone-500">No live conversations in this window.</p>
+      {/* Eval results, not live chats (Julian, 2026-10-06). */}
+      <h3 className="mt-4 mb-1 text-sm font-semibold">Eval results</h3>
+      {data.eval === null ? (
+        <p className="text-sm text-stone-500">No comparison data yet (npm run eval:sets).</p>
       ) : (
-        <div className="-mx-4 overflow-x-auto px-4">
-          <table className="w-full min-w-[36rem] text-left text-sm">
-            <thead className="text-xs text-stone-500">
-              <tr>
-                <th className="py-1 pr-3 font-normal">Model</th>
-                <th className="py-1 pr-3 font-normal">Chats</th>
-                <th className="py-1 pr-3 font-normal">Resolved / approval / escalated / failed</th>
-                <th className="py-1 pr-3 font-normal">Failure</th>
-                <th className="py-1 pr-3 font-normal">p50 / p95</th>
-                <th className="py-1 pr-3 font-normal">Tokens in / out</th>
-                <th className="py-1 font-normal">Cost</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((l) => (
-                <tr key={l.model} className="border-t border-stone-100">
-                  <td className="py-1 pr-3">
-                    {l.model}
-                    {l.model === r.model && <span className="ml-1 text-xs text-forest-700">(current)</span>}
-                  </td>
-                  <td className="py-1 pr-3">{l.conversations}</td>
-                  <td className="py-1 pr-3">
-                    {l.outcomes.resolved} / {l.outcomes.approval_needed} / {l.outcomes.escalated} / {l.outcomes.failed}
-                  </td>
-                  <td className="py-1 pr-3">{pct(l.failureRate)}</td>
-                  <td className="py-1 pr-3">
-                    {ms(l.latencyMs.p50)} / {ms(l.latencyMs.p95)}
-                  </td>
-                  <td className="py-1 pr-3">
-                    {tokens(l.inputTokens)} / {tokens(l.outputTokens)}
-                  </td>
-                  <td className="py-1">{usd(l.costMicros)}</td>
+        <>
+          <div className="-mx-4 overflow-x-auto px-4">
+            <table className="w-full min-w-[40rem] whitespace-nowrap text-left text-sm tabular-nums">
+              <thead className="text-xs text-stone-500">
+                <tr>
+                  <th className="py-1 pr-3 font-normal">Model</th>
+                  <th className="py-1 pr-3 text-center font-normal">Chats</th>
+                  <th className="py-1 pr-3 text-center font-normal">Resolved</th>
+                  <th className="py-1 pr-3 text-center font-normal">Approval</th>
+                  <th className="py-1 pr-3 text-center font-normal">Escalated</th>
+                  <th className="py-1 pr-3 font-normal">Errored</th>
+                  <th className="py-1 pr-3 font-normal">Tokens in / out</th>
+                  <th className="py-1 pr-3 font-normal">Cost</th>
+                  <th className="whitespace-normal py-1 font-normal">{r.role === "router" ? "Routing accuracy" : "Task success"}</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {rows.map(({ model, status, set, figures: f, success }) => (
+                  <tr key={model} className="border-t border-stone-100">
+                    <td className="py-1 pr-3">
+                      {model}
+                      {STATUS_TAG[status] && <span className={`ml-1 text-xs ${STATUS_TAG[status]!.tone}`}>{STATUS_TAG[status]!.text}</span>}
+                    </td>
+                    <td className="py-1 pr-3 text-center">{f ? f.conversations : "–"}</td>
+                    <td className="py-1 pr-3 text-center">{f ? f.outcomes.resolved : "–"}</td>
+                    <td className="py-1 pr-3 text-center">{f ? f.outcomes.approval_needed : "–"}</td>
+                    <td className="py-1 pr-3 text-center">{f ? f.outcomes.escalated : "–"}</td>
+                    <td className="py-1 pr-3">{f ? `${f.outcomes.failed} (${pct(f.failureRate)})` : "–"}</td>
+                    <td className="py-1 pr-3">{f ? `${tokens(f.inputTokens)} / ${tokens(f.outputTokens)}` : "–"}</td>
+                    <td className="py-1 pr-3">{f ? usd(f.costMicros) : "–"}</td>
+                    <td className="whitespace-normal py-1">
+                      {success ?? "–"}
+                      {set && <span className="ml-1 text-xs text-stone-500">{set}</span>}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
 
-      <details className="mt-4">
-        <summary className="cursor-pointer text-sm font-semibold">History ({r.history.length})</summary>
-        <ol className="mt-2 space-y-2 text-sm">
-          {r.history.map((h) => (
-            <li key={h.id}>
-              <p>{describeChange(h)}</p>
-              <p className="text-xs text-stone-500">
-                {when(h.at)} · {h.decidedBy} · “{h.reason}”
-              </p>
-            </li>
-          ))}
-        </ol>
-      </details>
+      {/* Always open (Julian, 2026-10-06). */}
+      <h3 className="mt-4 mb-1 text-sm font-semibold">History</h3>
+      <ol className="space-y-2 text-sm">
+        {r.history.map((h) => (
+          <li key={h.id}>
+            <p>{describeChange(h)}</p>
+            <p className="text-xs text-stone-500">
+              {when(h.at)} · {h.decidedBy} · “{h.reason}”
+            </p>
+          </li>
+        ))}
+      </ol>
 
       {token && <ChangeForm role={r} data={data} token={token} onChanged={onChanged} />}
     </section>
-  );
-}
-
-function EvalLine({ role, model, data }: { role: RoleView; model: string; data: AgentsView }) {
-  const e = evalFor(data.eval, role.role, model);
-  if (!e) return <p className="text-sm text-stone-500">{data.eval ? `${model} isn't in ${data.eval.set.label}.` : "No comparison data yet (npm run eval:sets)."}</p>;
-  return (
-    <p className="text-sm">
-      {e.text} <span className="text-xs text-stone-500">· {e.label}</span>
-    </p>
   );
 }
 
@@ -227,8 +228,8 @@ function ChangeForm({ role: r, data, token, onChanged }: { role: RoleView; data:
       <textarea id={id("reason")} rows={2} value={reason} onChange={(e) => setReason(e.target.value)} className="w-full rounded border border-stone-300 px-2 py-1" />
       {becomes && (
         <div className="rounded bg-stone-50 p-2">
-          <p className="text-xs text-stone-500">Latest eval for {becomes}:</p>
-          <EvalLine role={r} model={becomes} data={data} />
+          <p className="text-xs text-stone-500">Eval for {becomes} in this role:</p>
+          <p className="text-sm">{evalCell(data.eval, r.role, becomes) ?? "not evaluated"}</p>
         </div>
       )}
       {warning && (

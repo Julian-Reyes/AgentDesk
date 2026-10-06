@@ -190,7 +190,7 @@ export type LiveMetrics = {
 };
 export type RoleView = { role: TeamRole; model: string; provider: string | null; prompt: string; since: string | null; retired: string[]; history: TeamChange[]; live: LiveMetrics[] };
 export type ModelOption = { id: string; provider: string; paid: boolean; pricing: { inputPerMTok: number; outputPerMTok: number } };
-export type AgentsView = { eval: AgentsEval; envOverride: string | null; liveWindowDays: number; reasonMinLength: number; roles: RoleView[]; models: ModelOption[] };
+export type AgentsView = { eval: AgentsEval; envOverride: string | null; reasonMinLength: number; roles: RoleView[]; models: ModelOption[] };
 
 export const getAgents = () => request<AgentsView>("/api/agents");
 
@@ -235,10 +235,13 @@ export const getComparisonList = () => request<ComparisonList>("/api/comparison"
 export const getComparisonSet = (id: string) => request<ComparisonSet>(`/api/comparison/${encodeURIComponent(id)}`);
 
 /** The default comparison set's results per model, shown on the Agents page. */
+/** The Agents page's eval figures: per model, from the first configured set that has it (server: api/agents.ts). */
 export type AgentsEval = {
-  set: { id: string; label: string; split: "dev" | "test" };
-  models: { model: string; taskSuccess: Rate; policyViolations: number; byRole: Record<TeamRole, Rate | null> }[];
+  sets: { id: string; label: string; split: "dev" | "test" }[];
+  models: { model: string; set: string; taskSuccess: Rate; policyViolations: number; byRole: Record<TeamRole, Rate | null>; roleStats?: Record<TeamRole, RoleStats | null> | null }[];
 } | null;
+/** A role's figures in the eval conversations, computed like LiveMetrics (server: evals/runner/report.ts roleStats). */
+export type RoleStats = Omit<LiveMetrics, "role" | "model">;
 
 // ---------- Ops dashboard: overview ----------
 

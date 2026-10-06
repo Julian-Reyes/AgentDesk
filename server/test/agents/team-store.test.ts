@@ -168,6 +168,17 @@ describe("live metrics", () => {
       });
     }));
 
+  it("all time (since null) includes conversations of any age, still never evals", () =>
+    inTx(async (tx) => {
+      const r = (model: string, ms: number) => ({ kind: "router", agent: "router", model, latencyMs: ms });
+      await run(tx, "t-ancient", "demo", new Date("2020-01-01T00:00:00Z"), "resolved", [r(LITE, 100)]);
+      await run(tx, "t-eval-old", "eval", new Date("2020-01-01T00:00:00Z"), "resolved", [r(LITE, 100)]);
+      const count = async (since: Date | null) =>
+        (await liveMetrics(tx, since, loadModelConfigs().models)).find((x) => x.role === "router" && x.model === LITE)?.conversations ?? 0;
+      // Everything from 2021 on is the same in both; all time adds exactly the 2020 demo chat, never the eval.
+      expect((await count(null)) - (await count(new Date("2021-01-01T00:00:00Z")))).toBe(1);
+    }));
+
   it("prices Flash-Lite's calls from its paid tier on, never its free-tier history", () =>
     inTx(async (tx) => {
       await run(tx, "t-free", "demo", new Date("2026-10-05T12:00:00Z"), "resolved", [{ kind: "router", agent: "router", model: LITE, latencyMs: 100 }]);

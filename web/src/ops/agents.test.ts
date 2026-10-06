@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { ModelOption } from "../lib/api.ts";
-import { costWarning, describeChange, evalFor, liveRows, ms, pct, retireTargets, switchTargets, tokens, usd } from "./agents.ts";
+import { costWarning, describeChange, evalCell, evalRows, ms, pct, retireTargets, switchTargets, tokens, usd } from "./agents.ts";
 
 const model = (id: string, paid = false): ModelOption => ({ id, provider: id.split("/")[0]!, paid, pricing: paid ? { inputPerMTok: 0.15, outputPerMTok: 0.6 } : { inputPerMTok: 0, outputPerMTok: 0 } });
 const MODELS = [model("gemini/lite"), model("groq/oss", true), model("groq/qwen", true)];
@@ -28,53 +28,53 @@ describe("agents display", () => {
   });
 
   it("warns before a paid model, not a free one", () => {
-    expect(costWarning(MODELS[1])).toMatch(/paid model.*\$8\/month Groq cap/);
+    expect(costWarning(MODELS[1])).toMatch(/paid model.*monthly cap \(Groq \$8, Gemini \$5\)/);
     expect(costWarning(MODELS[0])).toBeNull();
     expect(costWarning(undefined)).toBeNull();
   });
 
-  it("puts the current model's live numbers first", () => {
-    const row = (m: string) => ({ model: m }) as any;
-    expect(liveRows({ model: "b", live: [row("a"), row("b")] }).map((r) => r.model)).toEqual(["b", "a"]);
-  });
 });
 
-describe("the eval line on the Agents page", () => {
-  const rate = (k: number, n: number) => ({ k, n, rate: k / n, ci: [0.7, 0.9] as [number, number] });
+describe("the eval table on the Agents page (Julian, 2026-10-06)", () => {
+  const rate = (k: number, n: number) => ({ k, n, rate: k / n, ci: [0.5, 0.9] as [number, number] });
+  const stats = (conversations: number) => ({ conversations, outcomes: { resolved: conversations, approval_needed: 0, escalated: 0, failed: 0 }, failureRate: 0, calls: 1, latencyMs: { p50: 1, p95: 1 }, inputTokens: 1, outputTokens: 1, costMicros: 0 });
+  // As on the site: Flash-Lite and gpt-oss from test-2; Qwen, retired before test-2, from test-1.
   const ev = {
-    set: { id: "dev-round-2", label: "Dev set, round-2 prompts (2 repeats)", split: "dev" as const },
-    models: [{ model: "gemini/lite", taskSuccess: rate(67, 79), policyViolations: 0, byRole: { router: rate(78, 80), shopping: rate(30, 34), support: null } }],
+    sets: [
+      { id: "test-2", label: "Test set, round 3", split: "test" as const },
+      { id: "test-1", label: "Test set, round-2 prompts", split: "test" as const },
+    ],
+    models: [
+      { model: "gemini/lite", set: "test-2", taskSuccess: rate(85, 109), policyViolations: 0, byRole: { router: rate(106, 110), shopping: rate(33, 41), support: rate(47, 63) }, roleStats: { router: stats(110), shopping: stats(40), support: stats(66) } },
+      { model: "groq/oss", set: "test-2", taskSuccess: rate(69, 110), policyViolations: 0, byRole: { router: rate(109, 110), shopping: rate(29, 41), support: rate(35, 64) }, roleStats: { router: stats(110), shopping: stats(43), support: stats(64) } },
+      { model: "groq/qwen", set: "test-1", taskSuccess: rate(71, 109), policyViolations: 0, byRole: { router: rate(103, 110), shopping: rate(24, 41), support: rate(42, 63) }, roleStats: { router: stats(110), shopping: stats(38), support: stats(64) } },
+    ],
   };
-  it("shows the role's own number, and says the dev set was tuned on", () => {
-    expect(evalFor(ev, "router", "gemini/lite")).toEqual({
-      text: "98% routing accuracy (78/80, 95% CI 70–90%); 0 policy violations",
-      label: "Dev set, round-2 prompts (2 repeats), tuned on these cases",
-    });
-    expect(evalFor(ev, "shopping", "gemini/lite")!.text).toMatch(/^88% shopping cases/);
-  });
-  it("is absent, never invented, for a model or role without results", () => {
-    expect(evalFor(ev, "support", "gemini/lite")).toBeNull();
-    expect(evalFor(ev, "router", "groq/other")).toBeNull();
-    expect(evalFor(null, "router", "gemini/lite")).toBeNull();
-  });
-});
+  const role = { role: "shopping" as const, model: "gemini/lite", retired: ["groq/qwen"], history: [] as any[] };
 
-describe("the eval line on the Agents page", () => {
-  const rate = (k: number, n: number) => ({ k, n, rate: k / n, ci: [0.7, 0.9] as [number, number] });
-  const ev = {
-    set: { id: "dev-round-2", label: "Dev set, round-2 prompts (2 repeats)", split: "dev" as const },
-    models: [{ model: "gemini/lite", taskSuccess: rate(67, 79), policyViolations: 0, byRole: { router: rate(78, 80), shopping: rate(30, 34), support: null } }],
-  };
-  it("shows the role's own number, and says the dev set was tuned on", () => {
-    expect(evalFor(ev, "router", "gemini/lite")).toEqual({
-      text: "98% routing accuracy (78/80, 95% CI 70–90%); 0 policy violations",
-      label: "Dev set, round-2 prompts (2 repeats), tuned on these cases",
-    });
-    expect(evalFor(ev, "shopping", "gemini/lite")!.text).toMatch(/^88% shopping cases/);
+  it("lists every evaluated model: current first, then retired, then the rest, each with its set", () => {
+    expect(evalRows(role, ev).map((r) => [r.model, r.status, r.set, r.figures?.conversations, r.success])).toEqual([
+      ["gemini/lite", "current", "test-2", 40, "80% (33/41)"],
+      ["groq/qwen", "retired", "test-1", 38, "59% (24/41)"],
+      ["groq/oss", "other", "test-2", 43, "71% (29/41)"],
+    ]);
   });
-  it("is absent, never invented, for a model or role without results", () => {
-    expect(evalFor(ev, "support", "gemini/lite")).toBeNull();
-    expect(evalFor(ev, "router", "groq/other")).toBeNull();
-    expect(evalFor(null, "router", "gemini/lite")).toBeNull();
+
+  it("marks a model switched out of the role", () => {
+    const switched = { ...role, history: [{ action: "switch", fromModel: "groq/oss", toModel: "gemini/lite" }] as any[] };
+    expect(evalRows(switched, ev).find((r) => r.model === "groq/oss")!.status).toBe("former");
+  });
+
+  it("keeps the current and retired models even without results, with nothing invented", () => {
+    const rows = evalRows({ ...role, model: "groq/new", retired: ["groq/old"] }, ev);
+    expect(rows.slice(0, 2)).toEqual([
+      { model: "groq/new", status: "current", set: null, figures: null, success: null },
+      { model: "groq/old", status: "retired", set: null, figures: null, success: null },
+    ]);
+    expect(evalRows(role, null)).toEqual([
+      { model: "gemini/lite", status: "current", set: null, figures: null, success: null },
+      { model: "groq/qwen", status: "retired", set: null, figures: null, success: null },
+    ]);
+    expect(evalCell(ev, "shopping", "groq/unknown")).toBeNull();
   });
 });

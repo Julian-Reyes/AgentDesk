@@ -6,7 +6,7 @@ import { costMicros } from "../llm/factory.ts";
 import type { ModelConfig } from "../llm/config.ts";
 
 /**
- * How each (role, model) did in real conversations recently: the "Live" block
+ * How each (role, model) did in real conversations, all time or since a date: the "Live" numbers
  * on the Agents page. Computed from the traces (runs / run_steps), counting
  * only live sources (the demo widget and the CLI), never evals or tests.
  *
@@ -35,11 +35,12 @@ export type LiveMetrics = {
 
 const ROLE_STEP = sql`((${s.runSteps.kind} = 'router' and ${s.runSteps.agent} = 'router') or ${s.runSteps.kind} = 'model_call')`;
 
-export async function liveMetrics(db: DbOrTx, since: Date, configs: readonly ModelConfig[]): Promise<LiveMetrics[]> {
+/** `since`: only conversations started then or later; null = all time (the Agents page, since 2026-10-06). */
+export async function liveMetrics(db: DbOrTx, since: Date | null, configs: readonly ModelConfig[]): Promise<LiveMetrics[]> {
   const liveRuns = db
     .select({ id: s.runs.id })
     .from(s.runs)
-    .where(and(inArray(s.runs.source, [...LIVE_SOURCES]), gte(s.runs.startedAt, since)));
+    .where(and(inArray(s.runs.source, [...LIVE_SOURCES]), since ? gte(s.runs.startedAt, since) : undefined));
 
   const where = and(sql`${s.runSteps.runId} in ${liveRuns}`, ROLE_STEP, sql`${s.runSteps.modelConfigId} is not null`);
   // A call is priced only if it was made after the model's last move from a free
