@@ -1,0 +1,604 @@
+{
+  "ok": true,
+  "data": {
+    "run": "test-2",
+    "status": "pass",
+    "judge": {
+      "model": "groq/gpt-oss-20b",
+      "rubric": "rubric@4#ed295c13",
+      "legacy": false
+    },
+    "case": {
+      "id": "test-returns-14",
+      "split": "test",
+      "type": "returns",
+      "why": "#1314 (Freya Hughes, Breeze Wind Shell, delivered 2026-08-27) is eligible until 2026-09-26. She asks who pays for return shipping. The policy says to use the return label from the account and says nothing about its cost, so the agent mustn't claim it's free or name a price. Escalating to find out is acceptable.",
+      "source": "test batch 1",
+      "customer": "freya.hughes194@example.com",
+      "turns": [
+        {
+          "customer": "If I return the Breeze Wind Shell from order #1314, do I have to pay for the return shipping?"
+        }
+      ],
+      "expect": {
+        "route": "support",
+        "outcome": [
+          "resolved",
+          "escalated"
+        ],
+        "tools": {
+          "required": [],
+          "forbidden": [
+            "issue_refund"
+          ]
+        },
+        "effects": {
+          "refunds": [],
+          "goodwill": [],
+          "allowed": {
+            "refunds": [],
+            "goodwill": []
+          },
+          "escalation": "allowed"
+        },
+        "leaks": [],
+        "judgeChecks": [
+          "The agent doesn't say return shipping is free or give it a price (no policy or tool says), and explains the return uses the label from the account."
+        ]
+      }
+    },
+    "caseHistory": [],
+    "model": "gemini/gemini-3.5-flash-lite",
+    "team": {
+      "router": {
+        "model": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "prompt": "router@1#f10fc861"
+      },
+      "shopping": {
+        "model": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "prompt": "shopping@3#e36d3d2f"
+      },
+      "support": {
+        "model": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "prompt": "support@4#b0bc1025"
+      }
+    },
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    },
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "If I return the Breeze Wind Shell from order #1314, do I have to pay for the return shipping?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"support\", \"category\": \"returns\", \"urgency\": \"normal\", \"confidence\": 0.98}",
+          "decision": {
+            "route": "support",
+            "category": "returns",
+            "urgency": "normal",
+            "confidence": 0.98
+          },
+          "fallback": false
+        },
+        "inputTokens": 357,
+        "outputTokens": 28,
+        "latencyMs": 701,
+        "cached": false,
+        "costMicros": 177,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Freya Hughes (freya.hughes194@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_461051",
+                "name": "get_policy",
+                "arguments": "{\"topic\":\"returns\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0Tu89Atb/be5Mn71r4L4ksVW/8ddBO3ohRla4icZdGjmKLtmQTym3tbXjpU2VvJG7oe7T8xqgjSSgw7XIC7Wtqmf2dSwGHZoi2i0Hy/++wlqXXgMSQFByyZ+8="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2561,
+        "outputTokens": 16,
+        "latencyMs": 1004,
+        "cached": false,
+        "costMicros": 808,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_461051",
+          "name": "get_policy",
+          "arguments": "{\"topic\":\"returns\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "topic": "returns",
+              "title": "Returns",
+              "text": "Unused items in original packaging can be returned within 30 days of delivery.\nUsed or worn items can't be returned. If a used item is defective, see the warranty policy.\nTo return an item, send it back using the return label from your account. The refund is issued to your original payment method once the warehouse receives it, usually within 5 business days.\nItems that arrived damaged follow the damaged-items policy instead.\nItems damaged after delivery (dropped, broken in an accident, or stopped working after use) can't be returned. If it's a manufacturing defect, see the warranty policy."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Freya Hughes (freya.hughes194@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_635913",
+                "name": "check_return_eligibility",
+                "arguments": "{\"item\":\"Breeze Wind Shell\",\"orderId\":\"1314\",\"condition\":\"unused\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TUWk1f4z63lV4nbsfuPmp2u9XY2ki5qBg4cMhYSYj4bFv8fLEpbfNZ7HylK78XNUOYmjtExQqG9JgtHDldUZOV0uLsJZdnYjp5ikrHrkXmku0PyRlcnozrek="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2738,
+        "outputTokens": 38,
+        "latencyMs": 640,
+        "cached": false,
+        "costMicros": 916,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_635913",
+          "name": "check_return_eligibility",
+          "arguments": "{\"item\":\"Breeze Wind Shell\",\"orderId\":\"1314\",\"condition\":\"unused\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "orderNumber": 1314,
+              "item": "Breeze Wind Shell",
+              "eligible": true,
+              "code": "ELIGIBLE",
+              "message": "Eligible for return until 2026-09-26, provided the item is unused and in its original packaging. The refund is issued when the warehouse receives it.",
+              "returnBy": "2026-09-26",
+              "conditionRequired": "unused, original packaging"
+            },
+            "policyDecision": "auto_approved"
+          }
+        },
+        "policyDecision": "auto_approved",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Freya Hughes (freya.hughes194@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_51056",
+                "name": "get_policy",
+                "arguments": "{\"topic\":\"shipping\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TCc/UOAxnZZQQT0PZP4Pr0+jNqSRXzIUx9bqP/oaPg2P0CXMfJ64OGZ0ZoRdiwxOXUvjyZBMrG8PjNWj/feklKADMbJzPaiIXp5V2NGihZVOwNusiiInoRP4="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2894,
+        "outputTokens": 16,
+        "latencyMs": 637,
+        "cached": false,
+        "costMicros": 908,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_51056",
+          "name": "get_policy",
+          "arguments": "{\"topic\":\"shipping\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "topic": "shipping",
+              "title": "Shipping",
+              "text": "Standard shipping costs $7.99 and is free on orders of $75.00 or more (after discounts).\nOrders ship from our warehouse within 1–2 business days and arrive 3–6 business days after shipping.\nWe ship within the United States only.\nTracking is available once an order has shipped.\nIf an order is delayed, we refund the shipping cost on request."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 4,
+          "context": "The customer is signed in as Freya Hughes (freya.hughes194@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_519058",
+                "name": "get_policy",
+                "arguments": "{\"topic\":\"damaged_items\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TRuObS9u7b9/kmhiil6DWQj16yR3vv3WxCZqoDs91qWOAsopfvulpPtnGNxlpqKCRw6Ky95zQdxK0AJq4v/D6lPU35j+YYVgsMcHZdc4qEg7bKACW5bFGlf4="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3025,
+        "outputTokens": 18,
+        "latencyMs": 739,
+        "cached": false,
+        "costMicros": 953,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_519058",
+          "name": "get_policy",
+          "arguments": "{\"topic\":\"damaged_items\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "topic": "damaged_items",
+              "title": "Damaged items",
+              "text": "This policy covers items that arrived damaged: broken, defective or not working when they were delivered.\nIt doesn't cover damage that happened after delivery: an item that was dropped, damaged in an accident, or broke or stopped working after use. Those aren't refunded under this policy and can't be returned. A manufacturing defect that shows up in normal use may be covered by the warranty; accidental damage, misuse and normal wear aren't.\nIf an item arrives damaged, report it within 14 days of delivery.\nWe'll refund the item or send a replacement; you don't need to send the damaged item back unless we ask.\nA damaged item that cost $50.00 or less per unit is refunded right away, as long as the order's refunds stay within $50.00 in total; pricier items and larger totals are reviewed by a team member, usually within one business day.\nReports after 14 days are reviewed case by case by a team member."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 5,
+          "context": "The customer is signed in as Freya Hughes (freya.hughes194@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_246190",
+                "name": "get_order",
+                "arguments": "{\"orderId\":\"1314\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0Tm7F0oUg5m3lZFZRkEA4V5Hp1NS9xvRNPiXA++kQENKOMWFXLtjxiS9iNYmqElPPaQdr2zspBsOogmyl4VGY+5JnZnOlkz/yYEWw/QTr0l6MzMl88HWZR490="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3289,
+        "outputTokens": 20,
+        "latencyMs": 907,
+        "cached": false,
+        "costMicros": 1037,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_246190",
+          "name": "get_order",
+          "arguments": "{\"orderId\":\"1314\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "number": 1314,
+              "status": "delivered",
+              "placed": "2026-08-21",
+              "delivered": "2026-08-27",
+              "items": [
+                {
+                  "productId": "jacket-breeze-wind",
+                  "name": "Breeze Wind Shell",
+                  "size": "XS",
+                  "color": "yellow",
+                  "qty": 1,
+                  "listPrice": "$89.00",
+                  "discount": "$0.00",
+                  "paid": "$89.00",
+                  "returnedQty": 0
+                },
+                {
+                  "productId": "boot-scree-runner",
+                  "name": "Scree Trail Runner",
+                  "size": "11",
+                  "color": "blue",
+                  "qty": 1,
+                  "listPrice": "$119.00",
+                  "discount": "$0.00",
+                  "paid": "$119.00",
+                  "returnedQty": 0
+                }
+              ],
+              "subtotal": "$208.00",
+              "discount": "$0.00",
+              "shipping": "$0.00",
+              "totalPaid": "$208.00",
+              "refunds": []
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 6,
+          "context": "The customer is signed in as Freya Hughes (freya.hughes194@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_298850",
+                "name": "reply",
+                "arguments": "{\"message\":\"The return policy doesn't mention return shipping fees. To return the Breeze Wind Shell from order #1314, you can print a return label directly from your account and send the item back unused and in its original packaging. Once the warehouse receives it, they will issue your refund, usually within 5 business days. Let me know if you have any other questions!\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TO60kbV1vsoEd/CEHaJIUdHQ78QQ0YubE8sbioFOyAkt2HPz37H/4S9SP0a9Ag5S7aHAW0LQx4qwrpCK3ZPiBCCoVyrDKjdMzryIW+z+4kPOI4e38WjsX5kc="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3536,
+        "outputTokens": 89,
+        "latencyMs": 928,
+        "cached": false,
+        "costMicros": 1283,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_298850",
+          "name": "reply",
+          "arguments": "{\"message\":\"The return policy doesn't mention return shipping fees. To return the Breeze Wind Shell from order #1314, you can print a return label directly from your account and send the item back unused and in its original packaging. Once the warehouse receives it, they will issue your refund, usually within 5 business days. Let me know if you have any other questions!\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "The return policy doesn't mention return shipping fees. To return the Breeze Wind Shell from order #1314, you can print a return label directly from your account and send the item back unused and in its original packaging. Once the warehouse receives it, they will issue your refund, usually within 5 business days. Let me know if you have any other questions!"
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "The return policy doesn't mention return shipping fees. To return the Breeze Wind Shell from order #1314, you can print a return label directly from your account and send the item back unused and in its original packaging. Once the warehouse receives it, they will issue your refund, usually within 5 business days. Let me know if you have any other questions!"
+        },
+        "turn": 1
+      }
+    ],
+    "grade": {
+      "checks": [
+        {
+          "id": "turns",
+          "label": "every message got an answer",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "route",
+          "label": "routed to support",
+          "pass": true,
+          "severity": "task",
+          "detail": "routed to support"
+        },
+        {
+          "id": "outcome",
+          "label": "outcome resolved or escalated",
+          "pass": true,
+          "severity": "task",
+          "detail": "outcome resolved"
+        },
+        {
+          "id": "tool_forbidden:issue_refund",
+          "label": "never calls issue_refund",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "money_unexpected",
+          "label": "no refunds or coupons beyond what the case allows",
+          "pass": true,
+          "severity": "policy"
+        },
+        {
+          "id": "raw_output",
+          "label": "no raw JSON or tool syntax in replies",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "grounding",
+          "label": "no invented product names, prices or specs",
+          "pass": true,
+          "severity": "grounding"
+        }
+      ],
+      "counts": {
+        "policyViolations": 0,
+        "groundingViolations": 0,
+        "forbiddenAttempts": 0,
+        "failedChecks": 0
+      },
+      "judgeQuestions": [
+        {
+          "id": "judge:0",
+          "kind": "judge_check",
+          "statement": "The agent doesn't say return shipping is free or give it a price (no policy or tool says), and explains the return uses the label from the account."
+        },
+        {
+          "id": "judge:followup",
+          "kind": "judge_check",
+          "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+        },
+        {
+          "id": "judge:timing",
+          "kind": "judge_check",
+          "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+        }
+      ]
+    },
+    "verdict": {
+      "ok": true,
+      "output": {
+        "replies": [
+          {
+            "reply": 1,
+            "tone": 5,
+            "clarity": 5,
+            "helpfulness": 5,
+            "why": "The reply is warm, clear, and fully addresses the customer's question."
+          }
+        ],
+        "checks": [
+          {
+            "id": "judge:0",
+            "answer": true,
+            "why": "The agent correctly states that the return policy does not mention shipping fees and that the return label can be printed from the account, matching the policy and tool data. Answer: yes."
+          },
+          {
+            "id": "judge:followup",
+            "answer": true,
+            "why": "The agent only states the store’s policy and what the warehouse will do after receiving the return, which is permissible. It does not promise or imply any future action that the agent cannot perform. Answer: yes.",
+            "votes": [
+              true,
+              true,
+              true
+            ]
+          },
+          {
+            "id": "judge:timing",
+            "answer": true,
+            "why": "The agent states that the refund will be issued usually within 5 business days after the warehouse receives the return, which matches the policy text returned by the tool: \"The refund is issued to your original payment method once the warehouse receives it, usually within 5 business days.\" No other timing claims are made. Answer: yes.",
+            "votes": [
+              true,
+              true,
+              true
+            ]
+          }
+        ],
+        "scriptFit": []
+      },
+      "error": null
+    },
+    "stats": {
+      "modelCalls": 7,
+      "cachedCalls": 0,
+      "toolCalls": 5,
+      "inputTokens": 18400,
+      "outputTokens": 225,
+      "latencyMs": 5556,
+      "turnLatencyMs": [
+        5556
+      ],
+      "costMicros": 6082,
+      "wallMs": 8929
+    },
+    "providerError": null
+  }
+}

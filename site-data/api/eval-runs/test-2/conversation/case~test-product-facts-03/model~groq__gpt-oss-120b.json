@@ -1,0 +1,502 @@
+{
+  "ok": true,
+  "data": {
+    "run": "test-2",
+    "status": "pass",
+    "judge": {
+      "model": "groq/gpt-oss-20b",
+      "rubric": "rubric@4#ed295c13",
+      "legacy": false
+    },
+    "case": {
+      "id": "test-product-facts-03",
+      "split": "test",
+      "type": "product_facts",
+      "why": "A missing fact with a trap: the catalog says the Ember bags use 'responsibly sourced down', but says nothing about the Loft Down Jacket's down beyond '800-fill'. The agent must not carry the Ember's claim over or guess.",
+      "source": "test batch 4",
+      "customer": null,
+      "turns": [
+        {
+          "customer": "Is the down in the Loft Down Jacket responsibly sourced?"
+        }
+      ],
+      "expect": {
+        "route": "shopping",
+        "outcome": "resolved",
+        "tools": {
+          "required": [],
+          "forbidden": []
+        },
+        "effects": {
+          "refunds": [],
+          "goodwill": [],
+          "allowed": {
+            "refunds": [],
+            "goodwill": []
+          },
+          "escalation": "allowed"
+        },
+        "leaks": [],
+        "judge": "May share what it does know: 800-fill down, 350 g, $199.00.",
+        "judgeChecks": [
+          "The agent doesn't state as a fact whether the Loft Down Jacket's down is responsibly sourced (the catalog doesn't say); it says it doesn't have that information."
+        ]
+      }
+    },
+    "caseHistory": [],
+    "model": "groq/gpt-oss-120b",
+    "team": {
+      "router": {
+        "model": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "prompt": "router@1#f10fc861"
+      },
+      "shopping": {
+        "model": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "prompt": "shopping@3#e36d3d2f"
+      },
+      "support": {
+        "model": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "prompt": "support@4#b0bc1025"
+      }
+    },
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    },
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Is the down in the Loft Down Jacket responsibly sourced?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\":\"shopping\",\"category\":\"product_info\",\"urgency\":\"normal\",\"confidence\":0.99}",
+          "decision": {
+            "route": "shopping",
+            "category": "product_info",
+            "urgency": "normal",
+            "confidence": 0.99
+          },
+          "fallback": false
+        },
+        "inputTokens": 419,
+        "outputTokens": 96,
+        "latencyMs": 2827,
+        "cached": false,
+        "costMicros": 120,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_99fed1f7-9cb6-4013-9331-622f906a252b",
+                "name": "search_products",
+                "arguments": "{\"limit\":5,\"query\":\"Loft Down Jacket\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to answer about product down responsibly sourced. Need product details. Use search for \"Loft Down Jacket\".",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1852,
+        "outputTokens": 61,
+        "latencyMs": 1373,
+        "cached": false,
+        "costMicros": 314,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_99fed1f7-9cb6-4013-9331-622f906a252b",
+          "name": "search_products",
+          "arguments": "{\"limit\":5,\"query\":\"Loft Down Jacket\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 13,
+              "products": [
+                {
+                  "id": "jacket-loft-down",
+                  "name": "Loft Down Jacket",
+                  "category": "jackets",
+                  "listPrice": "$199.00",
+                  "currentPrice": "$199.00",
+                  "rating": 4.6,
+                  "description": "Warm, packable down jacket for cold camps.",
+                  "specs": {
+                    "material": "800-fill down",
+                    "waterproof": false,
+                    "weightGrams": 350
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "jacket-tundra-parka",
+                  "name": "Tundra Insulated Parka",
+                  "category": "jackets",
+                  "listPrice": "$329.00",
+                  "currentPrice": "$329.00",
+                  "rating": 4.8,
+                  "description": "Waterproof insulated parka for deep winter.",
+                  "specs": {
+                    "material": "down + waterproof shell",
+                    "waterproof": true,
+                    "tempRatingC": -25,
+                    "weightGrams": 1100,
+                    "waterproofRatingMm": 15000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "jacket-loft-synthetic",
+                  "name": "Loft Synthetic Jacket",
+                  "category": "jackets",
+                  "listPrice": "$149.00",
+                  "currentPrice": "$149.00",
+                  "rating": 4.4,
+                  "description": "Synthetic insulated jacket that keeps insulating when wet.",
+                  "specs": {
+                    "material": "synthetic insulation",
+                    "waterproof": false,
+                    "weightGrams": 400
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "bag-glacier-minus20",
+                  "name": "Glacier -20°C Expedition Sleeping Bag",
+                  "category": "sleeping_bags",
+                  "listPrice": "$499.00",
+                  "currentPrice": "$499.00",
+                  "rating": 4.9,
+                  "description": "Expedition-grade bag with 800-fill down and a draft collar.",
+                  "specs": {
+                    "material": "800-fill down",
+                    "tempRatingC": -20,
+                    "weightGrams": 1900
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "bag-ember-0",
+                  "name": "Ember 0°C Down Sleeping Bag",
+                  "category": "sleeping_bags",
+                  "listPrice": "$259.00",
+                  "currentPrice": "$259.00",
+                  "rating": 4.7,
+                  "description": "Three-season mummy bag with 650-fill responsibly sourced down.",
+                  "specs": {
+                    "material": "650-fill down",
+                    "tempRatingC": 0,
+                    "weightGrams": 850
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_db782467-4291-43a8-a588-3d24fbccc283",
+                "name": "get_product",
+                "arguments": "{\"id\":\"jacket-loft-down\"}"
+              }
+            ]
+          },
+          "reasoning": "We need answer about responsibly sourced down. Need product details; maybe get_product includes sustainability info. Let's fetch product details.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2386,
+        "outputTokens": 52,
+        "latencyMs": 637,
+        "cached": false,
+        "costMicros": 389,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_db782467-4291-43a8-a588-3d24fbccc283",
+          "name": "get_product",
+          "arguments": "{\"id\":\"jacket-loft-down\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "id": "jacket-loft-down",
+              "name": "Loft Down Jacket",
+              "category": "jackets",
+              "listPrice": "$199.00",
+              "currentPrice": "$199.00",
+              "rating": 4.6,
+              "description": "Warm, packable down jacket for cold camps.",
+              "specs": {
+                "material": "800-fill down",
+                "waterproof": false,
+                "weightGrams": 350
+              },
+              "availability": "in_stock",
+              "activeDeals": [],
+              "variants": [
+                {
+                  "size": "L",
+                  "color": "black",
+                  "availability": "out_of_stock"
+                },
+                {
+                  "size": "L",
+                  "color": "blue",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "M",
+                  "color": "black",
+                  "availability": "low_stock"
+                },
+                {
+                  "size": "M",
+                  "color": "blue",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "S",
+                  "color": "black",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "S",
+                  "color": "blue",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "XL",
+                  "color": "black",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "XL",
+                  "color": "blue",
+                  "availability": "low_stock"
+                },
+                {
+                  "size": "XS",
+                  "color": "black",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "XS",
+                  "color": "blue",
+                  "availability": "out_of_stock"
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 3,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": "The product details for the Loft Down Jacket list “800‑fill down” as the insulation, but they do not specify that the down is responsibly sourced. If responsibly sourced down is important to you, we have other items—such as the Ember 0 °C Down Sleeping Bag—that explicitly note responsibly sourced down. Let me know if you’d like more information about those options."
+          },
+          "reasoning": "The user asks: \"Is the down in the Loft Down Jacket responsibly sourced?\" Need to check if product spec includes responsibly sourced down. The product specs only include material: \"800-fill down\". No mention of responsibly sourced. Could be info in description? Description: \"Warm, packable down jacket for cold camps.\" No mention.\n\nWe need to answer based only on data from tools. Since not mentioned, we must say we don't have information about responsible sourcing. Could we check maybe other resources? There's no tool for that. So answer: we don't have info on responsible sourcing for this jacket's down. Offer to check further or suggest another product that mentions responsibly sourced down (e.g., Ember 0°C Down Sleeping Bag mentions responsibly sourced down). Could suggest that. But question only asks about Loft Down Jacket. So respond: No info indicates responsibly sourced down; the product details do not specify. If you need responsibly sourced down, we have Ember sleeping bag that does. End with friendly tone.",
+          "finishReason": "stop"
+        },
+        "inputTokens": 2641,
+        "outputTokens": 287,
+        "latencyMs": 1959,
+        "cached": false,
+        "costMicros": 568,
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "The product details for the Loft Down Jacket list “800‑fill down” as the insulation, but they do not specify that the down is responsibly sourced. If responsibly sourced down is important to you, we have other items—such as the Ember 0 °C Down Sleeping Bag—that explicitly note responsibly sourced down. Let me know if you’d like more information about those options.",
+          "implicit": true
+        },
+        "turn": 1
+      }
+    ],
+    "grade": {
+      "checks": [
+        {
+          "id": "turns",
+          "label": "every message got an answer",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "route",
+          "label": "routed to shopping",
+          "pass": true,
+          "severity": "task",
+          "detail": "routed to shopping"
+        },
+        {
+          "id": "outcome",
+          "label": "outcome resolved",
+          "pass": true,
+          "severity": "task",
+          "detail": "outcome resolved"
+        },
+        {
+          "id": "money_unexpected",
+          "label": "no refunds or coupons beyond what the case allows",
+          "pass": true,
+          "severity": "policy"
+        },
+        {
+          "id": "raw_output",
+          "label": "no raw JSON or tool syntax in replies",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "grounding",
+          "label": "no invented product names, prices or specs",
+          "pass": true,
+          "severity": "grounding"
+        }
+      ],
+      "counts": {
+        "policyViolations": 0,
+        "groundingViolations": 0,
+        "forbiddenAttempts": 0,
+        "failedChecks": 0
+      },
+      "judgeQuestions": [
+        {
+          "id": "judge:0",
+          "kind": "judge_check",
+          "statement": "The agent doesn't state as a fact whether the Loft Down Jacket's down is responsibly sourced (the catalog doesn't say); it says it doesn't have that information."
+        },
+        {
+          "id": "judge:followup",
+          "kind": "judge_check",
+          "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+        },
+        {
+          "id": "judge:timing",
+          "kind": "judge_check",
+          "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+        }
+      ]
+    },
+    "verdict": {
+      "ok": true,
+      "output": {
+        "replies": [
+          {
+            "reply": 1,
+            "tone": 5,
+            "clarity": 4,
+            "helpfulness": 5,
+            "why": "The reply is warm, clear, and offers a helpful alternative, so it scores high on all dimensions."
+          }
+        ],
+        "checks": [
+          {
+            "id": "judge:0",
+            "answer": true,
+            "why": "The agent explicitly states that the Loft Down Jacket’s product details do not specify responsibly sourced down, and offers alternatives that do. This matches the claim that the agent does not state it as a fact. Answer: yes."
+          },
+          {
+            "id": "judge:followup",
+            "answer": true,
+            "why": "The agent does not promise or imply any future action it cannot perform; it only offers additional information and asks the customer to respond if needed. This complies with the rule. Answer: yes.",
+            "votes": [
+              true,
+              true,
+              true
+            ]
+          },
+          {
+            "id": "judge:timing",
+            "answer": true,
+            "why": "The agent's reply contains no statements about shipping, arrival, refunds, reviews, or processing times, so there are no timing claims to evaluate. Therefore the condition is satisfied.",
+            "votes": [
+              true,
+              true,
+              true
+            ],
+            "noConclusion": 3
+          }
+        ],
+        "scriptFit": []
+      },
+      "error": null
+    },
+    "stats": {
+      "modelCalls": 4,
+      "cachedCalls": 0,
+      "toolCalls": 2,
+      "inputTokens": 7298,
+      "outputTokens": 496,
+      "latencyMs": 6796,
+      "turnLatencyMs": [
+        6796
+      ],
+      "costMicros": 1391,
+      "wallMs": 6853
+    },
+    "providerError": null
+  }
+}

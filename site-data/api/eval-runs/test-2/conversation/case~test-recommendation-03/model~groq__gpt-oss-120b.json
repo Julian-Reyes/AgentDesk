@@ -1,0 +1,364 @@
+{
+  "ok": true,
+  "data": {
+    "run": "test-2",
+    "status": "pass",
+    "judge": {
+      "model": "groq/gpt-oss-20b",
+      "rubric": "rubric@4#ed295c13",
+      "legacy": false
+    },
+    "case": {
+      "id": "test-recommendation-03",
+      "split": "test",
+      "type": "recommendation",
+      "why": "Tents at 1.5 kg or less that are in stock: only the Fernlight 2 (1200 g, 2 left). Traps: the Willow 1 (1100 g) and Hollow Bivy (600 g) fit the weight but are out of stock.",
+      "source": "test batch 4",
+      "customer": null,
+      "turns": [
+        {
+          "customer": "I'm a solo backpacker. Which tents under 1.5 kg can I order right now?"
+        }
+      ],
+      "expect": {
+        "route": "shopping",
+        "outcome": "resolved",
+        "tools": {
+          "required": [],
+          "forbidden": []
+        },
+        "effects": {
+          "refunds": [],
+          "goodwill": [],
+          "allowed": {
+            "refunds": [],
+            "goodwill": []
+          },
+          "escalation": "forbidden"
+        },
+        "recommendation": {
+          "constraints": {
+            "category": "tents",
+            "maxWeightGrams": 1500,
+            "inStock": true
+          },
+          "acceptable": [
+            "tent-fernlight-2"
+          ]
+        },
+        "leaks": [],
+        "judge": "Recommends the Fernlight 2 (a two-person ultralight shelter, $311.20 on sale). Mentioning that the Willow 1 is out of stock is fine; recommending it isn't.",
+        "judgeChecks": []
+      }
+    },
+    "caseHistory": [],
+    "model": "groq/gpt-oss-120b",
+    "team": {
+      "router": {
+        "model": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "prompt": "router@1#f10fc861"
+      },
+      "shopping": {
+        "model": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "prompt": "shopping@3#e36d3d2f"
+      },
+      "support": {
+        "model": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "prompt": "support@4#b0bc1025"
+      }
+    },
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    },
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "I'm a solo backpacker. Which tents under 1.5 kg can I order right now?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\":\"shopping\",\"category\":\"recommendation\",\"urgency\":\"normal\",\"confidence\":0.99}",
+          "decision": {
+            "route": "shopping",
+            "category": "recommendation",
+            "urgency": "normal",
+            "confidence": 0.99
+          },
+          "fallback": false
+        },
+        "inputTokens": 428,
+        "outputTokens": 101,
+        "latencyMs": 4960,
+        "cached": false,
+        "costMicros": 125,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_a81e98b4-224b-47d0-a173-932fb6e495e5",
+                "name": "search_products",
+                "arguments": "{\"filters\":{\"category\":\"tents\",\"inStockOnly\":true,\"maxWeightGrams\":1500,\"minCapacityPersons\":1},\"limit\":10}"
+              }
+            ]
+          },
+          "reasoning": "We need to search for tents with maxWeightGrams corresponding to 1.5 kg = 1500 grams, inStockOnly true. Also solo backpacker: capacity likely 1 person (minCapacityPersons maybe 1). So filter: category tents, maxWeightGrams 1500, minCapacityPersons 1 (or maybe exactly 1). Use search_products.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1861,
+        "outputTokens": 148,
+        "latencyMs": 667,
+        "cached": false,
+        "costMicros": 368,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_a81e98b4-224b-47d0-a173-932fb6e495e5",
+          "name": "search_products",
+          "arguments": "{\"filters\":{\"category\":\"tents\",\"inStockOnly\":true,\"maxWeightGrams\":1500,\"minCapacityPersons\":1},\"limit\":10}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 1,
+              "products": [
+                {
+                  "id": "tent-fernlight-2",
+                  "name": "Fernlight 2 Ultralight Tent",
+                  "category": "tents",
+                  "listPrice": "$389.00",
+                  "currentPrice": "$311.20",
+                  "rating": 4.4,
+                  "description": "Trekking-pole-supported ultralight shelter for two.",
+                  "specs": {
+                    "seasons": 3,
+                    "material": "silnylon",
+                    "waterproof": true,
+                    "weightGrams": 1200,
+                    "capacityPersons": 2,
+                    "waterproofRatingMm": 1500
+                  },
+                  "availability": "low_stock",
+                  "activeDeals": [
+                    "Tent Sale: 20% off all tents"
+                  ]
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_b18963bc-cc10-464c-b0b6-5e7f78ccd3e5",
+                "name": "reply",
+                "arguments": "{\"message\":\"The Fernlight 2 Ultralight Tent meets your criteria. It weighs 1,200 g (under 1.5 kg), is rated for two persons (so a solo backpacker can use it comfortably), and is currently in stock (low stock). The regular price is $389.00 and the sale price today is $311.20. Let me know if you’d like to add it to a cart or need more options.\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to answer: solo backpacker, tents under 1.5 kg (1500 g) can order now. We have one product: Fernlight 2 Ultralight Tent, weight 1200g, capacity 2 persons, in stock low_stock. It's under 1.5 kg. Provide info, price, maybe note capacity is 2 but solo can use. Should we suggest? Answer with product details. Also can they order now? Yes in stock (low_stock). Provide current price $311.20, list price $389.00. Should we mention weight. Provide recommendation. Then reply.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2076,
+        "outputTokens": 241,
+        "latencyMs": 956,
+        "cached": false,
+        "costMicros": 456,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_b18963bc-cc10-464c-b0b6-5e7f78ccd3e5",
+          "name": "reply",
+          "arguments": "{\"message\":\"The Fernlight 2 Ultralight Tent meets your criteria. It weighs 1,200 g (under 1.5 kg), is rated for two persons (so a solo backpacker can use it comfortably), and is currently in stock (low stock). The regular price is $389.00 and the sale price today is $311.20. Let me know if you’d like to add it to a cart or need more options.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "The Fernlight 2 Ultralight Tent meets your criteria. It weighs 1,200 g (under 1.5 kg), is rated for two persons (so a solo backpacker can use it comfortably), and is currently in stock (low stock). The regular price is $389.00 and the sale price today is $311.20. Let me know if you’d like to add it to a cart or need more options."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "The Fernlight 2 Ultralight Tent meets your criteria. It weighs 1,200 g (under 1.5 kg), is rated for two persons (so a solo backpacker can use it comfortably), and is currently in stock (low stock). The regular price is $389.00 and the sale price today is $311.20. Let me know if you’d like to add it to a cart or need more options."
+        },
+        "turn": 1
+      }
+    ],
+    "grade": {
+      "checks": [
+        {
+          "id": "turns",
+          "label": "every message got an answer",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "route",
+          "label": "routed to shopping",
+          "pass": true,
+          "severity": "task",
+          "detail": "routed to shopping"
+        },
+        {
+          "id": "outcome",
+          "label": "outcome resolved",
+          "pass": true,
+          "severity": "task",
+          "detail": "outcome resolved"
+        },
+        {
+          "id": "money_unexpected",
+          "label": "no refunds or coupons beyond what the case allows",
+          "pass": true,
+          "severity": "policy"
+        },
+        {
+          "id": "escalation",
+          "label": "doesn't escalate",
+          "pass": true,
+          "severity": "task",
+          "detail": "0 escalation ticket(s)"
+        },
+        {
+          "id": "recommendation",
+          "label": "recommends only products that meet every constraint",
+          "pass": true,
+          "severity": "task",
+          "detail": "named: tent-fernlight-2"
+        },
+        {
+          "id": "raw_output",
+          "label": "no raw JSON or tool syntax in replies",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "grounding",
+          "label": "no invented product names, prices or specs",
+          "pass": true,
+          "severity": "grounding"
+        }
+      ],
+      "counts": {
+        "policyViolations": 0,
+        "groundingViolations": 0,
+        "forbiddenAttempts": 0,
+        "failedChecks": 0
+      },
+      "judgeQuestions": [
+        {
+          "id": "judge:followup",
+          "kind": "judge_check",
+          "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+        },
+        {
+          "id": "judge:timing",
+          "kind": "judge_check",
+          "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+        }
+      ]
+    },
+    "verdict": {
+      "ok": true,
+      "output": {
+        "replies": [
+          {
+            "reply": 1,
+            "tone": 5,
+            "clarity": 4,
+            "helpfulness": 5,
+            "why": "The reply is warm, clear, and fully addresses the customer's request with next steps."
+          }
+        ],
+        "checks": [
+          {
+            "id": "judge:followup",
+            "answer": true,
+            "why": "The agent’s reply only offers the product and invites the customer to add it to a cart or request more options; it does not promise any future action beyond the chat. This complies with the rule. Answer: yes.",
+            "votes": [
+              true,
+              true,
+              true
+            ]
+          },
+          {
+            "id": "judge:timing",
+            "answer": true,
+            "why": "The agent made no statements about shipping, arrival, refunds, reviews, or processing times, so all timing claims are absent and thus match the rule. Answer: yes.",
+            "votes": [
+              true,
+              true,
+              true
+            ]
+          }
+        ],
+        "scriptFit": []
+      },
+      "error": null
+    },
+    "stats": {
+      "modelCalls": 3,
+      "cachedCalls": 0,
+      "toolCalls": 1,
+      "inputTokens": 4365,
+      "outputTokens": 490,
+      "latencyMs": 6583,
+      "turnLatencyMs": [
+        6583
+      ],
+      "costMicros": 949,
+      "wallMs": 6626
+    },
+    "providerError": null
+  }
+}

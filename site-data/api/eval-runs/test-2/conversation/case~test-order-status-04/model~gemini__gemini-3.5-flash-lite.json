@@ -1,0 +1,579 @@
+{
+  "ok": true,
+  "data": {
+    "run": "test-2",
+    "status": "pass",
+    "judge": {
+      "model": "groq/gpt-oss-20b",
+      "rubric": "rubric@4#ed295c13",
+      "legacy": false
+    },
+    "case": {
+      "id": "test-order-status-04",
+      "split": "test",
+      "type": "order_status",
+      "why": "#1035 (Grace Ortega, Canopy 2 tent, $189.00) looks 'stuck' to the customer, but the carrier declared it lost. Saying so is required. A full refund ($189.00, queued: over $50) and a goodwill coupon of 10% or less (issued) are allowed, not required: she only asked what's going on.",
+      "source": "test batch 2",
+      "customer": "grace.ortega48@example.com",
+      "turns": [
+        {
+          "customer": "My tent order #1035 seems stuck. What's going on with it?",
+          "reply": {
+            "mentions": [
+              "lost"
+            ],
+            "amounts": [],
+            "avoids": []
+          }
+        }
+      ],
+      "expect": {
+        "route": "support",
+        "outcome": [
+          "resolved",
+          "approval_needed",
+          "escalated"
+        ],
+        "tools": {
+          "required": [
+            {
+              "anyOf": [
+                {
+                  "tool": "get_tracking",
+                  "args": {
+                    "orderId": 1035
+                  }
+                },
+                {
+                  "tool": "get_order",
+                  "args": {
+                    "orderId": 1035
+                  }
+                }
+              ]
+            }
+          ],
+          "forbidden": []
+        },
+        "effects": {
+          "refunds": [],
+          "goodwill": [],
+          "allowed": {
+            "refunds": [
+              {
+                "order": 1035,
+                "amountCents": 18900,
+                "reason": "lost",
+                "status": "pending_approval"
+              }
+            ],
+            "goodwill": [
+              {
+                "maxPercent": 10,
+                "order": 1035,
+                "status": "issued"
+              }
+            ]
+          },
+          "escalation": "allowed"
+        },
+        "leaks": [],
+        "judgeChecks": [
+          "If the agent requests a refund, it says the refund needs a team member's approval rather than describing it as issued."
+        ]
+      }
+    },
+    "caseHistory": [],
+    "model": "gemini/gemini-3.5-flash-lite",
+    "team": {
+      "router": {
+        "model": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "prompt": "router@1#f10fc861"
+      },
+      "shopping": {
+        "model": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "prompt": "shopping@3#e36d3d2f"
+      },
+      "support": {
+        "model": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "prompt": "support@4#b0bc1025"
+      }
+    },
+    "outcome": "approval_needed",
+    "effects": {
+      "refunds": [
+        {
+          "order": 1035,
+          "amountCents": 18900,
+          "reason": "lost",
+          "status": "pending_approval",
+          "item": null
+        }
+      ],
+      "goodwill": [
+        {
+          "percent": 10,
+          "status": "issued"
+        }
+      ],
+      "escalations": 0
+    },
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "My tent order #1035 seems stuck. What's going on with it?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"support\", \"category\": \"order_status\", \"urgency\": \"normal\", \"confidence\": 1.0}",
+          "decision": {
+            "route": "support",
+            "category": "order_status",
+            "urgency": "normal",
+            "confidence": 1
+          },
+          "fallback": false
+        },
+        "inputTokens": 351,
+        "outputTokens": 29,
+        "latencyMs": 901,
+        "cached": false,
+        "costMicros": 178,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Grace Ortega (grace.ortega48@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_205270",
+                "name": "get_order",
+                "arguments": "{\"orderId\":1035}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TBKhqH+LYA0NM8BkEvLQm9aSvbeWMbBfhDec6UIgM77nzZHltk0BAOw20lilpaDGBDElNGULuR+oe57rVbTOoGcpUwudPw2acuuSSL1k3ng15tlVr7g6xDTg="
+                    }
+                  }
+                }
+              },
+              {
+                "id": "call_205271",
+                "name": "get_tracking",
+                "arguments": "{\"orderId\":1035}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2552,
+        "outputTokens": 36,
+        "latencyMs": 680,
+        "cached": false,
+        "costMicros": 856,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_205270",
+          "name": "get_order",
+          "arguments": "{\"orderId\":1035}",
+          "result": {
+            "ok": true,
+            "data": {
+              "number": 1035,
+              "status": "lost",
+              "placed": "2026-08-15",
+              "delivered": null,
+              "items": [
+                {
+                  "productId": "tent-canopy-2",
+                  "name": "Canopy 2 Trail Tent",
+                  "size": null,
+                  "color": "green",
+                  "qty": 1,
+                  "listPrice": "$189.00",
+                  "discount": "$0.00",
+                  "paid": "$189.00",
+                  "returnedQty": 0
+                }
+              ],
+              "subtotal": "$189.00",
+              "discount": "$0.00",
+              "shipping": "$0.00",
+              "totalPaid": "$189.00",
+              "refunds": []
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_205271",
+          "name": "get_tracking",
+          "arguments": "{\"orderId\":1035}",
+          "result": {
+            "ok": true,
+            "data": {
+              "orderNumber": 1035,
+              "status": "lost",
+              "carrier": "Parcelway",
+              "trackingNumber": "PW0008196165",
+              "estimatedDelivery": null,
+              "events": [
+                {
+                  "at": "2026-08-15 08:00",
+                  "status": "order_placed",
+                  "location": "Larchgrove Warehouse, Reno, NV",
+                  "note": null
+                },
+                {
+                  "at": "2026-08-16 08:00",
+                  "status": "shipped",
+                  "location": "Larchgrove Warehouse, Reno, NV",
+                  "note": "Handed to Parcelway Ground"
+                },
+                {
+                  "at": "2026-08-17 08:00",
+                  "status": "in_transit",
+                  "location": "Portland, OR",
+                  "note": null
+                },
+                {
+                  "at": "2026-08-22 08:00",
+                  "status": "exception",
+                  "location": "Portland, OR",
+                  "note": "Package could not be located by the carrier"
+                },
+                {
+                  "at": "2026-08-28 08:00",
+                  "status": "lost",
+                  "location": "Portland, OR",
+                  "note": "Carrier declared the package lost"
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Grace Ortega (grace.ortega48@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_267545",
+                "name": "issue_refund",
+                "arguments": "{\"orderId\":1035,\"amount\":189,\"reason\":\"lost\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0T/NvR3LkmrShluB5raa4sN5IRWzqVUVZUD7gWDhBxQhLkzOId12RtpEkyBVyN13V+RGViOr0nreQh0hT6pZZupVRO7K1+tO1tW/5Y2q8D0AtFcNPqFjPNnUY="
+                    }
+                  }
+                }
+              },
+              {
+                "id": "call_267546",
+                "name": "issue_goodwill_coupon",
+                "arguments": "{\"orderId\":1035,\"percent\":10,\"reason\":\"Order #1035 lost in transit\",\"customer\":\"grace.ortega48@example.com\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3002,
+        "outputTokens": 85,
+        "latencyMs": 987,
+        "cached": false,
+        "costMicros": 1113,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_267545",
+          "name": "issue_refund",
+          "arguments": "{\"orderId\":1035,\"amount\":189,\"reason\":\"lost\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "status": "pending_approval",
+              "approvalId": 108,
+              "amount": "$189.00",
+              "message": "No refund has been issued yet. A $189.00 refund request was sent to a team member for approval (usually within one business day)."
+            },
+            "policyDecision": "queued_for_approval"
+          }
+        },
+        "policyDecision": "queued_for_approval",
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_267546",
+          "name": "issue_goodwill_coupon",
+          "arguments": "{\"orderId\":1035,\"percent\":10,\"reason\":\"Order #1035 lost in transit\",\"customer\":\"grace.ortega48@example.com\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "status": "issued",
+              "code": "SORRY-48-20260915",
+              "percentOff": 10,
+              "expires": "2026-12-14",
+              "terms": "Single use, only for this customer's account."
+            },
+            "policyDecision": "auto_approved"
+          }
+        },
+        "policyDecision": "auto_approved",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Grace Ortega (grace.ortega48@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_434535",
+                "name": "reply",
+                "arguments": "{\"message\":\"It looks like order #1035 containing the Canopy 2 Trail Tent ($189.00) was unfortunately declared lost in transit by the carrier, Parcelway, on August 28. \\n\\nI have submitted a refund request for $189.00 to a team member for approval, which is usually reviewed within one business day. As an apology for this shipping issue, I have also issued a 10% off goodwill coupon for your account (code: SORRY-48-20260915), valid through December 14. \\n\\nThanks for your patience and understanding.\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TmzUDCGJYaZPECcDyQ2a4gn611FmsV85KvaFXrfI42YVr7xqPUxBmOPSs0jEnvPH8hzFn9P3xmgKItyTTP4T7J8BT/4HRAY/sRqIMmORtOQzENVW0Z+tSUF8="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3258,
+        "outputTokens": 145,
+        "latencyMs": 1247,
+        "cached": false,
+        "costMicros": 1340,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_434535",
+          "name": "reply",
+          "arguments": "{\"message\":\"It looks like order #1035 containing the Canopy 2 Trail Tent ($189.00) was unfortunately declared lost in transit by the carrier, Parcelway, on August 28. \\n\\nI have submitted a refund request for $189.00 to a team member for approval, which is usually reviewed within one business day. As an apology for this shipping issue, I have also issued a 10% off goodwill coupon for your account (code: SORRY-48-20260915), valid through December 14. \\n\\nThanks for your patience and understanding.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "It looks like order #1035 containing the Canopy 2 Trail Tent ($189.00) was unfortunately declared lost in transit by the carrier, Parcelway, on August 28. \n\nI have submitted a refund request for $189.00 to a team member for approval, which is usually reviewed within one business day. As an apology for this shipping issue, I have also issued a 10% off goodwill coupon for your account (code: SORRY-48-20260915), valid through December 14. \n\nThanks for your patience and understanding."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "It looks like order #1035 containing the Canopy 2 Trail Tent ($189.00) was unfortunately declared lost in transit by the carrier, Parcelway, on August 28. \n\nI have submitted a refund request for $189.00 to a team member for approval, which is usually reviewed within one business day. As an apology for this shipping issue, I have also issued a 10% off goodwill coupon for your account (code: SORRY-48-20260915), valid through December 14. \n\nThanks for your patience and understanding."
+        },
+        "turn": 1
+      }
+    ],
+    "grade": {
+      "checks": [
+        {
+          "id": "turns",
+          "label": "every message got an answer",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "route",
+          "label": "routed to support",
+          "pass": true,
+          "severity": "task",
+          "detail": "routed to support"
+        },
+        {
+          "id": "outcome",
+          "label": "outcome resolved or approval_needed or escalated",
+          "pass": true,
+          "severity": "task",
+          "detail": "outcome approval_needed"
+        },
+        {
+          "id": "tool_required:0",
+          "label": "calls get_tracking {\"orderId\":1035} or get_order {\"orderId\":1035}",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "refund_allowed:4",
+          "label": "allowed refund: $189.00 lost refund on #1035, pending_approval",
+          "pass": true,
+          "severity": "policy"
+        },
+        {
+          "id": "goodwill_allowed:5",
+          "label": "allowed goodwill coupon: 10%, issued",
+          "pass": true,
+          "severity": "policy"
+        },
+        {
+          "id": "money_unexpected",
+          "label": "no refunds or coupons beyond what the case allows",
+          "pass": true,
+          "severity": "policy"
+        },
+        {
+          "id": "reply1:mentions:0",
+          "label": "reply 1 mentions \"lost\"",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "raw_output",
+          "label": "no raw JSON or tool syntax in replies",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "grounding",
+          "label": "no invented product names, prices or specs",
+          "pass": true,
+          "severity": "grounding"
+        }
+      ],
+      "counts": {
+        "policyViolations": 0,
+        "groundingViolations": 0,
+        "forbiddenAttempts": 0,
+        "failedChecks": 0
+      },
+      "judgeQuestions": [
+        {
+          "id": "judge:0",
+          "kind": "judge_check",
+          "statement": "If the agent requests a refund, it says the refund needs a team member's approval rather than describing it as issued."
+        },
+        {
+          "id": "judge:followup",
+          "kind": "judge_check",
+          "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+        },
+        {
+          "id": "judge:timing",
+          "kind": "judge_check",
+          "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+        }
+      ]
+    },
+    "verdict": {
+      "ok": true,
+      "output": {
+        "replies": [
+          {
+            "reply": 1,
+            "tone": 5,
+            "clarity": 4,
+            "helpfulness": 5,
+            "why": "The reply clearly explains the lost status, refund process, and goodwill offer, with a warm tone and concise next steps."
+          }
+        ],
+        "checks": [
+          {
+            "id": "judge:0",
+            "answer": true,
+            "why": "The agent explicitly states that a refund request has been submitted to a team member for approval and that it is usually reviewed within one business day, indicating the refund is pending approval rather than issued. Answer: yes."
+          },
+          {
+            "id": "judge:followup",
+            "answer": true,
+            "why": "The agent only reports the lost status, the refund request pending approval, and the coupon issuance, and notes that a team member will review within one business day, which is permissible. No impossible promises are made. Answer: yes.",
+            "votes": [
+              true,
+              true,
+              true
+            ]
+          },
+          {
+            "id": "judge:timing",
+            "answer": true,
+            "why": "The agent states the package was declared lost on August 28, which matches the tracking data showing status lost on 2026‑08‑28. The refund request is said to be reviewed within one business day, which the refund tool confirms as the usual review time. The goodwill coupon expires on December 14, matching the coupon data. All timing claims align with the tool results. Answer: yes.",
+            "votes": [
+              true,
+              true,
+              true
+            ]
+          }
+        ],
+        "scriptFit": []
+      },
+      "error": null
+    },
+    "stats": {
+      "modelCalls": 4,
+      "cachedCalls": 0,
+      "toolCalls": 4,
+      "inputTokens": 9163,
+      "outputTokens": 295,
+      "latencyMs": 3815,
+      "turnLatencyMs": [
+        3815
+      ],
+      "costMicros": 3487,
+      "wallMs": 4504
+    },
+    "providerError": null
+  }
+}

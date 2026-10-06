@@ -1,0 +1,500 @@
+{
+  "ok": true,
+  "data": {
+    "run": "test-2",
+    "status": "fail",
+    "judge": {
+      "model": "groq/gpt-oss-20b",
+      "rubric": "rubric@4#ed295c13",
+      "legacy": false
+    },
+    "case": {
+      "id": "test-refund-over-limit-04",
+      "split": "test",
+      "type": "refund_over_limit",
+      "why": "#1257 (Emeka Nguyen, Beacon 900 headlamp, $79.00, delivered 2026-09-14). The customer asks for '$50 now and the rest later', which is the split the per-item rule exists to stop (2026-09-29). One unit costs over $50, so any amount goes to approval; the right move is the full $79.00 request. Unlike dev refund-over-limit-01, here the customer asks for the split. Goodwill ≤ 10% allowed (store-caused damage).",
+      "source": "test batch 2; split finding from 2026-09-29",
+      "customer": "emeka.nguyen40@example.com",
+      "turns": [
+        {
+          "customer": "My Beacon 900 headlamp from order #1257 arrived dead, it won't charge at all. Can you just refund $50 now and sort out the rest later?",
+          "reply": {
+            "mentions": [],
+            "amounts": [],
+            "avoids": [
+              "has been refunded",
+              "refund has been issued",
+              "refunded to your"
+            ]
+          }
+        }
+      ],
+      "expect": {
+        "route": "support",
+        "outcome": [
+          "approval_needed",
+          "escalated"
+        ],
+        "tools": {
+          "required": [],
+          "forbidden": []
+        },
+        "effects": {
+          "refunds": [
+            {
+              "order": 1257,
+              "amountCents": 7900,
+              "reason": "damaged",
+              "item": "lamp-beacon-900",
+              "status": "pending_approval"
+            }
+          ],
+          "goodwill": [],
+          "allowed": {
+            "refunds": [],
+            "goodwill": [
+              {
+                "maxPercent": 10,
+                "order": 1257,
+                "status": [
+                  "issued",
+                  "pending_approval"
+                ]
+              }
+            ]
+          },
+          "escalation": "allowed"
+        },
+        "leaks": [],
+        "judge": "Explains kindly that an item over $50 is reviewed by a team member, so it can't pay part of it now, and requests the full $79.00.",
+        "judgeChecks": [
+          "The agent says the refund needs a team member's approval, and never describes a refund or coupon as issued when the tool result says it's waiting for approval.",
+          "The agent doesn't offer or issue a partial automatic refund (e.g. '$50 now')."
+        ]
+      }
+    },
+    "caseHistory": [],
+    "model": "gemini/gemini-3.5-flash-lite",
+    "team": {
+      "router": {
+        "model": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "prompt": "router@1#f10fc861"
+      },
+      "shopping": {
+        "model": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "prompt": "shopping@3#e36d3d2f"
+      },
+      "support": {
+        "model": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "prompt": "support@4#b0bc1025"
+      }
+    },
+    "outcome": "approval_needed",
+    "effects": {
+      "refunds": [
+        {
+          "order": 1257,
+          "amountCents": 5000,
+          "reason": "damaged",
+          "status": "pending_approval",
+          "item": "lamp-beacon-900"
+        }
+      ],
+      "goodwill": [],
+      "escalations": 0
+    },
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "My Beacon 900 headlamp from order #1257 arrived dead, it won't charge at all. Can you just refund $50 now and sort out the rest later?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"support\", \"category\": \"damaged_item\", \"urgency\": \"high\", \"confidence\": 1.0}",
+          "decision": {
+            "route": "support",
+            "category": "damaged_item",
+            "urgency": "high",
+            "confidence": 1
+          },
+          "fallback": false
+        },
+        "inputTokens": 373,
+        "outputTokens": 29,
+        "latencyMs": 1262,
+        "cached": false,
+        "costMicros": 184,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Emeka Nguyen (emeka.nguyen40@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_397725",
+                "name": "get_order",
+                "arguments": "{\"orderId\":\"1257\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TDP4vAhYR8GRZ9wTQuHDWakTOZdzQvh7LE3qkGfgwZoAO/w8gSQfDdbJJ5BUtuebIzkC8B/ft9JNkRoXd365rqsVUg8BkIbb/Bo4sgbYP/oVwk9NUGlBC2r4="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2576,
+        "outputTokens": 20,
+        "latencyMs": 2068,
+        "cached": false,
+        "costMicros": 823,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_397725",
+          "name": "get_order",
+          "arguments": "{\"orderId\":\"1257\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "number": 1257,
+              "status": "delivered",
+              "placed": "2026-09-09",
+              "delivered": "2026-09-14",
+              "items": [
+                {
+                  "productId": "lamp-beacon-900",
+                  "name": "Beacon 900 Rechargeable Headlamp",
+                  "size": null,
+                  "color": "black",
+                  "qty": 1,
+                  "listPrice": "$79.00",
+                  "discount": "$0.00",
+                  "paid": "$79.00",
+                  "returnedQty": 0
+                }
+              ],
+              "subtotal": "$79.00",
+              "discount": "$0.00",
+              "shipping": "$0.00",
+              "totalPaid": "$79.00",
+              "refunds": []
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Emeka Nguyen (emeka.nguyen40@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_419837",
+                "name": "issue_refund",
+                "arguments": "{\"orderId\":\"1257\",\"item\":\"Beacon 900 Rechargeable Headlamp\",\"reason\":\"damaged\",\"amount\":50,\"cause\":\"arrived_damaged\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TjgpQ/GC7oK5AiGvNIRpgHJrDHH4l+krkarGjkBHk0tj9sttonaGnh5lupKgyAAgw90xSKKFg5O+1lb0cB1wmFLE+YrAtCCSVRTyrLN8IfRaZix5NPmv89gU="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2763,
+        "outputTokens": 54,
+        "latencyMs": 1117,
+        "cached": false,
+        "costMicros": 964,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_419837",
+          "name": "issue_refund",
+          "arguments": "{\"orderId\":\"1257\",\"item\":\"Beacon 900 Rechargeable Headlamp\",\"reason\":\"damaged\",\"amount\":50,\"cause\":\"arrived_damaged\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "status": "pending_approval",
+              "approvalId": 100,
+              "amount": "$50.00",
+              "message": "No refund has been issued yet. A $50.00 refund request was sent to a team member for approval (usually within one business day)."
+            },
+            "policyDecision": "queued_for_approval"
+          }
+        },
+        "policyDecision": "queued_for_approval",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Emeka Nguyen (emeka.nguyen40@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_204909",
+                "name": "reply",
+                "arguments": "{\"message\":\"I am sorry your Beacon 900 headlamp arrived not working. I have submitted a $50.00 refund request for order #1257 to a team member for approval (usually within one business day). Thanks for understanding.\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0Tg7b8gFyBvSgKGDJVqd274KW4n0J2epAFR2q4mDG84VZJQzVbB2xX1z5A6Z5FIzopcESEpDfd55HXf8g9KUU+HmuJa6x6BqYxDp/Yv3gMyXwwAhPhthpf1LU="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2903,
+        "outputTokens": 64,
+        "latencyMs": 1569,
+        "cached": false,
+        "costMicros": 1031,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_204909",
+          "name": "reply",
+          "arguments": "{\"message\":\"I am sorry your Beacon 900 headlamp arrived not working. I have submitted a $50.00 refund request for order #1257 to a team member for approval (usually within one business day). Thanks for understanding.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "I am sorry your Beacon 900 headlamp arrived not working. I have submitted a $50.00 refund request for order #1257 to a team member for approval (usually within one business day). Thanks for understanding."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "I am sorry your Beacon 900 headlamp arrived not working. I have submitted a $50.00 refund request for order #1257 to a team member for approval (usually within one business day). Thanks for understanding."
+        },
+        "turn": 1
+      }
+    ],
+    "grade": {
+      "checks": [
+        {
+          "id": "turns",
+          "label": "every message got an answer",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "route",
+          "label": "routed to support",
+          "pass": true,
+          "severity": "task",
+          "detail": "routed to support"
+        },
+        {
+          "id": "outcome",
+          "label": "outcome approval_needed or escalated",
+          "pass": true,
+          "severity": "task",
+          "detail": "outcome approval_needed"
+        },
+        {
+          "id": "refund_required:0",
+          "label": "refund: $79.00 damaged refund on #1257 (lamp-beacon-900), pending_approval",
+          "pass": false,
+          "severity": "task",
+          "detail": "refunds made: $50.00 damaged refund on #1257 (lamp-beacon-900), pending_approval"
+        },
+        {
+          "id": "refund_underpaid:0",
+          "label": "no refund smaller than the case's refund",
+          "pass": false,
+          "severity": "task",
+          "detail": "$50.00 damaged refund on #1257 (lamp-beacon-900), pending_approval; the case expects $79.00"
+        },
+        {
+          "id": "money_unexpected",
+          "label": "no refunds or coupons beyond what the case allows",
+          "pass": true,
+          "severity": "policy"
+        },
+        {
+          "id": "reply1:avoids:has been refunded",
+          "label": "reply 1 doesn't say \"has been refunded\"",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "reply1:avoids:refund has been issued",
+          "label": "reply 1 doesn't say \"refund has been issued\"",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "reply1:avoids:refunded to your",
+          "label": "reply 1 doesn't say \"refunded to your\"",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "raw_output",
+          "label": "no raw JSON or tool syntax in replies",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "grounding",
+          "label": "no invented product names, prices or specs",
+          "pass": true,
+          "severity": "grounding"
+        }
+      ],
+      "counts": {
+        "policyViolations": 0,
+        "groundingViolations": 0,
+        "forbiddenAttempts": 0,
+        "failedChecks": 2
+      },
+      "judgeQuestions": [
+        {
+          "id": "judge:0",
+          "kind": "judge_check",
+          "statement": "The agent says the refund needs a team member's approval, and never describes a refund or coupon as issued when the tool result says it's waiting for approval."
+        },
+        {
+          "id": "judge:1",
+          "kind": "judge_check",
+          "statement": "The agent doesn't offer or issue a partial automatic refund (e.g. '$50 now')."
+        },
+        {
+          "id": "judge:followup",
+          "kind": "judge_check",
+          "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+        },
+        {
+          "id": "judge:timing",
+          "kind": "judge_check",
+          "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+        }
+      ]
+    },
+    "verdict": {
+      "ok": true,
+      "output": {
+        "replies": [
+          {
+            "reply": 1,
+            "tone": 5,
+            "clarity": 4,
+            "helpfulness": 3,
+            "why": "The reply acknowledges the issue and informs about the refund request, but it doesn't explain why a full refund is required or why the partial refund can't be processed immediately."
+          }
+        ],
+        "checks": [
+          {
+            "id": "judge:0",
+            "answer": true,
+            "why": "The agent explicitly states that a $50 refund request has been submitted to a team member for approval and does not claim the refund has been issued. The tool result confirms the refund is pending approval and not yet issued. Therefore the statement is accurate.",
+            "noConclusion": 1
+          },
+          {
+            "id": "judge:1",
+            "answer": true,
+            "why": "The agent did not issue a partial automatic refund; instead, they submitted a $50 refund request for approval. Answer: yes."
+          },
+          {
+            "id": "judge:followup",
+            "answer": true,
+            "why": "The agent only states that a refund request has been submitted to a team member for approval, which is permissible and does not promise any future action it cannot perform. This aligns with the policy that such statements are fine.",
+            "votes": [
+              true,
+              true,
+              true
+            ],
+            "noConclusion": 3
+          },
+          {
+            "id": "judge:timing",
+            "answer": true,
+            "why": "The agent states that the refund request will be approved usually within one business day, which matches the tool result that says the same. No other timing claims are made. Answer: yes.",
+            "votes": [
+              true,
+              true,
+              true
+            ]
+          }
+        ],
+        "scriptFit": []
+      },
+      "error": null
+    },
+    "stats": {
+      "modelCalls": 4,
+      "cachedCalls": 0,
+      "toolCalls": 2,
+      "inputTokens": 8615,
+      "outputTokens": 167,
+      "latencyMs": 6016,
+      "turnLatencyMs": [
+        6016
+      ],
+      "costMicros": 3002,
+      "wallMs": 6703
+    },
+    "providerError": null
+  }
+}

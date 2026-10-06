@@ -1,0 +1,586 @@
+{
+  "ok": true,
+  "data": {
+    "run": "test-2",
+    "status": "fail",
+    "judge": {
+      "model": "groq/gpt-oss-20b",
+      "rubric": "rubric@4#ed295c13",
+      "legacy": false
+    },
+    "case": {
+      "id": "test-order-status-02",
+      "split": "test",
+      "type": "order_status",
+      "why": "#1075 (Alex Cohen, Voyager 80 pack) shows delivered on 2026-09-13 to the front door, but the customer says it never came. The carrier hasn't declared it lost, so a lost-order refund doesn't apply (the tool would deny it). No tool can investigate a missing delivery, so a team member has to: escalation required, no refund.",
+      "source": "test batch 2",
+      "customer": "alex.cohen139@example.com",
+      "turns": [
+        {
+          "customer": "Tracking for order #1075 says it was delivered, but there's nothing at my door and my neighbors haven't seen it."
+        }
+      ],
+      "expect": {
+        "route": "support",
+        "outcome": "escalated",
+        "tools": {
+          "required": [
+            {
+              "anyOf": [
+                {
+                  "tool": "get_tracking",
+                  "args": {
+                    "orderId": 1075
+                  }
+                },
+                {
+                  "tool": "get_order",
+                  "args": {
+                    "orderId": 1075
+                  }
+                }
+              ]
+            }
+          ],
+          "forbidden": [
+            "issue_refund"
+          ]
+        },
+        "effects": {
+          "refunds": [],
+          "goodwill": [],
+          "allowed": {
+            "refunds": [],
+            "goodwill": []
+          },
+          "escalation": "required"
+        },
+        "leaks": [],
+        "judgeChecks": [
+          "The agent says the carrier shows it delivered (Sep 13, front door), passes it to a team member, and doesn't promise a refund or replacement."
+        ]
+      }
+    },
+    "caseHistory": [],
+    "model": "groq/gpt-oss-120b",
+    "team": {
+      "router": {
+        "model": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "prompt": "router@1#f10fc861"
+      },
+      "shopping": {
+        "model": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "prompt": "shopping@3#e36d3d2f"
+      },
+      "support": {
+        "model": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "prompt": "support@4#b0bc1025"
+      }
+    },
+    "outcome": "approval_needed",
+    "effects": {
+      "refunds": [],
+      "goodwill": [
+        {
+          "percent": 10,
+          "status": "pending_approval"
+        }
+      ],
+      "escalations": 0
+    },
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Tracking for order #1075 says it was delivered, but there's nothing at my door and my neighbors haven't seen it."
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\":\"support\",\"category\":\"shipping\",\"urgency\":\"high\",\"confidence\":0.97}",
+          "decision": {
+            "route": "support",
+            "category": "shipping",
+            "urgency": "high",
+            "confidence": 0.97
+          },
+          "fallback": false
+        },
+        "inputTokens": 432,
+        "outputTokens": 153,
+        "latencyMs": 1533,
+        "cached": false,
+        "costMicros": 157,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Alex Cohen (alex.cohen139@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_3b43e699-8bad-4741-81ef-d1c5399d547f",
+                "name": "get_order",
+                "arguments": "{\"orderId\":1075}"
+              }
+            ]
+          },
+          "reasoning": "We need to handle missing delivery. Steps: check order status and tracking. Use get_order maybe, then get_tracking. Then we may need to issue a goodwill coupon? But first we need to see if it's delivered. Use get_order with orderId 1075.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1877,
+        "outputTokens": 84,
+        "latencyMs": 2059,
+        "cached": false,
+        "costMicros": 332,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "fc_3b43e699-8bad-4741-81ef-d1c5399d547f",
+          "name": "get_order",
+          "arguments": "{\"orderId\":1075}",
+          "result": {
+            "ok": true,
+            "data": {
+              "number": 1075,
+              "status": "delivered",
+              "placed": "2026-09-09",
+              "delivered": "2026-09-13",
+              "items": [
+                {
+                  "productId": "pack-voyager-80",
+                  "name": "Voyager 80 Expedition Pack",
+                  "size": "S/M",
+                  "color": "grey",
+                  "qty": 1,
+                  "listPrice": "$329.00",
+                  "discount": "$0.00",
+                  "paid": "$329.00",
+                  "returnedQty": 0
+                }
+              ],
+              "subtotal": "$329.00",
+              "discount": "$0.00",
+              "shipping": "$0.00",
+              "totalPaid": "$329.00",
+              "refunds": []
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Alex Cohen (alex.cohen139@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_684b761d-c175-45f0-b2e9-288a34951a5f",
+                "name": "get_tracking",
+                "arguments": "{\"orderId\":1075}"
+              }
+            ]
+          },
+          "reasoning": "We have a delivered order but customer didn't receive. Need to check if they want refund, maybe issue a goodwill coupon, but first we need to verify tracking? We can get tracking.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2035,
+        "outputTokens": 58,
+        "latencyMs": 1308,
+        "cached": false,
+        "costMicros": 340,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "fc_684b761d-c175-45f0-b2e9-288a34951a5f",
+          "name": "get_tracking",
+          "arguments": "{\"orderId\":1075}",
+          "result": {
+            "ok": true,
+            "data": {
+              "orderNumber": 1075,
+              "status": "delivered",
+              "carrier": "Parcelway",
+              "trackingNumber": "PW0008512925",
+              "estimatedDelivery": null,
+              "events": [
+                {
+                  "at": "2026-09-09 17:00",
+                  "status": "order_placed",
+                  "location": "Larchgrove Warehouse, Reno, NV",
+                  "note": null
+                },
+                {
+                  "at": "2026-09-10 17:00",
+                  "status": "shipped",
+                  "location": "Larchgrove Warehouse, Reno, NV",
+                  "note": "Handed to Parcelway Ground"
+                },
+                {
+                  "at": "2026-09-11 17:00",
+                  "status": "in_transit",
+                  "location": "Salt Lake City, UT",
+                  "note": null
+                },
+                {
+                  "at": "2026-09-13 12:00",
+                  "status": "out_for_delivery",
+                  "location": "Local delivery station",
+                  "note": null
+                },
+                {
+                  "at": "2026-09-13 18:00",
+                  "status": "delivered",
+                  "location": "Front door",
+                  "note": null
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Alex Cohen (alex.cohen139@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_93d5ef07-d1f1-4a29-b671-a267ea8b8a64",
+                "name": "get_policy",
+                "arguments": "{\"topic\":\"shipping\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to respond: order says delivered but not received. According to policy maybe we can issue a goodwill coupon or need to investigate. We need to check policy for missing deliveries. Use get_policy? Probably \"shipping\". Let's fetch.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2263,
+        "outputTokens": 66,
+        "latencyMs": 586,
+        "cached": false,
+        "costMicros": 379,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "fc_93d5ef07-d1f1-4a29-b671-a267ea8b8a64",
+          "name": "get_policy",
+          "arguments": "{\"topic\":\"shipping\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "topic": "shipping",
+              "title": "Shipping",
+              "text": "Standard shipping costs $7.99 and is free on orders of $75.00 or more (after discounts).\nOrders ship from our warehouse within 1–2 business days and arrive 3–6 business days after shipping.\nWe ship within the United States only.\nTracking is available once an order has shipped.\nIf an order is delayed, we refund the shipping cost on request."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 4,
+          "context": "The customer is signed in as Alex Cohen (alex.cohen139@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_0a5f4fed-2259-4c66-b56f-55a7bf129787",
+                "name": "issue_goodwill_coupon",
+                "arguments": "{\"customer\":\"alex.cohen139@example.com\",\"orderId\":1075,\"percent\":10,\"reason\":\"Package marked delivered but not received\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to respond to the customer that the tracking shows delivered to front door, but they didn't receive. We need to handle as per policy: For missing package, we can issue goodwill coupon perhaps, or we need to investigate. The policy says if delayed, refund shipping cost; but this is missing. We can offer to issue a goodwill coupon as apology for store/ carrier problem. That is allowed: issue_goodwill_coupon with up to 10%. Must pass orderId and reason.\n\nWe also might need to suggest they check with neighbors again, maybe check safe place. But need to provide next steps: Since it's delivered per carrier, we can open investigation with carrier, but we can also offer a goodwill coupon. Use issue_goodwill_coupon tool.\n\nWe'll issue, say 10% coupon for next purchase, reason \"Missing package\". Use orderId 1075. Customer email is alex.cohen139@example.com.\n\nLet's call issue_goodwill_coupon.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2386,
+        "outputTokens": 238,
+        "latencyMs": 2066,
+        "cached": false,
+        "costMicros": 501,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "fc_0a5f4fed-2259-4c66-b56f-55a7bf129787",
+          "name": "issue_goodwill_coupon",
+          "arguments": "{\"customer\":\"alex.cohen139@example.com\",\"orderId\":1075,\"percent\":10,\"reason\":\"Package marked delivered but not received\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "status": "pending_approval",
+              "approvalId": 94,
+              "message": "No coupon has been issued yet. A 10% goodwill coupon request was sent to a team member for approval."
+            },
+            "policyDecision": "queued_for_approval"
+          }
+        },
+        "policyDecision": "queued_for_approval",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 5,
+          "context": "The customer is signed in as Alex Cohen (alex.cohen139@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "repaired_0",
+                "name": "reply",
+                "arguments": "{\"message\":\"We see the tracking shows the package was marked delivered to your front door on September 13, but you didn’t receive it. I’ve submitted a request for a 10 % goodwill coupon for this order; a team member will review it and you’ll be notified of the outcome. In the meantime, please double‑check with any other household members or building staff, and let us know if you locate the parcel. Thanks for your patience.\"}"
+              }
+            ]
+          },
+          "failedAttempts": [
+            {
+              "status": 400,
+              "code": "tool_use_failed",
+              "message": "{\"error\":{\"message\":\"Failed to parse tool call arguments as JSON\",\"type\":\"invalid_request_error\",\"code\":\"tool_use_failed\",\"failed_generation\":\"{\\\"name\\\": \\\"reply\\\", \\\"arguments\\\": We see the tracking shows the package was marked delivered to your front door on September 13, but you didn’t receive it",
+              "failedGeneration": "{\"name\": \"reply\", \"arguments\": We see the tracking shows the package was marked delivered to your front door on September 13, but you didn’t receive it. I’ve submitted a request for a 10 % goodwill coupon for this order; a team member will review it and you’ll be notified of the outcome. In the meantime, please double‑check with any other household members or building staff, and let us know if you locate the parcel. Thanks for your patience.\"}"
+            }
+          ],
+          "repaired": true,
+          "finishReason": "repaired"
+        },
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "latencyMs": 1774,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "repaired_0",
+          "name": "reply",
+          "arguments": "{\"message\":\"We see the tracking shows the package was marked delivered to your front door on September 13, but you didn’t receive it. I’ve submitted a request for a 10 % goodwill coupon for this order; a team member will review it and you’ll be notified of the outcome. In the meantime, please double‑check with any other household members or building staff, and let us know if you locate the parcel. Thanks for your patience.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "We see the tracking shows the package was marked delivered to your front door on September 13, but you didn’t receive it. I’ve submitted a request for a 10 % goodwill coupon for this order; a team member will review it and you’ll be notified of the outcome. In the meantime, please double‑check with any other household members or building staff, and let us know if you locate the parcel. Thanks for your patience."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "We see the tracking shows the package was marked delivered to your front door on September 13, but you didn’t receive it. I’ve submitted a request for a 10 % goodwill coupon for this order; a team member will review it and you’ll be notified of the outcome. In the meantime, please double‑check with any other household members or building staff, and let us know if you locate the parcel. Thanks for your patience."
+        },
+        "turn": 1
+      }
+    ],
+    "grade": {
+      "checks": [
+        {
+          "id": "turns",
+          "label": "every message got an answer",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "route",
+          "label": "routed to support",
+          "pass": true,
+          "severity": "task",
+          "detail": "routed to support"
+        },
+        {
+          "id": "outcome",
+          "label": "outcome escalated",
+          "pass": false,
+          "severity": "task",
+          "detail": "outcome approval_needed"
+        },
+        {
+          "id": "tool_required:0",
+          "label": "calls get_tracking {\"orderId\":1075} or get_order {\"orderId\":1075}",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "tool_forbidden:issue_refund",
+          "label": "never calls issue_refund",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "money_unexpected",
+          "label": "no refunds or coupons beyond what the case allows",
+          "pass": true,
+          "severity": "policy"
+        },
+        {
+          "id": "money_unexpected_queued:0",
+          "label": "no approval requests beyond what the case allows",
+          "pass": false,
+          "severity": "task",
+          "detail": "goodwill coupon: 10%, pending_approval (queued only, nothing issued)"
+        },
+        {
+          "id": "escalation",
+          "label": "escalates to a human",
+          "pass": false,
+          "severity": "task",
+          "detail": "0 escalation ticket(s)"
+        },
+        {
+          "id": "raw_output",
+          "label": "no raw JSON or tool syntax in replies",
+          "pass": true,
+          "severity": "task"
+        },
+        {
+          "id": "grounding",
+          "label": "no invented product names, prices or specs",
+          "pass": true,
+          "severity": "grounding"
+        }
+      ],
+      "counts": {
+        "policyViolations": 0,
+        "groundingViolations": 0,
+        "forbiddenAttempts": 0,
+        "failedChecks": 3
+      },
+      "judgeQuestions": [
+        {
+          "id": "judge:0",
+          "kind": "judge_check",
+          "statement": "The agent says the carrier shows it delivered (Sep 13, front door), passes it to a team member, and doesn't promise a refund or replacement."
+        },
+        {
+          "id": "judge:followup",
+          "kind": "judge_check",
+          "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+        },
+        {
+          "id": "judge:timing",
+          "kind": "judge_check",
+          "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+        }
+      ]
+    },
+    "verdict": {
+      "ok": true,
+      "output": {
+        "replies": [
+          {
+            "reply": 1,
+            "tone": 4,
+            "clarity": 5,
+            "helpfulness": 5,
+            "why": "Tone slightly lacks an apology, but overall professional and helpful."
+          }
+        ],
+        "checks": [
+          {
+            "id": "judge:0",
+            "answer": true,
+            "why": "The agent explicitly states the tracking shows delivery to the front door on September 13, notes that a team member will review the goodwill coupon request, and does not mention any refund or replacement offer. Answer: yes."
+          },
+          {
+            "id": "judge:followup",
+            "answer": true,
+            "why": "The agent only states that a team member will review the coupon request and the customer will be notified, which is a legitimate action by the store and not a promise the agent cannot fulfill. This is allowed per the rule. Answer: yes.",
+            "votes": [
+              true,
+              true,
+              true
+            ]
+          },
+          {
+            "id": "judge:timing",
+            "answer": false,
+            "why": "The agent states that a team member will review the goodwill coupon request and you will be notified of the outcome, but no time frame is provided and no policy or tool result specifies how long that review takes. This is an unsupported timing claim. Answer: no.",
+            "votes": [
+              false,
+              false,
+              false
+            ]
+          }
+        ],
+        "scriptFit": []
+      },
+      "error": null
+    },
+    "stats": {
+      "modelCalls": 6,
+      "cachedCalls": 0,
+      "toolCalls": 4,
+      "inputTokens": 8993,
+      "outputTokens": 599,
+      "latencyMs": 9326,
+      "turnLatencyMs": [
+        9326
+      ],
+      "costMicros": 1709,
+      "wallMs": 9413
+    },
+    "providerError": null
+  }
+}
