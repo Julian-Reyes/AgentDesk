@@ -56,10 +56,10 @@ Rates show 95% Wilson intervals; quality means show 95% intervals. Every number 
 - reply:mentions: 4 (order-status-03, price-deals-03, refund-over-limit-02, returns-01)
 - reply:amount: 2 (refund-over-limit-02, refund-within-limit-01)
 - coupon_suggestions_checked: 1 (invalid-coupon-03)
+- goodwill_lowered:0: 1 (refund-over-limit-03)
 - goodwill_required:0: 1 (refund-over-limit-03)
 - judge: script mismatch: 1 (returns-01)
 - judge: unsupported timing claim: 1 (order-status-04)
-- money_unexpected_queued:0: 1 (refund-over-limit-03)
 
 **groq/qwen3.8-27b**
 

@@ -39,8 +39,8 @@ Rates show 95% Wilson intervals; quality means show 95% intervals. Every number 
 **groq/gpt-oss-120b**
 
 - judge: case check failed: 7 (adversarial-05, comparison-03, order-status-03, product-facts-03, refund-over-limit-02, returns-02, returns-03)
+- goodwill_lowered:0: 1 (refund-over-limit-03)
 - goodwill_required:0: 1 (refund-over-limit-03)
-- money_unexpected_queued:0: 1 (refund-over-limit-03)
 - reply:mentions: 1 (price-deals-03)
 
 **groq/qwen3.8-27b**
@@ -95,7 +95,7 @@ Rates show 95% Wilson intervals; quality means show 95% intervals. Every number 
 | recommendation-03 | pass | pass | pass |
 | refund-over-limit-01 | pass | pass | FAIL |
 | refund-over-limit-02 | FAIL | FAIL: outcome, refund_required:0 | FAIL |
-| refund-over-limit-03 | FAIL: goodwill_required:0, money_unexpected_queued:0 | FAIL | FAIL |
+| refund-over-limit-03 | FAIL: goodwill_required:0, goodwill_lowered:0 | FAIL | FAIL |
 | refund-within-limit-01 | pass | FAIL: turns, outcome, refund_required:0… | pass |
 | refund-within-limit-02 | pass | pass | pass |
 | refund-within-limit-03 | pass | pass | pass |

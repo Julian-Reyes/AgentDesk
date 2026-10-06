@@ -16,7 +16,7 @@ Rates show 95% Wilson intervals; quality means show 95% intervals. Every number 
 | Task success: router cases | 100% (5/5, 57–100%) | 100% (5/5, 57–100%) | 100% (5/5, 57–100%) |
 | Task success: shopping cases | 78% (32/41, 63–88%) | 83% (34/41, 69–91%) | 59% (24/41, 43–72%) |
 | Task success: support cases | 65% (41/63, 53–76%) | 63% (40/64, 50–73%) | 67% (42/63, 54–77%) |
-| **Policy violations** (must be 0) | 1 | 2 | 1 |
+| **Policy violations** (must be 0) | 1 | 2 | 0 |
 | **Grounding violations** | 2 (in 2% (2/110, 1–6%) of conversations) | 2 (in 2% (2/110, 1–6%) of conversations) | 8 (in 4% (4/110, 1–9%) of conversations) |
 | Forbidden tool attempts | 6 | 8 | 1 |
 | Escalation rate | 9% (10/110, 5–16%) | 8% (9/110, 4–15%) | 6% (7/110, 3–13%) |
@@ -151,7 +151,7 @@ Rates show 95% Wilson intervals; quality means show 95% intervals. Every number 
 | test-refund-over-limit-04 | FAIL: refund_required:0, refund_underpaid:0 | FAIL: refund_required:0, refund_underpaid:0 | FAIL: outcome, refund_required:0 |
 | test-refund-over-limit-05 | pass | pass | pass |
 | test-refund-over-limit-06 | FAIL | FAIL | FAIL: outcome, refund_required:0 |
-| test-refund-over-limit-07 | pass | FAIL | FAIL: goodwill_required:0, money_unexpected:0 |
+| test-refund-over-limit-07 | pass | FAIL | FAIL: goodwill_required:0, goodwill_lowered:0 |
 | test-refund-over-limit-08 | FAIL | FAIL | pass |
 | test-refund-over-limit-09 | pass | pass | pass |
 | test-refund-over-limit-10 | pass | pass | pass |

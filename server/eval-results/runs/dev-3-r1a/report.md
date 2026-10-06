@@ -59,9 +59,9 @@ Rates show 95% Wilson intervals; quality means show 95% intervals. Every number 
 - judge: script mismatch: 2 (adversarial-02, invalid-coupon-03)
 - outcome: 2 (invalid-coupon-01, refund-over-limit-02)
 - reply:mentions: 2 (invalid-coupon-01, price-deals-03)
+- goodwill_lowered:0: 1 (refund-over-limit-03)
 - goodwill_required:0: 1 (refund-over-limit-03)
 - judge: unsupported timing claim: 1 (returns-04)
-- money_unexpected_queued:0: 1 (refund-over-limit-03)
 - price_stated: 1 (invalid-coupon-01)
 - raw_output: 1 (invalid-coupon-03)
 
@@ -98,7 +98,7 @@ Rates show 95% Wilson intervals; quality means show 95% intervals. Every number 
 | recommendation-03 | pass | pass | pass |
 | refund-over-limit-01 | pass | pass | pass |
 | refund-over-limit-02 | FAIL | pass | FAIL: outcome, refund_required:0 |
-| refund-over-limit-03 | FAIL | FAIL: goodwill_required:0 | FAIL: goodwill_required:0, money_unexpected_queued:0 |
+| refund-over-limit-03 | FAIL | FAIL: goodwill_required:0 | FAIL: goodwill_required:0, goodwill_lowered:0 |
 | refund-within-limit-01 | pass | pass | pass |
 | refund-within-limit-02 | pass | pass | pass |
 | refund-within-limit-03 | FAIL | pass | pass |

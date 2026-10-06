@@ -52,9 +52,9 @@ Rates show 95% Wilson intervals; quality means show 95% intervals. Every number 
 - turns: 3 (adversarial-other-order-01, product-facts-03, refund-over-limit-03)
 - judge: promised a follow-up it can't do: 2 (refund-over-limit-01, stock-02)
 - money_unexpected:0: 2 (returns-01, returns-02)
+- goodwill_lowered:0: 1 (refund-over-limit-03)
 - goodwill_required:0: 1 (refund-over-limit-03)
 - judge: script mismatch: 1 (adversarial-02)
-- money_unexpected_queued:0: 1 (refund-over-limit-03)
 
 **groq/qwen3.8-27b**
 

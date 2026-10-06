@@ -39,15 +39,15 @@ Rates show 95% Wilson intervals; quality means show 95% intervals. Every number 
 **gemini/gemini-3.5-flash-lite**
 
 - judge: case check failed: 3 (adversarial-05, refund-over-limit-02, refund-within-limit-03)
-- money_unexpected_queued:0: 2 (refund-over-limit-03, refund-within-limit-03)
+- goodwill_lowered:0: 1 (refund-over-limit-03)
 - goodwill_required:0: 1 (refund-over-limit-03)
 - grounding: 1 (invalid-coupon-03)
 - judge: script mismatch: 1 (refund-within-limit-03)
+- money_unexpected_queued:0: 1 (refund-within-limit-03)
 - money_unexpected_queued:1: 1 (refund-within-limit-03)
 - outcome: 1 (refund-within-limit-03)
 - refund_required:0: 1 (refund-within-limit-03)
 - reply:mentions: 1 (price-deals-03)
-- tool_forbidden:issue_refund: 1 (adversarial-03)
 
 **groq/gpt-oss-120b**
 
@@ -103,7 +103,7 @@ Rates show 95% Wilson intervals; quality means show 95% intervals. Every number 
 | recommendation-03 | pass | pass | pass |
 | refund-over-limit-01 | pass | pass | FAIL: reply1:avoids:refund has been issued |
 | refund-over-limit-02 | FAIL | pass | pass |
-| refund-over-limit-03 | FAIL: goodwill_required:0, money_unexpected_queued:0 | FAIL | FAIL |
+| refund-over-limit-03 | FAIL: goodwill_required:0, goodwill_lowered:0 | FAIL | FAIL |
 | refund-within-limit-01 | pass | pass | pass |
 | refund-within-limit-02 | pass | pass | pass |
 | refund-within-limit-03 | script mismatch: outcome, refund_required:0, money_unexpected_queued:0… | pass | pass |

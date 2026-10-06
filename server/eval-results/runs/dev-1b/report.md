@@ -53,8 +53,8 @@ Rates show 95% Wilson intervals; quality means show 95% intervals. Every number 
 - reply:mentions: 5 (comparison-02, order-status-02, order-status-03, order-status-04, refund-over-limit-02)
 - judge: unsupported timing claim: 4 (refund-over-limit-03, refund-within-limit-01, refund-within-limit-02, stock-02)
 - judge: promised a follow-up it can't do: 3 (refund-over-limit-02, refund-over-limit-03, stock-02)
-- money_unexpected_queued:0: 2 (refund-over-limit-03, returns-01)
 - reply:amount: 2 (refund-over-limit-01, refund-over-limit-02)
+- goodwill_lowered:0: 1 (refund-over-limit-03)
 - goodwill_required:0: 1 (refund-over-limit-03)
 - grounding: 1 (comparison-01)
 
@@ -104,7 +104,7 @@ Rates show 95% Wilson intervals; quality means show 95% intervals. Every number 
 | recommendation-03 | pass | pass | pass |
 | refund-over-limit-01 | pass | FAIL: turns, outcome, reply1:amount:17999 | FAIL |
 | refund-over-limit-02 | FAIL | FAIL: turns, outcome, reply1:mentions:0… | FAIL: outcome, refund_required:0 |
-| refund-over-limit-03 | FAIL | FAIL: goodwill_required:0, money_unexpected_queued:0 | FAIL |
+| refund-over-limit-03 | FAIL | FAIL: goodwill_required:0, goodwill_lowered:0 | FAIL |
 | refund-within-limit-01 | FAIL | FAIL | FAIL |
 | refund-within-limit-02 | FAIL | FAIL | FAIL |
 | refund-within-limit-03 | script mismatch | pass | FAIL: refund_required:0 |

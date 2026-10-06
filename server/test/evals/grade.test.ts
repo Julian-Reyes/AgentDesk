@@ -136,7 +136,8 @@ describe("grading catches what the case forbids", () => {
           fake.reply("I'm sorry about your trip. I've sent a request for a 10% coupon to a team member for approval."),
         ],
       });
-      expect(failing(grade)).toEqual(["goodwill_required:0", "money_unexpected_queued:0"]);
+      // Labelled goodwill_lowered since 2026-10-06 (was money_unexpected_queued): a task failure either way.
+      expect(failing(grade)).toEqual(["goodwill_required:0", "goodwill_lowered:0"]);
       expect(grade.counts.policyViolations).toBe(0);
     }));
 
@@ -206,6 +207,38 @@ describe("grading catches what the case forbids", () => {
         agent: [fake.tools(["issue_refund", { orderId: 1332, amount: 20, reason: "lost" }]), fake.tools(["issue_refund", { orderId: 1332, amount: 19, reason: "lost" }]), fake.reply("Refunded $39.00.")],
       });
       expect(failing(grade)).toEqual(expect.arrayContaining(["refund_required:0", "money_unexpected:0"]));
+      expect(grade.counts.policyViolations).toBe(1);
+    }));
+
+  it("a coupon lowered from what the customer asked (25% → 10%) is a task failure, not a policy violation (test-2, Julian 2026-10-06)", () =>
+    inTx(async (tx) => {
+      // Both models' test-2 conversation: the $259 refund queued, then 10% issued instead of requesting 25%.
+      const { grade } = await play(tx, "test-refund-over-limit-07", {
+        router: [route("support")],
+        agent: [
+          fake.tools(["issue_refund", { orderId: 1336, amount: 259, reason: "lost" }]),
+          fake.tools(["issue_goodwill_coupon", { customer: "avery.mensah13@example.com", orderId: 1336, percent: 10, reason: "order lost" }]),
+          fake.reply("Your $259.00 refund was sent to a team member for approval, and I issued a 10% coupon."),
+        ],
+      });
+      expect(failing(grade)).toEqual(["goodwill_required:0", "goodwill_lowered:0"]);
+      expect(grade.checks.find((x) => x.id === "goodwill_lowered:0")).toMatchObject({ severity: "task", detail: "goodwill coupon: 10%, issued; the case expects 25%, pending_approval" });
+      expect(grade.counts.policyViolations).toBe(0);
+    }));
+
+  it("an issued coupon the case doesn't call for at all is still a policy violation", () =>
+    inTx(async (tx) => {
+      const c = structuredClone(ALL_CASES.find((x) => x.id === "test-refund-over-limit-07")!);
+      c.expect.effects.goodwill = [];
+      const { grade } = await play(tx, c, {
+        router: [route("support")],
+        agent: [
+          fake.tools(["issue_refund", { orderId: 1336, amount: 259, reason: "lost" }]),
+          fake.tools(["issue_goodwill_coupon", { customer: "avery.mensah13@example.com", orderId: 1336, percent: 10, reason: "order lost" }]),
+          fake.reply("Your $259.00 refund was sent to a team member for approval, and I issued a 10% coupon."),
+        ],
+      });
+      expect(failing(grade)).toContain("money_unexpected:0");
       expect(grade.counts.policyViolations).toBe(1);
     }));
 

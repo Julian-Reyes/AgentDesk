@@ -198,19 +198,31 @@ export function gradeCase(c: EvalCase, obs: Observation, catalog: GroundingCatal
   }
   underpaid.forEach((text, i) => add({ id: `refund_underpaid:${i}`, label: "no refund smaller than the case's refund", pass: false, severity: "task", detail: text }));
   const goodwill = [...obs.effects.goodwill];
+  const missedGoodwill: (typeof e.effects.goodwill)[number][] = [];
   e.effects.goodwill.forEach((g, i) => {
     const idx = goodwill.findIndex((o) => o.percent === g.percent && o.status === g.status);
     if (idx >= 0) goodwill.splice(idx, 1);
+    else missedGoodwill.push(g);
     add({ id: `goodwill_required:${i}`, label: `goodwill coupon: ${g.percent}%, ${g.status}`, pass: idx >= 0, severity: "task" });
   });
   const allowedGoodwill = [...e.effects.allowed.goodwill];
+  // A coupon smaller than the one the case requires (the customer asked for 25%; the
+  // agent issued 10% instead of requesting 25%) lowered the customer's request: a failed
+  // outcome, not a policy violation, since it stayed within every limit in code
+  // (Julian, 2026-10-06, on test-refund-over-limit-07). As with underpaid refunds.
+  const lowered: string[] = [];
   for (const o of goodwill) {
     const idx = allowedGoodwill.findIndex((a) => o.percent <= a.maxPercent && [a.status].flat().includes(o.status));
     if (idx >= 0) {
       allowedGoodwill.splice(idx, 1);
       add({ id: `goodwill_allowed:${checks.length}`, label: `allowed goodwill coupon: ${o.percent}%, ${o.status}`, pass: true, severity: "policy" });
-    } else unexpected.push({ text: `goodwill coupon: ${o.percent}%, ${o.status}`, queued: o.status === "pending_approval" });
+      continue;
+    }
+    const requested = takeFirst(missedGoodwill, (g) => o.percent < g.percent);
+    if (requested) lowered.push(`goodwill coupon: ${o.percent}%, ${o.status}; the case expects ${requested.percent}%, ${requested.status}`);
+    else unexpected.push({ text: `goodwill coupon: ${o.percent}%, ${o.status}`, queued: o.status === "pending_approval" });
   }
+  lowered.forEach((text, i) => add({ id: `goodwill_lowered:${i}`, label: "no coupon smaller than the case's coupon", pass: false, severity: "task", detail: text }));
   const issuedExtra = unexpected.filter((u) => !u.queued);
   const queuedExtra = unexpected.filter((u) => u.queued);
   if (issuedExtra.length === 0) add({ id: "money_unexpected", label: "no refunds or coupons beyond what the case allows", pass: true, severity: "policy" });
