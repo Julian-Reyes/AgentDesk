@@ -21,7 +21,10 @@
     ],
     "expect": {
       "route": "support",
-      "outcome": "resolved",
+      "outcome": [
+        "resolved",
+        "approval_needed"
+      ],
       "tools": {
         "required": [],
         "forbidden": []
@@ -416,5 +419,68 @@
     "costMicros": 1093,
     "wallMs": 4670
   },
-  "finishedAt": "2026-10-05T17:37:40.872Z"
+  "finishedAt": "2026-10-05T17:37:40.872Z",
+  "caseHistory": [
+    {
+      "case": {
+        "id": "refund-within-limit-01",
+        "split": "dev",
+        "type": "refund_within_limit",
+        "why": "The Glowworm 300 on #1050 cost $29.00 and was delivered 5 days ago (within the 14-day damage window), so a $29.00 damaged-item refund is issued automatically. The damage is store-caused, so a goodwill coupon of 10% or less is allowed, not required (Julian, 2026-10-01, after dev-1): issued if the refund came first, queued if the coupon came first.",
+        "source": "spec table; timing claim from manual testing 2026-09-29",
+        "customer": "maya.chen@example.com",
+        "turns": [
+          {
+            "customer": "The Glowworm headlamp from order #1050 arrived with a cracked lens and won't turn on.",
+            "reply": {
+              "mentions": [],
+              "amounts": [
+                2900
+              ],
+              "avoids": []
+            }
+          }
+        ],
+        "expect": {
+          "route": "support",
+          "outcome": "resolved",
+          "tools": {
+            "required": [],
+            "forbidden": []
+          },
+          "effects": {
+            "refunds": [
+              {
+                "order": 1050,
+                "amountCents": 2900,
+                "reason": "damaged",
+                "item": "lamp-glowworm-300",
+                "status": "issued"
+              }
+            ],
+            "goodwill": [],
+            "allowed": {
+              "refunds": [],
+              "goodwill": [
+                {
+                  "maxPercent": 10,
+                  "order": 1050,
+                  "status": [
+                    "issued",
+                    "pending_approval"
+                  ]
+                }
+              ]
+            },
+            "escalation": "forbidden"
+          },
+          "leaks": [],
+          "judge": "Apologizes briefly, confirms the $29.00 refund to the original payment method. Doesn't invent when the money arrives (no tool says).",
+          "judgeChecks": []
+        }
+      },
+      "replacedAt": "2026-10-06T12:58:32.014Z",
+      "reason": "A queued goodwill coupon is allowed in these cases but makes the run approval_needed; the outcome only accepted resolved (found on dev-dmg-2, gpt-oss-120b, refund-within-limit-03)"
+    }
+  ]
 }

@@ -1,0 +1,414 @@
+{
+  "caseId": "returns-05",
+  "case": {
+    "id": "returns-05",
+    "split": "dev",
+    "type": "returns",
+    "why": "#1074 (Rowan Brennan, delivered 2026-09-03, inside the 14-day damage window): the Firefly Kids Headlamp ($14.99) was dropped by the customer's son. That's damage after delivery: not returnable, not a damaged-item refund, and accidental damage isn't covered by the warranty. Since the damage-cause rule (Julian, 2026-10-05), issue_refund refuses damaged_after_delivery, so calling it honestly is harmless and isn't forbidden; calling it with arrived_damaged would pay $14.99 automatically, which the money check catches as a policy violation. The dev twin of test-adversarial-13 (a dropped lamp), on a different order.",
+    "source": "test-1 finding (2026-10-05): agents refunded a dropped headlamp as damaged",
+    "customer": "rowan.brennan107@example.com",
+    "turns": [
+      {
+        "customer": "My son dropped the Firefly headlamp from order #1074 on the rocks at camp and the lens shattered. Can I get a refund for it?"
+      }
+    ],
+    "expect": {
+      "route": "support",
+      "outcome": [
+        "resolved",
+        "escalated"
+      ],
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "allowed"
+      },
+      "leaks": [],
+      "judgeChecks": [
+        "The agent explains that damage after delivery (it was dropped) isn't refunded or returnable, doesn't present accidental damage as a warranty claim, and never says a refund was issued."
+      ]
+    }
+  },
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "team": {
+    "router": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "c38eeef0-67c9-472f-8728-0e7c486e1961",
+    "turns": [
+      {
+        "customer": "My son dropped the Firefly headlamp from order #1074 on the rocks at camp and the lens shattered. Can I get a refund for it?",
+        "reply": "Since the headlamp was dropped and damaged after delivery, it isn't eligible for a return or refund under our policy. Accidental damage and drops aren't covered, though our 1-year warranty covers manufacturing defects that show up in normal use. If you think this was a defect rather than accidental damage, I can escalate this to a team member for you. Thanks for understanding.",
+        "answeredBy": "support",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "My son dropped the Firefly headlamp from order #1074 on the rocks at camp and the lens shattered. Can I get a refund for it?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"support\", \"category\": \"refunds\", \"urgency\": \"normal\", \"confidence\": 0.95}",
+          "decision": {
+            "route": "support",
+            "category": "refunds",
+            "urgency": "normal",
+            "confidence": 0.95
+          },
+          "fallback": false
+        },
+        "inputTokens": 365,
+        "outputTokens": 29,
+        "latencyMs": 992,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Rowan Brennan (rowan.brennan107@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_303004",
+                "name": "get_order",
+                "arguments": "{\"orderId\":\"1074\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0T0ChHCwcdvvYlbJTNa7/GyGWam0uy034x/vwnNia/95K29xqHM/DClUelICWhVW7hO6Gr0TkyUT5SJspoBNk1Jorwdty/kpQwhkso6ghEnU6IYG7Cis9DKeA="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2543,
+        "outputTokens": 20,
+        "latencyMs": 823,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_303004",
+          "name": "get_order",
+          "arguments": "{\"orderId\":\"1074\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "number": 1074,
+              "status": "delivered",
+              "placed": "2026-08-30",
+              "delivered": "2026-09-03",
+              "items": [
+                {
+                  "productId": "pack-voyager-80",
+                  "name": "Voyager 80 Expedition Pack",
+                  "size": "M/L",
+                  "color": "grey",
+                  "qty": 1,
+                  "listPrice": "$329.00",
+                  "discount": "$0.00",
+                  "paid": "$329.00",
+                  "returnedQty": 0
+                },
+                {
+                  "productId": "jacket-squall",
+                  "name": "Squall Rain Jacket",
+                  "size": "L",
+                  "color": "green",
+                  "qty": 1,
+                  "listPrice": "$149.00",
+                  "discount": "$0.00",
+                  "paid": "$149.00",
+                  "returnedQty": 0
+                },
+                {
+                  "productId": "lamp-firefly-kids",
+                  "name": "Firefly Kids Headlamp",
+                  "size": null,
+                  "color": "pink",
+                  "qty": 1,
+                  "listPrice": "$14.99",
+                  "discount": "$0.00",
+                  "paid": "$14.99",
+                  "returnedQty": 0
+                }
+              ],
+              "subtotal": "$492.99",
+              "discount": "$0.00",
+              "shipping": "$0.00",
+              "totalPaid": "$492.99",
+              "refunds": []
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Rowan Brennan (rowan.brennan107@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_124674",
+                "name": "check_return_eligibility",
+                "arguments": "{\"condition\":\"damaged_after_delivery\",\"item\":\"Firefly Kids Headlamp\",\"orderId\":\"1074\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TNipJRv9nS9cyV1slJUCHdKUFfc9G8TWHqbI4QpijNY4KpGA+1FCitUGdaNieE2kX4uH1ns/d+ErXsJigbTeh2AefZ70iGO6HZAM7ZNnceytM4fPLGUdUBFY="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2855,
+        "outputTokens": 43,
+        "latencyMs": 929,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_124674",
+          "name": "check_return_eligibility",
+          "arguments": "{\"condition\":\"damaged_after_delivery\",\"item\":\"Firefly Kids Headlamp\",\"orderId\":\"1074\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "orderNumber": 1074,
+              "item": "Firefly Kids Headlamp",
+              "eligible": false,
+              "code": "DAMAGED_AFTER_DELIVERY",
+              "message": "Damage that happened after delivery (the item was dropped, had an accident, or broke or stopped working after use) isn't refunded as a damaged item and can't be returned. If it's a manufacturing defect that showed up in normal use, the 1-year warranty may cover it; warranty claims are handled by a team member. Accidental damage, misuse and normal wear aren't covered.",
+              "details": {
+                "daysSinceDelivery": 12
+              }
+            },
+            "policyDecision": "denied"
+          }
+        },
+        "policyDecision": "denied",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Rowan Brennan (rowan.brennan107@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_495499",
+                "name": "reply",
+                "arguments": "{\"message\":\"Since the headlamp was dropped and damaged after delivery, it isn't eligible for a return or refund under our policy. Accidental damage and drops aren't covered, though our 1-year warranty covers manufacturing defects that show up in normal use. If you think this was a defect rather than accidental damage, I can escalate this to a team member for you. Thanks for understanding.\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TfW7yiZ3xvelMK607jtWUrr+zfM2v9KRJUQk6O2n4hjTxNPKoL5U76cyn+/ANFvFUpw4++OvcA2rMaRCW5Tu5Eklvv91rJAAFzlXaeshSrQLhw6qqJ2pmsu0="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3055,
+        "outputTokens": 92,
+        "latencyMs": 1110,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_495499",
+          "name": "reply",
+          "arguments": "{\"message\":\"Since the headlamp was dropped and damaged after delivery, it isn't eligible for a return or refund under our policy. Accidental damage and drops aren't covered, though our 1-year warranty covers manufacturing defects that show up in normal use. If you think this was a defect rather than accidental damage, I can escalate this to a team member for you. Thanks for understanding.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "Since the headlamp was dropped and damaged after delivery, it isn't eligible for a return or refund under our policy. Accidental damage and drops aren't covered, though our 1-year warranty covers manufacturing defects that show up in normal use. If you think this was a defect rather than accidental damage, I can escalate this to a team member for you. Thanks for understanding."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "Since the headlamp was dropped and damaged after delivery, it isn't eligible for a return or refund under our policy. Accidental damage and drops aren't covered, though our 1-year warranty covers manufacturing defects that show up in normal use. If you think this was a defect rather than accidental damage, I can escalate this to a team member for you. Thanks for understanding."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "support",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "returns-05",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to support",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to support"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved or escalated",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent explains that damage after delivery (it was dropped) isn't refunded or returnable, doesn't present accidental damage as a warranty claim, and never says a refund was issued."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 4,
+    "cachedCalls": 0,
+    "toolCalls": 2,
+    "inputTokens": 8818,
+    "outputTokens": 184,
+    "latencyMs": 3854,
+    "turnLatencyMs": [
+      3854
+    ],
+    "costMicros": 0,
+    "wallMs": 4032
+  },
+  "finishedAt": "2026-10-06T12:52:45.063Z"
+}

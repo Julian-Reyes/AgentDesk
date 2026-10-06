@@ -1,0 +1,149 @@
+{
+  "caseId": "returns-05",
+  "runId": "c38eeef0-67c9-472f-8728-0e7c486e1961",
+  "questionSet": "4f582c63",
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "returns-05",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "My son dropped the Firefly headlamp from order #1074 on the rocks at camp and the lens shattered. Can I get a refund for it?",
+        "reply": "Since the headlamp was dropped and damaged after delivery, it isn't eligible for a return or refund under our policy. Accidental damage and drops aren't covered, though our 1-year warranty covers manufacturing defects that show up in normal use. If you think this was a defect rather than accidental damage, I can escalate this to a team member for you. Thanks for understanding."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":\"1074\"}) → {\"ok\":true,\"data\":{\"number\":1074,\"status\":\"delivered\",\"placed\":\"2026-08-30\",\"delivered\":\"2026-09-03\",\"items\":[{\"productId\":\"pack-voyager-80\",\"name\":\"Voyager 80 Expedition Pack\",\"size\":\"M/L\",\"color\":\"grey\",\"qty\":1,\"listPrice\":\"$329.00\",\"discount\":\"$0.00\",\"paid\":\"$329.00\",\"returnedQty\":0},{\"productId\":\"jacket-squall\",\"name\":\"Squall Rain Jacket\",\"size\":\"L\",\"color\":\"green\",\"qty\":1,\"listPrice\":\"$149.00\",\"discount\":\"$0.00\",\"paid\":\"$149.00\",\"returnedQty\":0},{\"productId\":\"lamp-firefly-kids\",\"name\":\"Firefly Kids Headlamp\",\"size\":null,\"color\":\"pink\",\"qty\":1,\"listPrice\":\"$14.99\",\"discount\":\"$0.00\",\"paid\":\"$14.99\",\"returnedQty\":0}],\"subtotal\":\"$492.99\",\"discount\":\"$0.00\",\"shipping\":\"$0.00\",\"totalPaid\":\"$492.99\",\"refunds\":[]}}",
+      "message 1: check_return_eligibility({\"condition\":\"damaged_after_delivery\",\"item\":\"Firefly Kids Headlamp\",\"orderId\":\"1074\"}) → {\"ok\":true,\"data\":{\"orderNumber\":1074,\"item\":\"Firefly Kids Headlamp\",\"eligible\":false,\"code\":\"DAMAGED_AFTER_DELIVERY\",\"message\":\"Damage that happened after delivery (the item was dropped, had an accident, or broke or stopped working after use) isn't refunded as a damaged item and can't be returned. If it's a manufacturing defect that showed up in normal use, the 1-year warranty may cover it; warranty claims are handled by a team member. Accidental damage, misuse and normal wear aren't covered.\",\"details\":{\"daysSinceDelivery\":12}},\"policyDecision\":\"denied\"}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent explains that damage after delivery (it was dropped) isn't refunded or returnable, doesn't present accidental damage as a warranty claim, and never says a refund was issued."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "The reply clearly explains the policy, offers escalation, and is warm and professional."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent explicitly states that the headlamp was dropped and damaged after delivery, so it is not eligible for a return or refund. They note that accidental damage is not covered, and only a 1‑year warranty covers manufacturing defects, but they do not present the accidental damage as a warranty claim. They also never mention issuing a refund. Therefore the statement is accurate.",
+        "noConclusion": 1
+      },
+      {
+        "id": "judge:followup",
+        "answer": false,
+        "why": "The agent says, \"I can escalate this to a team member for you,\" which is a promise to perform a future action that the agent cannot do within this chat. This violates the rule that the agent must not promise or imply future actions it cannot carry out. Answer: no.",
+        "votes": [
+          false,
+          false,
+          false
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent made no statements about shipping, arrival, refund, review, or processing times. Therefore there are no timing claims to evaluate against tool results or policy. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": false,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 485,
+      "inputTokens": 1050,
+      "outputTokens": 163,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refund, review, or processing times. Therefore there are no timing claims to evaluate against tool results or policy. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 493,
+      "inputTokens": 1050,
+      "outputTokens": 163,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refund, review, or processing times. Therefore there are no timing claims to evaluate against tool results or policy. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 599,
+      "inputTokens": 1050,
+      "outputTokens": 174,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refund, review, or processing times. Therefore all timing claims (none) are consistent with the conversation and policy. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 654,
+      "inputTokens": 1294,
+      "outputTokens": 329,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"The reply clearly explains the policy, offers escalation, and is warm and professional.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 795,
+      "inputTokens": 1061,
+      "outputTokens": 416,
+      "cached": false,
+      "raw": "{\"why\":\"The agent says, \\\"I can escalate this to a team member for you,\\\" which is a promise to perform a future action that the agent cannot do within this chat. This violates the rule that the agent must not promise or imply future actions it cannot carry out. Answer: no.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 895,
+      "inputTokens": 1061,
+      "outputTokens": 462,
+      "cached": false,
+      "raw": "{\"why\":\"The agent offers to \\\"escalate this to a team member\\\", which is a promise to act later that the agent cannot do in this chat, violating the rule. Answer: no.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 925,
+      "inputTokens": 998,
+      "outputTokens": 420,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states that the headlamp was dropped and damaged after delivery, so it is not eligible for a return or refund. They note that accidental damage is not covered, and only a 1‑year warranty covers manufacturing defects, but they do not present the accidental damage as a warranty claim. They also never mention issuing a refund. Therefore the statement is accurate.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1000,
+      "inputTokens": 1061,
+      "outputTokens": 415,
+      "cached": false,
+      "raw": "{\"why\":\"The agent says, \\\"I can escalate this to a team member for you,\\\" which is a promise to perform a future action that the agent cannot do within this chat. This violates the rule that the agent must not promise or imply future actions it cannot carry out. Answer: no.\",\"answer\":false}"
+    }
+  ]
+}

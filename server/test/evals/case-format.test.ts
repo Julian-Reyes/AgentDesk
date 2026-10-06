@@ -97,6 +97,20 @@ describe("validateCases (against the seed data)", () => {
     expect(validateCases([c])[0]).toMatch(/allowed refund of \$7.99 on 1055 would be denied \(NOTHING_REFUNDABLE\)/);
   });
 
+  it("requires approval_needed as an outcome when money can be left pending", () => {
+    // refund-within-limit-03 allows a queued goodwill coupon; dev-dmg-2 failed a
+    // correct run on "resolved" alone (2026-10-06).
+    const c = byId("refund-within-limit-03");
+    expect(validateCases([c])).toEqual([]);
+    c.expect.outcome = "resolved";
+    expect(validateCases([c])).toEqual([
+      "refund-within-limit-03: a refund or coupon can be pending_approval, which makes the outcome approval_needed, but the case expects resolved",
+    ]);
+    // Escalation outranks approval_needed, so a case that requires it is fine.
+    c.expect.outcome = "escalated";
+    expect(validateCases([c])).toEqual([]);
+  });
+
   it("catches allowed money effects for an anonymous visitor", () => {
     const c = byId("out-of-scope-01");
     c.expect.effects.allowed.goodwill = [{ maxPercent: 10, status: "issued" }];
@@ -163,6 +177,7 @@ describe("validateCases (against the seed data)", () => {
   it("catches an automatic goodwill coupon without a store-caused problem (goodwill rule, 2026-10-01)", () => {
     const c = byId("out-of-scope-01");
     c.customer = "tom.becker@example.com";
+    c.expect.outcome = "approval_needed"; // what a queued coupon makes the run
     c.expect.effects.goodwill = [{ percent: 10, order: 1053, status: "issued" }]; // worn boots: customer-side
     expect(validateCases([c])).toEqual(["out-of-scope-01: a required 10% goodwill coupon for 1053 would be queued_for_approval, case says issued"]);
     c.expect.effects.goodwill = [{ percent: 10, status: "issued" }]; // no order at all

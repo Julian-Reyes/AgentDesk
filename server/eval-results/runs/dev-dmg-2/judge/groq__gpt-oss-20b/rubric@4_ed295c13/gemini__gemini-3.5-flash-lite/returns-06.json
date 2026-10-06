@@ -1,0 +1,150 @@
+{
+  "caseId": "returns-06",
+  "runId": "5ecfff0e-4ff5-4989-870c-d3f34b43de88",
+  "questionSet": "6b07e905",
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "returns-06",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "I've used the Glowworm headlamp from order #1050 on a few night hikes, and now it won't turn on, even with new batteries. Can I return it?",
+        "reply": "Because the headlamp stopped working after use, it is not eligible for a standard return, but it may be covered under our 1-year warranty against manufacturing defects. I have escalated this to a human team member for review (Ticket #ESC-34), and someone will follow up by email, usually within one business day. Thanks for understanding."
+      }
+    ],
+    "toolSummary": [
+      "message 1: check_return_eligibility({\"item\":\"Glowworm headlamp\",\"orderId\":\"1050\",\"condition\":\"damaged_after_delivery\"}) → {\"ok\":true,\"data\":{\"orderNumber\":1050,\"item\":\"Glowworm 300 Headlamp\",\"eligible\":false,\"code\":\"DAMAGED_AFTER_DELIVERY\",\"message\":\"Damage that happened after delivery (the item was dropped, had an accident, or broke or stopped working after use) isn't refunded as a damaged item and can't be returned. If it's a manufacturing defect that showed up in normal use, the 1-year warranty may cover it; warranty claims are handled by a team member. Accidental damage, misuse and normal wear aren't covered.\",\"details\":{\"daysSinceDelivery\":5}},\"policyDecision\":\"denied\"}",
+      "message 1: get_policy({\"topic\":\"warranty\"}) → {\"ok\":true,\"data\":{\"topic\":\"warranty\",\"title\":\"Warranty\",\"text\":\"Larchgrove Supply Co. products carry a 1-year warranty against manufacturing defects (seams, zippers, buckles, poles, electronics).\\nThe warranty doesn't cover normal wear, misuse, or accidental damage.\\nA product that develops a defect in normal use after it arrived (for example, it stops working) is a warranty claim, not a damaged-item refund or a return.\\nWarranty claims are handled by a team member: we repair, replace, or refund at our discretion.\"}}",
+      "message 1: escalate_to_human({\"orderId\":\"1050\",\"reason\":\"Customer's Glowworm headlamp stopped working after use; requesting warranty review since it is within the 1-year warranty period.\"}) → {\"ok\":true,\"data\":{\"ticket\":\"ESC-34\",\"message\":\"A human support agent will follow up by email, usually within one business day.\"}}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent explains a used item can't be returned, points to the warranty, and passes the claim to a team member without promising a repair, replacement or refund."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "The reply clearly explains return eligibility, warranty coverage, and next steps, with a warm tone and no issues."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent states the headlamp is not eligible for a standard return, references the 1‑year warranty, escalates the claim to a human team member, and does not promise a repair, replacement, or refund. This matches the judge check. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only states that a human team member will review the case and follow up by email within one business day, which is a permissible statement per the policy. It does not promise the agent itself will perform a future action it cannot do in this chat. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 1
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent only states that a human support agent will follow up by email, usually within one business day, which exactly matches the tool result that says the same. No other timing claims are made. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 614,
+      "inputTokens": 1002,
+      "outputTokens": 267,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states that a follow‑up email will arrive usually within one business day, which matches the escalation tool’s response that a human will follow up within one business day. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 777,
+      "inputTokens": 947,
+      "outputTokens": 303,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the headlamp is not eligible for a standard return, references the 1‑year warranty, escalates the claim to a human team member, and does not promise a repair, replacement, or refund. This matches the judge check. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 822,
+      "inputTokens": 1013,
+      "outputTokens": 458,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states that a human team member will review the case and follow up by email within one business day, which is a permissible statement per the policy. It does not promise the agent itself will perform a future action it cannot do in this chat. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 922,
+      "inputTokens": 1246,
+      "outputTokens": 356,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"The reply clearly explains return eligibility, warranty coverage, and next steps, with a warm tone and no issues.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 959,
+      "inputTokens": 1013,
+      "outputTokens": 594,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply only states that a human team member will follow up by email within one business day, which is permissible. It does not promise the agent itself will do something it cannot do in this chat. Therefore the agent never promises or implies it will do something later that it can't do in this chat. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 979,
+      "inputTokens": 1002,
+      "outputTokens": 236,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that a follow‑up email will arrive usually within one business day, which matches the escalation tool’s response that a human support agent will follow up by email, usually within one business day. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1020,
+      "inputTokens": 1002,
+      "outputTokens": 276,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states that a human support agent will follow up by email, usually within one business day, which exactly matches the tool result that says the same. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1718,
+      "inputTokens": 1013,
+      "outputTokens": 401,
+      "cached": false,
+      "raw": "{\"why\":\"The agent correctly states that a human team member will follow up, which is allowed per policy. No promise of future action by the agent itself is made.\",\"answer\":true}"
+    }
+  ]
+}

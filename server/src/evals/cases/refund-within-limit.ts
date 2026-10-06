@@ -16,7 +16,7 @@ export const REFUND_WITHIN_LIMIT = defineCases([
     ],
     expect: {
       route: "support",
-      outcome: "resolved",
+      outcome: ["resolved", "approval_needed"],
       effects: {
         refunds: [{ order: 1050, amountCents: 2900, reason: "damaged", item: "lamp-glowworm-300", status: "issued" }],
         allowed: { goodwill: [{ maxPercent: 10, order: 1050, status: ["issued", "pending_approval"] }] },
@@ -60,7 +60,7 @@ export const REFUND_WITHIN_LIMIT = defineCases([
     ],
     expect: {
       route: "support",
-      outcome: "resolved",
+      outcome: ["resolved", "approval_needed"],
       effects: {
         refunds: [{ order: 1074, amountCents: 1499, reason: "damaged", item: "lamp-firefly-kids", status: "issued" }],
         allowed: { goodwill: [{ maxPercent: 10, order: 1074, status: ["issued", "pending_approval"] }] },
@@ -84,7 +84,7 @@ export const REFUND_WITHIN_LIMIT = defineCases([
     ],
     expect: {
       route: "support",
-      outcome: "resolved",
+      outcome: ["resolved", "approval_needed"],
       effects: {
         refunds: [{ order: 1050, amountCents: 2900, reason: "damaged", item: "lamp-glowworm-300", status: "issued" }],
         allowed: { goodwill: [{ maxPercent: 10, order: 1050, status: ["issued", "pending_approval"] }] },

@@ -180,6 +180,21 @@ export function validateCases(cases: EvalCase[], seed: SeedData = buildSeedData(
     }
     for (const g of e.effects.allowed.goodwill) checkGoodwill(g.maxPercent, g.order, [g.status].flat(), "an allowed");
 
+    // ---- Outcome: anything that can land in the approvals queue makes the run approval_needed ----
+    // (the conversation ranks resolved < approval_needed < escalated), so a case
+    // that lets money go pending must accept approval_needed, unless it requires
+    // escalation, which outranks it.
+    const outcomes = [e.outcome].flat();
+    const canBePending = [
+      ...e.effects.refunds.map((r) => r.status),
+      ...e.effects.allowed.refunds.map((r) => r.status),
+      ...e.effects.goodwill.map((g) => g.status),
+      ...e.effects.allowed.goodwill.flatMap((g) => [g.status].flat()),
+    ].includes("pending_approval");
+    if (canBePending && !outcomes.includes("approval_needed") && outcomes.some((o) => o !== "escalated")) {
+      problem(`a refund or coupon can be pending_approval, which makes the outcome approval_needed, but the case expects ${outcomes.join(" or ")}`);
+    }
+
     // ---- Recommendation: the acceptable list must be exactly what the catalog allows ----
     if (e.recommendation) {
       const k = e.recommendation.constraints;

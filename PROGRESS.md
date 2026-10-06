@@ -2,7 +2,7 @@
 
 Read this file at the start of a session. The full history, with every decision and its reasons, is in `docs/history/M1.md` … `M5.md`. Open those only when a task needs the detail. The spec is `docs/PROJECT.md`.
 
-_Last updated 2026-10-05._
+_Last updated 2026-10-06._
 
 ## Milestones
 | | Status | History |
@@ -24,7 +24,7 @@ _Last updated 2026-10-05._
   Policy violations 1 / 2 / 1, so the comparison names **no winner**. Every model scores below its dev result. Details: M3, "`test-1` results".
 - **The team runs Flash-Lite in all three roles.** **First retire decision (Julian, 2026-10-05):** `groq/qwen3.8-27b` retired from the shopping role ("Worst performer of the group"; test-1 shopping cases: 59%, 43–72%, vs Flash-Lite 78%, gpt-oss-120b 83%). It's published on the public overview. Julian may make more decisions after the Ollama model, and maybe another, are compared.
 - **Since test-1, changed in code:**
-  - the damage-cause rule (`arrived_damaged` vs `damaged_after_delivery`): **re-measured on the dev damage cases for gpt-oss-120b** (see Next 2); Flash-Lite still to finish
+  - the damage-cause rule (`arrived_damaged` vs `damaged_after_delivery`): **re-measured on the dev damage cases for both models** (see Next 2)
   - catching tool calls written out as reply text: saved runs re-graded; not re-measured live
 
   The tool descriptions changed, so later runs aren't strictly comparable with test-1; label them as after these changes.
@@ -32,7 +32,7 @@ _Last updated 2026-10-05._
 - **Rename:** "Switchyard Lite" is now **AgentDesk**. The local databases are `agentdesk_dev` / `agentdesk_test`.
 
 ## Budget
-- **Groq:** ≈ $6.82 of the $8 cycle spent, counted from 2026-09-30. The reset date is unknown (Julian: Groq console → Settings → Billing).
+- **Groq:** ≈ $6.85 of the $8 cycle spent, counted from 2026-09-30. The reset date is unknown (Julian: Groq console → Settings → Billing).
 - **Flash-Lite:** free, ~500 requests/day, resets at 04:00 local.
 - **Modal:** unused.
 - Any run costs: give an estimate first.
@@ -42,10 +42,10 @@ _Last updated 2026-10-05._
    - To update it: commit, `npm run export:static`, commit `site-data/`, push. CI rebuilds and deploys.
    - **Julian checks it on his phone.**
    - The favicon was added 2026-10-05 (a router node handing off to two agents).
-2. **The damage-cause rule, re-measured 2026-10-05** (`dev-dmg-1`…`3`, $0.063; details in M3 history).
-   - gpt-oss-120b, 18 conversations: **0 refunds for dropped or failed-after-use lamps (0/6; test-1 refunded both), and 12/12 legitimate damage refunds made.** 0 policy violations. The 6 failures are reply wording: timing/follow-up claims, and escalating instead of explaining.
-   - **Flash-Lite hit its daily quota after 3** (all pass). Rerun the same commands after 04:00 to finish its 15.
-   - Worth a look: one `refund-within-limit-03` outcome was recorded as `approval_needed` although the refund was issued.
+2. **The damage-cause rule, re-measured** (`dev-dmg-1`…`3`, 18 conversations per model, ≈ $0.09 in all; details in M3 history, 2026-10-05 and -06).
+   - **It held for both models:** 0 of 6 dropped or failed-after-use lamps refunded (test-1: gpt-oss refunded both), every legitimate damage refund made. 0 policy violations.
+   - Passed: **Flash-Lite 14/18, gpt-oss-120b 13/18.** gpt-oss fails on reply wording. Flash-Lite **guesses which item broke** instead of asking (3 of 3 tries on `refund-within-limit-03`; once it sent a $329 refund for the wrong item to approval). The code rules held. **Julian's call:** leave it, or add a prompt line later (prompts are frozen for the comparison).
+   - **The `approval_needed` puzzle was a case bug:** 3 dev cases allowed a queued coupon but didn't accept `approval_needed`. Fixed, and the case validator now catches this. The test set was clean.
 3. **Then M3's open items:**
    - judge calibration on weak replies
    - **the 4th (small open) model:** Ollama on the Mac mini for development, Modal for the official runs (cost estimate and spending limit first)
@@ -57,6 +57,7 @@ _Last updated 2026-10-05._
   - judge score calibration on weak replies
   - the 4th (small open, local) model
   - gpt-oss-120b's follow-up promises (5 of 110 on test)
+  - Flash-Lite guesses the damaged item instead of asking (dev only so far)
 - **M4 → M5:**
   - quality intervals can go past 5 (clamp or use a bounded method, then re-generate the reports)
   - decide whether the Approvals page's model-written notes are admin-only
