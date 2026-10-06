@@ -54,7 +54,7 @@ Keep it **simple, polished, and honest.** A small system that works, with real n
 ## Models ($0 budget mode)
 **$0 by default. Modal is allowed within its free monthly credit: usage budget capped at $30 and spend limit at $0, so there are no out-of-pocket charges. If Modal won't accept a $0 spend limit, stop and ask me. Groq paid tier allowed, capped at $8/month by a hard spend limit. Any spending beyond free tiers or free credits requires my approval with a cost estimate first.** Before relying on any free tier, check its current limits and terms and record them in `docs/FREE_TIERS.md`.
 - **Cloud:** **Gemini API free tier** (`gemini-3.5-flash-lite`) and **Groq** (Developer plan since 2026-09-30, capped at $8/month by a hard spend limit) (open-weights models with good tool calling). Groq serves two models in the comparison: a large open model and **OpenAI's `gpt-oss-120b`** (the "GPT" slot).
-- **Small open model: developed on Ollama, evaluated and demoed on Modal/vLLM.** A small open model with tool calling is the fourth model in the comparison ("small open model vs. large cloud models").
+- **Small open model: developed on Ollama, evaluated and demoed on Modal/vLLM.** A small open model with tool calling is the fourth model in the comparison ("small open model vs. large cloud models"). **Deferred (2026-10-06): now the optional Milestone 8;** the comparison and the case study use the three cloud models until then.
   - **Development:** Ollama runs on my **M2 Mac mini (16 GB)** on the home network, and the laptop reaches it via `OLLAMA_BASE_URL`. Pick a model that fits in 16 GB RAM (roughly 3–9B, quantized) and has decent tool calling. Propose 2–3 candidates with reasons, and ask me before downloading.
   - **Official eval runs and the public demo:** the chosen model is served with **vLLM on Modal**. The recommendation must confirm vLLM supports the model (including tool-call parsing), give its official Hugging Face name, and say which Modal GPU it needs.
   - Before any Modal setup: check Modal's official pricing and free-plan terms, give me a cost estimate, and walk me through setting a spending limit.
@@ -123,7 +123,7 @@ Save each conversation as a **run** containing each **step**: messages, the rout
   - current model and prompt version
   - recent metrics
   - a **Retire / Switch model** action that requires a written reason and keeps a history
-- **Model comparison page:** each agent × Gemini 3.5 Flash Lite (`gemini-3.5-flash-lite`) vs. GPT (Groq `gpt-oss-120b`) vs. a large open model (Groq) vs. the chosen small open model (Modal/vLLM), with quality, grounding violations, latency, and escalation rate. The winner is highlighted.
+- **Model comparison page:** each agent × Gemini 3.5 Flash Lite (`gemini-3.5-flash-lite`) vs. GPT (Groq `gpt-oss-120b`) vs. a large open model (Groq) vs. the chosen small open model (Modal/vLLM; optional Milestone 8), with quality, grounding violations, latency, and escalation rate. The winner is highlighted.
 - **Runs page:** a list of conversations. Click one to see the full step-by-step trace.
 - **Approvals queue:** approve or reject refunds and coupons that are over the limits. Rejections become new test cases.
 - **Include one real, data-backed decision:** switch or retire at least one agent/model combination based on the eval results, with the reason written up. Use whatever the real numbers show. Never invent them.
@@ -161,6 +161,7 @@ Save each conversation as a **run** containing each **step**: messages, the rout
 5. **Deploy.** The real switch/retire decision (first, right after the test-run results), free hosting, the public demo limits, admin login, and the `/ops` overview page.
 6. **Story.** Final comparison runs, README, case study, and polish.
 7. **Live chat on the public site (optional).** The static site offers live chat when the author's setup is reachable, with per-visitor and daily limits, a separate demo database, a free model, and automatic fallback to the recordings. Starting plan: `docs/M5_PLAN.md`, section 6.
+8. **Small open model (optional).** The fourth model in the comparison: chosen and developed on Ollama on the Mac mini, official runs on vLLM on Modal (cost estimate and spending limit first), then added to the comparison, the dashboard and the write-up. Setup notes: `docs/OLLAMA_MAC_MINI.md`; free-tier terms: `docs/FREE_TIERS.md`.
 
 **If the scope grows too big, cut in this order:** the goodwill coupon tool, then the stock-by-variant check, then the extra models (keep at least two). **Never cut:** the evals, the grounding check, the tracing, or deployment.
 
@@ -204,3 +205,4 @@ Once both projects are done, the Router can be swapped for the best model from S
 
   Why: all real work stays on Julian's machine, at $0, with no database or server to run. The repo is public so Pages is free. Live at https://julianreyes.dev/AgentDesk/.
 - **2026-10-05: Live chat on the public site becomes a new, optional Milestone 7** (Julian's decision). Milestone 6 is unchanged.
+- **2026-10-06: The small open model (the fourth model) becomes a new, optional Milestone 8** (Julian's decision), like live chat in Milestone 7. Milestone 3 closes without it; its first comparison run is `test-1` with the three cloud models. This follows the spec's cut order ("the extra models, keep at least two"): three remain. The case study and README in Milestone 6 describe a three-model comparison and say the small open model is planned. Gemini 3.5 Flash Lite stays the default dev model until a local model is set up.

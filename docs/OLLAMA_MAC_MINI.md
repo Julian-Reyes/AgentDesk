@@ -1,5 +1,7 @@
 # Running Ollama on the Mac mini (reached from the MacBook over the home network)
 
+> **Status (2026-10-06):** not set up. The small open model is the optional Milestone 8 (`docs/PROJECT.md`); these steps are kept for then.
+
 Local models run on the **M2 Mac mini (16 GB)** for **development**. The MacBook only sends requests to it. Official eval runs and the public demo use the same model served by vLLM on Modal instead.
 Ollama needs **macOS 14 (Sonoma) or newer** on the Mac mini ( → About This Mac).
 

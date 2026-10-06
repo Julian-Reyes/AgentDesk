@@ -23,7 +23,7 @@ Milestone 2 is closed (last commit `0297605`, 215 tests passing). Julian will co
    - Report how often the judge agrees with Julian (the agreement rate), alongside the results.
 5. ✅ **The runner** (built 2026-09-30; see docs/history/M3.md. The judge is a separate stage, with `--no-judge`, and a per-model preflight estimate): per-conversation store reset (rolled-back transaction; `DbTracer` already survives it), checkpoint/resume, the shared rate limiter and replay cache already in `server/src/llm/`, progress/ETA, and a **preflight estimate** (calls, time, $) using the measured tokens per call in `docs/FREE_TIERS.md`.
 6. **Tune on the ~40 dev conversations only**, and run the ~110 test conversations once prompts are settled (Groq gpt-oss-120b's 8K tokens/min makes full runs take many hours).
-7. The first full comparison run waits for the local model choice (Mac mini).
+7. The first full comparison run waits for the local model choice (Mac mini). *(Superseded: `test-1` ran on 2026-10-05 with the three cloud models, and the small open model became the optional Milestone 8 on 2026-10-06.)*
 
 ## Constraints to keep in mind
 - No real API calls in tests; $0 budget; ask before new dependencies.

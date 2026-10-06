@@ -16,7 +16,7 @@ Every number below comes from the provider's **official docs**. Third-party blog
 | **Modal** (vLLM) | planned for official evals + demo; **not signed up** | ✅ via vLLM's OpenAI-compatible server | ✅ depends on vLLM's tool-call parser for the model | Starter plan: **$30/month free compute credit**. **Payment method required.** Billed per second (e.g. L4 GPU $0.000222/s ≈ $0.80/h) | not checked |
 | **Ollama Cloud** | optional, not checked | ✅ `https://ollama.com/v1/` | ✅ | not checked | not checked |
 
-**Comparison lineup (decided 2026-09-29):** Gemini **3.5 Flash Lite** (`gemini-3.5-flash-lite`: 15 RPM, 250K TPM, daily limit unknown; chosen over 3.8 Flash's 20 requests/day) · Groq `openai/gpt-oss-120b` (the "GPT" slot, replacing GitHub Models) · Groq `qwen/qwen3.8-27b` (large open model) · a small open model (developed on Ollama on the Mac mini; **official eval runs and the public demo serve it with vLLM on Modal**; Modal's pricing/free terms are not checked yet). Groq's limits are per model, so the two Groq models don't share a quota.
+**Comparison lineup (decided 2026-09-29):** Gemini **3.5 Flash Lite** (`gemini-3.5-flash-lite`: 15 RPM, 250K TPM, daily limit unknown; chosen over 3.8 Flash's 20 requests/day) · Groq `openai/gpt-oss-120b` (the "GPT" slot, replacing GitHub Models) · Groq `qwen/qwen3.8-27b` (large open model) · a small open model (developed on Ollama on the Mac mini; **official eval runs and the public demo serve it with vLLM on Modal**; Modal's pricing/free terms are not checked yet). *Since 2026-10-06 the small open model is the optional Milestone 8; the comparison has the other three until then.* Groq's limits are per model, so the two Groq models don't share a quota.
 
 ## Details and sources
 
