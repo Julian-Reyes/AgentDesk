@@ -4,6 +4,7 @@ import type { DbOrTx } from "../db/client.ts";
 import * as s from "../db/schema.ts";
 import { formatCents, type Cents } from "../domain/money.ts";
 import type { CouponRecord } from "../policy/coupons.ts";
+import { words } from "../policy/item-mentions.ts";
 import { applyAutomaticPromotions, type ActivePromotions, type CartLine } from "../policy/pricing.ts";
 import { activePromotionsAt } from "../policy/promotions.ts";
 import { RULES } from "../policy/rules.ts";
@@ -127,7 +128,6 @@ export function presentProduct(p: typeof s.products.$inferSelect, totalStock: nu
 
 export const day = (d: Date | null) => (d ? d.toISOString().slice(0, 10) : null);
 
-const words = (text: string) => text.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
 
 /**
  * A short name for the item: every word of the query is a whole word of the
@@ -172,7 +172,7 @@ export async function findOrderItem(db: DbOrTx, orderNumber: number, query: stri
       { itemsInOrder: items.map((i) => ({ productId: i.item.productId, name: i.name })) },
     );
   }
-  return { ok: true as const, data: matches[0]! };
+  return { ok: true as const, data: { ...matches[0]!, itemsInOrder: items.map((i) => ({ productId: i.item.productId, name: i.name })) } };
 }
 
 /** What the customer paid for a whole order line, after sales. */

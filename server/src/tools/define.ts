@@ -35,6 +35,13 @@ export type ToolContext = {
   session: Session;
   /** The conversation (trace) running the tool, stored on approvals so the dashboard can link to it. Unset outside a conversation (CLI, tests). */
   runId?: string;
+  /**
+   * What the customer has written in this conversation so far (their messages
+   * only, never the agent's or a tool's). issue_refund checks a damaged item
+   * against it. Unset outside a conversation (CLI, tests), where there's no
+   * customer text to check.
+   */
+  customerMessages?: readonly string[];
 };
 
 export type ToolDef<A extends z.ZodType = z.ZodType, T = unknown> = {

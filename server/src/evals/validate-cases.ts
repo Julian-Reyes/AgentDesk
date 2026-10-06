@@ -1,6 +1,7 @@
 import { DEFAULT_STORE_DATE, fixedClock } from "../domain/clock.ts";
 import { normalizeCouponCode } from "../policy/coupons.ts";
 import { decideGoodwill, storeCausedProblem } from "../policy/goodwill.ts";
+import { itemsNamedIn } from "../policy/item-mentions.ts";
 import { applyAutomaticPromotions, quote, type CartLine } from "../policy/pricing.ts";
 import { activePromotionsAt } from "../policy/promotions.ts";
 import { decideRefund } from "../policy/refunds.ts";
@@ -109,6 +110,14 @@ export function validateCases(cases: EvalCase[], seed: SeedData = buildSeedData(
         const line = seed.orderItems.find((i) => i.orderNumber === r.order && i.productId === r.item);
         if (!line) return problem(`order ${r.order} has no item ${r.item}`);
         itemId = line.id;
+        // issue_refund only refunds a damaged item the customer named, on an order with more than one (round 3).
+        const itemsInOrder = seed.orderItems
+          .filter((i) => i.orderNumber === r.order)
+          .map((i) => ({ productId: i.productId, name: productById.get(i.productId)?.name ?? i.productId }));
+        const customerTexts = c.turns.map((t) => t.customer);
+        if (r.reason === "damaged" && new Set(itemsInOrder.map((i) => i.productId)).size > 1 && !itemsNamedIn(customerTexts, itemsInOrder).includes(r.item)) {
+          problem(`${kind} damaged refund for ${r.item} on ${r.order}: the customer never names that item, so issue_refund would refuse it`);
+        }
         const paid = line.unitPriceCents * line.qty - line.discountCents;
         const keptPaid = Math.floor((paid * (line.qty - line.returnedQty)) / line.qty);
         item = { name: r.item, paidCents: paid, qty: line.qty, refundableCents: keptPaid - (refundedByItem.get(line.id) ?? 0) };

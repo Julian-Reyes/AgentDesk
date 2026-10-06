@@ -317,13 +317,14 @@ describe("grading catches what the case forbids", () => {
 describe("judge questions and the script-mismatch flag", () => {
   it("a follow-up that doesn't fit the previous reply is flagged script_mismatch, not pass or fail", () =>
     inTx(async (tx) => {
-      // The agent guesses the item and refunds it at once, so turn 2 ("It's the kids' headlamp...") no longer fits.
+      // The agent doesn't ask which item, so turn 2 ("It's the kids' headlamp...") doesn't fit its reply.
+      // (Before round 3 this script had the agent guess and refund the item at once; issue_refund now refuses that.)
       const { grade } = await play(tx, "refund-within-limit-03", {
         router: [route("support")],
         agent: [
+          fake.reply("Sorry to hear that! Damaged items are covered within 14 days of delivery."),
           fake.tools(["issue_refund", { orderId: 1074, amount: 14.99, reason: "damaged", cause: "arrived_damaged", item: "lamp-firefly-kids" }]),
           fake.reply("I've refunded $14.99 for the Firefly Kids Headlamp."),
-          fake.reply("That refund of $14.99 is already done."),
         ],
       });
       // The code checks alone pass (the right refund happened, turn 2 states $14.99)...
@@ -333,7 +334,7 @@ describe("judge questions and the script-mismatch flag", () => {
         { id: "judge:0", kind: "judge_check", statement: expect.stringMatching(/asks which item is broken/) },
         { id: "judge:followup", kind: "judge_check", statement: expect.stringMatching(/^The agent never promises or implies/) },
         { id: "judge:timing", kind: "judge_check", statement: expect.stringMatching(/^Every statement about timing/) },
-        { id: "script:2", kind: "script_fit", turn: 2, assumes: "the agent asked which item is broken or what's wrong with it", previousReply: "I've refunded $14.99 for the Firefly Kids Headlamp." },
+        { id: "script:2", kind: "script_fit", turn: 2, assumes: "the agent asked which item is broken or what's wrong with it", previousReply: "Sorry to hear that! Damaged items are covered within 14 days of delivery." },
       ]);
       const globals = { "judge:followup": true, "judge:timing": true };
       expect(finalizeGrade(grade, { ...globals, "script:2": false, "judge:0": false }).status).toBe("script_mismatch");

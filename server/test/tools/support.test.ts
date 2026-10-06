@@ -360,6 +360,53 @@ describe("finding the item in a multi-item order (#1074: Voyager 80 pack, Squall
       expect(await refundFor(tx, "Firefly")).toMatchObject({ ok: true });
     }));
 
+  describe("round 3: in a conversation, only an item the customer named (Julian, 2026-10-06)", () => {
+    const refundIn = async (tx: Tx, item: string, customerMessages: string[]) =>
+      call(tx, "issue_refund", { orderId: 1074, amount: 14.99, reason: "damaged", cause: "arrived_damaged", item }, as(await owner(tx)), { customerMessages });
+
+    it("refuses when the customer hasn't said which item, and lists the items so the agent can ask (dev-dmg: Flash-Lite guessed)", () =>
+      inTx(async (tx) => {
+        const r = (await refundIn(tx, "Firefly Kids Headlamp", ["Something from my order #1074 arrived broken. What can you do?"])) as any;
+        expect(r).toMatchObject({ ok: false, policyDecision: "denied", error: { code: "ITEM_NOT_NAMED_BY_CUSTOMER", details: { namedByCustomer: [] } } });
+        expect(r.error.message).toMatch(/Ask them which item from order #1074 is damaged/);
+        expect(r.error.details.itemsInOrder).toHaveLength(3);
+        expect(await refundedItem(tx)).toEqual([]);
+      }));
+
+    it("refuses a different item from the one the customer named, even one over $50 that would only be queued", () =>
+      inTx(async (tx) => {
+        const said = ["It's the kids' headlamp, the Firefly. It won't switch on."];
+        const r = await call(tx, "issue_refund", { orderId: 1074, amount: 329, reason: "damaged", cause: "arrived_damaged", item: "Voyager 80 Expedition Pack" }, as(await owner(tx)), { customerMessages: said });
+        expect(r).toMatchObject({ ok: false, error: { code: "ITEM_NOT_NAMED_BY_CUSTOMER", details: { namedByCustomer: ["lamp-firefly-kids"] } } });
+        expect(await tx.select().from(s.approvals).where(eq(s.approvals.orderNumber, 1074))).toEqual([]);
+      }));
+
+    it("refunds the item once the customer names it, in any earlier message", () =>
+      inTx(async (tx) => {
+        const said = ["Something from my order #1074 arrived broken.", "It's the kids' headlamp, the Firefly."];
+        expect(await refundIn(tx, "lamp-firefly-kids", said)).toMatchObject({ ok: true, data: { status: "refunded", amount: "$14.99" } });
+        expect(await refundedItem(tx)).toEqual(["lamp-firefly-kids"]);
+      }));
+
+    it("the agent naming the item in its own call doesn't count", () =>
+      inTx(async (tx) => {
+        // The customer's text is all that's checked: the item argument is exactly right, and still refused.
+        expect(await refundIn(tx, "Firefly Kids Headlamp", ["my order arrived broken"])).toMatchObject({ ok: false, error: { code: "ITEM_NOT_NAMED_BY_CUSTOMER" } });
+      }));
+
+    it("a one-item order needs no name: there's nothing to guess (#1050)", () =>
+      inTx(async (tx) => {
+        const r = await call(tx, "issue_refund", { orderId: 1050, amount: 29, reason: "damaged", cause: "arrived_damaged", item: "headlamp" }, as(MAYA), { customerMessages: ["My order arrived broken."] });
+        expect(r).toMatchObject({ ok: true, data: { status: "refunded" } });
+      }));
+
+    it("other refund reasons aren't per item and aren't affected (#1054 lost, the whole order)", () =>
+      inTx(async (tx) => {
+        const r = await call(tx, "issue_refund", { orderId: 1054, amount: 1, reason: "lost" }, as(TOM), { customerMessages: ["my order never came"] });
+        expect(r).not.toMatchObject({ error: { code: "ITEM_NOT_NAMED_BY_CUSTOMER" } });
+      }));
+  });
+
   it("check_return_eligibility uses the same matching, plurals included", () =>
     inTx(async (tx) => {
       expect(await call(tx, "check_return_eligibility", { orderId: 1053, item: "boots" }, as(TOM))).toMatchObject({ ok: true });

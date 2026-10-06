@@ -111,6 +111,15 @@ describe("validateCases (against the seed data)", () => {
     expect(validateCases([c])).toEqual([]);
   });
 
+  it("catches a damaged refund on a multi-item order for an item the customer never names (round 3)", () => {
+    const c = byId("refund-within-limit-03");
+    expect(validateCases([c])).toEqual([]);
+    c.turns = [c.turns[0]!]; // only "Something from my order #1074 arrived broken"
+    expect(validateCases([c])).toContain(
+      "refund-within-limit-03: required damaged refund for lamp-firefly-kids on 1074: the customer never names that item, so issue_refund would refuse it",
+    );
+  });
+
   it("catches allowed money effects for an anonymous visitor", () => {
     const c = byId("out-of-scope-01");
     c.expect.effects.allowed.goodwill = [{ maxPercent: 10, status: "issued" }];

@@ -1,4 +1,4 @@
-import { sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { describe, expect, it, vi } from "vitest";
 import {
   CLARIFY_FALLBACK,
@@ -8,6 +8,7 @@ import {
 } from "../../src/agents/conversation.ts";
 import { buildTeam, loadTeamSpec } from "../../src/agents/team.ts";
 import type { Tx } from "../../src/db/client.ts";
+import * as schema from "../../src/db/schema.ts";
 import { fixedClock } from "../../src/domain/clock.ts";
 import { FakeProvider, fake, type FakeStep } from "../../src/llm/fake.ts";
 import type { ChatMessage } from "../../src/llm/types.ts";
@@ -135,6 +136,27 @@ describe("agent loop: policy outcomes come from the tools", () => {
       expect(r.outcome).toBe("resolved");
       const step = t.run().steps.find((s) => s.kind === "tool_call")!;
       expect(step.policyDecision).toBe("auto_approved");
+    }));
+
+  it("passes the customer's own messages to tools: a guessed item is refused, the named one refunded (round 3, #1074)", () =>
+    inTx(async (tx) => {
+      const [owner] = await tx
+        .select({ id: schema.customers.id, name: schema.customers.name, email: schema.customers.email })
+        .from(schema.orders)
+        .innerJoin(schema.customers, eq(schema.customers.id, schema.orders.customerId))
+        .where(eq(schema.orders.number, 1074));
+      CUSTOMERS[owner!.id] = { name: owner!.name, email: owner!.email };
+      const refund = { orderId: 1074, amount: 14.99, reason: "damaged", cause: "arrived_damaged", item: "Firefly Kids Headlamp" };
+      const t = await setup(tx, {
+        customerId: owner!.id,
+        router: [route("support", "damaged_item")],
+        agent: [fake.tools(["issue_refund", refund]), fake.reply("Which item arrived broken?"), fake.tools(["issue_refund", refund]), fake.reply("Refunded $14.99.")],
+      });
+      await t.convo.send("Something from my order #1074 arrived broken. What can you do?");
+      await t.convo.send("It's the kids' headlamp, the Firefly.");
+      const [guess, named] = t.toolSteps().filter((x) => x.name === "issue_refund");
+      expect(guess!.result).toMatchObject({ ok: false, error: { code: "ITEM_NOT_NAMED_BY_CUSTOMER" } });
+      expect(named!.result).toMatchObject({ ok: true, data: { status: "refunded", amount: "$14.99" } });
     }));
 
   it("$179.99 refund is queued for approval, and the run says so", () =>

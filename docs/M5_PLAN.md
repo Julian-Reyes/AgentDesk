@@ -1,6 +1,6 @@
 # Milestone 5 plan: the public site
 
-**Status: built 2026-10-05 (sections 2–5), not deployed yet.** Julian's decisions, 2026-10-05:
+**Status: done; Milestone 5 closed 2026-10-06 (deployed 2026-10-05). Section 6 moved to Milestone 7.** Original status line: built 2026-10-05 (sections 2–5), not deployed yet. Julian's decisions, 2026-10-05:
 - (a) the repo will be made public
 - the snapshot has **all** eval runs, one JSON file per conversation, deterministic
 - pilot-1 is labelled as judged by the older Gemma/rubric@1 setup

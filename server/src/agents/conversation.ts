@@ -346,6 +346,10 @@ export class Conversation {
     return { reply: FAILURE_REPLY, answeredBy: this.currentAgent!, outcome: "failed", error };
   }
 
+  private customerMessages(): string[] {
+    return this.transcript.filter((e) => e.role === "customer").map((e) => e.text);
+  }
+
   private async runTool(agent: AgentName, call: ToolCall): Promise<ToolResult> {
     const tool = getTool(call.name);
     let result: ToolResult;
@@ -369,7 +373,7 @@ export class Conversation {
           // error rolls back only its own writes, and the conversation's connection
           // stays usable. Without it, one failed query aborted a whole eval
           // conversation and then the grader's queries (dev-3-r2b, 2026-10-01).
-          result = await this.deps.db.transaction((tx) => callTool(tool, { db: tx, now: this.deps.clock(), session: this.deps.session, runId: this.trace.id }, args));
+          result = await this.deps.db.transaction((tx) => callTool(tool, { db: tx, now: this.deps.clock(), session: this.deps.session, runId: this.trace.id, customerMessages: this.customerMessages() }, args));
         } catch (e) {
           // A real bug or infrastructure failure (tools don't throw for business outcomes).
           threw = (e as Error).message;

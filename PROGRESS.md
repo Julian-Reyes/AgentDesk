@@ -11,8 +11,8 @@ _Last updated 2026-10-06._
 | M2 Agent loop | ✅ Closed 2026-09-29 | [M2](docs/history/M2.md) |
 | M3 Evals | ✅ Closed 2026-10-06 (open items carried below) | [M3](docs/history/M3.md) |
 | M4 UI | ✅ Closed 2026-10-02 | [M4](docs/history/M4.md) |
-| M5 Deploy | In progress: overview page built; plan in `docs/M5_PLAN.md` (draft) | [M5](docs/history/M5.md) |
-| M6 Story: final comparison runs, README, case study, polish | Not started | |
+| M5 Deploy | ✅ Closed 2026-10-06 | [M5](docs/history/M5.md) |
+| M6 Story: final comparison runs, README, case study, polish | In progress: plan in `docs/M6_PLAN.md` (agreed 2026-10-06) | [M6](docs/history/M6.md) |
 | M7 Live chat on the public site (optional) | Not started; starting plan in `docs/M5_PLAN.md` §6 (Render, Cloudflare or Fly.io, which Julian already uses) | |
 | M8 Small open model, the 4th in the comparison (optional) | Not started; deferred from M3 on 2026-10-06. Ollama on the Mac mini for development, vLLM on Modal for official runs (cost estimate and spending limit first). Setup: `docs/OLLAMA_MAC_MINI.md` | |
 
@@ -42,9 +42,10 @@ _Last updated 2026-10-06._
 1. **The public site is live: https://julianreyes.dev/AgentDesk/** (dashboard: `/AgentDesk/ops/`). It's a static, read-only snapshot on GitHub Pages; the repo is public. Last deployed 2026-10-06 from snapshot `7bf5017` (`dev-dmg` complete).
    - To update it: commit, `npm run export:static`, commit `site-data/`, push. CI rebuilds and deploys.
    - **Julian checks it on his phone.**
-2. **M6 (Story): plan proposed 2026-10-06, to agree with Julian.** Final comparison runs, README, case study, polish.
-3. **Round 3 (planned, not started):** a code guard in `issue_refund`: a damaged refund on a multi-item order only for an item the customer named in their own messages, else "ask the customer which item". It ships with any prompt changes and is measured in a new labelled run. Design notes in M3 history, "Julian's decisions on `dev-dmg`".
-4. **Further switch/retire decisions (Julian)** after that run. Then re-export and push.
+2. **M6 (Story), in progress; plan `docs/M6_PLAN.md`.**
+   - ✅ Round 3's item guard built and tested (M6 history).
+   - Next: the dev check `dev-r3` (cost estimate first), then `test-2` on Flash-Lite and gpt-oss-120b (≈ $0.45, after 04:00 for Flash-Lite's quota).
+   - Then Julian's decisions, README, the case study (Claude drafts, Julian edits), polish.
 
 ## Open items
 - **Carried from M3** (closed 2026-10-06; details in M3 history, "Milestone 3 closed"):
@@ -52,13 +53,11 @@ _Last updated 2026-10-06._
   - gpt-oss-120b's follow-up and timing promises (5 of 110 on test)
   - Flash-Lite guesses the damaged item instead of asking (dev; the round-3 guard)
   - changes since test-1 aren't measured on the test set (damage-cause rule, tool calls written as text, the round-3 guard)
-- **M4 → M5:**
-  - quality intervals can go past 5 (clamp or use a bounded method, then re-generate the reports)
-  - decide whether the Approvals page's model-written notes are admin-only
-  - demo-only example approvals, kept out of the eval seed
-  - live chats are in memory
-  - one shared admin token, not a real login
-- **M5:** hosting, public-demo limits and admin login. `docs/M5_PLAN.md` is still a draft to agree with Julian.
+- **Carried from M4/M5, into M6 polish:**
+  - phone width, and recordings playing in a browser
+  - quality intervals can go past 5
+  - whether the Approvals page's model-written notes are admin-only
+- **Carried, only for M7:** live chats are in memory; one shared admin token, not a real login.
 
 ## How to run
 See `README.md`. In short:

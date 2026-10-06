@@ -7,6 +7,7 @@ import { decideGoodwill, storeCausedProblem, type StoreCausedProblem } from "../
 import { AGENT_REFUND_REASONS, DAMAGE_CAUSES, decideRefund, type RefundItem } from "../policy/refunds.ts";
 import { checkReturnEligibility, ITEM_CONDITIONS } from "../policy/returns.ts";
 import { RULES } from "../policy/rules.ts";
+import { itemsNamedIn } from "../policy/item-mentions.ts";
 import { day, dollarsArg, findOrderItem, itemRefundableCents, linePaidCents, loadOwnedOrder, orderNumberArg, orderRefundSums, toCents } from "./common.ts";
 import { defineTool, fail, ok, type ToolContext } from "./define.ts";
 
@@ -151,7 +152,7 @@ export const checkReturnEligibilityTool = defineTool({
 
 export const issueRefund = defineTool({
   name: "issue_refund",
-  description: `Refund part or all of one of the signed-in customer's orders. Reasons: damaged (reported within ${RULES.damageReportWindowDays} days of delivery; pass the damaged item, refunded up to what was paid for it, and the cause: arrived_damaged if it was damaged or not working when it was delivered, damaged_after_delivery if it was dropped, broken or stopped working after it arrived. Only arrived_damaged is refunded), lost (order lost in transit), late (delayed order; shipping cost only). Amount in dollars. The tool decides whether the refund is immediate or goes to a human for approval, and says which. Returns are refunded by the warehouse, not with this tool.`,
+  description: `Refund part or all of one of the signed-in customer's orders. Reasons: damaged (reported within ${RULES.damageReportWindowDays} days of delivery; pass the damaged item (on an order with more than one item, only one the customer has named; if they haven\'t said which, ask), refunded up to what was paid for it, and the cause: arrived_damaged if it was damaged or not working when it was delivered, damaged_after_delivery if it was dropped, broken or stopped working after it arrived. Only arrived_damaged is refunded), lost (order lost in transit), late (delayed order; shipping cost only). Amount in dollars. The tool decides whether the refund is immediate or goes to a human for approval, and says which. Returns are refunded by the warehouse, not with this tool.`,
   agents: ["support"],
   args: z.object({
     orderId: orderNumberArg,
@@ -181,7 +182,21 @@ export const issueRefund = defineTool({
       if (reason === "damaged" && item) {
         const found = await findOrderItem(tx, order.number, item);
         if (!found.ok) return { ...found, policyDecision: "denied" as const };
-        const { item: line, name } = found.data;
+        const { item: line, name, itemsInOrder } = found.data;
+        // Round 3 (Julian, 2026-10-06): on an order with more than one item, the
+        // customer must have named the damaged item themselves; the agent may not
+        // pick one. Checked against the customer's own messages, not the agent's
+        // arguments, so naming the item in the call doesn't get past it.
+        const products = new Set(itemsInOrder.map((i) => i.productId));
+        const named = ctx.customerMessages ? itemsNamedIn(ctx.customerMessages, itemsInOrder) : null;
+        if (named && products.size > 1 && !named.includes(line.productId)) {
+          return fail(
+            "ITEM_NOT_NAMED_BY_CUSTOMER",
+            `The customer hasn't said that the ${name} is the damaged item. Ask them which item from order #${order.number} is damaged; don't choose one for them.`,
+            { itemsInOrder, namedByCustomer: named },
+            "denied",
+          );
+        }
         refundItem = { name, paidCents: linePaidCents(line), qty: line.qty, refundableCents: await itemRefundableCents(tx, line) };
         orderItemId = line.id;
       }

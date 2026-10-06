@@ -40,10 +40,11 @@ export function call(
   name: string,
   args: unknown,
   session: ToolContext["session"] = { customerId: null },
+  extra: Partial<Pick<ToolContext, "customerMessages">> = {},
 ): Promise<ToolResult> {
   const tool = getTool(name);
   if (!tool) throw new Error(`No tool ${name}`);
-  return callTool(tool, { db: tx, now: TEST_NOW, session }, args);
+  return callTool(tool, { db: tx, now: TEST_NOW, session, ...extra }, args);
 }
 
 export const as = (customerId: number) => ({ customerId });
