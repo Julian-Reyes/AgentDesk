@@ -1,0 +1,577 @@
+{
+  "caseId": "test-refund-within-limit-01",
+  "case": {
+    "id": "test-refund-within-limit-01",
+    "split": "test",
+    "type": "refund_within_limit",
+    "why": "#1008 (Oscar Park, delivered 2026-09-02, within the 14-day damage window). The customer says 'return', but the Sprout Kids Sleeping Bag arrived ripped, so it's the damaged-items process: $49.00 refunded right away (the item cost $50 or less), no need to send it back. The damage is store-caused, so a goodwill coupon of 10% or less is allowed, not required: issued if the refund came first, queued if the coupon came first.",
+    "source": "test batch 1",
+    "customer": "oscar.park89@example.com",
+    "turns": [
+      {
+        "customer": "I need to return the Sprout kids' sleeping bag from order #1008. It came with a big rip along the seam.",
+        "reply": {
+          "mentions": [],
+          "amounts": [
+            4900
+          ],
+          "avoids": []
+        }
+      }
+    ],
+    "expect": {
+      "route": "support",
+      "outcome": [
+        "resolved",
+        "approval_needed"
+      ],
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [
+          {
+            "order": 1008,
+            "amountCents": 4900,
+            "reason": "damaged",
+            "item": "bag-sprout-kids",
+            "status": "issued"
+          }
+        ],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": [
+            {
+              "maxPercent": 10,
+              "order": 1008,
+              "status": [
+                "issued",
+                "pending_approval"
+              ]
+            }
+          ]
+        },
+        "escalation": "forbidden"
+      },
+      "leaks": [],
+      "judgeChecks": [
+        "The agent treats it as a damaged item and refunds it, rather than telling the customer to ship it back as a normal return."
+      ]
+    }
+  },
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "team": {
+    "router": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "cabd2d15-8a6a-4fec-b58c-986de0302aab",
+    "turns": [
+      {
+        "customer": "I need to return the Sprout kids' sleeping bag from order #1008. It came with a big rip along the seam.",
+        "reply": "I am so sorry the Sprout kids' sleeping bag arrived with a rip. Since it arrived damaged within the 14-day window, I have gone ahead and automatically issued a full refund of $49.00 to your original payment method. You do not need to send the damaged bag back to us. Thanks for understanding.",
+        "answeredBy": "support",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "I need to return the Sprout kids' sleeping bag from order #1008. It came with a big rip along the seam."
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"support\", \"category\": \"damaged_item\", \"urgency\": \"high\", \"confidence\": 0.99}",
+          "decision": {
+            "route": "support",
+            "category": "damaged_item",
+            "urgency": "high",
+            "confidence": 0.99
+          },
+          "fallback": false
+        },
+        "inputTokens": 361,
+        "outputTokens": 30,
+        "latencyMs": 667,
+        "cached": false,
+        "costMicros": 183,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Oscar Park (oscar.park89@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_226012",
+                "name": "get_order",
+                "arguments": "{\"orderId\":1008}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0Tmjd+t2LVlfTidWf9x12+Nemq7J5043szzl1OESs3rnW7kH9hI7ToMVCNvO39e2abnd5TC3cUIroqZtD5RBbXnzE7XA9VLWfydTNPW9dFAT298bSYMSEyZmo="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2562,
+        "outputTokens": 18,
+        "latencyMs": 842,
+        "cached": false,
+        "costMicros": 814,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_226012",
+          "name": "get_order",
+          "arguments": "{\"orderId\":1008}",
+          "result": {
+            "ok": true,
+            "data": {
+              "number": 1008,
+              "status": "delivered",
+              "placed": "2026-08-27",
+              "delivered": "2026-09-02",
+              "items": [
+                {
+                  "productId": "pack-traverse-65",
+                  "name": "Traverse 65 Trekking Pack",
+                  "size": "S/M",
+                  "color": "green",
+                  "qty": 1,
+                  "listPrice": "$259.00",
+                  "discount": "$0.00",
+                  "paid": "$259.00",
+                  "returnedQty": 0
+                },
+                {
+                  "productId": "bag-sprout-kids",
+                  "name": "Sprout 5°C Kids Sleeping Bag",
+                  "size": null,
+                  "color": "blue",
+                  "qty": 1,
+                  "listPrice": "$49.00",
+                  "discount": "$0.00",
+                  "paid": "$49.00",
+                  "returnedQty": 0
+                },
+                {
+                  "productId": "boot-ridgeline-low",
+                  "name": "Ridgeline Low Hiking Shoe",
+                  "size": "9",
+                  "color": "brown",
+                  "qty": 1,
+                  "listPrice": "$139.00",
+                  "discount": "$0.00",
+                  "paid": "$139.00",
+                  "returnedQty": 0
+                }
+              ],
+              "subtotal": "$447.00",
+              "discount": "$0.00",
+              "shipping": "$0.00",
+              "totalPaid": "$447.00",
+              "refunds": []
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Oscar Park (oscar.park89@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_246232",
+                "name": "check_return_eligibility",
+                "arguments": "{\"condition\":\"arrived_damaged\",\"item\":\"Sprout 5°C Kids Sleeping Bag\",\"orderId\":1008}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0T1qT+OYybXwgEbwtBnv7RW+0ZeB7P4UO5gguXaCPIRrOQ9q0roqWC//QRYHxE8D9XA1754yBHipolaeRESQsJCfXAJpYeChGTkD2nETHQUxLgfzWrBNdo2Uc="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2881,
+        "outputTokens": 44,
+        "latencyMs": 719,
+        "cached": false,
+        "costMicros": 974,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_246232",
+          "name": "check_return_eligibility",
+          "arguments": "{\"condition\":\"arrived_damaged\",\"item\":\"Sprout 5°C Kids Sleeping Bag\",\"orderId\":1008}",
+          "result": {
+            "ok": true,
+            "data": {
+              "orderNumber": 1008,
+              "item": "Sprout 5°C Kids Sleeping Bag",
+              "eligible": false,
+              "code": "USE_DAMAGED_ITEM_PROCESS",
+              "message": "Items that arrived damaged follow the damaged-items process instead of a normal return (report within 14 days of delivery).",
+              "details": {
+                "daysSinceDelivery": 13,
+                "withinDamageWindow": true
+              }
+            },
+            "policyDecision": "denied"
+          }
+        },
+        "policyDecision": "denied",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Oscar Park (oscar.park89@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_317431",
+                "name": "get_policy",
+                "arguments": "{\"topic\":\"damaged_items\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TWBJwS1j+eiFRt0K9+W42fBN0RWxIhoWaKP2/1Z0aRwI3YAUu0KX9VUJ23oR+CPMaqv3x5qIajTOi510QnLVY1/CvwsCvJ/PntvvxSk/Lxk2qNR8SQLmxfJU="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3034,
+        "outputTokens": 18,
+        "latencyMs": 815,
+        "cached": false,
+        "costMicros": 955,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_317431",
+          "name": "get_policy",
+          "arguments": "{\"topic\":\"damaged_items\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "topic": "damaged_items",
+              "title": "Damaged items",
+              "text": "This policy covers items that arrived damaged: broken, defective or not working when they were delivered.\nIt doesn't cover damage that happened after delivery: an item that was dropped, damaged in an accident, or broke or stopped working after use. Those aren't refunded under this policy and can't be returned. A manufacturing defect that shows up in normal use may be covered by the warranty; accidental damage, misuse and normal wear aren't.\nIf an item arrives damaged, report it within 14 days of delivery.\nWe'll refund the item or send a replacement; you don't need to send the damaged item back unless we ask.\nA damaged item that cost $50.00 or less per unit is refunded right away, as long as the order's refunds stay within $50.00 in total; pricier items and larger totals are reviewed by a team member, usually within one business day.\nReports after 14 days are reviewed case by case by a team member."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 4,
+          "context": "The customer is signed in as Oscar Park (oscar.park89@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_510606",
+                "name": "issue_refund",
+                "arguments": "{\"orderId\":1008,\"item\":\"Sprout 5°C Kids Sleeping Bag\",\"reason\":\"damaged\",\"cause\":\"arrived_damaged\",\"amount\":49}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TolY6GobiUkjCGfIMKKR/w5rO4QmCw2YvUaLYeNpH/wklPwV9rbHwtuAA0N3IrHuuQAOVKTOD/Ljb1V83mCt91/WpkzE+W62IShYRfaxBxp2bllRYfDe+38k="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3298,
+        "outputTokens": 52,
+        "latencyMs": 898,
+        "cached": false,
+        "costMicros": 1119,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_510606",
+          "name": "issue_refund",
+          "arguments": "{\"orderId\":1008,\"item\":\"Sprout 5°C Kids Sleeping Bag\",\"reason\":\"damaged\",\"cause\":\"arrived_damaged\",\"amount\":49}",
+          "result": {
+            "ok": true,
+            "data": {
+              "status": "refunded",
+              "refundId": 206,
+              "amount": "$49.00",
+              "message": "Refund of $49.00 issued to the original payment method."
+            },
+            "policyDecision": "auto_approved"
+          }
+        },
+        "policyDecision": "auto_approved",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 5,
+          "context": "The customer is signed in as Oscar Park (oscar.park89@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_335169",
+                "name": "reply",
+                "arguments": "{\"message\":\"I am so sorry the Sprout kids' sleeping bag arrived with a rip. Since it arrived damaged within the 14-day window, I have gone ahead and automatically issued a full refund of $49.00 to your original payment method. You do not need to send the damaged bag back to us. Thanks for understanding.\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TH7E/pz/UaHN+db9rzw4Y4lNfsoIA+Pfk1oJl22SpL38kEm4gIwM0B0GW83y9yDWug4mv1s0U/hZl6YjOMCESqb0/XZM2oINA7s0GTCGa5NkF5+retRDurBw="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3416,
+        "outputTokens": 82,
+        "latencyMs": 1827,
+        "cached": false,
+        "costMicros": 1230,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_335169",
+          "name": "reply",
+          "arguments": "{\"message\":\"I am so sorry the Sprout kids' sleeping bag arrived with a rip. Since it arrived damaged within the 14-day window, I have gone ahead and automatically issued a full refund of $49.00 to your original payment method. You do not need to send the damaged bag back to us. Thanks for understanding.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "I am so sorry the Sprout kids' sleeping bag arrived with a rip. Since it arrived damaged within the 14-day window, I have gone ahead and automatically issued a full refund of $49.00 to your original payment method. You do not need to send the damaged bag back to us. Thanks for understanding."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "I am so sorry the Sprout kids' sleeping bag arrived with a rip. Since it arrived damaged within the 14-day window, I have gone ahead and automatically issued a full refund of $49.00 to your original payment method. You do not need to send the damaged bag back to us. Thanks for understanding."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "support",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [
+        {
+          "order": 1008,
+          "amountCents": 4900,
+          "reason": "damaged",
+          "status": "issued",
+          "item": "bag-sprout-kids"
+        }
+      ],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "test-refund-within-limit-01",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to support",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to support"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved or approval_needed",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "refund_required:0",
+        "label": "refund: $49.00 damaged refund on #1008 (bag-sprout-kids), issued",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "reply1:amount:4900",
+        "label": "reply 1 states $49.00",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent treats it as a damaged item and refunds it, rather than telling the customer to ship it back as a normal return."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 6,
+    "cachedCalls": 0,
+    "toolCalls": 4,
+    "inputTokens": 15552,
+    "outputTokens": 244,
+    "latencyMs": 5768,
+    "turnLatencyMs": [
+      5768
+    ],
+    "costMicros": 5275,
+    "wallMs": 8667
+  },
+  "finishedAt": "2026-10-06T14:45:24.071Z"
+}

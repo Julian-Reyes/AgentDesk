@@ -1,0 +1,136 @@
+{
+  "caseId": "test-refund-within-limit-04",
+  "runId": "444b686c-13d2-4ad9-89ae-cb4f1cba9d1f",
+  "questionSet": "2a2c12d8",
+  "agentModel": "groq/gpt-oss-120b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-refund-within-limit-04",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Both of my orders, #1141 and #1301, are running late. Can I get the shipping refunded on both?",
+        "reply": "I’ve issued a shipping refund of $7.99 for order #1141 and the same amount for order #1301. Both refunds have been sent to your original payment method. Thanks for your patience."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1141}) → {\"ok\":true,\"data\":{\"number\":1141,\"status\":\"delayed\",\"placed\":\"2026-09-05\",\"delivered\":null,\"items\":[{\"productId\":\"bag-sprout-kids\",\"name\":\"Sprout 5°C Kids Sleeping Bag\",\"size\":null,\"color\":\"red\",\"qty\":1,\"listPrice\":\"$49.00\",\"discount\":\"$0.00\",\"paid\":\"$49.00\",\"returnedQty\":0}],\"subtotal\":\"$49.00\",\"discount\":\"$0.00\",\"shipping\":\"$7.99\",\"totalPaid\":\"$56.99\",\"refunds\":[]}}",
+      "message 1: get_order({\"orderId\":1301}) → {\"ok\":true,\"data\":{\"number\":1301,\"status\":\"delayed\",\"placed\":\"2026-08-28\",\"delivered\":null,\"items\":[{\"productId\":\"boot-cub-kids\",\"name\":\"Cub Kids Hiking Boot\",\"size\":\"3\",\"color\":\"purple\",\"qty\":1,\"listPrice\":\"$69.00\",\"discount\":\"$0.00\",\"paid\":\"$69.00\",\"returnedQty\":0}],\"subtotal\":\"$69.00\",\"discount\":\"$0.00\",\"shipping\":\"$7.99\",\"totalPaid\":\"$76.99\",\"refunds\":[]}}",
+      "message 1: get_policy({\"topic\":\"refunds\"}) → {\"ok\":true,\"data\":{\"topic\":\"refunds\",\"title\":\"Refunds\",\"text\":\"Refunds go back to the original payment method.\\nA refund can never be more than what was paid for the order.\\nOur support team can issue refunds for items that arrived damaged, lost orders and late deliveries (shipping cost only). Refunds up to $50.00 per order are processed right away; larger amounts are reviewed by a team member, usually within one business day.\\nDamaged items are refunded per item, up to what was paid for that item. An item that cost more than $50.00 (per unit) is always reviewed by a team member, whatever amount is requested.\\nRefunds for returned items are issued when the warehouse receives the return.\"}}",
+      "message 1: issue_refund({\"amount\":7.99,\"orderId\":1141,\"reason\":\"late\"}) → {\"ok\":true,\"data\":{\"status\":\"refunded\",\"refundId\":187,\"amount\":\"$7.99\",\"message\":\"Refund of $7.99 issued to the original payment method.\"},\"policyDecision\":\"auto_approved\"}",
+      "message 1: issue_refund({\"amount\":7.99,\"orderId\":1301,\"reason\":\"late\"}) → {\"ok\":true,\"data\":{\"status\":\"refunded\",\"refundId\":188,\"amount\":\"$7.99\",\"message\":\"Refund of $7.99 issued to the original payment method.\"},\"policyDecision\":\"auto_approved\"}"
+    ],
+    "judgeNote": "Confirms both $7.99 shipping refunds, one per order.",
+    "checks": [
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "The reply confirms both refunds, is concise, and provides the next step clearly."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only reports that the refunds have already been issued and sent, with no future promises or implied actions that cannot be performed in this chat. Therefore the agent does not violate the rule.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 3
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent states that the refunds have been sent to the original payment method, which matches the tool result for issue_refund that confirms the refund was issued. No unsupported timing claims are made. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 1
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "scores",
+      "latencyMs": 612,
+      "inputTokens": 1458,
+      "outputTokens": 249,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"The reply confirms both refunds, is concise, and provides the next step clearly.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1019,
+      "inputTokens": 1225,
+      "outputTokens": 399,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports that the refunds have already been issued and sent, with no future promises or implied actions that cannot be performed in this chat. Therefore the agent does not violate the rule.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 931,
+      "inputTokens": 1214,
+      "outputTokens": 220,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that the refunds have been sent to the original payment method, which matches the tool result for issue_refund that confirms the refund was issued. No unsupported timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 1039,
+      "inputTokens": 1214,
+      "outputTokens": 299,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the refunds have been sent, which matches the tool result showing the refunds were issued to the original payment method. No unsupported timing claims are made.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1069,
+      "inputTokens": 1225,
+      "outputTokens": 402,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply only reports that the refunds have already been issued and sent; it does not promise or imply any future action that it cannot perform in this chat. Therefore the agent complies with the rule.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 1069,
+      "inputTokens": 1214,
+      "outputTokens": 222,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that the refunds have been sent to the original payment method, which matches the tool result for each issue_refund call that indicates the refund was issued. No unsupported timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1930,
+      "inputTokens": 1225,
+      "outputTokens": 402,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply only reports that the refunds have already been issued and sent; it does not promise or imply any future action that it cannot perform in this chat. Therefore the agent complies with the rule.\",\"answer\":true}"
+    }
+  ]
+}

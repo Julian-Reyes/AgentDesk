@@ -1,0 +1,182 @@
+{
+  "caseId": "test-refund-within-limit-12",
+  "runId": "fe31dc28-3be1-41d8-b226-090afff2a587",
+  "questionSet": "71d289b5",
+  "agentModel": "groq/gpt-oss-120b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-refund-within-limit-12",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Order #1292 is delayed. Can I get the shipping refunded?",
+        "reply": "Your shipping cost of $7.99 has been refunded to the original payment method. The refund has been processed and should appear on your statement shortly. Thanks for your patience."
+      },
+      {
+        "turn": 2,
+        "customer": "Thanks. Actually, can you refund the shipping again? It's still not here.",
+        "reply": "I’m sorry, but the shipping charge for this order has already been refunded, so another refund isn’t possible. As a gesture for the continued delay, I can issue a one‑time discount coupon for up to 10 % off a future purchase. Let me know if you’d like me to create that coupon for you."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_policy({\"topic\":\"refunds\"}) → {\"ok\":true,\"data\":{\"topic\":\"refunds\",\"title\":\"Refunds\",\"text\":\"Refunds go back to the original payment method.\\nA refund can never be more than what was paid for the order.\\nOur support team can issue refunds for items that arrived damaged, lost orders and late deliveries (shipping cost only). Refunds up to $50.00 per order are processed right away; larger amounts are reviewed by a team member, usually within one business day.\\nDamaged items are refunded per item, up to what was paid for that item. An item that cost more than $50.00 (per unit) is always reviewed by a team member, whatever amount is requested.\\nRefunds for returned items are issued when the warehouse receives the return.\"}}",
+      "message 1: get_order({\"orderId\":1292}) → {\"ok\":true,\"data\":{\"number\":1292,\"status\":\"delayed\",\"placed\":\"2026-09-07\",\"delivered\":null,\"items\":[{\"productId\":\"stove-pocket-pro\",\"name\":\"Pocket Pro Canister Stove\",\"size\":null,\"color\":null,\"qty\":1,\"listPrice\":\"$55.00\",\"discount\":\"$0.00\",\"paid\":\"$55.00\",\"returnedQty\":0}],\"subtotal\":\"$55.00\",\"discount\":\"$0.00\",\"shipping\":\"$7.99\",\"totalPaid\":\"$62.99\",\"refunds\":[]}}",
+      "message 1: issue_refund({\"amount\":7.99,\"note\":\"Shipping refund for delayed delivery\",\"orderId\":1292,\"reason\":\"late\"}) → {\"ok\":true,\"data\":{\"status\":\"refunded\",\"refundId\":193,\"amount\":\"$7.99\",\"message\":\"Refund of $7.99 issued to the original payment method.\"},\"policyDecision\":\"auto_approved\"}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "In its last reply, the agent says the shipping was already refunded and doesn't claim a second refund."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": [
+      {
+        "id": "script:2",
+        "turn": 2,
+        "assumes": "the agent refunded the $7.99 shipping"
+      }
+    ]
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "Clear, friendly confirmation of refund and next step."
+      },
+      {
+        "reply": 2,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "Explains refund status and offers a discount as compensation."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent’s last reply states that the shipping charge has already been refunded and that another refund is not possible, and offers a discount instead. This matches the claim. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only states that the refund has already been processed and offers to issue a coupon immediately, which is an action it can perform in this chat. No future promises or actions that it cannot perform are made. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": false,
+        "why": "The agent states that the refund “should appear on your statement shortly,” but neither the policy text nor the tool response specifies a timing for when a refund appears on a statement. This vague timing claim is unsupported by the provided information. Answer: no.",
+        "votes": [
+          false,
+          false,
+          false
+        ]
+      }
+    ],
+    "scriptFit": [
+      {
+        "id": "script:2",
+        "answer": true,
+        "why": "The agent’s reply explicitly states that the $7.99 shipping cost has been refunded to the original payment method, matching the customer’s assumption. Answer: yes."
+      }
+    ]
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": false,
+    "script:2": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:0",
+      "latencyMs": 993,
+      "inputTokens": 989,
+      "outputTokens": 200,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s last reply states that the shipping charge has already been refunded and that another refund is not possible, and offers a discount instead. This matches the claim. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1744,
+      "inputTokens": 1067,
+      "outputTokens": 653,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states that the refund has already been processed and offers to issue a coupon immediately, which is an action it can perform in this chat. No future promises or actions that it cannot perform are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "script:2",
+      "latencyMs": 767,
+      "inputTokens": 994,
+      "outputTokens": 219,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply explicitly states that the $7.99 shipping cost has been refunded to the original payment method, matching the customer’s assumption. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 868,
+      "inputTokens": 1056,
+      "outputTokens": 444,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the refund should appear on the customer’s statement shortly, which is a vague timing claim. The policy and tool responses do not specify when a refund will appear, so this timing claim is unsupported. Answer: no.\",\"answer\":false}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 2114,
+      "inputTokens": 1303,
+      "outputTokens": 516,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"Clear, friendly confirmation of refund and next step.\"},{\"reply\":2,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"Explains refund status and offers a discount as compensation.\"}]}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1126,
+      "inputTokens": 1056,
+      "outputTokens": 338,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that the refund “should appear on your statement shortly,” but neither the policy text nor the tool response specifies a timing for when a refund appears on a statement. This vague timing claim is unsupported by the provided information. Answer: no.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1196,
+      "inputTokens": 1067,
+      "outputTokens": 559,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports that the refund was processed and offers to issue a coupon immediately; it does not promise future actions it cannot perform in this chat. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 1361,
+      "inputTokens": 1056,
+      "outputTokens": 448,
+      "cached": false,
+      "raw": "{\"why\":\"The agent claimed the refund would appear on the statement shortly, but the policy and tool results do not specify any timing for refunds. This vague timing is unsupported by the provided information. Answer: no.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1680,
+      "inputTokens": 1067,
+      "outputTokens": 601,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states that a refund was processed and offers to issue a coupon, both actions the agent can perform in this chat. No future promises about delivery or follow‑up are made. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

@@ -1,0 +1,642 @@
+{
+  "caseId": "test-order-status-03",
+  "case": {
+    "id": "test-order-status-03",
+    "split": "test",
+    "type": "order_status",
+    "why": "Kenji Kaur asks for a rundown of all his orders. find_customer lists four, one in each state: #1145 lost, #1197 shipped, #1217 delayed, #1319 delivered. Each status must be right. The lost order's refund ($297.00, queued) and one goodwill coupon of 10% or less (lost or delayed) are allowed, since he didn't ask; the delayed order shipped free, so there's no shipping to refund.",
+    "source": "test batch 2",
+    "customer": "kenji.kaur117@example.com",
+    "turns": [
+      {
+        "customer": "Can you give me a quick rundown of where all my orders stand?",
+        "reply": {
+          "mentions": [
+            "lost",
+            [
+              "shipped",
+              "in transit",
+              "on its way"
+            ],
+            [
+              "delayed",
+              "delay"
+            ],
+            "delivered"
+          ],
+          "amounts": [],
+          "avoids": []
+        }
+      }
+    ],
+    "expect": {
+      "route": "support",
+      "outcome": [
+        "resolved",
+        "approval_needed",
+        "escalated"
+      ],
+      "tools": {
+        "required": [
+          {
+            "tool": "find_customer"
+          }
+        ],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [
+            {
+              "order": 1145,
+              "amountCents": 29700,
+              "reason": "lost",
+              "status": "pending_approval"
+            }
+          ],
+          "goodwill": [
+            {
+              "maxPercent": 10,
+              "order": 1145,
+              "status": "issued"
+            },
+            {
+              "maxPercent": 10,
+              "order": 1217,
+              "status": "issued"
+            }
+          ]
+        },
+        "escalation": "allowed"
+      },
+      "leaks": [],
+      "judge": "A short list, one line per order, with the right status for each. Flags the lost one and what happens next.",
+      "judgeChecks": []
+    }
+  },
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "team": {
+    "router": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "bc1e301c-ba3c-48d4-b6b5-c4717ccd33ee",
+    "turns": [
+      {
+        "customer": "Can you give me a quick rundown of where all my orders stand?",
+        "reply": "Here is the rundown of your orders:\n\n- Order #1197 (Placed on 2026-09-11, Total: $426.00): Shipped with Parcelway (Tracking: PW0009479043). Estimated delivery is between 2026-09-15 and 2026-09-18. It is currently in transit in Salt Lake City, UT.\n- Order #1217 (Placed on 2026-09-03, Total: $548.00): Delayed with Parcelway (Tracking: PW0009637423) due to weather and volume backlog in Portland, OR.\n- Order #1145 (Placed on 2026-08-14, Total: $297.00): Marked as lost by Parcelway (Tracking: PW0009067255) in Sacramento, CA.\n- Order #1319 (Placed on 2026-07-10, Total: $348.00): Delivered to your front door on 2026-07-15.",
+        "answeredBy": "support",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Can you give me a quick rundown of where all my orders stand?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"support\", \"category\": \"order_status\", \"urgency\": \"normal\", \"confidence\": 1.0}",
+          "decision": {
+            "route": "support",
+            "category": "order_status",
+            "urgency": "normal",
+            "confidence": 1
+          },
+          "fallback": false
+        },
+        "inputTokens": 346,
+        "outputTokens": 29,
+        "latencyMs": 767,
+        "cached": false,
+        "costMicros": 176,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Kenji Kaur (kenji.kaur117@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_110712",
+                "name": "find_customer",
+                "arguments": "{\"email\":\"kenji.kaur117@example.com\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0THrwoMs3MI14GOJXcNnkaP9ojP02i6/hyB4fCrhYpwOPNXz5MzGYIKZyz9qey2C9tDxfsPVmj9hEce7b1QCvgUGTRqovviQML5YjdKWsJGCGNDkPS5sMr6cc="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2550,
+        "outputTokens": 27,
+        "latencyMs": 677,
+        "cached": false,
+        "costMicros": 833,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_110712",
+          "name": "find_customer",
+          "arguments": "{\"email\":\"kenji.kaur117@example.com\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "name": "Kenji Kaur",
+              "email": "kenji.kaur117@example.com",
+              "orders": [
+                {
+                  "number": 1197,
+                  "status": "shipped",
+                  "placed": "2026-09-11",
+                  "total": "$426.00"
+                },
+                {
+                  "number": 1217,
+                  "status": "delayed",
+                  "placed": "2026-09-03",
+                  "total": "$548.00"
+                },
+                {
+                  "number": 1145,
+                  "status": "lost",
+                  "placed": "2026-08-14",
+                  "total": "$297.00"
+                },
+                {
+                  "number": 1319,
+                  "status": "delivered",
+                  "placed": "2026-07-10",
+                  "total": "$348.00"
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Kenji Kaur (kenji.kaur117@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_421350",
+                "name": "get_tracking",
+                "arguments": "{\"orderId\":1197}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0T6xnEjdp09esmIGAWiVsrGs7QOak0Ycpzf4l2SLW2JVjjf1tew3cSULFaXPsmcWrrRpRLIHAsSJgWgaAxGVAiBq2T7sp6UjSs+guRV8AphRQOQnlvOMGRUrM="
+                    }
+                  }
+                }
+              },
+              {
+                "id": "call_421351",
+                "name": "get_tracking",
+                "arguments": "{\"orderId\":1217}"
+              },
+              {
+                "id": "call_421352",
+                "name": "get_tracking",
+                "arguments": "{\"orderId\":1145}"
+              },
+              {
+                "id": "call_421353",
+                "name": "get_tracking",
+                "arguments": "{\"orderId\":1319}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2759,
+        "outputTokens": 72,
+        "latencyMs": 1020,
+        "cached": false,
+        "costMicros": 1008,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_421350",
+          "name": "get_tracking",
+          "arguments": "{\"orderId\":1197}",
+          "result": {
+            "ok": true,
+            "data": {
+              "orderNumber": 1197,
+              "status": "shipped",
+              "carrier": "Parcelway",
+              "trackingNumber": "PW0009479043",
+              "estimatedDelivery": "2026-09-15 to 2026-09-18",
+              "events": [
+                {
+                  "at": "2026-09-11 11:00",
+                  "status": "order_placed",
+                  "location": "Larchgrove Warehouse, Reno, NV",
+                  "note": null
+                },
+                {
+                  "at": "2026-09-12 11:00",
+                  "status": "shipped",
+                  "location": "Larchgrove Warehouse, Reno, NV",
+                  "note": "Handed to Parcelway Ground"
+                },
+                {
+                  "at": "2026-09-13 11:00",
+                  "status": "in_transit",
+                  "location": "Salt Lake City, UT",
+                  "note": null
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_421351",
+          "name": "get_tracking",
+          "arguments": "{\"orderId\":1217}",
+          "result": {
+            "ok": true,
+            "data": {
+              "orderNumber": 1217,
+              "status": "delayed",
+              "carrier": "Parcelway",
+              "trackingNumber": "PW0009637423",
+              "estimatedDelivery": null,
+              "events": [
+                {
+                  "at": "2026-09-03 08:00",
+                  "status": "order_placed",
+                  "location": "Larchgrove Warehouse, Reno, NV",
+                  "note": null
+                },
+                {
+                  "at": "2026-09-04 08:00",
+                  "status": "shipped",
+                  "location": "Larchgrove Warehouse, Reno, NV",
+                  "note": "Handed to Parcelway Ground"
+                },
+                {
+                  "at": "2026-09-05 08:00",
+                  "status": "in_transit",
+                  "location": "Portland, OR",
+                  "note": null
+                },
+                {
+                  "at": "2026-09-07 08:00",
+                  "status": "delayed",
+                  "location": "Portland, OR",
+                  "note": "Carrier delay: weather and volume backlog"
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_421352",
+          "name": "get_tracking",
+          "arguments": "{\"orderId\":1145}",
+          "result": {
+            "ok": true,
+            "data": {
+              "orderNumber": 1145,
+              "status": "lost",
+              "carrier": "Parcelway",
+              "trackingNumber": "PW0009067255",
+              "estimatedDelivery": null,
+              "events": [
+                {
+                  "at": "2026-08-14 21:00",
+                  "status": "order_placed",
+                  "location": "Larchgrove Warehouse, Reno, NV",
+                  "note": null
+                },
+                {
+                  "at": "2026-08-15 21:00",
+                  "status": "shipped",
+                  "location": "Larchgrove Warehouse, Reno, NV",
+                  "note": "Handed to Parcelway Ground"
+                },
+                {
+                  "at": "2026-08-16 21:00",
+                  "status": "in_transit",
+                  "location": "Sacramento, CA",
+                  "note": null
+                },
+                {
+                  "at": "2026-08-21 21:00",
+                  "status": "exception",
+                  "location": "Sacramento, CA",
+                  "note": "Package could not be located by the carrier"
+                },
+                {
+                  "at": "2026-08-27 21:00",
+                  "status": "lost",
+                  "location": "Sacramento, CA",
+                  "note": "Carrier declared the package lost"
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_421353",
+          "name": "get_tracking",
+          "arguments": "{\"orderId\":1319}",
+          "result": {
+            "ok": true,
+            "data": {
+              "orderNumber": 1319,
+              "status": "delivered",
+              "carrier": "Parcelway",
+              "trackingNumber": "PW0010445161",
+              "estimatedDelivery": null,
+              "events": [
+                {
+                  "at": "2026-07-10 11:00",
+                  "status": "order_placed",
+                  "location": "Larchgrove Warehouse, Reno, NV",
+                  "note": null
+                },
+                {
+                  "at": "2026-07-11 11:00",
+                  "status": "shipped",
+                  "location": "Larchgrove Warehouse, Reno, NV",
+                  "note": "Handed to Parcelway Ground"
+                },
+                {
+                  "at": "2026-07-12 11:00",
+                  "status": "in_transit",
+                  "location": "Salt Lake City, UT",
+                  "note": null
+                },
+                {
+                  "at": "2026-07-15 10:00",
+                  "status": "out_for_delivery",
+                  "location": "Local delivery station",
+                  "note": null
+                },
+                {
+                  "at": "2026-07-15 16:00",
+                  "status": "delivered",
+                  "location": "Front door",
+                  "note": null
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Kenji Kaur (kenji.kaur117@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_318217",
+                "name": "reply",
+                "arguments": "{\"message\":\"Here is the rundown of your orders:\\n\\n- Order #1197 (Placed on 2026-09-11, Total: $426.00): Shipped with Parcelway (Tracking: PW0009479043). Estimated delivery is between 2026-09-15 and 2026-09-18. It is currently in transit in Salt Lake City, UT.\\n- Order #1217 (Placed on 2026-09-03, Total: $548.00): Delayed with Parcelway (Tracking: PW0009637423) due to weather and volume backlog in Portland, OR.\\n- Order #1145 (Placed on 2026-08-14, Total: $297.00): Marked as lost by Parcelway (Tracking: PW0009067255) in Sacramento, CA.\\n- Order #1319 (Placed on 2026-07-10, Total: $348.00): Delivered to your front door on 2026-07-15.\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TwL4CGQcn2oe0lMEzDAwhfOpkisWgfmj2No3KN2zjzl3+1VgrEhHUYZJqeuT7J1jtGunmQ3ZTUJNG1gNoScWsnVFHytr0D9nmhKHluU2qxhKkwrtmGovOQrc="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3760,
+        "outputTokens": 287,
+        "latencyMs": 1799,
+        "cached": false,
+        "costMicros": 1846,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_318217",
+          "name": "reply",
+          "arguments": "{\"message\":\"Here is the rundown of your orders:\\n\\n- Order #1197 (Placed on 2026-09-11, Total: $426.00): Shipped with Parcelway (Tracking: PW0009479043). Estimated delivery is between 2026-09-15 and 2026-09-18. It is currently in transit in Salt Lake City, UT.\\n- Order #1217 (Placed on 2026-09-03, Total: $548.00): Delayed with Parcelway (Tracking: PW0009637423) due to weather and volume backlog in Portland, OR.\\n- Order #1145 (Placed on 2026-08-14, Total: $297.00): Marked as lost by Parcelway (Tracking: PW0009067255) in Sacramento, CA.\\n- Order #1319 (Placed on 2026-07-10, Total: $348.00): Delivered to your front door on 2026-07-15.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "Here is the rundown of your orders:\n\n- Order #1197 (Placed on 2026-09-11, Total: $426.00): Shipped with Parcelway (Tracking: PW0009479043). Estimated delivery is between 2026-09-15 and 2026-09-18. It is currently in transit in Salt Lake City, UT.\n- Order #1217 (Placed on 2026-09-03, Total: $548.00): Delayed with Parcelway (Tracking: PW0009637423) due to weather and volume backlog in Portland, OR.\n- Order #1145 (Placed on 2026-08-14, Total: $297.00): Marked as lost by Parcelway (Tracking: PW0009067255) in Sacramento, CA.\n- Order #1319 (Placed on 2026-07-10, Total: $348.00): Delivered to your front door on 2026-07-15."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "Here is the rundown of your orders:\n\n- Order #1197 (Placed on 2026-09-11, Total: $426.00): Shipped with Parcelway (Tracking: PW0009479043). Estimated delivery is between 2026-09-15 and 2026-09-18. It is currently in transit in Salt Lake City, UT.\n- Order #1217 (Placed on 2026-09-03, Total: $548.00): Delayed with Parcelway (Tracking: PW0009637423) due to weather and volume backlog in Portland, OR.\n- Order #1145 (Placed on 2026-08-14, Total: $297.00): Marked as lost by Parcelway (Tracking: PW0009067255) in Sacramento, CA.\n- Order #1319 (Placed on 2026-07-10, Total: $348.00): Delivered to your front door on 2026-07-15."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "support",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "test-order-status-03",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to support",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to support"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved or approval_needed or escalated",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "tool_required:0",
+        "label": "calls find_customer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "reply1:mentions:0",
+        "label": "reply 1 mentions \"lost\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:mentions:1",
+        "label": "reply 1 mentions \"shipped\" or \"in transit\" or \"on its way\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:mentions:2",
+        "label": "reply 1 mentions \"delayed\" or \"delay\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:mentions:3",
+        "label": "reply 1 mentions \"delivered\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 4,
+    "cachedCalls": 0,
+    "toolCalls": 5,
+    "inputTokens": 9415,
+    "outputTokens": 415,
+    "latencyMs": 4263,
+    "turnLatencyMs": [
+      4263
+    ],
+    "costMicros": 3863,
+    "wallMs": 6552
+  },
+  "finishedAt": "2026-10-06T14:53:39.392Z"
+}

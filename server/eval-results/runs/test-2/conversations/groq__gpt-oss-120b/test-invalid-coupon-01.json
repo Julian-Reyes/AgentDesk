@@ -1,0 +1,714 @@
+{
+  "caseId": "test-invalid-coupon-01",
+  "case": {
+    "id": "test-invalid-coupon-01",
+    "split": "test",
+    "type": "invalid_coupon",
+    "why": "Noted addition (Julian's review, 2026-09-30): WELCOME5 was single-use and has already been redeemed (ALREADY_USED). A Glowworm 300 is $29.00 + $7.99 shipping = $36.99 without it. Suggesting another code the agent checked for this cart is fine (Julian, 2026-10-01).",
+    "source": "Julian's review, 2026-09-30 (noted addition)",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "I've got a WELCOME5 code. How much would a Glowworm 300 headlamp be with it?",
+        "reply": {
+          "mentions": [
+            [
+              "already been used",
+              "already used",
+              "been redeemed",
+              "already redeemed"
+            ]
+          ],
+          "amounts": [],
+          "avoids": []
+        }
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "price": {
+        "cart": [
+          {
+            "productId": "lamp-glowworm-300",
+            "qty": 1
+          }
+        ],
+        "coupon": "WELCOME5",
+        "totalCents": 3699
+      },
+      "coupon": {
+        "code": "WELCOME5",
+        "valid": false,
+        "reason": "ALREADY_USED"
+      },
+      "leaks": [],
+      "judgeChecks": []
+    }
+  },
+  "agentModel": "groq/gpt-oss-120b",
+  "team": {
+    "router": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "0cfbce34-19c9-4535-b487-e20d9da2b3ff",
+    "turns": [
+      {
+        "customer": "I've got a WELCOME5 code. How much would a Glowworm 300 headlamp be with it?",
+        "reply": "The WELCOME5 coupon can’t be applied – it’s a single‑use code that’s already been used. The Glowworm 300 Headlamp is $29.00 today. (No coupon can be applied to a single headlamp at this time.) Thanks for understanding.",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "I've got a WELCOME5 code. How much would a Glowworm 300 headlamp be with it?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\":\"shopping\",\"category\":\"pricing_deals\",\"urgency\":\"normal\",\"confidence\":0.99}",
+          "decision": {
+            "route": "shopping",
+            "category": "pricing_deals",
+            "urgency": "normal",
+            "confidence": 0.99
+          },
+          "fallback": false
+        },
+        "inputTokens": 430,
+        "outputTokens": 105,
+        "latencyMs": 3557,
+        "cached": false,
+        "costMicros": 128,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_f8565b10-dc74-46f5-9948-dd6e6aa76d1f",
+                "name": "search_products",
+                "arguments": "{\"limit\":5,\"query\":\"Glowworm 300 headlamp\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to get product Glowworm 300 headlamp. First search.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1863,
+        "outputTokens": 55,
+        "latencyMs": 845,
+        "cached": false,
+        "costMicros": 312,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_f8565b10-dc74-46f5-9948-dd6e6aa76d1f",
+          "name": "search_products",
+          "arguments": "{\"limit\":5,\"query\":\"Glowworm 300 headlamp\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 8,
+              "products": [
+                {
+                  "id": "lamp-glowworm-300",
+                  "name": "Glowworm 300 Headlamp",
+                  "category": "headlamps",
+                  "listPrice": "$29.00",
+                  "currentPrice": "$29.00",
+                  "rating": 4.4,
+                  "description": "All-round AAA headlamp with a red night mode.",
+                  "specs": {
+                    "lumens": 300,
+                    "waterproof": true,
+                    "weightGrams": 78,
+                    "burnTimeMinutes": 1800
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Headlamps: buy 2, get 1 free"
+                  ]
+                },
+                {
+                  "id": "lamp-glowworm-150",
+                  "name": "Glowworm 150 Headlamp",
+                  "category": "headlamps",
+                  "listPrice": "$19.99",
+                  "currentPrice": "$19.99",
+                  "rating": 4.1,
+                  "description": "Simple AAA headlamp for camp chores.",
+                  "specs": {
+                    "lumens": 150,
+                    "waterproof": false,
+                    "weightGrams": 70,
+                    "burnTimeMinutes": 2400
+                  },
+                  "availability": "low_stock",
+                  "activeDeals": [
+                    "Headlamps: buy 2, get 1 free"
+                  ]
+                },
+                {
+                  "id": "lamp-beacon-900",
+                  "name": "Beacon 900 Rechargeable Headlamp",
+                  "category": "headlamps",
+                  "listPrice": "$79.00",
+                  "currentPrice": "$79.00",
+                  "rating": 4.7,
+                  "description": "High-output rechargeable headlamp with a rear battery pack.",
+                  "specs": {
+                    "lumens": 900,
+                    "waterproof": true,
+                    "weightGrams": 140,
+                    "burnTimeMinutes": 900
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Headlamps: buy 2, get 1 free"
+                  ]
+                },
+                {
+                  "id": "lamp-beacon-500",
+                  "name": "Beacon 500 Rechargeable Headlamp",
+                  "category": "headlamps",
+                  "listPrice": "$49.00",
+                  "currentPrice": "$49.00",
+                  "rating": 4.6,
+                  "description": "USB-C rechargeable headlamp with a lock mode.",
+                  "specs": {
+                    "lumens": 500,
+                    "waterproof": true,
+                    "weightGrams": 86,
+                    "burnTimeMinutes": 1200
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Headlamps: buy 2, get 1 free"
+                  ]
+                },
+                {
+                  "id": "lamp-stride-400",
+                  "name": "Stride 400 Running Headlamp",
+                  "category": "headlamps",
+                  "listPrice": "$59.00",
+                  "currentPrice": "$59.00",
+                  "rating": 4.5,
+                  "description": "Bounce-free headlamp for trail running.",
+                  "specs": {
+                    "lumens": 400,
+                    "waterproof": true,
+                    "weightGrams": 60,
+                    "burnTimeMinutes": 600
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Headlamps: buy 2, get 1 free"
+                  ]
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_f2e8b486-2faf-4e04-8214-603891c1f096",
+                "name": "validate_coupon",
+                "arguments": "{\"cart\":[{\"productId\":\"lamp-glowworm-300\",\"qty\":1}],\"code\":\"WELCOME5\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to apply coupon WELCOME5. Need to validate coupon. Use validate_coupon with cart containing product lamp-glowworm-300 qty 1.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2466,
+        "outputTokens": 73,
+        "latencyMs": 594,
+        "cached": false,
+        "costMicros": 414,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_f2e8b486-2faf-4e04-8214-603891c1f096",
+          "name": "validate_coupon",
+          "arguments": "{\"cart\":[{\"productId\":\"lamp-glowworm-300\",\"qty\":1}],\"code\":\"WELCOME5\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "valid": false,
+              "code": "WELCOME5",
+              "reason": "ALREADY_USED",
+              "message": "Coupon WELCOME5 was single-use and has already been used."
+            },
+            "policyDecision": "denied"
+          }
+        },
+        "policyDecision": "denied",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 3,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_667f77ca-1a02-4ace-8b24-6fcd808cd713",
+                "name": "get_active_promotions",
+                "arguments": "{}"
+              }
+            ]
+          },
+          "reasoning": "We have product Glowworm 300 Headlamp price $29.00 current. Coupon WELCOME5 is invalid: already used. Need to respond: explain coupon invalid reason, then check active promotions for any applicable code. We should get active promotions.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2554,
+        "outputTokens": 72,
+        "latencyMs": 603,
+        "cached": false,
+        "costMicros": 426,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_667f77ca-1a02-4ace-8b24-6fcd808cd713",
+          "name": "get_active_promotions",
+          "arguments": "{}",
+          "result": {
+            "ok": true,
+            "data": {
+              "promotions": [
+                {
+                  "name": "Tent Sale: 20% off all tents",
+                  "endsOn": "2026-10-05"
+                },
+                {
+                  "name": "Headlamps: buy 2, get 1 free",
+                  "endsOn": "2026-10-15"
+                }
+              ],
+              "freeShipping": "Free shipping on orders of $75.00 or more; otherwise $7.99.",
+              "couponCodes": [
+                {
+                  "code": "SUMMER10",
+                  "terms": "10% off; expires 2026-09-30"
+                },
+                {
+                  "code": "TRAIL25",
+                  "terms": "$25.00 off; minimum spend $150.00; expires 2026-12-31"
+                },
+                {
+                  "code": "GEAR20",
+                  "terms": "20% off; minimum spend $50.00; not valid on tents, sleeping bags; expires 2026-10-30"
+                }
+              ],
+              "rules": "One coupon per order. Sales apply first, then buy-2-get-1, then the coupon."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 4,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_16b2ae6c-3884-4416-8f3d-3b0db851b973",
+                "name": "validate_coupon",
+                "arguments": "{\"cart\":[{\"productId\":\"lamp-glowworm-300\",\"qty\":1}],\"code\":\"GEAR20\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to respond to customer: they have a WELCOME5 code, but it's already used (invalid). Need to inform why and then possibly suggest active coupons that are valid. We have active promotions: SUMMER10 (10% off, expires 2026-09-30) - currently date is 2026-10-06, so expired. TRAIL25 $25 off min spend $150, expires 2026-12-31, valid. GEAR20 20% off min spend $50, not valid on tents, sleeping bags, expires 2026-10-30, valid for headlamp.\n\nWe should check validity for the cart with these coupons. Use validate_coupon for TRAIL25 and GEAR20. Also we might need to quote price. Let's do validate for GEAR20.",
+          "failedAttempts": [
+            {
+              "status": 400,
+              "code": "tool_use_failed",
+              "message": "{\"error\":{\"message\":\"Tool call validation failed: tool call validation failed: parameters for tool quote_price did not match schema: errors: [`/coupon`: expected string, but got null]\",\"type\":\"invalid_request_error\",\"code\":\"tool_use_failed\",\"failed_generation\":\"{\\\"name\\\": \\\"quote_price\\\", \\\"argument",
+              "failedGeneration": "{\"name\": \"quote_price\", \"arguments\": {\"cart\":[{\"productId\":\"lamp-glowworm-300\",\"qty\":1}],\"coupon\":null}}"
+            }
+          ],
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2817,
+        "outputTokens": 228,
+        "latencyMs": 750,
+        "cached": false,
+        "costMicros": 559,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_16b2ae6c-3884-4416-8f3d-3b0db851b973",
+          "name": "validate_coupon",
+          "arguments": "{\"cart\":[{\"productId\":\"lamp-glowworm-300\",\"qty\":1}],\"code\":\"GEAR20\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "valid": false,
+              "code": "GEAR20",
+              "reason": "MIN_SPEND_NOT_MET",
+              "message": "Coupon GEAR20 needs a minimum spend of $50.00 on eligible items; the cart has $29.00.",
+              "minSpend": "$50.00",
+              "eligibleSubtotal": "$29.00",
+              "shortBy": "$21.00",
+              "excludedCategories": [
+                "tents",
+                "sleeping_bags"
+              ]
+            },
+            "policyDecision": "denied"
+          }
+        },
+        "policyDecision": "denied",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 5,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_05684266-a595-4969-adc3-965b8b445b31",
+                "name": "validate_coupon",
+                "arguments": "{\"cart\":[{\"productId\":\"lamp-glowworm-300\",\"qty\":1}],\"code\":\"GEAR20\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to correct the validate_coupon call JSON. The previous attempt had proper JSON? It was:\n\n{\"cart\":[{\"productId\":\"lamp-glowworm-300\",\"qty\":1}],\"code\":\"GEAR20\"}\n\nThat is valid JSON. Maybe the system expects correct quoting? Actually it's fine. Possibly need to include quotes around code? Already there. Could be missing escaping? Should be fine. But we need to try again. Let's send again.",
+          "failedAttempts": [
+            {
+              "status": 400,
+              "code": "tool_use_failed",
+              "message": "{\"error\":{\"message\":\"Tool call validation failed: tool call validation failed: parameters for tool quote_price did not match schema: errors: [`/coupon`: expected string, but got null]\",\"type\":\"invalid_request_error\",\"code\":\"tool_use_failed\",\"failed_generation\":\"{\\\"name\\\": \\\"quote_price\\\", \\\"argument",
+              "failedGeneration": "{\"name\": \"quote_price\", \"arguments\": {\"cart\":[{\"productId\":\"lamp-glowworm-300\",\"qty\":1}],\"coupon\":null}}"
+            }
+          ],
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2956,
+        "outputTokens": 132,
+        "latencyMs": 722,
+        "cached": false,
+        "costMicros": 523,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_05684266-a595-4969-adc3-965b8b445b31",
+          "name": "validate_coupon",
+          "arguments": "{\"cart\":[{\"productId\":\"lamp-glowworm-300\",\"qty\":1}],\"code\":\"GEAR20\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "valid": false,
+              "code": "GEAR20",
+              "reason": "MIN_SPEND_NOT_MET",
+              "message": "Coupon GEAR20 needs a minimum spend of $50.00 on eligible items; the cart has $29.00.",
+              "minSpend": "$50.00",
+              "eligibleSubtotal": "$29.00",
+              "shortBy": "$21.00",
+              "excludedCategories": [
+                "tents",
+                "sleeping_bags"
+              ]
+            },
+            "policyDecision": "denied"
+          }
+        },
+        "policyDecision": "denied",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 6,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "repaired_0",
+                "name": "reply",
+                "arguments": "{\"message\":\"The WELCOME5 coupon can’t be applied – it’s a single‑use code that’s already been used. The Glowworm 300 Headlamp is $29.00 today. (No coupon can be applied to a single headlamp at this time.) Thanks for understanding.\"}"
+              }
+            ]
+          },
+          "failedAttempts": [
+            {
+              "status": 400,
+              "code": "tool_use_failed",
+              "message": "{\"error\":{\"message\":\"Failed to parse tool call arguments as JSON\",\"type\":\"invalid_request_error\",\"code\":\"tool_use_failed\",\"failed_generation\":\"{\\\"name\\\": \\\"reply\\\", \\\"arguments\\\": The WELCOME5 coupon can’t be applied – it’s a single‑use code that’s already been used. The Glowworm 300 Headlamp is $29",
+              "failedGeneration": "{\"name\": \"reply\", \"arguments\": The WELCOME5 coupon can’t be applied – it’s a single‑use code that’s already been used. The Glowworm 300 Headlamp is $29.00 today. (No coupon can be applied to a single headlamp at this time.) Thanks for understanding.\"}"
+            }
+          ],
+          "repaired": true,
+          "finishReason": "repaired"
+        },
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "latencyMs": 2033,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "repaired_0",
+          "name": "reply",
+          "arguments": "{\"message\":\"The WELCOME5 coupon can’t be applied – it’s a single‑use code that’s already been used. The Glowworm 300 Headlamp is $29.00 today. (No coupon can be applied to a single headlamp at this time.) Thanks for understanding.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "The WELCOME5 coupon can’t be applied – it’s a single‑use code that’s already been used. The Glowworm 300 Headlamp is $29.00 today. (No coupon can be applied to a single headlamp at this time.) Thanks for understanding."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "The WELCOME5 coupon can’t be applied – it’s a single‑use code that’s already been used. The Glowworm 300 Headlamp is $29.00 today. (No coupon can be applied to a single headlamp at this time.) Thanks for understanding."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "shopping",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "test-invalid-coupon-01",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to shopping"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "price_quoted",
+        "label": "quote_price for lamp-glowworm-300×1 with or without WELCOME5, or with a valid alternative code",
+        "pass": false,
+        "severity": "task",
+        "detail": "never quoted this cart"
+      },
+      {
+        "id": "price_stated",
+        "label": "reply 1 states $36.99",
+        "pass": false,
+        "severity": "task",
+        "detail": "amounts in reply: $29.00"
+      },
+      {
+        "id": "coupon",
+        "label": "checks WELCOME5 (ALREADY_USED)",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "coupon_suggestions_checked",
+        "label": "any other code it mentions was checked for this cart by a tool",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:mentions:0",
+        "label": "reply 1 mentions \"already been used\" or \"already used\" or \"been redeemed\" or \"already redeemed\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 2
+    },
+    "codeStatus": "fail"
+  },
+  "stats": {
+    "modelCalls": 7,
+    "cachedCalls": 0,
+    "toolCalls": 5,
+    "inputTokens": 13086,
+    "outputTokens": 665,
+    "latencyMs": 9104,
+    "turnLatencyMs": [
+      9104
+    ],
+    "costMicros": 2362,
+    "wallMs": 12019
+  },
+  "finishedAt": "2026-10-06T14:40:50.658Z"
+}

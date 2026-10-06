@@ -1,0 +1,150 @@
+{
+  "caseId": "test-returns-02",
+  "runId": "507ad458-c398-4c34-aa00-1fb54d8b59d6",
+  "questionSet": "dfc8395f",
+  "agentModel": "groq/gpt-oss-120b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-returns-02",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "I'd like to return the Scree Trail Runners from order #1209. Never worn, still in the box.",
+        "reply": "I’m sorry, the 30‑day return window for the Scree Trail Runners has expired, so we can’t accept a return at this time. I’ve escalated your request, and a human support agent will follow up by email (ticket ESC-46) within one business day. Thanks for understanding."
+      }
+    ],
+    "toolSummary": [
+      "message 1: check_return_eligibility({\"condition\":\"unused\",\"item\":\"Scree Trail Runners\",\"orderId\":1209}) → {\"ok\":true,\"data\":{\"orderNumber\":1209,\"item\":\"Scree Trail Runner\",\"eligible\":false,\"code\":\"WINDOW_EXPIRED\",\"message\":\"The 30-day return window ended on 2026-09-13 (delivered 32 days ago).\",\"details\":{\"returnBy\":\"2026-09-13\",\"daysSinceDelivery\":32}},\"policyDecision\":\"denied\"}",
+      "message 1: escalate_to_human({\"orderId\":1209,\"reason\":\"Return request denied because the 30-day return window has expired.\"}) → {\"ok\":true,\"data\":{\"ticket\":\"ESC-46\",\"message\":\"A human support agent will follow up by email, usually within one business day.\"}}"
+    ],
+    "judgeNote": "Explains the window ended on Sep 13, kindly. May mention the warranty for defects, but doesn't suggest calling them defective.",
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent says the 30-day return window has ended, and doesn't promise, offer or hint at an exception."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "Apologetic and professional tone, clear explanation of the expired window and next steps, and it gives the customer a follow‑up plan, so it scores 5,4,5."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent explicitly states the 30‑day return window has expired and that a return cannot be accepted, and does not promise, offer, or hint at an exception. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent correctly states that a human support agent will follow up by email within one business day, which is permissible under the policy. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 1
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent states the return window expired on 2026-09-13, matching the tool's message, and that a human will follow up within one business day, matching the tool's response. No other timing claims are made. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 743,
+      "inputTokens": 833,
+      "outputTokens": 383,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply states that a human support agent will follow up by email within one business day, which is a standard policy action that the agent can reference. This does not promise any action the agent cannot perform in this chat, and it aligns with the tool’s escalation result. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 800,
+      "inputTokens": 758,
+      "outputTokens": 319,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states the 30‑day return window has expired and that a return cannot be accepted, and does not promise, offer, or hint at an exception. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 774,
+      "inputTokens": 822,
+      "outputTokens": 365,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the return window expired on 2026‑09‑13, which matches the tool’s message that the 30‑day window ended on that date. The agent also says a human support agent will follow up within one business day, which matches the tool’s response that a follow‑up will occur usually within one business day. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 928,
+      "inputTokens": 1066,
+      "outputTokens": 433,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"Apologetic and professional tone, clear explanation of the expired window and next steps, and it gives the customer a follow‑up plan, so it scores 5,4,5.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 945,
+      "inputTokens": 833,
+      "outputTokens": 373,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply states that a human support agent will follow up by email within one business day, which is a standard policy action that the agent can reference. This does not promise anything beyond what the tool and policy allow, so it is acceptable.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1044,
+      "inputTokens": 833,
+      "outputTokens": 393,
+      "cached": false,
+      "raw": "{\"why\":\"The agent correctly states that a human support agent will follow up by email within one business day, which is permissible under the policy. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 2201,
+      "inputTokens": 822,
+      "outputTokens": 394,
+      "cached": false,
+      "raw": "{\"why\":\"The agent correctly stated that the 30‑day return window expired on 2026‑09‑13, matching the tool result, and that a human agent will follow up within one business day, also matching the tool. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 2497,
+      "inputTokens": 822,
+      "outputTokens": 500,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the return window expired on 2026-09-13, matching the tool's message, and that a human will follow up within one business day, matching the tool's response. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

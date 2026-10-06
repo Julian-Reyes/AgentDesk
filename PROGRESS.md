@@ -33,8 +33,8 @@ _Last updated 2026-10-06._
 - **Rename:** "Switchyard Lite" is now **AgentDesk**. The local databases are `agentdesk_dev` / `agentdesk_test`.
 
 ## Budget
-- **Groq:** ≈ $7.07 of the $8 cycle spent, counted from 2026-09-30. The reset date is unknown (Julian: Groq console → Settings → Billing).
-- **Flash-Lite:** paid tier since 2026-10-06 ($0.30 / $2.50 per 1M), no daily cap. ≈ $0.06 recorded so far (up to ≈ $0.22 if `dev-r3` was billed).
+- **Groq:** ≈ $7.52 of the $8 cycle spent, counted from 2026-09-30. The reset date is unknown (Julian: Groq console → Settings → Billing).
+- **Gemini:** paid tier since 2026-10-06 14:05 UTC, **capped at $5/month** (Google Cloud). Flash-Lite $0.30 / $2.50 per 1M, no daily cap. ≈ $0.43 recorded so far (up to ≈ $0.59 if `dev-r3` was billed).
 - **Modal:** unused.
 - Any run costs: give an estimate first.
 
@@ -45,19 +45,24 @@ _Last updated 2026-10-06._
 2. **M6 (Story), in progress; plan `docs/M6_PLAN.md`.**
    - ✅ Round 3's item guard built and checked on dev (`dev-r3`: Flash-Lite 86%, gpt-oss-120b 69%; the guard fired once, and the agent asked).
    - ✅ Flash-Lite on the paid tier (2026-10-06): real cost recorded, tier in manifests, latency flagged in reports.
-   - **Waiting on Julian:** gpt-oss refunded a lamp that failed after use as `arrived_damaged` (`dev-r3-dmg-2`); then go/no-go for `test-2` (≈ $0.80: Flash-Lite ≈ $0.38, Groq ≈ $0.45).
+   - ✅ **`test-2`** (2026-10-06, ≈ $0.82): Flash-Lite **78%** (69–85%), gpt-oss-120b **63%** (53–71%); policy violations 2 / 2, so **no winner**. Both moves are within run-to-run variation. Dropped or failed lamps refunded on test: 0 of 4 (`test-1`: 3). Details: M6 history.
+   - **Waiting on Julian:** (a) do split refunds that add up to the expected amount count as one? (2 of the 4 violations); (b) switch/retire decisions; then re-export the site.
    - Then Julian's switch/retire decisions, README, the case study (Claude drafts, Julian edits; sections 1–4 drafted), polish.
 
 ## Open items
 - **Carried from M3** (closed 2026-10-06; details in M3 history, "Milestone 3 closed"):
   - judge score calibration on weak replies
   - gpt-oss-120b's follow-up and timing promises (5 of 110 on test)
-  - Flash-Lite guesses the damaged item instead of asking (dev; the round-3 guard)
+  - Flash-Lite guesses the damaged item instead of asking (dev; fixed by the round-3 guard, to confirm on test-2)
+  - **Known weakness (Julian, 2026-10-06):** the damage-cause rule trusts the model's cause; gpt-oss-120b refunded a lamp that failed after use as `arrived_damaged` (`dev-r3-dmg-2`, 1 of 12 tries)
   - changes since test-1 aren't measured on the test set (damage-cause rule, tool calls written as text, the round-3 guard)
 - **Carried from M4/M5, into M6 polish:**
   - phone width, and recordings playing in a browser
   - quality intervals can go past 5
   - whether the Approvals page's model-written notes are admin-only
+- **Config:**
+  - Gemini 3.8 Flash's price doubles on 2027-01-01 ($1.50 / $7.50); update `models.json` then.
+  - Kimi K2.5 (via OpenRouter, pinned provider) and DeepSeek Flash are parked until M7 (`docs/M5_PLAN.md` §6): no accounts or calls before then; prepaid caps agreed then. DeepSeek's config stays in `models.json`, unused.
 - **Carried, only for M7:** live chats are in memory; one shared admin token, not a real login.
 
 ## How to run

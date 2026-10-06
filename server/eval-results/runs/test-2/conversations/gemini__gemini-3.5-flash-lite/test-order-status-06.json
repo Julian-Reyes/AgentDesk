@@ -1,0 +1,443 @@
+{
+  "caseId": "test-order-status-06",
+  "case": {
+    "id": "test-order-status-06",
+    "split": "test",
+    "type": "order_status",
+    "why": "#1205 (Omar Kowalski, Breeze Wind Shell) is in transit; the carrier's estimate is Sep 15–18 (Saturday is Sep 19). The agent can give the estimate but mustn't guarantee arrival by Saturday.",
+    "source": "test batch 2",
+    "customer": "omar.kowalski183@example.com",
+    "turns": [
+      {
+        "customer": "Will order #1205 get here by Saturday? I need the jacket for a trip.",
+        "reply": {
+          "mentions": [
+            [
+              "September 18",
+              "Sep 18",
+              "Sept 18",
+              "9/18",
+              "2026-09-18"
+            ]
+          ],
+          "amounts": [],
+          "avoids": []
+        }
+      }
+    ],
+    "expect": {
+      "route": "support",
+      "outcome": "resolved",
+      "tools": {
+        "required": [
+          {
+            "tool": "get_tracking",
+            "args": {
+              "orderId": 1205
+            }
+          }
+        ],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "leaks": [],
+      "judgeChecks": [
+        "The agent gives the carrier's estimate (Sep 15–18) and doesn't guarantee that the jacket will arrive by Saturday."
+      ]
+    }
+  },
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "team": {
+    "router": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "78eb7d05-1e2d-49ea-a666-08f8e96c8c63",
+    "turns": [
+      {
+        "customer": "Will order #1205 get here by Saturday? I need the jacket for a trip.",
+        "reply": "Order #1205 is currently on its way with Parcelway (tracking number PW0009542395). Its estimated delivery window is September 15 to September 18, so it is unlikely to arrive by Saturday. Have a great trip, and let me know if you need help with anything else!",
+        "answeredBy": "support",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Will order #1205 get here by Saturday? I need the jacket for a trip."
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"support\", \"category\": \"order_status\", \"urgency\": \"normal\", \"confidence\": 0.98}",
+          "decision": {
+            "route": "support",
+            "category": "order_status",
+            "urgency": "normal",
+            "confidence": 0.98
+          },
+          "fallback": false
+        },
+        "inputTokens": 352,
+        "outputTokens": 30,
+        "latencyMs": 798,
+        "cached": false,
+        "costMicros": 181,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Omar Kowalski (omar.kowalski183@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_445310",
+                "name": "get_tracking",
+                "arguments": "{\"orderId\":\"1205\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0Tu+K8BviaNvx4uiUDKkqMRJZnQSzz2zMG+tYbZk7gvS+zdwqT/y5n76BYYErqo6rnj+Gzeoowhm4PwDsJHaKZKl+ACMnfMR4+eYYA55HC8WMJwxHmZd34oUU="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2555,
+        "outputTokens": 20,
+        "latencyMs": 2618,
+        "cached": false,
+        "costMicros": 817,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_445310",
+          "name": "get_tracking",
+          "arguments": "{\"orderId\":\"1205\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "orderNumber": 1205,
+              "status": "shipped",
+              "carrier": "Parcelway",
+              "trackingNumber": "PW0009542395",
+              "estimatedDelivery": "2026-09-15 to 2026-09-18",
+              "events": [
+                {
+                  "at": "2026-09-11 14:00",
+                  "status": "order_placed",
+                  "location": "Larchgrove Warehouse, Reno, NV",
+                  "note": null
+                },
+                {
+                  "at": "2026-09-12 14:00",
+                  "status": "shipped",
+                  "location": "Larchgrove Warehouse, Reno, NV",
+                  "note": "Handed to Parcelway Ground"
+                },
+                {
+                  "at": "2026-09-13 14:00",
+                  "status": "in_transit",
+                  "location": "Dallas, TX",
+                  "note": null
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Omar Kowalski (omar.kowalski183@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_280310",
+                "name": "get_order",
+                "arguments": "{\"orderId\":\"1205\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TraAoZwtqKENR438gUDbc8FgjOn0QUcwYdspDKvtF2YOwrZ5oo6/vivKq1ECLPtcHMu9DOxKp9rpQfnoCJ0XiI6iyj9iW1+u4WvRUxl3zWOhLD/PRiLYdrSQ="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2776,
+        "outputTokens": 20,
+        "latencyMs": 640,
+        "cached": false,
+        "costMicros": 883,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_280310",
+          "name": "get_order",
+          "arguments": "{\"orderId\":\"1205\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "number": 1205,
+              "status": "shipped",
+              "placed": "2026-09-11",
+              "delivered": null,
+              "items": [
+                {
+                  "productId": "jacket-breeze-wind",
+                  "name": "Breeze Wind Shell",
+                  "size": "L",
+                  "color": "yellow",
+                  "qty": 1,
+                  "listPrice": "$89.00",
+                  "discount": "$0.00",
+                  "paid": "$89.00",
+                  "returnedQty": 0
+                }
+              ],
+              "subtotal": "$89.00",
+              "discount": "$0.00",
+              "shipping": "$0.00",
+              "totalPaid": "$89.00",
+              "refunds": []
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Omar Kowalski (omar.kowalski183@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_360356",
+                "name": "reply",
+                "arguments": "{\"message\":\"Order #1205 is currently on its way with Parcelway (tracking number PW0009542395). Its estimated delivery window is September 15 to September 18, so it is unlikely to arrive by Saturday. Have a great trip, and let me know if you need help with anything else!\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0Th0uWV2gzNRZn/AGaOnlEslp65Cx7BoSVTDlBGhNBr25nTXOLUdu5ljRCSPC3diznGbJ8vC9vcYtUaPasWcEnuJVsIyUNVuEfIcS+6mSOeP2BirhQ29zQMQE="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2949,
+        "outputTokens": 83,
+        "latencyMs": 4286,
+        "cached": false,
+        "costMicros": 1092,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_360356",
+          "name": "reply",
+          "arguments": "{\"message\":\"Order #1205 is currently on its way with Parcelway (tracking number PW0009542395). Its estimated delivery window is September 15 to September 18, so it is unlikely to arrive by Saturday. Have a great trip, and let me know if you need help with anything else!\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "Order #1205 is currently on its way with Parcelway (tracking number PW0009542395). Its estimated delivery window is September 15 to September 18, so it is unlikely to arrive by Saturday. Have a great trip, and let me know if you need help with anything else!"
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "Order #1205 is currently on its way with Parcelway (tracking number PW0009542395). Its estimated delivery window is September 15 to September 18, so it is unlikely to arrive by Saturday. Have a great trip, and let me know if you need help with anything else!"
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "support",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "test-order-status-06",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to support",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to support"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "tool_required:0",
+        "label": "calls get_tracking {\"orderId\":1205}",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "reply1:mentions:0",
+        "label": "reply 1 mentions \"September 18\" or \"Sep 18\" or \"Sept 18\" or \"9/18\" or \"2026-09-18\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent gives the carrier's estimate (Sep 15–18) and doesn't guarantee that the jacket will arrive by Saturday."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 4,
+    "cachedCalls": 0,
+    "toolCalls": 2,
+    "inputTokens": 8632,
+    "outputTokens": 153,
+    "latencyMs": 8342,
+    "turnLatencyMs": [
+      8342
+    ],
+    "costMicros": 2973,
+    "wallMs": 9490
+  },
+  "finishedAt": "2026-10-06T14:54:36.951Z"
+}

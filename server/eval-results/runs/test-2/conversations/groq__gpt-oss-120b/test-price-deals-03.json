@@ -1,0 +1,615 @@
+{
+  "caseId": "test-price-deals-03",
+  "case": {
+    "id": "test-price-deals-03",
+    "split": "test",
+    "type": "price_deals",
+    "why": "Cub 15 Kids Pack ($45.00) + Spirit Alcohol Stove ($19.99) = $64.99, under the $75 free-shipping threshold, so $7.99 shipping: $72.98.",
+    "source": "test batch 4",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "A Cub 15 kids pack and a Spirit alcohol stove: what's the total, and is shipping free?"
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "price": {
+        "cart": [
+          {
+            "productId": "pack-cub-15",
+            "qty": 1
+          },
+          {
+            "productId": "stove-spirit-alcohol",
+            "qty": 1
+          }
+        ],
+        "totalCents": 7298
+      },
+      "leaks": [],
+      "judgeChecks": [
+        "The agent says shipping isn't free for this order (it's under the free-shipping threshold)."
+      ]
+    }
+  },
+  "agentModel": "groq/gpt-oss-120b",
+  "team": {
+    "router": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "d4bbe3e4-93eb-46e6-9f8e-ce981887e7db",
+    "turns": [
+      {
+        "customer": "A Cub 15 kids pack and a Spirit alcohol stove: what's the total, and is shipping free?",
+        "reply": "The Cub 15 Kids Pack is $45.00 and the Spirit Alcohol Stove is $19.99, for a subtotal of $64.99. Shipping adds $7.99, bringing the total to $72.98. Shipping is not free for this order.",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "A Cub 15 kids pack and a Spirit alcohol stove: what's the total, and is shipping free?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\":\"shopping\",\"category\":\"pricing_deals\",\"urgency\":\"normal\",\"confidence\":0.99}",
+          "decision": {
+            "route": "shopping",
+            "category": "pricing_deals",
+            "urgency": "normal",
+            "confidence": 0.99
+          },
+          "fallback": false
+        },
+        "inputTokens": 429,
+        "outputTokens": 218,
+        "latencyMs": 3532,
+        "cached": false,
+        "costMicros": 195,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_3a824e53-6cf1-48f6-9d90-5406e9045e60",
+                "name": "search_products",
+                "arguments": "{\"limit\":5,\"query\":\"Cub 15 kids pack\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to get product IDs for \"Cub 15 kids pack\" and \"Spirit alcohol stove\". Search.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1862,
+        "outputTokens": 61,
+        "latencyMs": 859,
+        "cached": false,
+        "costMicros": 316,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_3a824e53-6cf1-48f6-9d90-5406e9045e60",
+          "name": "search_products",
+          "arguments": "{\"limit\":5,\"query\":\"Cub 15 kids pack\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 19,
+              "products": [
+                {
+                  "id": "pack-cub-15",
+                  "name": "Cub 15 Kids Pack",
+                  "category": "backpacks",
+                  "listPrice": "$45.00",
+                  "currentPrice": "$45.00",
+                  "rating": 4.2,
+                  "description": "Small daypack sized for kids, with a chest strap and whistle.",
+                  "specs": {
+                    "material": "polyester",
+                    "waterproof": false,
+                    "weightGrams": 400,
+                    "volumeLiters": 15
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "bag-sprout-kids",
+                  "name": "Sprout 5°C Kids Sleeping Bag",
+                  "category": "sleeping_bags",
+                  "listPrice": "$49.00",
+                  "currentPrice": "$49.00",
+                  "rating": 4.4,
+                  "description": "Kid-sized synthetic bag for children up to 150 cm tall.",
+                  "specs": {
+                    "material": "synthetic fill",
+                    "tempRatingC": 5,
+                    "weightGrams": 900
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "boot-cub-kids",
+                  "name": "Cub Kids Hiking Boot",
+                  "category": "boots",
+                  "listPrice": "$69.00",
+                  "currentPrice": "$69.00",
+                  "rating": 4.3,
+                  "description": "Waterproof hiking boot for kids with easy hook-and-loop closure.",
+                  "specs": {
+                    "material": "synthetic",
+                    "waterproof": true,
+                    "weightGrams": 700
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "tent-willow-1",
+                  "name": "Willow 1 Solo Tent",
+                  "category": "tents",
+                  "listPrice": "$179.00",
+                  "currentPrice": "$143.20",
+                  "rating": 4.3,
+                  "description": "Compact one-person tent that packs down to the size of a water bottle.",
+                  "specs": {
+                    "seasons": 3,
+                    "material": "15D ripstop nylon",
+                    "waterproof": true,
+                    "weightGrams": 1100,
+                    "capacityPersons": 1,
+                    "waterproofRatingMm": 2000
+                  },
+                  "availability": "out_of_stock",
+                  "activeDeals": [
+                    "Tent Sale: 20% off all tents"
+                  ]
+                },
+                {
+                  "id": "lamp-beacon-900",
+                  "name": "Beacon 900 Rechargeable Headlamp",
+                  "category": "headlamps",
+                  "listPrice": "$79.00",
+                  "currentPrice": "$79.00",
+                  "rating": 4.7,
+                  "description": "High-output rechargeable headlamp with a rear battery pack.",
+                  "specs": {
+                    "lumens": 900,
+                    "waterproof": true,
+                    "weightGrams": 140,
+                    "burnTimeMinutes": 900
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Headlamps: buy 2, get 1 free"
+                  ]
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_f05dc6a3-4d68-4038-b933-5d7d93eb19fa",
+                "name": "search_products",
+                "arguments": "{\"limit\":5,\"query\":\"Spirit alcohol stove\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to also find \"Spirit alcohol stove\".",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2438,
+        "outputTokens": 35,
+        "latencyMs": 1275,
+        "cached": false,
+        "costMicros": 387,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_f05dc6a3-4d68-4038-b933-5d7d93eb19fa",
+          "name": "search_products",
+          "arguments": "{\"limit\":5,\"query\":\"Spirit alcohol stove\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 8,
+              "products": [
+                {
+                  "id": "stove-spirit-alcohol",
+                  "name": "Spirit Alcohol Stove",
+                  "category": "stoves",
+                  "listPrice": "$19.99",
+                  "currentPrice": "$19.99",
+                  "rating": 3.9,
+                  "description": "Ultralight brass alcohol burner with a simmer ring.",
+                  "specs": {
+                    "fuel": "denatured alcohol",
+                    "weightGrams": 30
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "stove-quickboil",
+                  "name": "Quickboil Cook System",
+                  "category": "stoves",
+                  "listPrice": "$129.00",
+                  "currentPrice": "$129.00",
+                  "rating": 4.7,
+                  "description": "Integrated stove and 1-liter pot that boils water in about 3 minutes.",
+                  "specs": {
+                    "fuel": "isobutane canister",
+                    "weightGrams": 450,
+                    "volumeLiters": 1
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "stove-pocket-pro",
+                  "name": "Pocket Pro Canister Stove",
+                  "category": "stoves",
+                  "listPrice": "$55.00",
+                  "currentPrice": "$55.00",
+                  "rating": 4.6,
+                  "description": "Pocket stove with a push-button igniter and wind shield.",
+                  "specs": {
+                    "fuel": "isobutane canister",
+                    "weightGrams": 95
+                  },
+                  "availability": "low_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "stove-fuel-230",
+                  "name": "Isobutane Fuel Canister 230 g",
+                  "category": "stoves",
+                  "listPrice": "$6.99",
+                  "currentPrice": "$6.99",
+                  "rating": 4.5,
+                  "description": "230 g isobutane-propane canister; fits all threaded canister stoves.",
+                  "specs": {
+                    "fuel": "isobutane-propane",
+                    "weightGrams": 360,
+                    "burnTimeMinutes": 90
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "stove-nomad-multifuel",
+                  "name": "Nomad Multi-Fuel Stove",
+                  "category": "stoves",
+                  "listPrice": "$169.00",
+                  "currentPrice": "$169.00",
+                  "rating": 4.5,
+                  "description": "Burns white gas, kerosene or canister fuel, for travel and cold weather.",
+                  "specs": {
+                    "fuel": "multi-fuel (white gas, kerosene, canister)",
+                    "weightGrams": 330
+                  },
+                  "availability": "low_stock",
+                  "activeDeals": []
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 3,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_7728f5f3-67c6-476a-9311-e8b730b01953",
+                "name": "quote_price",
+                "arguments": "{\"cart\":[{\"productId\":\"pack-cub-15\",\"qty\":1},{\"productId\":\"stove-spirit-alcohol\",\"qty\":1}]}"
+              }
+            ]
+          },
+          "reasoning": "We need total and shipping free status. Need to quote_price for cart with these two product IDs. Then we need to check if shipping is free: the quote_price response will include shipping cost. So call quote_price.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2973,
+        "outputTokens": 108,
+        "latencyMs": 961,
+        "cached": false,
+        "costMicros": 511,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_7728f5f3-67c6-476a-9311-e8b730b01953",
+          "name": "quote_price",
+          "arguments": "{\"cart\":[{\"productId\":\"pack-cub-15\",\"qty\":1},{\"productId\":\"stove-spirit-alcohol\",\"qty\":1}]}",
+          "result": {
+            "ok": true,
+            "data": {
+              "lines": [
+                {
+                  "productId": "pack-cub-15",
+                  "name": "Cub 15 Kids Pack",
+                  "qty": 1,
+                  "listPrice": "$45.00",
+                  "discounts": [],
+                  "lineTotal": "$45.00"
+                },
+                {
+                  "productId": "stove-spirit-alcohol",
+                  "name": "Spirit Alcohol Stove",
+                  "qty": 1,
+                  "listPrice": "$19.99",
+                  "discounts": [],
+                  "lineTotal": "$19.99"
+                }
+              ],
+              "subtotal": "$64.99",
+              "coupon": null,
+              "totalDiscounts": "$0.00",
+              "shipping": "$7.99",
+              "total": "$72.98",
+              "totalCents": 7298
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 4,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_de8563a9-f5f5-410c-866c-3bd9a8a8fb37",
+                "name": "reply",
+                "arguments": "{\"message\":\"The Cub 15 Kids Pack is $45.00 and the Spirit Alcohol Stove is $19.99, for a subtotal of $64.99. Shipping adds $7.99, bringing the total to $72.98. Shipping is not free for this order.\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to respond to user: \"A Cub 15 kids pack and a Spirit alcohol stove: what's the total, and is shipping free?\" We have quote_price result: subtotal $64.99, shipping $7.99, total $72.98. Shipping is not free.\n\nWe must use reply tool. Provide answer short, friendly, specific. Must not do any calculation ourselves. Just repeat amounts. Also note shipping is not free.\n\nLet's craft reply.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3158,
+        "outputTokens": 171,
+        "latencyMs": 1737,
+        "cached": false,
+        "costMicros": 576,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_de8563a9-f5f5-410c-866c-3bd9a8a8fb37",
+          "name": "reply",
+          "arguments": "{\"message\":\"The Cub 15 Kids Pack is $45.00 and the Spirit Alcohol Stove is $19.99, for a subtotal of $64.99. Shipping adds $7.99, bringing the total to $72.98. Shipping is not free for this order.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "The Cub 15 Kids Pack is $45.00 and the Spirit Alcohol Stove is $19.99, for a subtotal of $64.99. Shipping adds $7.99, bringing the total to $72.98. Shipping is not free for this order."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "The Cub 15 Kids Pack is $45.00 and the Spirit Alcohol Stove is $19.99, for a subtotal of $64.99. Shipping adds $7.99, bringing the total to $72.98. Shipping is not free for this order."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "shopping",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "test-price-deals-03",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to shopping"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "price_quoted",
+        "label": "quote_price for pack-cub-15×1,stove-spirit-alcohol×1",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "price_stated",
+        "label": "reply 1 states $72.98",
+        "pass": true,
+        "severity": "task",
+        "detail": "amounts in reply: $45.00, $19.99, $64.99, $7.99, $72.98"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent says shipping isn't free for this order (it's under the free-shipping threshold)."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 5,
+    "cachedCalls": 0,
+    "toolCalls": 3,
+    "inputTokens": 10860,
+    "outputTokens": 593,
+    "latencyMs": 8364,
+    "turnLatencyMs": [
+      8364
+    ],
+    "costMicros": 1985,
+    "wallMs": 8443
+  },
+  "finishedAt": "2026-10-06T14:34:16.258Z"
+}

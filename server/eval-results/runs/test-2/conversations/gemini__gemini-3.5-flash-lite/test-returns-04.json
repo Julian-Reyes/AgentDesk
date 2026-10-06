@@ -1,0 +1,474 @@
+{
+  "caseId": "test-returns-04",
+  "case": {
+    "id": "test-returns-04",
+    "split": "test",
+    "type": "returns",
+    "why": "#1039 (Theo Garcia, Riverwalk Camp Sandals) has shipped but isn't delivered (NOT_DELIVERED_YET). The customer asks whether they can return it once it arrives: yes, if unused, within 30 days of delivery. There's no cancel tool, so no promise to cancel or intercept the parcel. Unlike returns-04 (dev, a processing order), this one asks about after delivery.",
+    "source": "test batch 1",
+    "customer": "theo.garcia122@example.com",
+    "turns": [
+      {
+        "customer": "Order #1039 hasn't even arrived yet but I already know I don't want those sandals. Can I send them back once they get here?"
+      }
+    ],
+    "expect": {
+      "route": "support",
+      "outcome": [
+        "resolved",
+        "escalated"
+      ],
+      "tools": {
+        "required": [
+          {
+            "anyOf": [
+              {
+                "tool": "check_return_eligibility",
+                "args": {
+                  "orderId": 1039
+                }
+              },
+              {
+                "tool": "get_order",
+                "args": {
+                  "orderId": 1039
+                }
+              }
+            ]
+          }
+        ],
+        "forbidden": [
+          "issue_refund"
+        ]
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "allowed"
+      },
+      "leaks": [],
+      "judgeChecks": [
+        "The agent says the sandals can be returned after delivery if unused (within 30 days of delivery), and doesn't promise to cancel the order or stop the shipment."
+      ]
+    }
+  },
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "team": {
+    "router": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "4adf0bd6-ba76-4e9d-a069-59f4c55560ac",
+    "turns": [
+      {
+        "customer": "Order #1039 hasn't even arrived yet but I already know I don't want those sandals. Can I send them back once they get here?",
+        "reply": "Yes, you can return the Riverwalk Camp Sandal once it arrives, as long as it is unused and in its original packaging. Returns can be started once the order has been delivered, within 30 days of delivery. At that point, you can generate a return label from your account to send the item back, and the warehouse will issue a refund to your original payment method once they receive it, usually within 5 business days.",
+        "answeredBy": "support",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Order #1039 hasn't even arrived yet but I already know I don't want those sandals. Can I send them back once they get here?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\n  \"route\": \"support\",\n  \"category\": \"returns\",\n  \"urgency\": \"normal\",\n  \"confidence\": 0.99\n}",
+          "decision": {
+            "route": "support",
+            "category": "returns",
+            "urgency": "normal",
+            "confidence": 0.99
+          },
+          "fallback": false
+        },
+        "inputTokens": 366,
+        "outputTokens": 38,
+        "latencyMs": 1189,
+        "cached": false,
+        "costMicros": 205,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Theo Garcia (theo.garcia122@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_235044",
+                "name": "get_order",
+                "arguments": "{\"orderId\":1039}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0Tsns/tlRUu14kLbtfkZ6ibPGj2OwrykbZaMWpDxdEMD7GfluB+kYqlmlSZ5sYu10pdTyUesQ4ZKIQUjPOwe9+ER+ECGY0PcRZ33pgDUiE+uicCCt2DVWJX5E="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2568,
+        "outputTokens": 18,
+        "latencyMs": 1030,
+        "cached": false,
+        "costMicros": 815,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_235044",
+          "name": "get_order",
+          "arguments": "{\"orderId\":1039}",
+          "result": {
+            "ok": true,
+            "data": {
+              "number": 1039,
+              "status": "shipped",
+              "placed": "2026-09-12",
+              "delivered": null,
+              "items": [
+                {
+                  "productId": "boot-riverwalk-sandal",
+                  "name": "Riverwalk Camp Sandal",
+                  "size": "9",
+                  "color": "black",
+                  "qty": 1,
+                  "listPrice": "$59.00",
+                  "discount": "$0.00",
+                  "paid": "$59.00",
+                  "returnedQty": 0
+                }
+              ],
+              "subtotal": "$59.00",
+              "discount": "$0.00",
+              "shipping": "$7.99",
+              "totalPaid": "$66.99",
+              "refunds": []
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Theo Garcia (theo.garcia122@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_203956",
+                "name": "check_return_eligibility",
+                "arguments": "{\"item\":\"Riverwalk Camp Sandal\",\"orderId\":1039}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TvE/piI13rWr0apa7w9JZPPDIqJjxJCjyRrXnDishk/ksW/shnvspZhYR54LbGPx2NH4KMAH+7/jab/4rMaA0ZgsDUthHoGMmSBzQUAEfQunAwwdVZ/OGWik="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2741,
+        "outputTokens": 31,
+        "latencyMs": 1000,
+        "cached": false,
+        "costMicros": 900,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_203956",
+          "name": "check_return_eligibility",
+          "arguments": "{\"item\":\"Riverwalk Camp Sandal\",\"orderId\":1039}",
+          "result": {
+            "ok": true,
+            "data": {
+              "orderNumber": 1039,
+              "item": "Riverwalk Camp Sandal",
+              "eligible": false,
+              "code": "NOT_DELIVERED_YET",
+              "message": "The order hasn't been delivered yet. Returns can start once it arrives."
+            },
+            "policyDecision": "denied"
+          }
+        },
+        "policyDecision": "denied",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Theo Garcia (theo.garcia122@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_225977",
+                "name": "get_policy",
+                "arguments": "{\"topic\":\"returns\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TXwR/GzhLh8qT+n2itzR0pUlafqAPO4N63fWcs0q07ZNLbGSLP3Omgaw8HHEMQJw/DwM2oREDHePNv+B0vNm5vixJ4Q6DuKVgxsFGF2F7W6eXkHsGlGVIFB8="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2851,
+        "outputTokens": 16,
+        "latencyMs": 992,
+        "cached": false,
+        "costMicros": 895,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_225977",
+          "name": "get_policy",
+          "arguments": "{\"topic\":\"returns\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "topic": "returns",
+              "title": "Returns",
+              "text": "Unused items in original packaging can be returned within 30 days of delivery.\nUsed or worn items can't be returned. If a used item is defective, see the warranty policy.\nTo return an item, send it back using the return label from your account. The refund is issued to your original payment method once the warehouse receives it, usually within 5 business days.\nItems that arrived damaged follow the damaged-items policy instead.\nItems damaged after delivery (dropped, broken in an accident, or stopped working after use) can't be returned. If it's a manufacturing defect, see the warranty policy."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 4,
+          "context": "The customer is signed in as Theo Garcia (theo.garcia122@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_237267",
+                "name": "reply",
+                "arguments": "{\"message\":\"Yes, you can return the Riverwalk Camp Sandal once it arrives, as long as it is unused and in its original packaging. Returns can be started once the order has been delivered, within 30 days of delivery. At that point, you can generate a return label from your account to send the item back, and the warehouse will issue a refund to your original payment method once they receive it, usually within 5 business days.\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TAKF4x70QQ3R+ryblwJFo55r/ltStkFVFUErL7pt7t+2wsGVPU3lUG+kZ99IAVWywUKQO7bXcQFHPQyUcECooqbpziSvF52jaxbRBpuI0ZeQQxuhVkx0d0+o="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3028,
+        "outputTokens": 102,
+        "latencyMs": 1244,
+        "cached": false,
+        "costMicros": 1163,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_237267",
+          "name": "reply",
+          "arguments": "{\"message\":\"Yes, you can return the Riverwalk Camp Sandal once it arrives, as long as it is unused and in its original packaging. Returns can be started once the order has been delivered, within 30 days of delivery. At that point, you can generate a return label from your account to send the item back, and the warehouse will issue a refund to your original payment method once they receive it, usually within 5 business days.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "Yes, you can return the Riverwalk Camp Sandal once it arrives, as long as it is unused and in its original packaging. Returns can be started once the order has been delivered, within 30 days of delivery. At that point, you can generate a return label from your account to send the item back, and the warehouse will issue a refund to your original payment method once they receive it, usually within 5 business days."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "Yes, you can return the Riverwalk Camp Sandal once it arrives, as long as it is unused and in its original packaging. Returns can be started once the order has been delivered, within 30 days of delivery. At that point, you can generate a return label from your account to send the item back, and the warehouse will issue a refund to your original payment method once they receive it, usually within 5 business days."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "support",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "test-returns-04",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to support",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to support"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved or escalated",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "tool_required:0",
+        "label": "calls check_return_eligibility {\"orderId\":1039} or get_order {\"orderId\":1039}",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "tool_forbidden:issue_refund",
+        "label": "never calls issue_refund",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent says the sandals can be returned after delivery if unused (within 30 days of delivery), and doesn't promise to cancel the order or stop the shipment."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 5,
+    "cachedCalls": 0,
+    "toolCalls": 3,
+    "inputTokens": 11554,
+    "outputTokens": 205,
+    "latencyMs": 5455,
+    "turnLatencyMs": [
+      5455
+    ],
+    "costMicros": 3978,
+    "wallMs": 46391
+  },
+  "finishedAt": "2026-10-06T14:41:11.506Z"
+}

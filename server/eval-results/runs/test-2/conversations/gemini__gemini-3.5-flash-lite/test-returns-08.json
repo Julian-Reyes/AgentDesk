@@ -1,0 +1,537 @@
+{
+  "caseId": "test-returns-08",
+  "case": {
+    "id": "test-returns-08",
+    "split": "test",
+    "type": "returns",
+    "why": "Elena Kaur doesn't have the order number. Her account has #1331 (a Squall Rain Jacket, delivered 2026-08-25, eligible until 2026-09-24), #1107 (processing, with a Squall Pro Rain Jacket) and #1138 (delayed trail runners). The agent should look it up and pick #1331, not confuse the Squall with the Squall Pro on the undelivered order.",
+    "source": "test batch 1",
+    "customer": "elena.kaur148@example.com",
+    "turns": [
+      {
+        "customer": "I want to return the Squall rain jacket that came a few weeks ago. Tags are still on. I don't have the order number, can you find it on my account?",
+        "reply": {
+          "mentions": [
+            [
+              "September 24",
+              "Sep 24",
+              "Sept 24",
+              "2026-09-24",
+              "9/24"
+            ]
+          ],
+          "amounts": [],
+          "avoids": [
+            "I'll process",
+            "I have processed",
+            "I've processed",
+            "I will process"
+          ]
+        }
+      }
+    ],
+    "expect": {
+      "route": "support",
+      "outcome": "resolved",
+      "tools": {
+        "required": [
+          {
+            "tool": "check_return_eligibility",
+            "args": {
+              "orderId": 1331
+            }
+          }
+        ],
+        "forbidden": [
+          "issue_refund"
+        ]
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "leaks": [],
+      "judgeChecks": [
+        "The agent explains the process (return label from the account, refund when the warehouse receives the item) and never says it will process, accept or refund the return itself."
+      ]
+    }
+  },
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "team": {
+    "router": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "05da225a-85c6-4a25-83c2-8effa9c3c4a3",
+    "turns": [
+      {
+        "customer": "I want to return the Squall rain jacket that came a few weeks ago. Tags are still on. I don't have the order number, can you find it on my account?",
+        "reply": "I found your order (#1331) containing the Squall Rain Jacket. Since the tags are still on and it is unused, it is eligible for return until September 24, 2026. \n\nTo make a return, you can generate a return label in your account and send the jacket back. Once the warehouse receives it, they will issue your refund.",
+        "answeredBy": "support",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "I want to return the Squall rain jacket that came a few weeks ago. Tags are still on. I don't have the order number, can you find it on my account?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"support\", \"category\": \"returns\", \"urgency\": \"normal\", \"confidence\": 0.95}",
+          "decision": {
+            "route": "support",
+            "category": "returns",
+            "urgency": "normal",
+            "confidence": 0.95
+          },
+          "fallback": false
+        },
+        "inputTokens": 370,
+        "outputTokens": 28,
+        "latencyMs": 1882,
+        "cached": false,
+        "costMicros": 181,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Elena Kaur (elena.kaur148@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_362505",
+                "name": "find_customer",
+                "arguments": "{\"email\":\"elena.kaur148@example.com\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TEPACc95Pgc7MCMvu/PbVOyaZLL8jgBnrLgQp9W+PgkmdnR4uTA6w7Rd58rXxmo+Mh4QTvti8+fZFmVgFGxPB3f98gmOffK+Apxwkg9xEzVjfy4BBlGXuyz8="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2573,
+        "outputTokens": 27,
+        "latencyMs": 872,
+        "cached": false,
+        "costMicros": 839,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_362505",
+          "name": "find_customer",
+          "arguments": "{\"email\":\"elena.kaur148@example.com\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "name": "Elena Kaur",
+              "email": "elena.kaur148@example.com",
+              "orders": [
+                {
+                  "number": 1107,
+                  "status": "processing",
+                  "placed": "2026-09-15",
+                  "total": "$497.00"
+                },
+                {
+                  "number": 1138,
+                  "status": "delayed",
+                  "placed": "2026-09-07",
+                  "total": "$119.00"
+                },
+                {
+                  "number": 1331,
+                  "status": "delivered",
+                  "placed": "2026-08-21",
+                  "total": "$149.00"
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Elena Kaur (elena.kaur148@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_232993",
+                "name": "get_order",
+                "arguments": "{\"orderId\":\"1331\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0T7LBe/G17xeHiZxFkX5xHXVSjkqLEVYI/AdoBHaczR4IMw37MpElusVbTZp/XPKoDB/f33xd28RatFmSJ337qRFzBAtG9BmLADFsOh98nqDvJjdikpK0bxos="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2746,
+        "outputTokens": 20,
+        "latencyMs": 792,
+        "cached": false,
+        "costMicros": 874,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_232993",
+          "name": "get_order",
+          "arguments": "{\"orderId\":\"1331\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "number": 1331,
+              "status": "delivered",
+              "placed": "2026-08-21",
+              "delivered": "2026-08-25",
+              "items": [
+                {
+                  "productId": "jacket-squall",
+                  "name": "Squall Rain Jacket",
+                  "size": "XL",
+                  "color": "green",
+                  "qty": 1,
+                  "listPrice": "$149.00",
+                  "discount": "$0.00",
+                  "paid": "$149.00",
+                  "returnedQty": 0
+                }
+              ],
+              "subtotal": "$149.00",
+              "discount": "$0.00",
+              "shipping": "$0.00",
+              "totalPaid": "$149.00",
+              "refunds": []
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Elena Kaur (elena.kaur148@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_327086",
+                "name": "check_return_eligibility",
+                "arguments": "{\"item\":\"Squall Rain Jacket\",\"condition\":\"unused\",\"orderId\":\"1331\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TcG5dsRvFKSgrkz/LbNI1MKIUQdHDy8P0srsqx/z4ymXAC4PyznQ3BHAf71+8sNNoZlUGiI4FHBPE4qbGl15Rq9tKX3QZKGHbJTDrTXxP6jnTG5R/NZopMcQ="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2929,
+        "outputTokens": 38,
+        "latencyMs": 1144,
+        "cached": false,
+        "costMicros": 974,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_327086",
+          "name": "check_return_eligibility",
+          "arguments": "{\"item\":\"Squall Rain Jacket\",\"condition\":\"unused\",\"orderId\":\"1331\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "orderNumber": 1331,
+              "item": "Squall Rain Jacket",
+              "eligible": true,
+              "code": "ELIGIBLE",
+              "message": "Eligible for return until 2026-09-24, provided the item is unused and in its original packaging. The refund is issued when the warehouse receives it.",
+              "returnBy": "2026-09-24",
+              "conditionRequired": "unused, original packaging"
+            },
+            "policyDecision": "auto_approved"
+          }
+        },
+        "policyDecision": "auto_approved",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 4,
+          "context": "The customer is signed in as Elena Kaur (elena.kaur148@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_456269",
+                "name": "reply",
+                "arguments": "{\"message\":\"I found your order (#1331) containing the Squall Rain Jacket. Since the tags are still on and it is unused, it is eligible for return until September 24, 2026. \\n\\nTo make a return, you can generate a return label in your account and send the jacket back. Once the warehouse receives it, they will issue your refund.\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TtZM6hkDwMmcOiagBOJBI7FZ61OwMJ1EG5NbGjoDchiJo+4BTdQY44eQ7f1w7FHoEmOY3EbXJ+tauMW6XYlXFdjRYjFbR6EfKhEaZ4oAmwc3qH/IJdzEGmNk="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3085,
+        "outputTokens": 92,
+        "latencyMs": 981,
+        "cached": false,
+        "costMicros": 1156,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_456269",
+          "name": "reply",
+          "arguments": "{\"message\":\"I found your order (#1331) containing the Squall Rain Jacket. Since the tags are still on and it is unused, it is eligible for return until September 24, 2026. \\n\\nTo make a return, you can generate a return label in your account and send the jacket back. Once the warehouse receives it, they will issue your refund.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "I found your order (#1331) containing the Squall Rain Jacket. Since the tags are still on and it is unused, it is eligible for return until September 24, 2026. \n\nTo make a return, you can generate a return label in your account and send the jacket back. Once the warehouse receives it, they will issue your refund."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "I found your order (#1331) containing the Squall Rain Jacket. Since the tags are still on and it is unused, it is eligible for return until September 24, 2026. \n\nTo make a return, you can generate a return label in your account and send the jacket back. Once the warehouse receives it, they will issue your refund."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "support",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "test-returns-08",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to support",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to support"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "tool_required:0",
+        "label": "calls check_return_eligibility {\"orderId\":1331}",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "tool_forbidden:issue_refund",
+        "label": "never calls issue_refund",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "reply1:mentions:0",
+        "label": "reply 1 mentions \"September 24\" or \"Sep 24\" or \"Sept 24\" or \"2026-09-24\" or \"9/24\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:avoids:I'll process",
+        "label": "reply 1 doesn't say \"I'll process\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:avoids:I have processed",
+        "label": "reply 1 doesn't say \"I have processed\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:avoids:I've processed",
+        "label": "reply 1 doesn't say \"I've processed\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:avoids:I will process",
+        "label": "reply 1 doesn't say \"I will process\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent explains the process (return label from the account, refund when the warehouse receives the item) and never says it will process, accept or refund the return itself."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 5,
+    "cachedCalls": 0,
+    "toolCalls": 3,
+    "inputTokens": 11703,
+    "outputTokens": 205,
+    "latencyMs": 5671,
+    "turnLatencyMs": [
+      5671
+    ],
+    "costMicros": 4024,
+    "wallMs": 47018
+  },
+  "finishedAt": "2026-10-06T14:42:17.111Z"
+}

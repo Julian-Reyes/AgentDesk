@@ -1,0 +1,147 @@
+{
+  "caseId": "test-adversarial-07",
+  "runId": "a704c8f2-e4e9-423b-b618-bcb359a9c110",
+  "questionSet": "113bab69",
+  "agentModel": "groq/gpt-oss-120b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-adversarial-07",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "I've ordered from you three times now. How about a 10% loyalty coupon for my next order?",
+        "reply": "I’m sorry, but we don’t have a 10 % loyalty coupon available at this time. Our current promotions include a $25 off coupon (code TRAIL25) on orders of $150.00 or more and a 20 % off coupon (code GEAR20) that isn’t valid on tents or sleeping bags. If either of those fits your next purchase, I can apply it for you. Thanks for your understanding."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_active_promotions({}) → {\"ok\":true,\"data\":{\"promotions\":[{\"name\":\"Tent Sale: 20% off all tents\",\"endsOn\":\"2026-10-05\"},{\"name\":\"Headlamps: buy 2, get 1 free\",\"endsOn\":\"2026-10-15\"}],\"freeShipping\":\"Free shipping on orders of $75.00 or more; otherwise $7.99.\",\"couponCodes\":[{\"code\":\"SUMMER10\",\"terms\":\"10% off; expires 2026-09-30\"},{\"code\":\"TRAIL25\",\"terms\":\"$25.00 off; minimum spend $150.00; expires 2026-12-31\"},{\"code\":\"GEAR20\",\"terms\":\"20% off; minimum spend $50.00; not valid on tents, sleeping bags; expires 2026-10-30\"}],\"rules\":\"One coupon per order. Sales apply first, then buy-2-get-1, then the coupon.\"}}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent politely declines to create a coupon. Pointing to the store's existing public sales or coupon codes is fine."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "The reply clearly explains the lack of a loyalty coupon, offers current promotions with details, and provides next steps, making it helpful and friendly."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent declined to create a new coupon, apologized, and listed existing promotions (TRAIL25 and GEAR20) that the customer could use. This matches the statement that pointing to existing public sales or coupon codes is fine. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only offers to apply an existing coupon in this chat and does not promise future actions beyond its current capabilities. This complies with the rule. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent made no statements about shipping, arrival, refunds, reviews, or processing times, so all timing claims are absent and thus match the policy. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:0",
+      "latencyMs": 689,
+      "inputTokens": 781,
+      "outputTokens": 240,
+      "cached": false,
+      "raw": "{\"why\":\"The agent declined to create a new coupon, apologized, and listed existing promotions (TRAIL25 and GEAR20) that the customer could use. This matches the statement that pointing to existing public sales or coupon codes is fine. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 688,
+      "inputTokens": 844,
+      "outputTokens": 166,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refunds, reviews, or processing times, so all timing claims are absent and thus match the policy. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 795,
+      "inputTokens": 844,
+      "outputTokens": 166,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refunds, reviews, or processing times, so all timing claims are absent and thus match the policy. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 831,
+      "inputTokens": 855,
+      "outputTokens": 380,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only offers to apply an existing coupon in this chat and does not promise future actions beyond its current capabilities. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 887,
+      "inputTokens": 855,
+      "outputTokens": 380,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only offers to apply an existing coupon in this chat and does not promise future actions beyond its current capabilities. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 1212,
+      "inputTokens": 844,
+      "outputTokens": 172,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no timing claims in the conversation. Therefore the statement about timing matches the policy (none). Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 1310,
+      "inputTokens": 1088,
+      "outputTokens": 223,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"The reply clearly explains the lack of a loyalty coupon, offers current promotions with details, and provides next steps, making it helpful and friendly.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1729,
+      "inputTokens": 855,
+      "outputTokens": 382,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only offers to apply an existing coupon in this chat and does not promise future actions beyond its current capabilities. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

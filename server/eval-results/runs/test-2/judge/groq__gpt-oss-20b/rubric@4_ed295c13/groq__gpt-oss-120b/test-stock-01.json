@@ -1,0 +1,149 @@
+{
+  "caseId": "test-stock-01",
+  "runId": "b783f6ea-d447-477f-9e5d-082bea1a20f6",
+  "questionSet": "5f8d1b12",
+  "agentModel": "groq/gpt-oss-120b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-stock-01",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Do you have the Loft Down jacket in medium, blue?",
+        "reply": "Yes, we have the Loft Down Jacket in medium (M) and blue. It’s in stock and the current price is $199.00."
+      }
+    ],
+    "toolSummary": [
+      "message 1: search_products({\"filters\":{\"category\":\"jackets\"},\"limit\":10,\"query\":\"Loft Down jacket\"}) → {\"ok\":true,\"data\":{\"totalMatches\":8,\"products\":[{\"id\":\"jacket-loft-down\",\"name\":\"Loft Down Jacket\",\"category\":\"jackets\",\"listPrice\":\"$199.00\",\"currentPrice\":\"$199.00\",\"rating\":4.6,\"description\":\"Warm, packable down jacket for cold camps.\",\"specs\":{\"material\":\"800-fill down\",\"waterproof\":false,\"weightGrams\":350},\"availability\":\"in_stock\",\"activeDeals\":[]},{\"id\":\"jacket-tundra-parka\",\"name\":\"Tundra Insulated Parka\",\"category\":\"jackets\",\"listPrice\":\"$329.00\",\"currentPrice\":\"$329.00\",\"rating\":4.8,\"description\":\"Waterproof insulated parka for deep winter.\",\"specs\":{\"material\":\"down + waterproof shell\",\"waterproof\":true,\"tempRatingC\":-25,\"weightGrams\":1100,\"waterproofRatingMm\":15000},\"availability\":\"in_stock\",\"activeDeals\":[]},{\"id\":\"jacket-loft-synthetic\",\"name\":\"Loft Synthetic Jacket\",\"category\":\"jackets\",\"listPrice\":\"$149.00\",\"currentPrice\":\"$149.00\",\"rating\":4.4,\"description\":\"Synthetic insulated jacket that keeps insulating when wet.\",\"specs\":{\"material\":\"synthetic insulation\",\"waterproof\":false,\"weightGrams\":400},\"availability\":\"in_stock\",\"activeDeals\":[]},{\"id\":\"jacket-squall-pro\",\"name\":\"Squall Pro Rain Jacket\",\"category\":\"jackets\",\"listPrice\":\"$229.00\",\"currentPrice\":\"$229.00\",\"rating\":4.7,\"description\":\"3-layer storm shell for mountain weather.\",\"specs\":{\"material\":\"3-layer nylon\",\"waterproof\":true,\"weightGrams\":420,\"waterproofRatingMm\":20000},\"availability\":\"in_stock\",\"activeDeals\":[]},{\"id\":\"jacket-squall\",\"name\":\"Squall Rain Jacket\",\"category\":\"jackets\",\"listPrice\":\"$1… (trimmed)",
+      "message 1: get_product({\"id\":\"jacket-loft-down\"}) → {\"ok\":true,\"data\":{\"id\":\"jacket-loft-down\",\"name\":\"Loft Down Jacket\",\"category\":\"jackets\",\"listPrice\":\"$199.00\",\"currentPrice\":\"$199.00\",\"rating\":4.6,\"description\":\"Warm, packable down jacket for cold camps.\",\"specs\":{\"material\":\"800-fill down\",\"waterproof\":false,\"weightGrams\":350},\"availability\":\"in_stock\",\"activeDeals\":[],\"variants\":[{\"size\":\"L\",\"color\":\"black\",\"availability\":\"out_of_stock\"},{\"size\":\"L\",\"color\":\"blue\",\"availability\":\"in_stock\"},{\"size\":\"M\",\"color\":\"black\",\"availability\":\"low_stock\"},{\"size\":\"M\",\"color\":\"blue\",\"availability\":\"in_stock\"},{\"size\":\"S\",\"color\":\"black\",\"availability\":\"in_stock\"},{\"size\":\"S\",\"color\":\"blue\",\"availability\":\"in_stock\"},{\"size\":\"XL\",\"color\":\"black\",\"availability\":\"in_stock\"},{\"size\":\"XL\",\"color\":\"blue\",\"availability\":\"low_stock\"},{\"size\":\"XS\",\"color\":\"black\",\"availability\":\"in_stock\"},{\"size\":\"XS\",\"color\":\"blue\",\"availability\":\"out_of_stock\"}]}}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent says the Loft Down Jacket in M, blue is in stock."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "The reply confirms availability, price, and is concise and friendly."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The tool data shows a variant of the Loft Down Jacket with size M and color blue that has availability \"in_stock\", matching the agent’s claim. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only confirms availability and price, with no promise of future action or follow‑up that it cannot perform in this chat. This satisfies the condition. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent made no statements about shipping, arrival, refunds, reviews, or processing times, so all timing claims are satisfied by default.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 3
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "scores",
+      "latencyMs": 541,
+      "inputTokens": 1492,
+      "outputTokens": 228,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"The reply confirms availability, price, and is concise and friendly.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 600,
+      "inputTokens": 1259,
+      "outputTokens": 266,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only confirms availability and price, with no promise of future action or follow‑up. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 611,
+      "inputTokens": 1259,
+      "outputTokens": 236,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only confirms availability and price, with no promise of future action or follow‑up that it cannot perform in this chat. This satisfies the condition. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 738,
+      "inputTokens": 1259,
+      "outputTokens": 267,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only confirms availability and price, with no promise of future action or follow‑up. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 917,
+      "inputTokens": 1176,
+      "outputTokens": 133,
+      "cached": false,
+      "raw": "{\"why\":\"The tool data shows a variant of the Loft Down Jacket with size M and color blue that has availability \\\"in_stock\\\", matching the agent’s claim. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 415,
+      "inputTokens": 1248,
+      "outputTokens": 98,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refunds, reviews, or processing times, so all timing claims are satisfied by default.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 460,
+      "inputTokens": 1248,
+      "outputTokens": 98,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refunds, reviews, or processing times, so all timing claims are satisfied by default.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 1498,
+      "inputTokens": 1248,
+      "outputTokens": 98,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refunds, reviews, or processing times, so all timing claims are satisfied by default.\",\"answer\":true}"
+    }
+  ]
+}

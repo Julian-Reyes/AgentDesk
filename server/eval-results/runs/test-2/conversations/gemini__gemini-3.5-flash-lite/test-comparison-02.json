@@ -1,0 +1,560 @@
+{
+  "caseId": "test-comparison-02",
+  "case": {
+    "id": "test-comparison-02",
+    "split": "test",
+    "type": "comparison",
+    "why": "Loft Down (800-fill down, 350 g, $199.00) vs Loft Synthetic (synthetic insulation, 400 g, $149.00, 'keeps insulating when wet'). For wet weather the synthetic is the better pick; the down is lighter.",
+    "source": "test batch 4",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "Loft Down or Loft Synthetic jacket for wet, cold weather in the Pacific Northwest?"
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "leaks": [],
+      "judge": "Neither jacket is waterproof; may suggest a rain shell on top. No invented warmth ratings.",
+      "judgeChecks": [
+        "The agent says the Loft Synthetic keeps insulating when wet, which suits wet weather, and that the Loft Down is the lighter of the two."
+      ]
+    }
+  },
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "team": {
+    "router": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "1a022ffb-fc14-4edc-9862-0e92dcbbcc7a",
+    "turns": [
+      {
+        "customer": "Loft Down or Loft Synthetic jacket for wet, cold weather in the Pacific Northwest?",
+        "reply": "For wet, cold weather in the Pacific Northwest, the Loft Synthetic Jacket is the better choice. It features synthetic insulation designed to keep insulating even when wet, costs $149.00, and weighs 400 grams (both jackets are non-waterproof). \n\nThe Loft Down Jacket uses 800-fill down, weighs 350 grams, and costs $199.00, but down loses its insulating warmth when wet unless paired with a waterproof shell.",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Loft Down or Loft Synthetic jacket for wet, cold weather in the Pacific Northwest?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"shopping\", \"category\": \"comparison\", \"urgency\": \"normal\", \"confidence\": 0.95}",
+          "decision": {
+            "route": "shopping",
+            "category": "comparison",
+            "urgency": "normal",
+            "confidence": 0.95
+          },
+          "fallback": false
+        },
+        "inputTokens": 349,
+        "outputTokens": 28,
+        "latencyMs": 742,
+        "cached": false,
+        "costMicros": 175,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_266087",
+                "name": "search_products",
+                "arguments": "{\"query\":\"Loft\",\"category\":\"jackets\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TTQVVdqZ7Lg7aolniuIo6s6k+UVCRtgzA5rsoEIGJen+ksyK1SCsaTdPSkl9xO7hnqBOhzXyoNH2ewE+t99Av+VlX9xp7loOw9VfM31EiXu9xDB1wAp1kSLQ="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1995,
+        "outputTokens": 24,
+        "latencyMs": 759,
+        "cached": false,
+        "costMicros": 659,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_266087",
+          "name": "search_products",
+          "arguments": "{\"query\":\"Loft\",\"category\":\"jackets\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 2,
+              "products": [
+                {
+                  "id": "jacket-loft-down",
+                  "name": "Loft Down Jacket",
+                  "category": "jackets",
+                  "listPrice": "$199.00",
+                  "currentPrice": "$199.00",
+                  "rating": 4.6,
+                  "description": "Warm, packable down jacket for cold camps.",
+                  "specs": {
+                    "material": "800-fill down",
+                    "waterproof": false,
+                    "weightGrams": 350
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "jacket-loft-synthetic",
+                  "name": "Loft Synthetic Jacket",
+                  "category": "jackets",
+                  "listPrice": "$149.00",
+                  "currentPrice": "$149.00",
+                  "rating": 4.4,
+                  "description": "Synthetic insulated jacket that keeps insulating when wet.",
+                  "specs": {
+                    "material": "synthetic insulation",
+                    "waterproof": false,
+                    "weightGrams": 400
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_376450",
+                "name": "get_product",
+                "arguments": "{\"id\":\"jacket-loft-down\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TzEcaUWEeL5dE4O9woUyYSw1oRGKglRr1Jxo0tRAtWhYZ/IRehpPQaZQYuH3G3wrNXGhJBzkxMNQwnh+TI2Qccbx9D0DXbJYQHpINOa7gycBssMfqBogTx10="
+                    }
+                  }
+                }
+              },
+              {
+                "id": "call_376451",
+                "name": "get_product",
+                "arguments": "{\"id\":\"jacket-loft-synthetic\"}"
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2267,
+        "outputTokens": 40,
+        "latencyMs": 1167,
+        "cached": false,
+        "costMicros": 780,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_376450",
+          "name": "get_product",
+          "arguments": "{\"id\":\"jacket-loft-down\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "id": "jacket-loft-down",
+              "name": "Loft Down Jacket",
+              "category": "jackets",
+              "listPrice": "$199.00",
+              "currentPrice": "$199.00",
+              "rating": 4.6,
+              "description": "Warm, packable down jacket for cold camps.",
+              "specs": {
+                "material": "800-fill down",
+                "waterproof": false,
+                "weightGrams": 350
+              },
+              "availability": "in_stock",
+              "activeDeals": [],
+              "variants": [
+                {
+                  "size": "L",
+                  "color": "black",
+                  "availability": "out_of_stock"
+                },
+                {
+                  "size": "L",
+                  "color": "blue",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "M",
+                  "color": "black",
+                  "availability": "low_stock"
+                },
+                {
+                  "size": "M",
+                  "color": "blue",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "S",
+                  "color": "black",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "S",
+                  "color": "blue",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "XL",
+                  "color": "black",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "XL",
+                  "color": "blue",
+                  "availability": "low_stock"
+                },
+                {
+                  "size": "XS",
+                  "color": "black",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "XS",
+                  "color": "blue",
+                  "availability": "out_of_stock"
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_376451",
+          "name": "get_product",
+          "arguments": "{\"id\":\"jacket-loft-synthetic\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "id": "jacket-loft-synthetic",
+              "name": "Loft Synthetic Jacket",
+              "category": "jackets",
+              "listPrice": "$149.00",
+              "currentPrice": "$149.00",
+              "rating": 4.4,
+              "description": "Synthetic insulated jacket that keeps insulating when wet.",
+              "specs": {
+                "material": "synthetic insulation",
+                "waterproof": false,
+                "weightGrams": 400
+              },
+              "availability": "in_stock",
+              "activeDeals": [],
+              "variants": [
+                {
+                  "size": "L",
+                  "color": "black",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "L",
+                  "color": "green",
+                  "availability": "low_stock"
+                },
+                {
+                  "size": "M",
+                  "color": "black",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "M",
+                  "color": "green",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "S",
+                  "color": "black",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "S",
+                  "color": "green",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "XL",
+                  "color": "black",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "XL",
+                  "color": "green",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "XS",
+                  "color": "black",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "XS",
+                  "color": "green",
+                  "availability": "in_stock"
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 3,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_210214",
+                "name": "reply",
+                "arguments": "{\"message\":\"For wet, cold weather in the Pacific Northwest, the Loft Synthetic Jacket is the better choice. It features synthetic insulation designed to keep insulating even when wet, costs $149.00, and weighs 400 grams (both jackets are non-waterproof). \\n\\nThe Loft Down Jacket uses 800-fill down, weighs 350 grams, and costs $199.00, but down loses its insulating warmth when wet unless paired with a waterproof shell.\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TZtGQ5LKlgwO1Jhuajals3O5MzjCHQ320UAnQEAyvjcu56ket7jTJQLKL71xBtAjfGZWKFqcOcjuP1oU25e42L4miJbsAcy5K6dGPK13mlG2S+3ZLV2zXTrc="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2825,
+        "outputTokens": 116,
+        "latencyMs": 1145,
+        "cached": false,
+        "costMicros": 1138,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_210214",
+          "name": "reply",
+          "arguments": "{\"message\":\"For wet, cold weather in the Pacific Northwest, the Loft Synthetic Jacket is the better choice. It features synthetic insulation designed to keep insulating even when wet, costs $149.00, and weighs 400 grams (both jackets are non-waterproof). \\n\\nThe Loft Down Jacket uses 800-fill down, weighs 350 grams, and costs $199.00, but down loses its insulating warmth when wet unless paired with a waterproof shell.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "For wet, cold weather in the Pacific Northwest, the Loft Synthetic Jacket is the better choice. It features synthetic insulation designed to keep insulating even when wet, costs $149.00, and weighs 400 grams (both jackets are non-waterproof). \n\nThe Loft Down Jacket uses 800-fill down, weighs 350 grams, and costs $199.00, but down loses its insulating warmth when wet unless paired with a waterproof shell."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "For wet, cold weather in the Pacific Northwest, the Loft Synthetic Jacket is the better choice. It features synthetic insulation designed to keep insulating even when wet, costs $149.00, and weighs 400 grams (both jackets are non-waterproof). \n\nThe Loft Down Jacket uses 800-fill down, weighs 350 grams, and costs $199.00, but down loses its insulating warmth when wet unless paired with a waterproof shell."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "shopping",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "test-comparison-02",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to shopping"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": false,
+        "severity": "grounding",
+        "detail": "reply 1: claim \"The Loft Down Jacket uses 800-fill down, weighs 350 grams, and costs $199.00, but down loses its insulating warmth when wet unless paired with a waterproof shell.\" (Loft Down Jacket is not waterproof)"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [
+          {
+            "kind": "claim",
+            "text": "The Loft Down Jacket uses 800-fill down, weighs 350 grams, and costs $199.00, but down loses its insulating warmth when wet unless paired with a waterproof shell.",
+            "detail": "Loft Down Jacket is not waterproof"
+          }
+        ],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent says the Loft Synthetic keeps insulating when wet, which suits wet weather, and that the Loft Down is the lighter of the two."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 1,
+      "forbiddenAttempts": 0,
+      "failedChecks": 1
+    },
+    "codeStatus": "fail"
+  },
+  "stats": {
+    "modelCalls": 4,
+    "cachedCalls": 0,
+    "toolCalls": 3,
+    "inputTokens": 7436,
+    "outputTokens": 208,
+    "latencyMs": 3813,
+    "turnLatencyMs": [
+      3813
+    ],
+    "costMicros": 2752,
+    "wallMs": 3869
+  },
+  "finishedAt": "2026-10-06T14:33:23.325Z"
+}

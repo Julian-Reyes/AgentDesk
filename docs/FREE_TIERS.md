@@ -21,12 +21,14 @@ Every number below comes from the provider's **official docs**. Third-party blog
 ## Details and sources
 
 ### Gemini API
-**Paid tier since 2026-10-06 (Julian enabled billing on the project).** The free-tier notes below describe the project before that date, and `test-1` and earlier runs.
+**Paid tier since 2026-10-06, about 11:05 BRT (14:05 UTC; Julian enabled billing on the project). Capped at $5/month by a spending cap on Google Cloud (CLAUDE.md).** The free-tier notes below describe the project before that date, and `test-1` and earlier runs.
 - **Price, `gemini-3.5-flash-lite`, standard paid tier:** $0.30 per 1M input tokens, $2.50 per 1M output tokens; the output price is "including thinking tokens". Batch mode is half ($0.15 / $1.25). No context caching on the standard tier. (Source: [pricing](https://ai.google.dev/gemini-api/docs/pricing), checked 2026-10-06.) In `server/config/models.json` with `tier: "paid"` and a `tierChanges` entry.
 - **Thinking tokens:** our client counts output as the larger of `completion_tokens` and `total_tokens − prompt_tokens`, so thinking is billed as output even if a provider leaves it out of `completion_tokens`. In two test calls on 2026-10-06 (OpenAI-compatible endpoint, our default settings), total was exactly prompt + completion: Flash-Lite didn't think.
 - **No daily cap:** Tier 1 applies once a Cloud project has an active billing account ("Tier upgrades from the Free to Tier 1 will typically take effect instantly"). Google doesn't publish Tier 1's per-minute numbers for this model; they're shown in AI Studio's rate-limit page. **Not checked yet**, so the config keeps the free tier's 15 RPM / 250K TPM as our own throttle, and that's now the bottleneck (about 34 min for 110 conversations).
 - **Data use changes:** on paid services "Google doesn't use your prompts … or responses to improve our products", and no human reviewers read them for that; on unpaid services they may ([terms](https://ai.google.dev/gemini-api/terms), checked 2026-10-06). Every project with an active billing account is paid, so this applies to Gemma 4 31B and 3.8 Flash on the same project too.
-- **Every model on the project is billed now**, including Gemma 4 31B and 3.8 Flash, which have no pricing in `models.json`. Neither is used; add their prices before using either, or their cost would be recorded as $0.
+- **The other models on the project** (from the [pricing page](https://ai.google.dev/gemini-api/docs/pricing), 2026-10-06), now in `models.json`:
+  - **Gemini 3.8 Flash:** $0.75 in / $3.75 out per 1M (thinking included) **through 2026-12-31; $1.50 / $7.50 from 2027-01-01.** The config has the current price; update it on 2027-01-01. Its free-tier 20 requests/day no longer applies, so it was removed from the config; 5 RPM stays as our throttle.
+  - **Gemma 4:** "Free of charge" on the free tier, paid tier "Not available". So it stays free (`tier: "free"`, $0) on this billed project.
 - **Latency:** paid-tier runs aren't comparable with free-tier runs (e.g. `test-1`). Each run's manifest records the tier, and reports say so.
 
 **Free tier (until 2026-10-06):**
@@ -87,6 +89,18 @@ Every number below comes from the provider's **official docs**. Third-party blog
   - So **a spend limit of $30 would allow $30 out of pocket on top of the $30 credit**. To stay at $0, cap usage at $30 or set the spend limit to $0. The docs don't say whether $0 is accepted; check in the UI.
   - Set on the Usage & Billing page (`/settings/usage`). Environment-level budgets are Team/Enterprise only.
 - Sources: [pricing](https://modal.com/pricing), [billing](https://modal.com/docs/guide/billing), [budgets](https://modal.com/docs/guide/budgets).
+
+### DeepSeek API (configured 2026-10-06; parked until Milestone 7: no account, no calls before then)
+- **`deepseek-flash`**, at `https://api.deepseek.com` (OpenAI-compatible; an Anthropic-compatible URL exists too). Config: `deepseek/deepseek-flash`, key `DEEPSEEK_API_KEY`.
+- **Price per 1M tokens, off-peak / peak:** input (cache miss) $0.15 / $0.30, input (cache hit) $0.003 / $0.006, output $0.60 / $1.20. Peak is 01:00–04:00 and 06:00–10:00 UTC, Monday to Friday (22:00–01:00 and 03:00–07:00 BRT), except Chinese public holidays.
+  - **The config records the peak price ($0.30 / $1.20)**, so a recorded cost is an upper bound: up to 2× the bill off-peak. Our cost model has one price per model.
+- **Thinking is on by default** ("Supports both non-thinking and thinking (default) modes"). The docs don't say how thinking is counted in `usage`; our client bills any gap between total and prompt + completion as output, so it's covered either way. Check on the first call.
+- Concurrency limit 2,500; no free credit mentioned. Paid with a prepaid balance: agree a spending cap before using it (CLAUDE.md).
+- Source: [models & pricing](https://api-docs.deepseek.com/quick_start/pricing).
+
+### Kimi 2.5 (parked until Milestone 7: via OpenRouter with a pinned provider; not configured)
+- **Moonshot's own API no longer lists Kimi K2.5** ([pricing](https://platform.kimi.ai/docs/pricing/chat), 2026-10-06): it has `kimi-k2.6` ($0.95 in / $4.00 out per 1M, cache hit $0.16), `kimi-k2.7-code`, `kimi-k2.7-code-highspeed` and `kimi-k3`.
+- **K2.5 is still served by resellers**, e.g. OpenRouter (~$0.375 / $2.025 per 1M) and DeepInfra (~$0.45 / $2.25), per third-party listings (not checked on their own pages yet). Not on Groq.
 
 ### Ollama
 - Runs on the M2 Mac mini (16 GB), reached over the LAN via `OLLAMA_BASE_URL`. Setup: `docs/OLLAMA_MAC_MINI.md`.

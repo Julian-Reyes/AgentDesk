@@ -10,7 +10,7 @@ import { z } from "zod";
  * quantization and limits), so they get different ids, different cache keys and
  * separate rows in the comparison.
  */
-export const PROVIDERS = ["ollama", "groq", "gemini", "cerebras", "fake"] as const;
+export const PROVIDERS = ["ollama", "groq", "gemini", "cerebras", "deepseek", "fake"] as const;
 export type ProviderName = (typeof PROVIDERS)[number];
 
 export const ModelConfigSchema = z.object({

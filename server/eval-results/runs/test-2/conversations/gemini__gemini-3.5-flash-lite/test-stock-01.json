@@ -1,0 +1,643 @@
+{
+  "caseId": "test-stock-01",
+  "case": {
+    "id": "test-stock-01",
+    "split": "test",
+    "type": "stock",
+    "why": "Loft Down Jacket M/blue has 7 in stock.",
+    "source": "test batch 4",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "Do you have the Loft Down jacket in medium, blue?",
+        "reply": {
+          "mentions": [
+            [
+              "in stock",
+              "7 left",
+              "seven left",
+              "7 available",
+              "seven available",
+              "7 units"
+            ]
+          ],
+          "amounts": [],
+          "avoids": [
+            "out of stock",
+            "sold out",
+            "not in stock",
+            "not available",
+            "unavailable",
+            "none left"
+          ]
+        }
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "outcome": "resolved",
+      "tools": {
+        "required": [
+          {
+            "anyOf": [
+              {
+                "tool": "check_stock",
+                "args": {
+                  "productId": "jacket-loft-down"
+                }
+              },
+              {
+                "tool": "get_product",
+                "args": {
+                  "id": "jacket-loft-down"
+                }
+              }
+            ]
+          }
+        ],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "leaks": [],
+      "judgeChecks": [
+        "The agent says the Loft Down Jacket in M, blue is in stock."
+      ]
+    }
+  },
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "team": {
+    "router": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "4d006ef0-d303-48da-aa29-3a37ff2bc38e",
+    "turns": [
+      {
+        "customer": "Do you have the Loft Down jacket in medium, blue?",
+        "reply": "Yes, we have the Loft Down Jacket in medium, blue, and it's currently priced at $199.00.",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Do you have the Loft Down jacket in medium, blue?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"shopping\", \"category\": \"stock\", \"urgency\": \"normal\", \"confidence\": 1.0}",
+          "decision": {
+            "route": "shopping",
+            "category": "stock",
+            "urgency": "normal",
+            "confidence": 1
+          },
+          "fallback": false
+        },
+        "inputTokens": 344,
+        "outputTokens": 27,
+        "latencyMs": 1313,
+        "cached": false,
+        "costMicros": 171,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_193719",
+                "name": "search_products",
+                "arguments": "{\"filters\":{\"category\":\"jackets\"},\"query\":\"Loft Down\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TvxdeTqGrK6EGEdG8DN2cNr9oZ0P+sLMn0/+8h4KeXYkFFMX+2q6mR5evA7kMq1LRkQw+brl1Ltk5dNsPsGp6uKNs1rssroBhM9upUtqoQ0yzjZLjEzY7cXk="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1990,
+        "outputTokens": 27,
+        "latencyMs": 793,
+        "cached": false,
+        "costMicros": 665,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_193719",
+          "name": "search_products",
+          "arguments": "{\"filters\":{\"category\":\"jackets\"},\"query\":\"Loft Down\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 3,
+              "products": [
+                {
+                  "id": "jacket-loft-down",
+                  "name": "Loft Down Jacket",
+                  "category": "jackets",
+                  "listPrice": "$199.00",
+                  "currentPrice": "$199.00",
+                  "rating": 4.6,
+                  "description": "Warm, packable down jacket for cold camps.",
+                  "specs": {
+                    "material": "800-fill down",
+                    "waterproof": false,
+                    "weightGrams": 350
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "jacket-tundra-parka",
+                  "name": "Tundra Insulated Parka",
+                  "category": "jackets",
+                  "listPrice": "$329.00",
+                  "currentPrice": "$329.00",
+                  "rating": 4.8,
+                  "description": "Waterproof insulated parka for deep winter.",
+                  "specs": {
+                    "material": "down + waterproof shell",
+                    "waterproof": true,
+                    "tempRatingC": -25,
+                    "weightGrams": 1100,
+                    "waterproofRatingMm": 15000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "jacket-loft-synthetic",
+                  "name": "Loft Synthetic Jacket",
+                  "category": "jackets",
+                  "listPrice": "$149.00",
+                  "currentPrice": "$149.00",
+                  "rating": 4.4,
+                  "description": "Synthetic insulated jacket that keeps insulating when wet.",
+                  "specs": {
+                    "material": "synthetic insulation",
+                    "waterproof": false,
+                    "weightGrams": 400
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_550381",
+                "name": "check_stock",
+                "arguments": "{\"size\":\"Medium\",\"color\":\"blue\",\"productId\":\"jacket-loft-down\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TbCmjdMASu4EbrNGGJ06jeSsoovR9VXK9EPy2tuAcIqidyIguUOqWRV7FuT3gBKEEt0zZEVKwV4ABX9SOqtEg+OoeoypcRfH5uHaqzfJ/gKw8nXdUQBlbXUc="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2382,
+        "outputTokens": 32,
+        "latencyMs": 1035,
+        "cached": false,
+        "costMicros": 795,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_550381",
+          "name": "check_stock",
+          "arguments": "{\"size\":\"Medium\",\"color\":\"blue\",\"productId\":\"jacket-loft-down\"}",
+          "result": {
+            "ok": false,
+            "error": {
+              "code": "VARIANT_NOT_FOUND",
+              "message": "Loft Down Jacket doesn't come in that size/color.",
+              "details": {
+                "sizes": [
+                  "L",
+                  "M",
+                  "S",
+                  "XL",
+                  "XS"
+                ],
+                "colors": [
+                  "black",
+                  "blue"
+                ]
+              }
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 3,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_292445",
+                "name": "check_stock",
+                "arguments": "{\"productId\":\"jacket-loft-down\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TReSiel22ARijz5VuY9YFmN05vocp+TkdqS+wG5rf6oleACOjyxG97TENZv/BdGvm7BcnJbOIcjcIVAZK7Q1AaIIjePbl6dy/DWoX18jGWWPpW2dg0mQ/NHM="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2480,
+        "outputTokens": 20,
+        "latencyMs": 971,
+        "cached": false,
+        "costMicros": 794,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_292445",
+          "name": "check_stock",
+          "arguments": "{\"productId\":\"jacket-loft-down\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "product": "Loft Down Jacket",
+              "variants": [
+                {
+                  "size": "L",
+                  "color": "black",
+                  "inStock": false,
+                  "unitsAvailable": 0,
+                  "availability": "out_of_stock"
+                },
+                {
+                  "size": "L",
+                  "color": "blue",
+                  "inStock": true,
+                  "unitsAvailable": 28,
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "M",
+                  "color": "black",
+                  "inStock": true,
+                  "unitsAvailable": 3,
+                  "availability": "low_stock"
+                },
+                {
+                  "size": "M",
+                  "color": "blue",
+                  "inStock": true,
+                  "unitsAvailable": 7,
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "S",
+                  "color": "black",
+                  "inStock": true,
+                  "unitsAvailable": 8,
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "S",
+                  "color": "blue",
+                  "inStock": true,
+                  "unitsAvailable": 11,
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "XL",
+                  "color": "black",
+                  "inStock": true,
+                  "unitsAvailable": 19,
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "XL",
+                  "color": "blue",
+                  "inStock": true,
+                  "unitsAvailable": 5,
+                  "availability": "low_stock"
+                },
+                {
+                  "size": "XS",
+                  "color": "black",
+                  "inStock": true,
+                  "unitsAvailable": 34,
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "XS",
+                  "color": "blue",
+                  "inStock": false,
+                  "unitsAvailable": 0,
+                  "availability": "out_of_stock"
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 4,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_663237",
+                "name": "reply",
+                "arguments": "{\"message\":\"Yes, we have the Loft Down Jacket in medium, blue, and it's currently priced at $199.00.\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TCflnf7/fNto3ueTol0fnN2vtX6UhkAiYYxwNRLluw4J3pVCzwfQ6WwMJcQOPYaDeRBZgqc+piru7dZ6P3cVmkcjWXPBN3btwkBwK9tP6Dv3bSlaLkjoYCwI="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2779,
+        "outputTokens": 41,
+        "latencyMs": 1136,
+        "cached": false,
+        "costMicros": 936,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_663237",
+          "name": "reply",
+          "arguments": "{\"message\":\"Yes, we have the Loft Down Jacket in medium, blue, and it's currently priced at $199.00.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "Yes, we have the Loft Down Jacket in medium, blue, and it's currently priced at $199.00."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "Yes, we have the Loft Down Jacket in medium, blue, and it's currently priced at $199.00."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "shopping",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "test-stock-01",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to shopping"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "tool_required:0",
+        "label": "calls check_stock {\"productId\":\"jacket-loft-down\"} or get_product {\"id\":\"jacket-loft-down\"}",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "reply1:mentions:0",
+        "label": "reply 1 mentions \"in stock\" or \"7 left\" or \"seven left\" or \"7 available\" or \"seven available\" or \"7 units\"",
+        "pass": false,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:avoids:out of stock",
+        "label": "reply 1 doesn't say \"out of stock\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:avoids:sold out",
+        "label": "reply 1 doesn't say \"sold out\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:avoids:not in stock",
+        "label": "reply 1 doesn't say \"not in stock\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:avoids:not available",
+        "label": "reply 1 doesn't say \"not available\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:avoids:unavailable",
+        "label": "reply 1 doesn't say \"unavailable\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:avoids:none left",
+        "label": "reply 1 doesn't say \"none left\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent says the Loft Down Jacket in M, blue is in stock."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 1
+    },
+    "codeStatus": "fail"
+  },
+  "stats": {
+    "modelCalls": 5,
+    "cachedCalls": 0,
+    "toolCalls": 3,
+    "inputTokens": 9975,
+    "outputTokens": 147,
+    "latencyMs": 5248,
+    "turnLatencyMs": [
+      5248
+    ],
+    "costMicros": 3361,
+    "wallMs": 7262
+  },
+  "finishedAt": "2026-10-06T14:38:20.720Z"
+}

@@ -1,0 +1,366 @@
+{
+  "caseId": "test-recommendation-01",
+  "case": {
+    "id": "test-recommendation-01",
+    "split": "test",
+    "type": "recommendation",
+    "why": "Waterproof headlamps under $40 today: Glowworm 300 ($29.00) and Nightowl 200 ($34.00). The Glowworm 150 and Firefly are cheap but not waterproof; the Hearth 350 is waterproof but $44.00.",
+    "source": "test batch 4",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "I need a waterproof headlamp for under $40. What do you suggest?"
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "recommendation": {
+        "constraints": {
+          "category": "headlamps",
+          "maxPriceCents": 4000,
+          "waterproof": true
+        },
+        "acceptable": [
+          "lamp-glowworm-300",
+          "lamp-nightowl-200"
+        ]
+      },
+      "leaks": [],
+      "judgeChecks": []
+    }
+  },
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "team": {
+    "router": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "c254d1e0-a236-40aa-98fa-6b20a69c7b6a",
+    "turns": [
+      {
+        "customer": "I need a waterproof headlamp for under $40. What do you suggest?",
+        "reply": "Here are two waterproof headlamps under $40:\n\n- Glowworm 300 Headlamp: $29.00 (300 lumens, waterproof, weight 78g, burn time 1800 minutes)\n- Nightowl 200 Red-Light Headlamp: $34.00 (200 lumens, waterproof, weight 74g, burn time 2000 minutes)\n\nBoth are currently in stock. Let me know if you would like help with either of these!",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "I need a waterproof headlamp for under $40. What do you suggest?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"shopping\", \"category\": \"recommendation\", \"urgency\": \"low\", \"confidence\": 0.99}",
+          "decision": {
+            "route": "shopping",
+            "category": "recommendation",
+            "urgency": "low",
+            "confidence": 0.99
+          },
+          "fallback": false
+        },
+        "inputTokens": 349,
+        "outputTokens": 29,
+        "latencyMs": 779,
+        "cached": false,
+        "costMicros": 177,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_538328",
+                "name": "search_products",
+                "arguments": "{\"filters\":{\"category\":\"headlamps\",\"waterproof\":true,\"maxPrice\":40}}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TSjDUxyBUL7SUyUMPkCGyuC+fWDOqNiEEWFt2i0lFD97HxdqPsiR2aIGEuF2j/SKFwfjHyRXZQGb7YsMtQKfMiyzLir04kXoUfQpauUepY/qQSHidVsMzwUE="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1995,
+        "outputTokens": 30,
+        "latencyMs": 994,
+        "cached": false,
+        "costMicros": 674,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_538328",
+          "name": "search_products",
+          "arguments": "{\"filters\":{\"category\":\"headlamps\",\"waterproof\":true,\"maxPrice\":40}}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 2,
+              "products": [
+                {
+                  "id": "lamp-glowworm-300",
+                  "name": "Glowworm 300 Headlamp",
+                  "category": "headlamps",
+                  "listPrice": "$29.00",
+                  "currentPrice": "$29.00",
+                  "rating": 4.4,
+                  "description": "All-round AAA headlamp with a red night mode.",
+                  "specs": {
+                    "lumens": 300,
+                    "waterproof": true,
+                    "weightGrams": 78,
+                    "burnTimeMinutes": 1800
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Headlamps: buy 2, get 1 free"
+                  ]
+                },
+                {
+                  "id": "lamp-nightowl-200",
+                  "name": "Nightowl 200 Red-Light Headlamp",
+                  "category": "headlamps",
+                  "listPrice": "$34.00",
+                  "currentPrice": "$34.00",
+                  "rating": 4.2,
+                  "description": "Headlamp with a strong red mode for stargazing.",
+                  "specs": {
+                    "lumens": 200,
+                    "waterproof": true,
+                    "weightGrams": 74,
+                    "burnTimeMinutes": 2000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Headlamps: buy 2, get 1 free"
+                  ]
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_215423",
+                "name": "reply",
+                "arguments": "{\"message\":\"Here are two waterproof headlamps under $40:\\n\\n- Glowworm 300 Headlamp: $29.00 (300 lumens, waterproof, weight 78g, burn time 1800 minutes)\\n- Nightowl 200 Red-Light Headlamp: $34.00 (200 lumens, waterproof, weight 74g, burn time 2000 minutes)\\n\\nBoth are currently in stock. Let me know if you would like help with either of these!\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TRB4PNUklyr8VbjZVoyFSVaJnScq5eMMynqPo2YYVtRQUgHryvsGgZiUV2MDdsgaZ1tvPvl1cTez2RbStpIm3LRrZfcMhLXfMNMgfyFeVZXl3MAbfTdSlJJE="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2328,
+        "outputTokens": 127,
+        "latencyMs": 1438,
+        "cached": false,
+        "costMicros": 1016,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_215423",
+          "name": "reply",
+          "arguments": "{\"message\":\"Here are two waterproof headlamps under $40:\\n\\n- Glowworm 300 Headlamp: $29.00 (300 lumens, waterproof, weight 78g, burn time 1800 minutes)\\n- Nightowl 200 Red-Light Headlamp: $34.00 (200 lumens, waterproof, weight 74g, burn time 2000 minutes)\\n\\nBoth are currently in stock. Let me know if you would like help with either of these!\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "Here are two waterproof headlamps under $40:\n\n- Glowworm 300 Headlamp: $29.00 (300 lumens, waterproof, weight 78g, burn time 1800 minutes)\n- Nightowl 200 Red-Light Headlamp: $34.00 (200 lumens, waterproof, weight 74g, burn time 2000 minutes)\n\nBoth are currently in stock. Let me know if you would like help with either of these!"
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "Here are two waterproof headlamps under $40:\n\n- Glowworm 300 Headlamp: $29.00 (300 lumens, waterproof, weight 78g, burn time 1800 minutes)\n- Nightowl 200 Red-Light Headlamp: $34.00 (200 lumens, waterproof, weight 74g, burn time 2000 minutes)\n\nBoth are currently in stock. Let me know if you would like help with either of these!"
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "shopping",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "test-recommendation-01",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to shopping"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "recommendation",
+        "label": "recommends only products that meet every constraint",
+        "pass": true,
+        "severity": "task",
+        "detail": "named: lamp-glowworm-300, lamp-nightowl-200"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 3,
+    "cachedCalls": 0,
+    "toolCalls": 1,
+    "inputTokens": 4672,
+    "outputTokens": 186,
+    "latencyMs": 3211,
+    "turnLatencyMs": [
+      3211
+    ],
+    "costMicros": 1867,
+    "wallMs": 3266
+  },
+  "finishedAt": "2026-10-06T14:34:22.812Z"
+}

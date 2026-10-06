@@ -1,0 +1,561 @@
+{
+  "caseId": "test-order-status-02",
+  "case": {
+    "id": "test-order-status-02",
+    "split": "test",
+    "type": "order_status",
+    "why": "#1075 (Alex Cohen, Voyager 80 pack) shows delivered on 2026-09-13 to the front door, but the customer says it never came. The carrier hasn't declared it lost, so a lost-order refund doesn't apply (the tool would deny it). No tool can investigate a missing delivery, so a team member has to: escalation required, no refund.",
+    "source": "test batch 2",
+    "customer": "alex.cohen139@example.com",
+    "turns": [
+      {
+        "customer": "Tracking for order #1075 says it was delivered, but there's nothing at my door and my neighbors haven't seen it."
+      }
+    ],
+    "expect": {
+      "route": "support",
+      "outcome": "escalated",
+      "tools": {
+        "required": [
+          {
+            "anyOf": [
+              {
+                "tool": "get_tracking",
+                "args": {
+                  "orderId": 1075
+                }
+              },
+              {
+                "tool": "get_order",
+                "args": {
+                  "orderId": 1075
+                }
+              }
+            ]
+          }
+        ],
+        "forbidden": [
+          "issue_refund"
+        ]
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "required"
+      },
+      "leaks": [],
+      "judgeChecks": [
+        "The agent says the carrier shows it delivered (Sep 13, front door), passes it to a team member, and doesn't promise a refund or replacement."
+      ]
+    }
+  },
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "team": {
+    "router": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "29ec7c51-c599-449b-b7ed-ab43e272d6ca",
+    "turns": [
+      {
+        "customer": "Tracking for order #1075 says it was delivered, but there's nothing at my door and my neighbors haven't seen it.",
+        "reply": "I am sorry to hear that your package has not turned up even though the tracking shows it as delivered. I have escalated this issue to a human support agent (Ticket #ESC-60), and someone will follow up with you by email, usually within one business day. Thanks for understanding.",
+        "answeredBy": "support",
+        "outcome": "escalated"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Tracking for order #1075 says it was delivered, but there's nothing at my door and my neighbors haven't seen it."
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"support\", \"category\": \"order_status\", \"urgency\": \"high\", \"confidence\": 1.0}",
+          "decision": {
+            "route": "support",
+            "category": "order_status",
+            "urgency": "high",
+            "confidence": 1
+          },
+          "fallback": false
+        },
+        "inputTokens": 362,
+        "outputTokens": 29,
+        "latencyMs": 1074,
+        "cached": false,
+        "costMicros": 181,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Alex Cohen (alex.cohen139@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_276846",
+                "name": "find_customer",
+                "arguments": "{\"email\":\"alex.cohen139@example.com\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TDfw5mCziNNAokR5nYXSb3f9F96u/sJxX35SUVKwqRAPPwURjOBNVb5JO1xwAgVzRcWjG52Cx+SN78xoLEWa6fOBt0eF3ygNBlP5cZoOyrn7NzPGk4UNScaU="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2564,
+        "outputTokens": 26,
+        "latencyMs": 1239,
+        "cached": false,
+        "costMicros": 834,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_276846",
+          "name": "find_customer",
+          "arguments": "{\"email\":\"alex.cohen139@example.com\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "name": "Alex Cohen",
+              "email": "alex.cohen139@example.com",
+              "orders": [
+                {
+                  "number": 1323,
+                  "status": "processing",
+                  "placed": "2026-09-14",
+                  "total": "$518.00"
+                },
+                {
+                  "number": 1075,
+                  "status": "delivered",
+                  "placed": "2026-09-09",
+                  "total": "$329.00"
+                },
+                {
+                  "number": 1252,
+                  "status": "shipped",
+                  "placed": "2026-09-08",
+                  "total": "$378.00"
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Alex Cohen (alex.cohen139@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_203678",
+                "name": "get_tracking",
+                "arguments": "{\"orderId\":\"1075\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0Tz+gCiWe2k4AX23eqY9KtpP4d8KpXqrUPjR86PVGldFzgJkm7QnrMUsSr2Ru/ccZ8DVUK/tEuihDg+E9CLr0RYULds7uMqIjhgo1Gu08b+gOOdzpOQiO7QlU="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2736,
+        "outputTokens": 20,
+        "latencyMs": 775,
+        "cached": false,
+        "costMicros": 871,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_203678",
+          "name": "get_tracking",
+          "arguments": "{\"orderId\":\"1075\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "orderNumber": 1075,
+              "status": "delivered",
+              "carrier": "Parcelway",
+              "trackingNumber": "PW0008512925",
+              "estimatedDelivery": null,
+              "events": [
+                {
+                  "at": "2026-09-09 17:00",
+                  "status": "order_placed",
+                  "location": "Larchgrove Warehouse, Reno, NV",
+                  "note": null
+                },
+                {
+                  "at": "2026-09-10 17:00",
+                  "status": "shipped",
+                  "location": "Larchgrove Warehouse, Reno, NV",
+                  "note": "Handed to Parcelway Ground"
+                },
+                {
+                  "at": "2026-09-11 17:00",
+                  "status": "in_transit",
+                  "location": "Salt Lake City, UT",
+                  "note": null
+                },
+                {
+                  "at": "2026-09-13 12:00",
+                  "status": "out_for_delivery",
+                  "location": "Local delivery station",
+                  "note": null
+                },
+                {
+                  "at": "2026-09-13 18:00",
+                  "status": "delivered",
+                  "location": "Front door",
+                  "note": null
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Alex Cohen (alex.cohen139@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_214246",
+                "name": "get_policy",
+                "arguments": "{\"topic\":\"shipping\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TrqSO7cg5CQ4vKN4wFc2fadyok1vNNpMLaf6AvD+GwSvoFLp18uHZdezuxvMlzAcvxQ+OdygTut6kzuiaQHiiLXYIMyOo9RDlJZ0geyTIv4YGjyxyw/JGecs="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3006,
+        "outputTokens": 16,
+        "latencyMs": 1003,
+        "cached": false,
+        "costMicros": 942,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_214246",
+          "name": "get_policy",
+          "arguments": "{\"topic\":\"shipping\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "topic": "shipping",
+              "title": "Shipping",
+              "text": "Standard shipping costs $7.99 and is free on orders of $75.00 or more (after discounts).\nOrders ship from our warehouse within 1–2 business days and arrive 3–6 business days after shipping.\nWe ship within the United States only.\nTracking is available once an order has shipped.\nIf an order is delayed, we refund the shipping cost on request."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 4,
+          "context": "The customer is signed in as Alex Cohen (alex.cohen139@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_316008",
+                "name": "escalate_to_human",
+                "arguments": "{\"reason\":\"Order #1075 marked as delivered but customer reports not receiving it.\",\"orderId\":\"1075\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TXVkYkb0qurXnypzPU/tbZcZcGXjcAanlX156ZKWHv1tNpAvpAivOHGTZfyzhX9qcY6fSFs+RHU0QE11udQm8mn8Umi9ZGsnkZ4TP/ztIUZd+kOplM2O4pY0="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3137,
+        "outputTokens": 44,
+        "latencyMs": 1046,
+        "cached": false,
+        "costMicros": 1051,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_316008",
+          "name": "escalate_to_human",
+          "arguments": "{\"reason\":\"Order #1075 marked as delivered but customer reports not receiving it.\",\"orderId\":\"1075\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "ticket": "ESC-60",
+              "message": "A human support agent will follow up by email, usually within one business day."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 5,
+          "context": "The customer is signed in as Alex Cohen (alex.cohen139@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_528495",
+                "name": "reply",
+                "arguments": "{\"message\":\"I am sorry to hear that your package has not turned up even though the tracking shows it as delivered. I have escalated this issue to a human support agent (Ticket #ESC-60), and someone will follow up with you by email, usually within one business day. Thanks for understanding.\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0THr4K73l8uGIqtcaqVEz2PaWz+bGr5DJuVz9AbvJ7VRaIMCE7PQa1QWAPh+u/yBFdtHbb+8bgRbyvuc3aEvGkDhrbRRD7zl1/94ubzaE61j4hav4ikhDlUQk="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3230,
+        "outputTokens": 72,
+        "latencyMs": 1019,
+        "cached": false,
+        "costMicros": 1149,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_528495",
+          "name": "reply",
+          "arguments": "{\"message\":\"I am sorry to hear that your package has not turned up even though the tracking shows it as delivered. I have escalated this issue to a human support agent (Ticket #ESC-60), and someone will follow up with you by email, usually within one business day. Thanks for understanding.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "I am sorry to hear that your package has not turned up even though the tracking shows it as delivered. I have escalated this issue to a human support agent (Ticket #ESC-60), and someone will follow up with you by email, usually within one business day. Thanks for understanding."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "I am sorry to hear that your package has not turned up even though the tracking shows it as delivered. I have escalated this issue to a human support agent (Ticket #ESC-60), and someone will follow up with you by email, usually within one business day. Thanks for understanding."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "support",
+    "outcome": "escalated",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 1
+    }
+  },
+  "grade": {
+    "caseId": "test-order-status-02",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to support",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to support"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome escalated",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome escalated"
+      },
+      {
+        "id": "tool_required:0",
+        "label": "calls get_tracking {\"orderId\":1075} or get_order {\"orderId\":1075}",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "tool_forbidden:issue_refund",
+        "label": "never calls issue_refund",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "escalates to a human",
+        "pass": true,
+        "severity": "task",
+        "detail": "1 escalation ticket(s)"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent says the carrier shows it delivered (Sep 13, front door), passes it to a team member, and doesn't promise a refund or replacement."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 6,
+    "cachedCalls": 0,
+    "toolCalls": 4,
+    "inputTokens": 15035,
+    "outputTokens": 207,
+    "latencyMs": 6156,
+    "turnLatencyMs": [
+      6156
+    ],
+    "costMicros": 5028,
+    "wallMs": 47032
+  },
+  "finishedAt": "2026-10-06T14:53:32.838Z"
+}

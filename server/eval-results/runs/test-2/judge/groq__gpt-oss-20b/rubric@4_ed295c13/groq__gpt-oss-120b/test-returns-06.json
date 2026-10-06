@@ -1,0 +1,150 @@
+{
+  "caseId": "test-returns-06",
+  "runId": "b20a94b6-f2ff-44b0-a8ca-a9e869fce3cb",
+  "questionSet": "fba290e5",
+  "agentModel": "groq/gpt-oss-120b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-returns-06",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "The seam tape inside my Squall rain jacket (order #1127) is peeling and it leaks at the shoulders now. I bought it in early June. What can I do?",
+        "reply": "I’m sorry the seam tape on your Squall Rain Jacket is peeling. Because this issue was reported after 14 days, we’ve escalated it for a case review. A human support agent will follow up by email (ticket ESC‑47), usually within one business day. Thanks for your patience."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1127}) → {\"ok\":true,\"data\":{\"number\":1127,\"status\":\"delivered\",\"placed\":\"2026-06-02\",\"delivered\":\"2026-06-05\",\"items\":[{\"productId\":\"jacket-squall\",\"name\":\"Squall Rain Jacket\",\"size\":\"S\",\"color\":\"navy\",\"qty\":1,\"listPrice\":\"$149.00\",\"discount\":\"$0.00\",\"paid\":\"$149.00\",\"returnedQty\":0}],\"subtotal\":\"$149.00\",\"discount\":\"$0.00\",\"shipping\":\"$0.00\",\"totalPaid\":\"$149.00\",\"refunds\":[]}}",
+      "message 1: get_policy({\"topic\":\"damaged_items\"}) → {\"ok\":true,\"data\":{\"topic\":\"damaged_items\",\"title\":\"Damaged items\",\"text\":\"This policy covers items that arrived damaged: broken, defective or not working when they were delivered.\\nIt doesn't cover damage that happened after delivery: an item that was dropped, damaged in an accident, or broke or stopped working after use. Those aren't refunded under this policy and can't be returned. A manufacturing defect that shows up in normal use may be covered by the warranty; accidental damage, misuse and normal wear aren't.\\nIf an item arrives damaged, report it within 14 days of delivery.\\nWe'll refund the item or send a replacement; you don't need to send the damaged item back unless we ask.\\nA damaged item that cost $50.00 or less per unit is refunded right away, as long as the order's refunds stay within $50.00 in total; pricier items and larger totals are reviewed by a team member, usually within one business day.\\nReports after 14 days are reviewed case by case by a team member.\"}}",
+      "message 1: escalate_to_human({\"orderId\":1127,\"reason\":\"Damaged Squall Rain Jacket reported after 14 days; needs case review\"}) → {\"ok\":true,\"data\":{\"ticket\":\"ESC-47\",\"message\":\"A human support agent will follow up by email, usually within one business day.\"}}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent points to the warranty for the defect and passes it to a team member, without promising a specific remedy (repair, replacement or refund is the team's decision)."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "Apologetic, clear next steps, and appropriate escalation."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": false,
+        "why": "The agent’s reply does not reference the warranty policy; it only notes escalation for a case review and that a human agent will follow up. Therefore the statement that the agent points to the warranty is incorrect.",
+        "noConclusion": 1
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent’s reply only states that a human support agent will follow up by email within one business day, which is a standard procedure and not a promise the agent cannot fulfill in this chat. This is allowed per the rule. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent states the issue was reported after 14 days, which matches the policy that reports after 14 days are reviewed case by case. The agent also says a human support agent will follow up by email usually within one business day, which matches the tool result. No other timing claims are made. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": false,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 593,
+      "inputTokens": 1065,
+      "outputTokens": 269,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the issue was reported after 14 days, which matches the policy that reports after 14 days are reviewed case by case. The agent also says a human support agent will follow up by email usually within one business day, which matches the tool result. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 766,
+      "inputTokens": 1011,
+      "outputTokens": 280,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply does not reference the warranty policy; it only notes escalation for a case review and that a human agent will follow up. Therefore the statement that the agent points to the warranty is incorrect.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 802,
+      "inputTokens": 1076,
+      "outputTokens": 398,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply only states that a human support agent will follow up by email within one business day, which is a standard procedure and not a promise the agent cannot fulfill in this chat. This is allowed per the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 832,
+      "inputTokens": 1309,
+      "outputTokens": 396,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"Apologetic, clear next steps, and appropriate escalation.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1227,
+      "inputTokens": 1076,
+      "outputTokens": 572,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states that a human support agent will follow up by email, which is a legitimate action that the bot cannot perform but is allowed to mention. This does not violate the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 617,
+      "inputTokens": 1065,
+      "outputTokens": 268,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the issue was reported after 14 days, which matches the policy that reports after 14 days are reviewed case by case. The agent also says a human support agent will follow up within one business day, which matches the policy’s usual one‑business‑day review time. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 724,
+      "inputTokens": 1065,
+      "outputTokens": 299,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the issue was reported after 14 days, which aligns with the policy that reports after 14 days are reviewed case by case. The agent also says a human support agent will follow up within one business day, matching the tool’s response. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 3065,
+      "inputTokens": 1076,
+      "outputTokens": 588,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply only states that a human support agent will follow up by email, which is a legitimate action that the bot cannot perform itself. This is allowed per the rule, as it references a team member’s future action. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

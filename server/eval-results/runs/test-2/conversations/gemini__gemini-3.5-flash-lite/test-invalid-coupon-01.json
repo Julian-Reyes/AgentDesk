@@ -1,0 +1,630 @@
+{
+  "caseId": "test-invalid-coupon-01",
+  "case": {
+    "id": "test-invalid-coupon-01",
+    "split": "test",
+    "type": "invalid_coupon",
+    "why": "Noted addition (Julian's review, 2026-09-30): WELCOME5 was single-use and has already been redeemed (ALREADY_USED). A Glowworm 300 is $29.00 + $7.99 shipping = $36.99 without it. Suggesting another code the agent checked for this cart is fine (Julian, 2026-10-01).",
+    "source": "Julian's review, 2026-09-30 (noted addition)",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "I've got a WELCOME5 code. How much would a Glowworm 300 headlamp be with it?",
+        "reply": {
+          "mentions": [
+            [
+              "already been used",
+              "already used",
+              "been redeemed",
+              "already redeemed"
+            ]
+          ],
+          "amounts": [],
+          "avoids": []
+        }
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "price": {
+        "cart": [
+          {
+            "productId": "lamp-glowworm-300",
+            "qty": 1
+          }
+        ],
+        "coupon": "WELCOME5",
+        "totalCents": 3699
+      },
+      "coupon": {
+        "code": "WELCOME5",
+        "valid": false,
+        "reason": "ALREADY_USED"
+      },
+      "leaks": [],
+      "judgeChecks": []
+    }
+  },
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "team": {
+    "router": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "0ead58e1-b2d8-4d2a-8c2f-a4d9a285ae26",
+    "turns": [
+      {
+        "customer": "I've got a WELCOME5 code. How much would a Glowworm 300 headlamp be with it?",
+        "reply": "The WELCOME5 coupon could not be applied because it was single-use and has already been used. \n\nHowever, you can use the code SUMMER10 for 10% off. With that code, one Glowworm 300 Headlamp ($29.00, minus a $2.90 discount) plus $7.99 shipping comes to a total of $34.09. \n\nThanks for understanding.",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "I've got a WELCOME5 code. How much would a Glowworm 300 headlamp be with it?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"shopping\", \"category\": \"pricing_deals\", \"urgency\": \"normal\", \"confidence\": 0.99}",
+          "decision": {
+            "route": "shopping",
+            "category": "pricing_deals",
+            "urgency": "normal",
+            "confidence": 0.99
+          },
+          "fallback": false
+        },
+        "inputTokens": 358,
+        "outputTokens": 30,
+        "latencyMs": 724,
+        "cached": false,
+        "costMicros": 182,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_245403",
+                "name": "search_products",
+                "arguments": "{\"query\":\"Glowworm 300\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0T6hHoff1T0+puWQHkFVfHV4aomOvGPsrCovUvEn1ZN3cAMGXwWDT3HUzQXUdQiH3zEnSrkhteQysJvtjnrUVGCJCNGQ3JqcMOXRo/PWvAWrdizHQbsP8alt8="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2004,
+        "outputTokens": 22,
+        "latencyMs": 989,
+        "cached": false,
+        "costMicros": 656,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_245403",
+          "name": "search_products",
+          "arguments": "{\"query\":\"Glowworm 300\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 2,
+              "products": [
+                {
+                  "id": "lamp-glowworm-300",
+                  "name": "Glowworm 300 Headlamp",
+                  "category": "headlamps",
+                  "listPrice": "$29.00",
+                  "currentPrice": "$29.00",
+                  "rating": 4.4,
+                  "description": "All-round AAA headlamp with a red night mode.",
+                  "specs": {
+                    "lumens": 300,
+                    "waterproof": true,
+                    "weightGrams": 78,
+                    "burnTimeMinutes": 1800
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Headlamps: buy 2, get 1 free"
+                  ]
+                },
+                {
+                  "id": "lamp-glowworm-150",
+                  "name": "Glowworm 150 Headlamp",
+                  "category": "headlamps",
+                  "listPrice": "$19.99",
+                  "currentPrice": "$19.99",
+                  "rating": 4.1,
+                  "description": "Simple AAA headlamp for camp chores.",
+                  "specs": {
+                    "lumens": 150,
+                    "waterproof": false,
+                    "weightGrams": 70,
+                    "burnTimeMinutes": 2400
+                  },
+                  "availability": "low_stock",
+                  "activeDeals": [
+                    "Headlamps: buy 2, get 1 free"
+                  ]
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_455139",
+                "name": "quote_price",
+                "arguments": "{\"cart\":[{\"productId\":\"lamp-glowworm-300\",\"qty\":1}],\"coupon\":\"WELCOME5\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TDcuhfz8jv3JabexIfDWCYzr5s6Gri3RJltXJhc6+d3ttf7SFadvA6wEa8CKE/URNGNFry2lUxF2lK66FlUdM9nLRUwPVKufxFbQyOtnG9pi2/k3UBRja9OI="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2324,
+        "outputTokens": 37,
+        "latencyMs": 831,
+        "cached": false,
+        "costMicros": 790,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_455139",
+          "name": "quote_price",
+          "arguments": "{\"cart\":[{\"productId\":\"lamp-glowworm-300\",\"qty\":1}],\"coupon\":\"WELCOME5\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "lines": [
+                {
+                  "productId": "lamp-glowworm-300",
+                  "name": "Glowworm 300 Headlamp",
+                  "qty": 1,
+                  "listPrice": "$29.00",
+                  "discounts": [],
+                  "lineTotal": "$29.00"
+                }
+              ],
+              "subtotal": "$29.00",
+              "coupon": {
+                "code": "WELCOME5",
+                "applied": false,
+                "reason": "ALREADY_USED",
+                "message": "Coupon WELCOME5 was single-use and has already been used."
+              },
+              "totalDiscounts": "$0.00",
+              "shipping": "$7.99",
+              "total": "$36.99",
+              "totalCents": 3699
+            },
+            "policyDecision": "denied"
+          }
+        },
+        "policyDecision": "denied",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 3,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_267467",
+                "name": "get_active_promotions",
+                "arguments": "{}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TMQ7MLGrUSzVLFwrK9GWaFtgKbCw+HEDDn39ScDO3YHpODgRzKn+UWLQZcs8b40dim7xoQX1pAg9ffN782s/8Xp/r1Fyqijnh1Z5puWi9iFwSoZ8dCTufXTY="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2522,
+        "outputTokens": 13,
+        "latencyMs": 1159,
+        "cached": false,
+        "costMicros": 789,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_267467",
+          "name": "get_active_promotions",
+          "arguments": "{}",
+          "result": {
+            "ok": true,
+            "data": {
+              "promotions": [
+                {
+                  "name": "Tent Sale: 20% off all tents",
+                  "endsOn": "2026-10-05"
+                },
+                {
+                  "name": "Headlamps: buy 2, get 1 free",
+                  "endsOn": "2026-10-15"
+                }
+              ],
+              "freeShipping": "Free shipping on orders of $75.00 or more; otherwise $7.99.",
+              "couponCodes": [
+                {
+                  "code": "SUMMER10",
+                  "terms": "10% off; expires 2026-09-30"
+                },
+                {
+                  "code": "TRAIL25",
+                  "terms": "$25.00 off; minimum spend $150.00; expires 2026-12-31"
+                },
+                {
+                  "code": "GEAR20",
+                  "terms": "20% off; minimum spend $50.00; not valid on tents, sleeping bags; expires 2026-10-30"
+                }
+              ],
+              "rules": "One coupon per order. Sales apply first, then buy-2-get-1, then the coupon."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 4,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_513319",
+                "name": "quote_price",
+                "arguments": "{\"cart\":[{\"productId\":\"lamp-glowworm-300\",\"qty\":1}],\"coupon\":\"SUMMER10\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0T+7rEn0Y9ZioXUpoS/vk7F0yyGwgzvKZ/KLrZKo1v/GvURBQL61P0GoDz6b5cfopRuVz1R4DXzng1hXSU3sz++YGwU+PHHiPuGLNx5nDSQjX9LAQm51dP26c="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2782,
+        "outputTokens": 39,
+        "latencyMs": 815,
+        "cached": false,
+        "costMicros": 932,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_513319",
+          "name": "quote_price",
+          "arguments": "{\"cart\":[{\"productId\":\"lamp-glowworm-300\",\"qty\":1}],\"coupon\":\"SUMMER10\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "lines": [
+                {
+                  "productId": "lamp-glowworm-300",
+                  "name": "Glowworm 300 Headlamp",
+                  "qty": 1,
+                  "listPrice": "$29.00",
+                  "discounts": [],
+                  "lineTotal": "$29.00"
+                }
+              ],
+              "subtotal": "$29.00",
+              "coupon": {
+                "code": "SUMMER10",
+                "applied": true,
+                "discount": "-$2.90"
+              },
+              "totalDiscounts": "-$2.90",
+              "shipping": "$7.99",
+              "total": "$34.09",
+              "totalCents": 3409
+            },
+            "policyDecision": "auto_approved"
+          }
+        },
+        "policyDecision": "auto_approved",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 5,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_232354",
+                "name": "reply",
+                "arguments": "{\"message\":\"The WELCOME5 coupon could not be applied because it was single-use and has already been used. \\n\\nHowever, you can use the code SUMMER10 for 10% off. With that code, one Glowworm 300 Headlamp ($29.00, minus a $2.90 discount) plus $7.99 shipping comes to a total of $34.09. \\n\\nThanks for understanding.\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TenMGmghHtopnScJkJl+Bgg/N3rM61qXWnVeFZZcrfeaB2O75Eufg4VcA4XY5dIJFTq8n38bepzCq7CPPJApgBezmdZ6M55jsSnOk5dcP3nrk+J7ogWEAjzI="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2970,
+        "outputTokens": 107,
+        "latencyMs": 2869,
+        "cached": false,
+        "costMicros": 1159,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_232354",
+          "name": "reply",
+          "arguments": "{\"message\":\"The WELCOME5 coupon could not be applied because it was single-use and has already been used. \\n\\nHowever, you can use the code SUMMER10 for 10% off. With that code, one Glowworm 300 Headlamp ($29.00, minus a $2.90 discount) plus $7.99 shipping comes to a total of $34.09. \\n\\nThanks for understanding.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "The WELCOME5 coupon could not be applied because it was single-use and has already been used. \n\nHowever, you can use the code SUMMER10 for 10% off. With that code, one Glowworm 300 Headlamp ($29.00, minus a $2.90 discount) plus $7.99 shipping comes to a total of $34.09. \n\nThanks for understanding."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "The WELCOME5 coupon could not be applied because it was single-use and has already been used. \n\nHowever, you can use the code SUMMER10 for 10% off. With that code, one Glowworm 300 Headlamp ($29.00, minus a $2.90 discount) plus $7.99 shipping comes to a total of $34.09. \n\nThanks for understanding."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "shopping",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "test-invalid-coupon-01",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to shopping"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "price_quoted",
+        "label": "quote_price for lamp-glowworm-300×1 with or without WELCOME5, or with a valid alternative code",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "price_stated",
+        "label": "reply 1 states $36.99 or $34.09",
+        "pass": true,
+        "severity": "task",
+        "detail": "amounts in reply: $29.00, $2.90, $7.99, $34.09"
+      },
+      {
+        "id": "coupon",
+        "label": "checks WELCOME5 (ALREADY_USED)",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "coupon_suggestions_checked",
+        "label": "any other code it mentions was checked for this cart by a tool",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:mentions:0",
+        "label": "reply 1 mentions \"already been used\" or \"already used\" or \"been redeemed\" or \"already redeemed\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 6,
+    "cachedCalls": 0,
+    "toolCalls": 4,
+    "inputTokens": 12960,
+    "outputTokens": 248,
+    "latencyMs": 7387,
+    "turnLatencyMs": [
+      7387
+    ],
+    "costMicros": 4508,
+    "wallMs": 14261
+  },
+  "finishedAt": "2026-10-06T14:55:47.398Z"
+}

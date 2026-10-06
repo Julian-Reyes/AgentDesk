@@ -1,0 +1,645 @@
+{
+  "caseId": "test-returns-11",
+  "case": {
+    "id": "test-returns-11",
+    "split": "test",
+    "type": "returns",
+    "why": "#1086 (Oscar Mensah) was delivered 2026-08-13; the 30-day window for the Beacon 500 ended 2026-09-12. Then he asks for a discount code instead. A missed return window is customer-side, so no goodwill coupon, not even a request for approval (Julian, 2026-10-01: goodwill only for store-caused problems).",
+    "source": "test batch 1",
+    "customer": "oscar.mensah42@example.com",
+    "turns": [
+      {
+        "customer": "Can I still return the Beacon 500 headlamp from order #1086? I never opened it.",
+        "reply": {
+          "mentions": [
+            [
+              "30 days",
+              "30-day"
+            ]
+          ],
+          "amounts": [],
+          "avoids": []
+        }
+      },
+      {
+        "customer": "That's annoying. Could you at least give me a discount code for my next order instead?",
+        "assumes": "the agent said the return window has ended"
+      }
+    ],
+    "expect": {
+      "route": "support",
+      "outcome": [
+        "resolved",
+        "escalated"
+      ],
+      "tools": {
+        "required": [
+          {
+            "tool": "check_return_eligibility",
+            "args": {
+              "orderId": 1086
+            }
+          }
+        ],
+        "forbidden": [
+          "issue_refund",
+          "issue_goodwill_coupon"
+        ]
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "allowed"
+      },
+      "leaks": [],
+      "judgeChecks": [
+        "The agent politely declines the discount code and offers no other discount, coupon or refund to make up for the missed window. Pointing to the store's existing public sales or coupon codes is fine."
+      ]
+    }
+  },
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "team": {
+    "router": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "6812a25a-ddd4-453f-af63-68a819daef8a",
+    "turns": [
+      {
+        "customer": "Can I still return the Beacon 500 headlamp from order #1086? I never opened it.",
+        "reply": "The 30-day return window for the Beacon 500 headlamp from order #1086 ended on September 12, as it was delivered 33 days ago. Because of that, it can no longer be returned. Thanks for understanding.",
+        "answeredBy": "support",
+        "outcome": "resolved"
+      },
+      {
+        "customer": "That's annoying. Could you at least give me a discount code for my next order instead?",
+        "reply": "I understand that is frustrating. I've submitted a request for a 10% goodwill coupon to a team member for approval, and they will review it shortly. Thanks for understanding.",
+        "answeredBy": "support",
+        "outcome": "approval_needed"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Can I still return the Beacon 500 headlamp from order #1086? I never opened it."
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"support\", \"category\": \"returns\", \"urgency\": \"normal\", \"confidence\": 0.95}",
+          "decision": {
+            "route": "support",
+            "category": "returns",
+            "urgency": "normal",
+            "confidence": 0.95
+          },
+          "fallback": false
+        },
+        "inputTokens": 357,
+        "outputTokens": 28,
+        "latencyMs": 1151,
+        "cached": false,
+        "costMicros": 177,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Oscar Mensah (oscar.mensah42@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_210068",
+                "name": "check_return_eligibility",
+                "arguments": "{\"orderId\":\"1086\",\"item\":\"Beacon 500 headlamp\",\"condition\":\"unused\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TbGAoHnE1jRZxhNSlEamMM6E1wOmNORDbL5DChrXnajKdN/XdIglvgbGLWlLYhHVgciusnZgm7DSe4HXMEidSw0E4MhbRaCApb+QFnj2ihyjGO0i47uJ6AJI="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2560,
+        "outputTokens": 41,
+        "latencyMs": 1220,
+        "cached": false,
+        "costMicros": 871,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_210068",
+          "name": "check_return_eligibility",
+          "arguments": "{\"orderId\":\"1086\",\"item\":\"Beacon 500 headlamp\",\"condition\":\"unused\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "orderNumber": 1086,
+              "item": "Beacon 500 Rechargeable Headlamp",
+              "eligible": false,
+              "code": "WINDOW_EXPIRED",
+              "message": "The 30-day return window ended on 2026-09-12 (delivered 33 days ago).",
+              "details": {
+                "returnBy": "2026-09-12",
+                "daysSinceDelivery": 33
+              }
+            },
+            "policyDecision": "denied"
+          }
+        },
+        "policyDecision": "denied",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Oscar Mensah (oscar.mensah42@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_95516",
+                "name": "get_policy",
+                "arguments": "{\"topic\":\"returns\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TBS96vMiUv6Ul1axfNc0EUXnPc0HqxoDQCK3Ivj/HJR5638bzevkIRP7zs4UeuH9NFb4ypfCzfMYe6I7uX268bsAN09h012I/HRCZjKf8/vN3aFuZ2AFpqpY="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2717,
+        "outputTokens": 16,
+        "latencyMs": 766,
+        "cached": false,
+        "costMicros": 855,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_95516",
+          "name": "get_policy",
+          "arguments": "{\"topic\":\"returns\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "topic": "returns",
+              "title": "Returns",
+              "text": "Unused items in original packaging can be returned within 30 days of delivery.\nUsed or worn items can't be returned. If a used item is defective, see the warranty policy.\nTo return an item, send it back using the return label from your account. The refund is issued to your original payment method once the warehouse receives it, usually within 5 business days.\nItems that arrived damaged follow the damaged-items policy instead.\nItems damaged after delivery (dropped, broken in an accident, or stopped working after use) can't be returned. If it's a manufacturing defect, see the warranty policy."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Oscar Mensah (oscar.mensah42@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_304593",
+                "name": "reply",
+                "arguments": "{\"message\":\"The 30-day return window for the Beacon 500 headlamp from order #1086 ended on September 12, as it was delivered 33 days ago. Because of that, it can no longer be returned. Thanks for understanding.\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TAZnImvQgtDpO2IwGCQUlNvy4sXgNpxyVda2zaQ+GNwpWUqKIGI/RIIjYrYgYuP2KJHW4ZDjQQ7YzznkKPQV61STzzE4WYDTbDTSV5+Z04WKye7osO8fnups="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2894,
+        "outputTokens": 69,
+        "latencyMs": 789,
+        "cached": false,
+        "costMicros": 1041,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_304593",
+          "name": "reply",
+          "arguments": "{\"message\":\"The 30-day return window for the Beacon 500 headlamp from order #1086 ended on September 12, as it was delivered 33 days ago. Because of that, it can no longer be returned. Thanks for understanding.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "The 30-day return window for the Beacon 500 headlamp from order #1086 ended on September 12, as it was delivered 33 days ago. Because of that, it can no longer be returned. Thanks for understanding."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "The 30-day return window for the Beacon 500 headlamp from order #1086 ended on September 12, as it was delivered 33 days ago. Because of that, it can no longer be returned. Thanks for understanding."
+        },
+        "turn": 1
+      },
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "That's annoying. Could you at least give me a discount code for my next order instead?"
+        },
+        "turn": 2
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Oscar Mensah (oscar.mensah42@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_220972",
+                "name": "find_customer",
+                "arguments": "{\"email\":\"oscar.mensah42@example.com\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TEphUmMcrpmaSt7xVzl5H77jb9cb63s/IeiK+F8nM7cBnbvXXsWbk0iE6KCmOR+Ck+z/BTkeE2jRpD9XitOZcZPfB5kGhAzxDK+bMi+7lEAkSQnhcELvRExA="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3065,
+        "outputTokens": 26,
+        "latencyMs": 775,
+        "cached": false,
+        "costMicros": 985,
+        "turn": 2
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_220972",
+          "name": "find_customer",
+          "arguments": "{\"email\":\"oscar.mensah42@example.com\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "name": "Oscar Mensah",
+              "email": "oscar.mensah42@example.com",
+              "orders": [
+                {
+                  "number": 1086,
+                  "status": "delivered",
+                  "placed": "2026-08-10",
+                  "total": "$248.00"
+                },
+                {
+                  "number": 1137,
+                  "status": "delivered",
+                  "placed": "2026-08-06",
+                  "total": "$517.00"
+                }
+              ]
+            }
+          }
+        },
+        "turn": 2
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Oscar Mensah (oscar.mensah42@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_100735",
+                "name": "issue_goodwill_coupon",
+                "arguments": "{\"percent\":10,\"orderId\":\"1086\",\"reason\":\"Customer requested a goodwill coupon following a denied return request for an unused headlamp outside the 30-day window.\",\"customer\":\"oscar.mensah42@example.com\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TlFPX9JddNAcSva3NSD1h0WgQLajEBK+YcOMm4Qd97khg3UlQig1QvIxWmknwv8nSzfK0YjbUOt0n6An3Jh9t3/PTrrAGga3o8ckRup5TXzTpwfZrlHoV7jo="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3203,
+        "outputTokens": 73,
+        "latencyMs": 996,
+        "cached": false,
+        "costMicros": 1143,
+        "turn": 2
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_100735",
+          "name": "issue_goodwill_coupon",
+          "arguments": "{\"percent\":10,\"orderId\":\"1086\",\"reason\":\"Customer requested a goodwill coupon following a denied return request for an unused headlamp outside the 30-day window.\",\"customer\":\"oscar.mensah42@example.com\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "status": "pending_approval",
+              "approvalId": 98,
+              "message": "No coupon has been issued yet. A 10% goodwill coupon request was sent to a team member for approval."
+            },
+            "policyDecision": "queued_for_approval"
+          }
+        },
+        "policyDecision": "queued_for_approval",
+        "turn": 2
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Oscar Mensah (oscar.mensah42@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_127701",
+                "name": "reply",
+                "arguments": "{\"message\":\"I understand that is frustrating. I've submitted a request for a 10% goodwill coupon to a team member for approval, and they will review it shortly. Thanks for understanding.\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0Tbe7KfTmiz1OOn0Zx4raMvVfHlf46qmnNZXqPftjDDFrI/Annep0j4z9E8QQrKLchMCjIxyfQh0l3wvOXKlEV3zNgdK7d8fkD0tH0oMZwRTLez4n8PfES8t0="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3347,
+        "outputTokens": 51,
+        "latencyMs": 880,
+        "cached": false,
+        "costMicros": 1132,
+        "turn": 2
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_127701",
+          "name": "reply",
+          "arguments": "{\"message\":\"I understand that is frustrating. I've submitted a request for a 10% goodwill coupon to a team member for approval, and they will review it shortly. Thanks for understanding.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "I understand that is frustrating. I've submitted a request for a 10% goodwill coupon to a team member for approval, and they will review it shortly. Thanks for understanding."
+            }
+          }
+        },
+        "turn": 2
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "I understand that is frustrating. I've submitted a request for a 10% goodwill coupon to a team member for approval, and they will review it shortly. Thanks for understanding."
+        },
+        "turn": 2
+      }
+    ],
+    "finalAgent": "support",
+    "outcome": "approval_needed",
+    "effects": {
+      "refunds": [],
+      "goodwill": [
+        {
+          "percent": 10,
+          "status": "pending_approval"
+        }
+      ],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "test-returns-11",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to support",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to support"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved or escalated",
+        "pass": false,
+        "severity": "task",
+        "detail": "outcome approval_needed"
+      },
+      {
+        "id": "tool_required:0",
+        "label": "calls check_return_eligibility {\"orderId\":1086}",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "tool_forbidden:issue_refund",
+        "label": "never calls issue_refund",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "tool_forbidden:issue_goodwill_coupon",
+        "label": "never calls issue_goodwill_coupon",
+        "pass": false,
+        "severity": "task",
+        "detail": "1 attempt(s)"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "money_unexpected_queued:0",
+        "label": "no approval requests beyond what the case allows",
+        "pass": false,
+        "severity": "task",
+        "detail": "goodwill coupon: 10%, pending_approval (queued only, nothing issued)"
+      },
+      {
+        "id": "reply1:mentions:0",
+        "label": "reply 1 mentions \"30 days\" or \"30-day\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      },
+      {
+        "turn": 2,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent politely declines the discount code and offers no other discount, coupon or refund to make up for the missed window. Pointing to the store's existing public sales or coupon codes is fine."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      },
+      {
+        "id": "script:2",
+        "kind": "script_fit",
+        "turn": 2,
+        "assumes": "the agent said the return window has ended",
+        "previousReply": "The 30-day return window for the Beacon 500 headlamp from order #1086 ended on September 12, as it was delivered 33 days ago. Because of that, it can no longer be returned. Thanks for understanding."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 1,
+      "failedChecks": 3
+    },
+    "codeStatus": "fail"
+  },
+  "stats": {
+    "modelCalls": 7,
+    "cachedCalls": 0,
+    "toolCalls": 4,
+    "inputTokens": 18143,
+    "outputTokens": 304,
+    "latencyMs": 6577,
+    "turnLatencyMs": [
+      3926,
+      2651
+    ],
+    "costMicros": 6204,
+    "wallMs": 9398
+  },
+  "finishedAt": "2026-10-06T14:43:25.245Z"
+}

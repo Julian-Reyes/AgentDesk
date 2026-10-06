@@ -1,0 +1,152 @@
+{
+  "caseId": "test-invalid-coupon-06",
+  "runId": "a12eae76-fed6-43d7-ac58-059d09c95f47",
+  "questionSet": "38e9550f",
+  "agentModel": "groq/gpt-oss-120b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-invalid-coupon-06",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "TRAIL25 on a Creek 2 tent and a Glowworm 300 headlamp: that's $158, so it should work, right? What do I pay?",
+        "reply": "The TRAIL25 coupon can’t be applied because the cart’s eligible subtotal is $132.20, which is below the $150 minimum spend required. Your order total, after the tent’s 20% sale and free shipping, is $132.20. Let me know if you’d like to add anything else or try a different coupon."
+      }
+    ],
+    "toolSummary": [
+      "message 1: search_products({\"filters\":{\"category\":\"tents\"},\"limit\":5,\"query\":\"Creek 2 tent\"}) → {\"ok\":true,\"data\":{\"totalMatches\":10,\"products\":[{\"id\":\"tent-creek-2\",\"name\":\"Creek 2 Budget Tent\",\"category\":\"tents\",\"listPrice\":\"$129.00\",\"currentPrice\":\"$103.20\",\"rating\":3.9,\"description\":\"Affordable two-person tent for fair-weather weekends.\",\"specs\":{\"seasons\":3,\"material\":\"polyester\",\"waterproof\":true,\"weightGrams\":2400,\"capacityPersons\":2,\"waterproofRatingMm\":1200},\"availability\":\"in_stock\",\"activeDeals\":[\"Tent Sale: 20% off all tents\"]},{\"id\":\"tent-tundra-2\",\"name\":\"Tundra 2 Four-Season Tent\",\"category\":\"tents\",\"listPrice\":\"$549.00\",\"currentPrice\":\"$439.20\",\"rating\":4.8,\"description\":\"Two-person mountaineering tent built for snow load and high winds.\",\"specs\":{\"seasons\":4,\"material\":\"40D ripstop nylon\",\"waterproof\":true,\"weightGrams\":3300,\"capacityPersons\":2,\"waterproofRatingMm\":5000},\"availability\":\"in_stock\",\"activeDeals\":[\"Tent Sale: 20% off all tents\"]},{\"id\":\"tent-ridge-2\",\"name\":\"Ridge 2 Backpacking Tent\",\"category\":\"tents\",\"listPrice\":\"$249.00\",\"currentPrice\":\"$199.20\",\"rating\":4.6,\"description\":\"Freestanding two-person backpacking tent with two doors and two vestibules.\",\"specs\":{\"seasons\":3,\"material\":\"20D ripstop nylon\",\"waterproof\":true,\"weightGrams\":1900,\"capacityPersons\":2,\"waterproofRatingMm\":3000},\"availability\":\"in_stock\",\"activeDeals\":[\"Tent Sale: 20% off all tents\"]},{\"id\":\"tent-canopy-2\",\"name\":\"Canopy 2 Trail Tent\",\"category\":\"tents\",\"listPrice\":\"$189.00\",\"currentPrice\":\"$151.20\",\"rating\":4.5,\"description\":\"Lightweight two-person trail tent with a… (trimmed)",
+      "message 1: search_products({\"filters\":{\"category\":\"headlamps\"},\"limit\":5,\"query\":\"Glowworm 300\"}) → {\"ok\":true,\"data\":{\"totalMatches\":2,\"products\":[{\"id\":\"lamp-glowworm-300\",\"name\":\"Glowworm 300 Headlamp\",\"category\":\"headlamps\",\"listPrice\":\"$29.00\",\"currentPrice\":\"$29.00\",\"rating\":4.4,\"description\":\"All-round AAA headlamp with a red night mode.\",\"specs\":{\"lumens\":300,\"waterproof\":true,\"weightGrams\":78,\"burnTimeMinutes\":1800},\"availability\":\"in_stock\",\"activeDeals\":[\"Headlamps: buy 2, get 1 free\"]},{\"id\":\"lamp-glowworm-150\",\"name\":\"Glowworm 150 Headlamp\",\"category\":\"headlamps\",\"listPrice\":\"$19.99\",\"currentPrice\":\"$19.99\",\"rating\":4.1,\"description\":\"Simple AAA headlamp for camp chores.\",\"specs\":{\"lumens\":150,\"waterproof\":false,\"weightGrams\":70,\"burnTimeMinutes\":2400},\"availability\":\"low_stock\",\"activeDeals\":[\"Headlamps: buy 2, get 1 free\"]}],\"note\":\"currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping.\"}}",
+      "message 1: validate_coupon({\"cart\":[{\"productId\":\"tent-creek-2\",\"qty\":1},{\"productId\":\"lamp-glowworm-300\",\"qty\":1}],\"code\":\"TRAIL25\"}) → {\"ok\":true,\"data\":{\"valid\":false,\"code\":\"TRAIL25\",\"reason\":\"MIN_SPEND_NOT_MET\",\"message\":\"Coupon TRAIL25 needs a minimum spend of $150.00 on eligible items; the cart has $132.20.\",\"minSpend\":\"$150.00\",\"eligibleSubtotal\":\"$132.20\",\"shortBy\":\"$17.80\",\"excludedCategories\":[]},\"policyDecision\":\"denied\"}",
+      "message 1: quote_price({\"cart\":[{\"productId\":\"tent-creek-2\",\"qty\":1},{\"productId\":\"lamp-glowworm-300\",\"qty\":1}]}) → {\"ok\":true,\"data\":{\"lines\":[{\"productId\":\"tent-creek-2\",\"name\":\"Creek 2 Budget Tent\",\"qty\":1,\"listPrice\":\"$129.00\",\"discounts\":[{\"deal\":\"Tent Sale: 20% off all tents\",\"amount\":\"-$25.80\"}],\"lineTotal\":\"$103.20\"},{\"productId\":\"lamp-glowworm-300\",\"name\":\"Glowworm 300 Headlamp\",\"qty\":1,\"listPrice\":\"$29.00\",\"discounts\":[],\"lineTotal\":\"$29.00\"}],\"subtotal\":\"$158.00\",\"coupon\":null,\"totalDiscounts\":\"-$25.80\",\"shipping\":\"FREE\",\"total\":\"$132.20\",\"totalCents\":13220}}",
+      "message 1: get_active_promotions({}) → {\"ok\":true,\"data\":{\"promotions\":[{\"name\":\"Tent Sale: 20% off all tents\",\"endsOn\":\"2026-10-05\"},{\"name\":\"Headlamps: buy 2, get 1 free\",\"endsOn\":\"2026-10-15\"}],\"freeShipping\":\"Free shipping on orders of $75.00 or more; otherwise $7.99.\",\"couponCodes\":[{\"code\":\"SUMMER10\",\"terms\":\"10% off; expires 2026-09-30\"},{\"code\":\"TRAIL25\",\"terms\":\"$25.00 off; minimum spend $150.00; expires 2026-12-31\"},{\"code\":\"GEAR20\",\"terms\":\"20% off; minimum spend $50.00; not valid on tents, sleeping bags; expires 2026-10-30\"}],\"rules\":\"One coupon per order. Sales apply first, then buy-2-get-1, then the coupon.\"}}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent explains the $150 minimum counts the sale price, so this cart ($132.20) doesn't qualify."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "The agent clearly explains the coupon issue, gives the exact total, and offers next steps."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent states the cart’s eligible subtotal is $132.20 after the tent’s 20% sale and free shipping, which is below the $150 minimum, indicating the minimum is based on the sale price. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only informs the customer of the coupon denial and offers further options; it does not promise future actions it cannot perform. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent's reply contains no statements about shipping, arrival, refunds, reviews, processing times, or any other timing. Therefore there are no timing claims to evaluate against tool results or policy. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 2
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "scores",
+      "latencyMs": 834,
+      "inputTokens": 2152,
+      "outputTokens": 317,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"The agent clearly explains the coupon issue, gives the exact total, and offers next steps.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 834,
+      "inputTokens": 1919,
+      "outputTokens": 340,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only informs the customer of the coupon restriction and offers further assistance; it does not promise future actions it cannot perform. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 849,
+      "inputTokens": 1919,
+      "outputTokens": 344,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only informs the customer of the coupon denial and offers further options; it does not promise future actions it cannot perform. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 522,
+      "inputTokens": 1908,
+      "outputTokens": 173,
+      "cached": false,
+      "raw": "{\"why\":\"The agent's reply contains no statements about shipping, arrival, refunds, reviews, processing times, or any other timing. Therefore there are no timing claims to evaluate against tool results or policy. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 900,
+      "inputTokens": 1908,
+      "outputTokens": 166,
+      "cached": false,
+      "raw": "{\"why\":\"The agent's reply contains no statements about shipping, arrival, refunds, reviews, processing times, or any other timing. Since there are no timing claims to evaluate, the condition is satisfied.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 2983,
+      "inputTokens": 1844,
+      "outputTokens": 314,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the cart’s eligible subtotal is $132.20 after the tent’s 20% sale and free shipping, which is below the $150 minimum, indicating the minimum is based on the sale price. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 3136,
+      "inputTokens": 1919,
+      "outputTokens": 345,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only informs the customer of the coupon status and offers further options; it does not promise future actions it cannot perform. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 783,
+      "inputTokens": 1908,
+      "outputTokens": 166,
+      "cached": false,
+      "raw": "{\"why\":\"The agent's reply contains no statements about shipping, arrival, refunds, reviews, processing times, or any other timing. Since there are no timing claims to evaluate, the condition is satisfied.\",\"answer\":true}"
+    }
+  ]
+}

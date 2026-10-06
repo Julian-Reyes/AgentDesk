@@ -1,0 +1,534 @@
+{
+  "caseId": "test-order-status-10",
+  "case": {
+    "id": "test-order-status-10",
+    "split": "test",
+    "type": "order_status",
+    "why": "#1134 (Kofi Sato, Swift 30 Daypack) has sat in Salt Lake City since a carrier delay (weather and volume backlog). The customer asks if it's lost: it's delayed, not declared lost, and there's no new estimate. It shipped free, so there's no shipping to refund. A goodwill coupon of 10% or less is allowed (delayed = store-caused), not required.",
+    "source": "test batch 2",
+    "customer": "kofi.sato171@example.com",
+    "turns": [
+      {
+        "customer": "Is my order #1134 lost? It's been sitting in Salt Lake City for days.",
+        "reply": {
+          "mentions": [
+            [
+              "delayed",
+              "delay"
+            ]
+          ],
+          "amounts": [],
+          "avoids": [
+            "has been lost",
+            "was lost",
+            "declared lost"
+          ]
+        }
+      }
+    ],
+    "expect": {
+      "route": "support",
+      "outcome": [
+        "resolved",
+        "escalated"
+      ],
+      "tools": {
+        "required": [
+          {
+            "anyOf": [
+              {
+                "tool": "get_tracking",
+                "args": {
+                  "orderId": 1134
+                }
+              },
+              {
+                "tool": "get_order",
+                "args": {
+                  "orderId": 1134
+                }
+              }
+            ]
+          }
+        ],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": [
+            {
+              "maxPercent": 10,
+              "order": 1134,
+              "status": "issued"
+            }
+          ]
+        },
+        "escalation": "allowed"
+      },
+      "leaks": [],
+      "judgeChecks": [
+        "The agent says the order is delayed by the carrier, not lost, and gives no delivery date (the tracking has none)."
+      ]
+    }
+  },
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "team": {
+    "router": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "5bca304f-a54e-46b7-ba6f-85f33b00bd10",
+    "turns": [
+      {
+        "customer": "Is my order #1134 lost? It's been sitting in Salt Lake City for days.",
+        "reply": "Order #1134 is not lost, but it is currently delayed in Salt Lake City, UT due to weather and volume backlog with the carrier Parcelway. Since shipping on this order was free, there are no shipping charges to refund. Please let me know if you have any other questions!",
+        "answeredBy": "support",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Is my order #1134 lost? It's been sitting in Salt Lake City for days."
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"support\", \"category\": \"order_status\", \"urgency\": \"high\", \"confidence\": 0.98}",
+          "decision": {
+            "route": "support",
+            "category": "order_status",
+            "urgency": "high",
+            "confidence": 0.98
+          },
+          "fallback": false
+        },
+        "inputTokens": 354,
+        "outputTokens": 30,
+        "latencyMs": 927,
+        "cached": false,
+        "costMicros": 181,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Kofi Sato (kofi.sato171@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_494797",
+                "name": "get_tracking",
+                "arguments": "{\"orderId\":\"1134\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TIji0+gA4vJfyEr4k07laT7kkjVz7tqF1dmDBMRGZqd2misgaJ6mxpTwQBT1UhNqU8jWaBUNf4UUwe33FJY2+OCG8Ja05zl9Sau+bOZKvzBTqDObSOTVZInE="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2557,
+        "outputTokens": 20,
+        "latencyMs": 910,
+        "cached": false,
+        "costMicros": 817,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_494797",
+          "name": "get_tracking",
+          "arguments": "{\"orderId\":\"1134\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "orderNumber": 1134,
+              "status": "delayed",
+              "carrier": "Parcelway",
+              "trackingNumber": "PW0008980146",
+              "estimatedDelivery": null,
+              "events": [
+                {
+                  "at": "2026-09-05 14:00",
+                  "status": "order_placed",
+                  "location": "Larchgrove Warehouse, Reno, NV",
+                  "note": null
+                },
+                {
+                  "at": "2026-09-06 14:00",
+                  "status": "shipped",
+                  "location": "Larchgrove Warehouse, Reno, NV",
+                  "note": "Handed to Parcelway Ground"
+                },
+                {
+                  "at": "2026-09-07 14:00",
+                  "status": "in_transit",
+                  "location": "Salt Lake City, UT",
+                  "note": null
+                },
+                {
+                  "at": "2026-09-09 14:00",
+                  "status": "delayed",
+                  "location": "Salt Lake City, UT",
+                  "note": "Carrier delay: weather and volume backlog"
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Kofi Sato (kofi.sato171@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_596058",
+                "name": "get_order",
+                "arguments": "{\"orderId\":\"1134\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TEAnZEaGneap53rQaLMdc/SS31SZMBraTcd/T4BLe1CVtDxt+8ClT77jxkNHAzs0ht/ZSYlbjXOQKloR5pXOkImIYJtR46PgK90GWTvhooLT88p8qVoU7bro="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2800,
+        "outputTokens": 20,
+        "latencyMs": 1900,
+        "cached": false,
+        "costMicros": 890,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_596058",
+          "name": "get_order",
+          "arguments": "{\"orderId\":\"1134\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "number": 1134,
+              "status": "delayed",
+              "placed": "2026-09-05",
+              "delivered": null,
+              "items": [
+                {
+                  "productId": "pack-swift-30",
+                  "name": "Swift 30 Daypack",
+                  "size": null,
+                  "color": "black",
+                  "qty": 1,
+                  "listPrice": "$119.00",
+                  "discount": "$0.00",
+                  "paid": "$119.00",
+                  "returnedQty": 0
+                }
+              ],
+              "subtotal": "$119.00",
+              "discount": "$0.00",
+              "shipping": "$0.00",
+              "totalPaid": "$119.00",
+              "refunds": []
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Kofi Sato (kofi.sato171@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_436849",
+                "name": "get_policy",
+                "arguments": "{\"topic\":\"shipping\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TyRIY0Lw8QfC7v4tNjOJf08Z9iKUJb+d8y0/kKeFYXPUpdwCL4yRvS4Ezr+wpP9xO5jjWGWlONBD+3kHGfz/95PToyO9c4fkT9JoLhLsD0fuEaTyu9BfDviY="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2978,
+        "outputTokens": 16,
+        "latencyMs": 715,
+        "cached": false,
+        "costMicros": 933,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_436849",
+          "name": "get_policy",
+          "arguments": "{\"topic\":\"shipping\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "topic": "shipping",
+              "title": "Shipping",
+              "text": "Standard shipping costs $7.99 and is free on orders of $75.00 or more (after discounts).\nOrders ship from our warehouse within 1–2 business days and arrive 3–6 business days after shipping.\nWe ship within the United States only.\nTracking is available once an order has shipped.\nIf an order is delayed, we refund the shipping cost on request."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 4,
+          "context": "The customer is signed in as Kofi Sato (kofi.sato171@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_349838",
+                "name": "reply",
+                "arguments": "{\"message\":\"Order #1134 is not lost, but it is currently delayed in Salt Lake City, UT due to weather and volume backlog with the carrier Parcelway. Since shipping on this order was free, there are no shipping charges to refund. Please let me know if you have any other questions!\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0ToEsM1G1Hnxgy9GLd6x1K04p1Rg+yaAbO+Gz3pWmo4xSnaqDCLCJamQwOps/u83IB2456t5mpbCm24Qjl5Gd5ApUY/CpkefU8bdiA29GpGh2IloE7L5V8ock="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3109,
+        "outputTokens": 73,
+        "latencyMs": 1124,
+        "cached": false,
+        "costMicros": 1115,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_349838",
+          "name": "reply",
+          "arguments": "{\"message\":\"Order #1134 is not lost, but it is currently delayed in Salt Lake City, UT due to weather and volume backlog with the carrier Parcelway. Since shipping on this order was free, there are no shipping charges to refund. Please let me know if you have any other questions!\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "Order #1134 is not lost, but it is currently delayed in Salt Lake City, UT due to weather and volume backlog with the carrier Parcelway. Since shipping on this order was free, there are no shipping charges to refund. Please let me know if you have any other questions!"
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "Order #1134 is not lost, but it is currently delayed in Salt Lake City, UT due to weather and volume backlog with the carrier Parcelway. Since shipping on this order was free, there are no shipping charges to refund. Please let me know if you have any other questions!"
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "support",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "test-order-status-10",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to support",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to support"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved or escalated",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "tool_required:0",
+        "label": "calls get_tracking {\"orderId\":1134} or get_order {\"orderId\":1134}",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "reply1:mentions:0",
+        "label": "reply 1 mentions \"delayed\" or \"delay\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:avoids:has been lost",
+        "label": "reply 1 doesn't say \"has been lost\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:avoids:was lost",
+        "label": "reply 1 doesn't say \"was lost\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:avoids:declared lost",
+        "label": "reply 1 doesn't say \"declared lost\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent says the order is delayed by the carrier, not lost, and gives no delivery date (the tracking has none)."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 5,
+    "cachedCalls": 0,
+    "toolCalls": 3,
+    "inputTokens": 11798,
+    "outputTokens": 159,
+    "latencyMs": 5576,
+    "turnLatencyMs": [
+      5576
+    ],
+    "costMicros": 3936,
+    "wallMs": 42879
+  },
+  "finishedAt": "2026-10-06T14:55:33.135Z"
+}

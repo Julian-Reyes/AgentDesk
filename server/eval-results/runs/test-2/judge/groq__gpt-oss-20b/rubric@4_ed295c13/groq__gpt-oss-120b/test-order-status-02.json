@@ -1,0 +1,150 @@
+{
+  "caseId": "test-order-status-02",
+  "runId": "ef559fc6-231b-4da4-a8ab-0a32eef3bd8a",
+  "questionSet": "d1813c0f",
+  "agentModel": "groq/gpt-oss-120b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-order-status-02",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Tracking for order #1075 says it was delivered, but there's nothing at my door and my neighbors haven't seen it.",
+        "reply": "We see the tracking shows the package was marked delivered to your front door on September 13, but you didn’t receive it. I’ve submitted a request for a 10 % goodwill coupon for this order; a team member will review it and you’ll be notified of the outcome. In the meantime, please double‑check with any other household members or building staff, and let us know if you locate the parcel. Thanks for your patience."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1075}) → {\"ok\":true,\"data\":{\"number\":1075,\"status\":\"delivered\",\"placed\":\"2026-09-09\",\"delivered\":\"2026-09-13\",\"items\":[{\"productId\":\"pack-voyager-80\",\"name\":\"Voyager 80 Expedition Pack\",\"size\":\"S/M\",\"color\":\"grey\",\"qty\":1,\"listPrice\":\"$329.00\",\"discount\":\"$0.00\",\"paid\":\"$329.00\",\"returnedQty\":0}],\"subtotal\":\"$329.00\",\"discount\":\"$0.00\",\"shipping\":\"$0.00\",\"totalPaid\":\"$329.00\",\"refunds\":[]}}",
+      "message 1: get_tracking({\"orderId\":1075}) → {\"ok\":true,\"data\":{\"orderNumber\":1075,\"status\":\"delivered\",\"carrier\":\"Parcelway\",\"trackingNumber\":\"PW0008512925\",\"estimatedDelivery\":null,\"events\":[{\"at\":\"2026-09-09 17:00\",\"status\":\"order_placed\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":null},{\"at\":\"2026-09-10 17:00\",\"status\":\"shipped\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":\"Handed to Parcelway Ground\"},{\"at\":\"2026-09-11 17:00\",\"status\":\"in_transit\",\"location\":\"Salt Lake City, UT\",\"note\":null},{\"at\":\"2026-09-13 12:00\",\"status\":\"out_for_delivery\",\"location\":\"Local delivery station\",\"note\":null},{\"at\":\"2026-09-13 18:00\",\"status\":\"delivered\",\"location\":\"Front door\",\"note\":null}]}}",
+      "message 1: get_policy({\"topic\":\"shipping\"}) → {\"ok\":true,\"data\":{\"topic\":\"shipping\",\"title\":\"Shipping\",\"text\":\"Standard shipping costs $7.99 and is free on orders of $75.00 or more (after discounts).\\nOrders ship from our warehouse within 1–2 business days and arrive 3–6 business days after shipping.\\nWe ship within the United States only.\\nTracking is available once an order has shipped.\\nIf an order is delayed, we refund the shipping cost on request.\"}}",
+      "message 1: issue_goodwill_coupon({\"customer\":\"alex.cohen139@example.com\",\"orderId\":1075,\"percent\":10,\"reason\":\"Package marked delivered but not received\"}) → {\"ok\":true,\"data\":{\"status\":\"pending_approval\",\"approvalId\":94,\"message\":\"No coupon has been issued yet. A 10% goodwill coupon request was sent to a team member for approval.\"},\"policyDecision\":\"queued_for_approval\"}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent says the carrier shows it delivered (Sep 13, front door), passes it to a team member, and doesn't promise a refund or replacement."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 4,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "Tone slightly lacks an apology, but overall professional and helpful."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent explicitly states the tracking shows delivery to the front door on September 13, notes that a team member will review the goodwill coupon request, and does not mention any refund or replacement offer. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only states that a team member will review the coupon request and the customer will be notified, which is a legitimate action by the store and not a promise the agent cannot fulfill. This is allowed per the rule. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": false,
+        "why": "The agent states that a team member will review the goodwill coupon request and you will be notified of the outcome, but no time frame is provided and no policy or tool result specifies how long that review takes. This is an unsupported timing claim. Answer: no.",
+        "votes": [
+          false,
+          false,
+          false
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": false
+  },
+  "calls": [
+    {
+      "purpose": "judge:0",
+      "latencyMs": 1020,
+      "inputTokens": 1147,
+      "outputTokens": 277,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states the tracking shows delivery to the front door on September 13, notes that a team member will review the goodwill coupon request, and does not mention any refund or replacement offer. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1021,
+      "inputTokens": 1214,
+      "outputTokens": 473,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states that a team member will review the coupon request and the customer will be notified, which is a legitimate action that the agent cannot perform but is allowed to mention. No impossible promise is made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1021,
+      "inputTokens": 1203,
+      "outputTokens": 438,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that a team member will review the goodwill coupon request and you will be notified of the outcome, but no time frame is provided and no policy or tool result specifies how long that review takes. This is an unsupported timing claim. Answer: no.\",\"answer\":false}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 1244,
+      "inputTokens": 1447,
+      "outputTokens": 461,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":4,\"clarity\":5,\"helpfulness\":5,\"why\":\"Tone slightly lacks an apology, but overall professional and helpful.\"}]}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 1354,
+      "inputTokens": 1203,
+      "outputTokens": 489,
+      "cached": false,
+      "raw": "{\"why\":\"The agent claims a team member will review the coupon request and the customer will be notified of the outcome, but no time frame is provided and no policy or tool result specifies how long that review takes. This is an unsupported timing claim. Answer: no.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1631,
+      "inputTokens": 1214,
+      "outputTokens": 403,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states that a team member will review the goodwill coupon request and that the customer will be notified of the outcome, which is a legitimate statement about store procedures. The agent does not promise to perform any action beyond its scope in this chat. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 2077,
+      "inputTokens": 1214,
+      "outputTokens": 471,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states that a team member will review the coupon request and the customer will be notified, which is a legitimate action by the store and not a promise the agent cannot fulfill. This is allowed per the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 1335,
+      "inputTokens": 1203,
+      "outputTokens": 554,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that a team member will review the coupon request and you will be notified of the outcome, but no specific time or policy is provided for when this review will occur. This timing claim is not supported by the tool results or store policy. Answer: no.\",\"answer\":false}"
+    }
+  ]
+}

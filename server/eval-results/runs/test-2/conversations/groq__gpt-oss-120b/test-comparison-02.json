@@ -1,0 +1,372 @@
+{
+  "caseId": "test-comparison-02",
+  "case": {
+    "id": "test-comparison-02",
+    "split": "test",
+    "type": "comparison",
+    "why": "Loft Down (800-fill down, 350 g, $199.00) vs Loft Synthetic (synthetic insulation, 400 g, $149.00, 'keeps insulating when wet'). For wet weather the synthetic is the better pick; the down is lighter.",
+    "source": "test batch 4",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "Loft Down or Loft Synthetic jacket for wet, cold weather in the Pacific Northwest?"
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "leaks": [],
+      "judge": "Neither jacket is waterproof; may suggest a rain shell on top. No invented warmth ratings.",
+      "judgeChecks": [
+        "The agent says the Loft Synthetic keeps insulating when wet, which suits wet weather, and that the Loft Down is the lighter of the two."
+      ]
+    }
+  },
+  "agentModel": "groq/gpt-oss-120b",
+  "team": {
+    "router": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "c77a6558-9509-4924-8600-7e4f69b87c9a",
+    "turns": [
+      {
+        "customer": "Loft Down or Loft Synthetic jacket for wet, cold weather in the Pacific Northwest?",
+        "reply": "The only waterproof, insulated jacket we have that meets the wet, cold conditions of the Pacific Northwest is the **Tundra Insulated Parka** (ID jacket‑tundra‑parka). It combines down insulation with a waterproof shell, is rated for -25 °C, has a 15,000 mm waterproof rating, weighs 1,100 g, is rated 4.8 stars, and costs $329.00. We don’t currently have a waterproof synthetic‑loft jacket in our catalog. Let me know if you’d like to see other non‑waterproof synthetic options or need any other assistance.",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Loft Down or Loft Synthetic jacket for wet, cold weather in the Pacific Northwest?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\":\"shopping\",\"category\":\"recommendation\",\"urgency\":\"normal\",\"confidence\":0.99}",
+          "decision": {
+            "route": "shopping",
+            "category": "recommendation",
+            "urgency": "normal",
+            "confidence": 0.99
+          },
+          "fallback": false
+        },
+        "inputTokens": 425,
+        "outputTokens": 133,
+        "latencyMs": 2160,
+        "cached": false,
+        "costMicros": 144,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_c5c0bb5d-1839-4738-8c3c-cc9b7f09670b",
+                "name": "search_products",
+                "arguments": "{\"filters\":{\"category\":\"jackets\",\"maxPrice\":500,\"waterproof\":true},\"limit\":10,\"query\":\"Loft Down\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to recommend either Loft Down or Loft Synthetic jacket for wet, cold weather in Pacific Northwest. Need to search catalog. Use search_products with filters: category jackets, waterproof true maybe, and perhaps warmth. Let's search.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1858,
+        "outputTokens": 112,
+        "latencyMs": 754,
+        "cached": false,
+        "costMicros": 346,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_c5c0bb5d-1839-4738-8c3c-cc9b7f09670b",
+          "name": "search_products",
+          "arguments": "{\"filters\":{\"category\":\"jackets\",\"maxPrice\":500,\"waterproof\":true},\"limit\":10,\"query\":\"Loft Down\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 1,
+              "products": [
+                {
+                  "id": "jacket-tundra-parka",
+                  "name": "Tundra Insulated Parka",
+                  "category": "jackets",
+                  "listPrice": "$329.00",
+                  "currentPrice": "$329.00",
+                  "rating": 4.8,
+                  "description": "Waterproof insulated parka for deep winter.",
+                  "specs": {
+                    "material": "down + waterproof shell",
+                    "waterproof": true,
+                    "tempRatingC": -25,
+                    "weightGrams": 1100,
+                    "waterproofRatingMm": 15000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_3bd686fc-1da3-4c1b-9c83-747963c30f3f",
+                "name": "search_products",
+                "arguments": "{\"filters\":{\"category\":\"jackets\",\"maxPrice\":500,\"waterproof\":true},\"limit\":10,\"query\":\"Loft Synthetic\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to answer: \"Loft Down or Loft Synthetic jacket for wet, cold weather in the Pacific Northwest?\" Customer asking recommendation. We have only one product: Tundra Insulated Parka, which is down + waterproof shell. That seems a loft down jacket. Need to compare to synthetic? No synthetic product in results. We could search again for synthetic.Search for \"Loft Synthetic jacket\".",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2054,
+        "outputTokens": 131,
+        "latencyMs": 1977,
+        "cached": false,
+        "costMicros": 387,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_3bd686fc-1da3-4c1b-9c83-747963c30f3f",
+          "name": "search_products",
+          "arguments": "{\"filters\":{\"category\":\"jackets\",\"maxPrice\":500,\"waterproof\":true},\"limit\":10,\"query\":\"Loft Synthetic\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 0,
+              "products": [],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 3,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_146c1e7b-a2d0-4d9c-86d1-9483df1c3822",
+                "name": "reply",
+                "arguments": "{\"message\":\"The only waterproof, insulated jacket we have that meets the wet, cold conditions of the Pacific Northwest is the **Tundra Insulated Parka** (ID jacket‑tundra‑parka). It combines down insulation with a waterproof shell, is rated for -25 °C, has a 15,000 mm waterproof rating, weighs 1,100 g, is rated 4.8 stars, and costs $329.00. We don’t currently have a waterproof synthetic‑loft jacket in our catalog. Let me know if you’d like to see other non‑waterproof synthetic options or need any other assistance.\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to answer the user: they ask \"Loft Down or Loft Synthetic jacket for wet, cold weather in the Pacific Northwest?\" They want recommendation. We have only one matching jacket: Tundra Insulated Parka, waterproof, down + waterproof shell. No synthetic loft jacket found. We must recommend based on constraints: waterproof, cold, Pacific NW. Provide info about Tundra Insulated Parka: price $329.00, rating 4.8, waterproof rating, temp rating -25C, weight, etc. Also mention we have no synthetic loft jacket matching criteria. Offer to check other options? But per rules, must only state facts from tool results. We can say we only have Tundra Insulated Parka. Provide recommendation: it's down but waterproof shell suitable. If they prefer synthetic, we don't have one; we could suggest we could search again without waterproof maybe, but they'd asked for wet weather. So we can say we have no synthetic loft jacket with waterproof. Provide details.\n\nWe must reply using reply tool.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2145,
+        "outputTokens": 366,
+        "latencyMs": 1866,
+        "cached": false,
+        "costMicros": 541,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_146c1e7b-a2d0-4d9c-86d1-9483df1c3822",
+          "name": "reply",
+          "arguments": "{\"message\":\"The only waterproof, insulated jacket we have that meets the wet, cold conditions of the Pacific Northwest is the **Tundra Insulated Parka** (ID jacket‑tundra‑parka). It combines down insulation with a waterproof shell, is rated for -25 °C, has a 15,000 mm waterproof rating, weighs 1,100 g, is rated 4.8 stars, and costs $329.00. We don’t currently have a waterproof synthetic‑loft jacket in our catalog. Let me know if you’d like to see other non‑waterproof synthetic options or need any other assistance.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "The only waterproof, insulated jacket we have that meets the wet, cold conditions of the Pacific Northwest is the **Tundra Insulated Parka** (ID jacket‑tundra‑parka). It combines down insulation with a waterproof shell, is rated for -25 °C, has a 15,000 mm waterproof rating, weighs 1,100 g, is rated 4.8 stars, and costs $329.00. We don’t currently have a waterproof synthetic‑loft jacket in our catalog. Let me know if you’d like to see other non‑waterproof synthetic options or need any other assistance."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "The only waterproof, insulated jacket we have that meets the wet, cold conditions of the Pacific Northwest is the **Tundra Insulated Parka** (ID jacket‑tundra‑parka). It combines down insulation with a waterproof shell, is rated for -25 °C, has a 15,000 mm waterproof rating, weighs 1,100 g, is rated 4.8 stars, and costs $329.00. We don’t currently have a waterproof synthetic‑loft jacket in our catalog. Let me know if you’d like to see other non‑waterproof synthetic options or need any other assistance."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "shopping",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "test-comparison-02",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to shopping"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent says the Loft Synthetic keeps insulating when wet, which suits wet weather, and that the Loft Down is the lighter of the two."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 4,
+    "cachedCalls": 0,
+    "toolCalls": 2,
+    "inputTokens": 6482,
+    "outputTokens": 742,
+    "latencyMs": 6757,
+    "turnLatencyMs": [
+      6757
+    ],
+    "costMicros": 1418,
+    "wallMs": 6819
+  },
+  "finishedAt": "2026-10-06T14:32:57.726Z"
+}

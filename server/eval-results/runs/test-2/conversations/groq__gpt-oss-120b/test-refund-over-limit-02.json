@@ -1,0 +1,528 @@
+{
+  "caseId": "test-refund-over-limit-02",
+  "case": {
+    "id": "test-refund-over-limit-02",
+    "split": "test",
+    "type": "refund_over_limit",
+    "why": "Boundary, day 15 (calendar days since 2026-10-02): #1087 (Hannah Smith) was delivered 2026-08-31, so a damage report today is one day late (DAMAGE_REPORT_WINDOW_EXPIRED). Under the old 24-hour count it was still inside. The Thicket Fleece cost $69.00, so even in time it would have gone to approval. Escalation required; no refund. No seeded order was delivered exactly 14 days ago, so the in-time side can't be tested.",
+    "source": "boundary case after Julian's calendar-days decision, 2026-10-02",
+    "customer": "hannah.smith24@example.com",
+    "turns": [
+      {
+        "customer": "The Thicket fleece from order #1087 has a big snag and a hole in the sleeve. It was like that when I opened the package. I'd like a refund.",
+        "reply": {
+          "mentions": [
+            [
+              "14 days",
+              "14-day"
+            ]
+          ],
+          "amounts": [],
+          "avoids": []
+        }
+      }
+    ],
+    "expect": {
+      "route": "support",
+      "outcome": "escalated",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "required"
+      },
+      "leaks": [],
+      "judgeChecks": [
+        "The agent says damage must be reported within 14 days of delivery and passes the claim to a team member for review, without promising the refund will be approved."
+      ]
+    }
+  },
+  "agentModel": "groq/gpt-oss-120b",
+  "team": {
+    "router": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "5fc4f800-69d2-48da-8148-cf63f6f44449",
+    "turns": [
+      {
+        "customer": "The Thicket fleece from order #1087 has a big snag and a hole in the sleeve. It was like that when I opened the package. I'd like a refund.",
+        "reply": "I’m sorry the Thicket Fleece Jacket arrived with a snag and a hole. Our policy requires damage to be reported within 14 days of delivery, and this order was delivered 15 days ago, so a refund cannot be processed. \n\nWe have submitted a request for a 5 % goodwill coupon for this order; it is pending approval by a team member and you will be notified by email if it is approved. \n\nIf you would like us to review this further, please let us know. Thank you for your understanding.",
+        "answeredBy": "support",
+        "outcome": "approval_needed"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "The Thicket fleece from order #1087 has a big snag and a hole in the sleeve. It was like that when I opened the package. I'd like a refund."
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\":\"support\",\"category\":\"refunds\",\"urgency\":\"normal\",\"confidence\":0.99}",
+          "decision": {
+            "route": "support",
+            "category": "refunds",
+            "urgency": "normal",
+            "confidence": 0.99
+          },
+          "fallback": false
+        },
+        "inputTokens": 443,
+        "outputTokens": 176,
+        "latencyMs": 2084,
+        "cached": false,
+        "costMicros": 172,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Hannah Smith (hannah.smith24@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_006fffbc-67d0-4326-90d9-c3f5049baa7c",
+                "name": "get_order",
+                "arguments": "{\"orderId\":1087}"
+              }
+            ]
+          },
+          "reasoning": "We need to handle a damaged item claim. Customer Hannah Smith, order #1087, item \"Thicket fleece\". They say it arrived damaged. Need to process refund. Steps: verify order details, check if item is eligible for return? Actually for damaged items we issue refund via issue_refund. Need to confirm amount paid for that item. So first get_order for orderId 1087.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1889,
+        "outputTokens": 111,
+        "latencyMs": 1034,
+        "cached": false,
+        "costMicros": 350,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "fc_006fffbc-67d0-4326-90d9-c3f5049baa7c",
+          "name": "get_order",
+          "arguments": "{\"orderId\":1087}",
+          "result": {
+            "ok": true,
+            "data": {
+              "number": 1087,
+              "status": "delivered",
+              "placed": "2026-08-27",
+              "delivered": "2026-08-31",
+              "items": [
+                {
+                  "productId": "jacket-thicket-fleece",
+                  "name": "Thicket Fleece Jacket",
+                  "size": "M",
+                  "color": "grey",
+                  "qty": 1,
+                  "listPrice": "$69.00",
+                  "discount": "$0.00",
+                  "paid": "$69.00",
+                  "returnedQty": 0
+                },
+                {
+                  "productId": "jacket-breeze-wind",
+                  "name": "Breeze Wind Shell",
+                  "size": "XL",
+                  "color": "yellow",
+                  "qty": 1,
+                  "listPrice": "$89.00",
+                  "discount": "$0.00",
+                  "paid": "$89.00",
+                  "returnedQty": 0
+                }
+              ],
+              "subtotal": "$158.00",
+              "discount": "$0.00",
+              "shipping": "$0.00",
+              "totalPaid": "$158.00",
+              "refunds": []
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Hannah Smith (hannah.smith24@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_c7ff495b-cf90-419c-9c0e-48daa7ac202e",
+                "name": "issue_refund",
+                "arguments": "{\"amount\":69,\"cause\":\"arrived_damaged\",\"item\":\"Thicket Fleece Jacket\",\"note\":\"Snag and hole in sleeve upon opening.\",\"orderId\":1087,\"reason\":\"damaged\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to issue a refund for the Thicket fleece because it arrived damaged (snag and hole). Use issue_refund with amount = paid amount $69.00, cause arrived_damaged, item name maybe \"Thicket Fleece Jacket\", orderId 1087, reason damaged, note optional.\n\nWe need to call issue_refund.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2101,
+        "outputTokens": 152,
+        "latencyMs": 978,
+        "cached": false,
+        "costMicros": 406,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "fc_c7ff495b-cf90-419c-9c0e-48daa7ac202e",
+          "name": "issue_refund",
+          "arguments": "{\"amount\":69,\"cause\":\"arrived_damaged\",\"item\":\"Thicket Fleece Jacket\",\"note\":\"Snag and hole in sleeve upon opening.\",\"orderId\":1087,\"reason\":\"damaged\"}",
+          "result": {
+            "ok": false,
+            "error": {
+              "code": "DAMAGE_REPORT_WINDOW_EXPIRED",
+              "message": "Damage must be reported within 14 days of delivery; this order was delivered 15 days ago. Escalate if the customer disputes this.",
+              "details": {
+                "daysSinceDelivery": 15
+              }
+            },
+            "policyDecision": "denied"
+          }
+        },
+        "policyDecision": "denied",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Hannah Smith (hannah.smith24@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_1d326f74-399c-45a9-8c23-f7a322fc8208",
+                "name": "issue_goodwill_coupon",
+                "arguments": "{\"customer\":\"hannah.smith24@example.com\",\"orderId\":1087,\"percent\":5,\"reason\":\"apology for damaged item reported after window\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to respond: refund denied because report after 14 days. Offer what is possible: can still escalate to human. Also maybe issue goodwill coupon? The policy says can issue goodwill coupon for store-caused problems like damage. The damage was reported after window; but we could offer to escalate or issue goodwill? The tool says denial, we can offer escalation. We should explain brief reason, offer to escalate to human, and perhaps offer goodwill coupon? But we cannot issue coupon without tool; could use issue_goodwill_coupon but that requires reason and percent up to 10. Could we do that? The store can issue a goodwill coupon for store-caused problems; this is store-caused (damaged on arrival). Even though report is late, maybe we can still offer a coupon as goodwill. The policy says up to 10% per 30 days immediate. We could do that. Let's issue a 5% coupon maybe. Use issue_goodwill_coupon.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2227,
+        "outputTokens": 244,
+        "latencyMs": 2247,
+        "cached": false,
+        "costMicros": 480,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "fc_1d326f74-399c-45a9-8c23-f7a322fc8208",
+          "name": "issue_goodwill_coupon",
+          "arguments": "{\"customer\":\"hannah.smith24@example.com\",\"orderId\":1087,\"percent\":5,\"reason\":\"apology for damaged item reported after window\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "status": "pending_approval",
+              "approvalId": 84,
+              "message": "No coupon has been issued yet. A 5% goodwill coupon request was sent to a team member for approval."
+            },
+            "policyDecision": "queued_for_approval"
+          }
+        },
+        "policyDecision": "queued_for_approval",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 4,
+          "context": "The customer is signed in as Hannah Smith (hannah.smith24@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_f040d2e0-96fc-4bce-9069-fc6b2d5a893f",
+                "name": "check_return_eligibility",
+                "arguments": "{\"condition\":\"arrived_damaged\",\"item\":\"Thicket Fleece Jacket\",\"orderId\":1087}"
+              }
+            ]
+          },
+          "reasoning": "We need to respond to the customer: they reported damage but it's beyond 14 days (15 days). Refund denied. We have issued goodwill coupon request pending approval (5%). We must inform them of denial of refund due to policy, and that we have requested a goodwill coupon pending approval. Offer what is possible. Must be brief, acknowledge, give reason, offer possible next steps. Should we also suggest escalation? The tool gave policy decision denied. The guidelines: for denied refund, we can explain reason. We already attempted goodwill coupon; pending approval. Should we tell them the coupon is pending, and they'll be notified? But we can't say \"I'll let you know\". We can say \"A 5% goodwill coupon request has been submitted for approval.\" That's permissible. Also maybe ask if they'd like to proceed with return? But they want refund, we can't. Could offer to return the item? But they have damaged item. Return policy maybe not allowed after window? They could still return? The policy says returns within 30 days maybe; but not asked. Might be okay to mention they could return for refund? The tool didn't check return eligibility. We could check check_return_eligibility for returned condition arrived_damaged? But refund denied due to policy; maybe we can still offer return? However the item is damaged; returns might be allowed within 30 days? It's 15 days after delivery, still within 30 days. Could do returns. But they want refund; we can say they could return for a full refund per returns policy. Should we check eligibility? We can call check_return_eligibility. Let's do that.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2335,
+        "outputTokens": 373,
+        "latencyMs": 1927,
+        "cached": false,
+        "costMicros": 574,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "fc_f040d2e0-96fc-4bce-9069-fc6b2d5a893f",
+          "name": "check_return_eligibility",
+          "arguments": "{\"condition\":\"arrived_damaged\",\"item\":\"Thicket Fleece Jacket\",\"orderId\":1087}",
+          "result": {
+            "ok": true,
+            "data": {
+              "orderNumber": 1087,
+              "item": "Thicket Fleece Jacket",
+              "eligible": false,
+              "code": "USE_DAMAGED_ITEM_PROCESS",
+              "message": "Items that arrived damaged follow the damaged-items process instead of a normal return (report within 14 days of delivery).",
+              "details": {
+                "daysSinceDelivery": 15,
+                "withinDamageWindow": false
+              }
+            },
+            "policyDecision": "denied"
+          }
+        },
+        "policyDecision": "denied",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 5,
+          "context": "The customer is signed in as Hannah Smith (hannah.smith24@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "repaired_0",
+                "name": "reply",
+                "arguments": "{\"message\":\"I’m sorry the Thicket Fleece Jacket arrived with a snag and a hole. Our policy requires damage to be reported within 14 days of delivery, and this order was delivered 15 days ago, so a refund cannot be processed. \\n\\nWe have submitted a request for a 5 % goodwill coupon for this order; it is pending approval by a team member and you will be notified by email if it is approved. \\n\\nIf you would like us to review this further, please let us know. Thank you for your understanding.\"}"
+              }
+            ]
+          },
+          "failedAttempts": [
+            {
+              "status": 400,
+              "code": "tool_use_failed",
+              "message": "{\"error\":{\"message\":\"Failed to parse tool call arguments as JSON\",\"type\":\"invalid_request_error\",\"code\":\"tool_use_failed\",\"failed_generation\":\"{\\\"name\\\": \\\"reply\\\", \\\"arguments\\\": I’m sorry the Thicket Fleece Jacket arrived with a snag and a hole. Our policy requires damage to be reported within 14 ",
+              "failedGeneration": "{\"name\": \"reply\", \"arguments\": I’m sorry the Thicket Fleece Jacket arrived with a snag and a hole. Our policy requires damage to be reported within 14 days of delivery, and this order was delivered 15 days ago, so a refund cannot be processed. \n\nWe have submitted a request for a 5 % goodwill coupon for this order; it is pending approval by a team member and you will be notified by email if it is approved. \n\nIf you would like us to review this further, please let us know. Thank you for your understanding.\"}"
+            }
+          ],
+          "repaired": true,
+          "finishReason": "repaired"
+        },
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "latencyMs": 2346,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "repaired_0",
+          "name": "reply",
+          "arguments": "{\"message\":\"I’m sorry the Thicket Fleece Jacket arrived with a snag and a hole. Our policy requires damage to be reported within 14 days of delivery, and this order was delivered 15 days ago, so a refund cannot be processed. \\n\\nWe have submitted a request for a 5 % goodwill coupon for this order; it is pending approval by a team member and you will be notified by email if it is approved. \\n\\nIf you would like us to review this further, please let us know. Thank you for your understanding.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "I’m sorry the Thicket Fleece Jacket arrived with a snag and a hole. Our policy requires damage to be reported within 14 days of delivery, and this order was delivered 15 days ago, so a refund cannot be processed. \n\nWe have submitted a request for a 5 % goodwill coupon for this order; it is pending approval by a team member and you will be notified by email if it is approved. \n\nIf you would like us to review this further, please let us know. Thank you for your understanding."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "I’m sorry the Thicket Fleece Jacket arrived with a snag and a hole. Our policy requires damage to be reported within 14 days of delivery, and this order was delivered 15 days ago, so a refund cannot be processed. \n\nWe have submitted a request for a 5 % goodwill coupon for this order; it is pending approval by a team member and you will be notified by email if it is approved. \n\nIf you would like us to review this further, please let us know. Thank you for your understanding."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "support",
+    "outcome": "approval_needed",
+    "effects": {
+      "refunds": [],
+      "goodwill": [
+        {
+          "percent": 5,
+          "status": "pending_approval"
+        }
+      ],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "test-refund-over-limit-02",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to support",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to support"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome escalated",
+        "pass": false,
+        "severity": "task",
+        "detail": "outcome approval_needed"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "money_unexpected_queued:0",
+        "label": "no approval requests beyond what the case allows",
+        "pass": false,
+        "severity": "task",
+        "detail": "goodwill coupon: 5%, pending_approval (queued only, nothing issued)"
+      },
+      {
+        "id": "escalation",
+        "label": "escalates to a human",
+        "pass": false,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "reply1:mentions:0",
+        "label": "reply 1 mentions \"14 days\" or \"14-day\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent says damage must be reported within 14 days of delivery and passes the claim to a team member for review, without promising the refund will be approved."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 3
+    },
+    "codeStatus": "fail"
+  },
+  "stats": {
+    "modelCalls": 6,
+    "cachedCalls": 0,
+    "toolCalls": 4,
+    "inputTokens": 8995,
+    "outputTokens": 1056,
+    "latencyMs": 10616,
+    "turnLatencyMs": [
+      10616
+    ],
+    "costMicros": 1982,
+    "wallMs": 10747
+  },
+  "finishedAt": "2026-10-06T14:38:30.803Z"
+}

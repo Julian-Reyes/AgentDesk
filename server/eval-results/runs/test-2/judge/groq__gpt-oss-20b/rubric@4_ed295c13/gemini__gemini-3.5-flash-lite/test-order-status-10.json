@@ -1,0 +1,150 @@
+{
+  "caseId": "test-order-status-10",
+  "runId": "5bca304f-a54e-46b7-ba6f-85f33b00bd10",
+  "questionSet": "0a3f7e93",
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-order-status-10",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Is my order #1134 lost? It's been sitting in Salt Lake City for days.",
+        "reply": "Order #1134 is not lost, but it is currently delayed in Salt Lake City, UT due to weather and volume backlog with the carrier Parcelway. Since shipping on this order was free, there are no shipping charges to refund. Please let me know if you have any other questions!"
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_tracking({\"orderId\":\"1134\"}) → {\"ok\":true,\"data\":{\"orderNumber\":1134,\"status\":\"delayed\",\"carrier\":\"Parcelway\",\"trackingNumber\":\"PW0008980146\",\"estimatedDelivery\":null,\"events\":[{\"at\":\"2026-09-05 14:00\",\"status\":\"order_placed\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":null},{\"at\":\"2026-09-06 14:00\",\"status\":\"shipped\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":\"Handed to Parcelway Ground\"},{\"at\":\"2026-09-07 14:00\",\"status\":\"in_transit\",\"location\":\"Salt Lake City, UT\",\"note\":null},{\"at\":\"2026-09-09 14:00\",\"status\":\"delayed\",\"location\":\"Salt Lake City, UT\",\"note\":\"Carrier delay: weather and volume backlog\"}]}}",
+      "message 1: get_order({\"orderId\":\"1134\"}) → {\"ok\":true,\"data\":{\"number\":1134,\"status\":\"delayed\",\"placed\":\"2026-09-05\",\"delivered\":null,\"items\":[{\"productId\":\"pack-swift-30\",\"name\":\"Swift 30 Daypack\",\"size\":null,\"color\":\"black\",\"qty\":1,\"listPrice\":\"$119.00\",\"discount\":\"$0.00\",\"paid\":\"$119.00\",\"returnedQty\":0}],\"subtotal\":\"$119.00\",\"discount\":\"$0.00\",\"shipping\":\"$0.00\",\"totalPaid\":\"$119.00\",\"refunds\":[]}}",
+      "message 1: get_policy({\"topic\":\"shipping\"}) → {\"ok\":true,\"data\":{\"topic\":\"shipping\",\"title\":\"Shipping\",\"text\":\"Standard shipping costs $7.99 and is free on orders of $75.00 or more (after discounts).\\nOrders ship from our warehouse within 1–2 business days and arrive 3–6 business days after shipping.\\nWe ship within the United States only.\\nTracking is available once an order has shipped.\\nIf an order is delayed, we refund the shipping cost on request.\"}}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent says the order is delayed by the carrier, not lost, and gives no delivery date (the tracking has none)."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "The reply is warm, clear, and fully addresses the customer's concern."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent explicitly states the order is delayed, not lost, and does not provide a delivery date. The tracking data confirms no estimated delivery date. Therefore the statement is accurate.",
+        "noConclusion": 1
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only informs the customer of the delay and confirms no refund is needed; it does not promise future action. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent’s reply contains no explicit timing claims such as arrival dates, shipping times, or refund processing times. Therefore all timing statements (none) trivially match the tool results or policy. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 630,
+      "inputTokens": 1053,
+      "outputTokens": 244,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no claims about when the package will ship, arrive, be refunded, or be reviewed. The only timing-related statement is that the order is currently delayed, which is a status, not a time estimate. Therefore all timing statements (none) are supported by the tool data or policy. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 657,
+      "inputTokens": 1053,
+      "outputTokens": 202,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply contains no explicit timing claims such as arrival dates, shipping times, or refund processing times. Therefore all timing statements (none) trivially match the tool results or policy. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 792,
+      "inputTokens": 1064,
+      "outputTokens": 440,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only informs the customer of the delay and confirms no refund is needed; it does not promise future action. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 860,
+      "inputTokens": 1053,
+      "outputTokens": 296,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no timing claims, so the condition is satisfied. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 872,
+      "inputTokens": 1064,
+      "outputTokens": 380,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply only informs the customer of the delay and confirms no refund is needed; it does not promise future action beyond standard availability. Therefore the statement is true.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 982,
+      "inputTokens": 991,
+      "outputTokens": 228,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states the order is delayed, not lost, and does not provide a delivery date. The tracking data confirms no estimated delivery date. Therefore the statement is accurate.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1120,
+      "inputTokens": 1064,
+      "outputTokens": 441,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only informs the customer of the delay and confirms no refund is needed; it does not promise future action. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 3060,
+      "inputTokens": 1297,
+      "outputTokens": 411,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"The reply is warm, clear, and fully addresses the customer's concern.\"}]}"
+    }
+  ]
+}

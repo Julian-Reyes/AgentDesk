@@ -1,0 +1,148 @@
+{
+  "caseId": "test-returns-05",
+  "runId": "98ea693b-b8d4-4439-9cd4-de3c52660901",
+  "questionSet": "4d425cbd",
+  "agentModel": "groq/gpt-oss-120b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-returns-05",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "One of the two Beacon 500 headlamps from order #1245 stopped charging after a 3-night trip. Can I return it?",
+        "reply": "We’re sorry the headlamp stopped charging. Because the issue occurred after delivery, it isn’t eligible for a return. If this is a manufacturing defect, you can submit a warranty claim; a team member will review it. Let us know if you’d like to start that process. Thanks for understanding."
+      }
+    ],
+    "toolSummary": [
+      "message 1: check_return_eligibility({\"condition\":\"damaged_after_delivery\",\"item\":\"Beacon 500 headlamp\",\"orderId\":1245}) → {\"ok\":true,\"data\":{\"orderNumber\":1245,\"item\":\"Beacon 500 Rechargeable Headlamp\",\"eligible\":false,\"code\":\"DAMAGED_AFTER_DELIVERY\",\"message\":\"Damage that happened after delivery (the item was dropped, had an accident, or broke or stopped working after use) isn't refunded as a damaged item and can't be returned. If it's a manufacturing defect that showed up in normal use, the 1-year warranty may cover it; warranty claims are handled by a team member. Accidental damage, misuse and normal wear aren't covered.\",\"details\":{\"daysSinceDelivery\":10}},\"policyDecision\":\"denied\"}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent explains a used item can't be returned normally, points to the warranty, and passes the claim to a team member without promising a repair, replacement or refund."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "Apologizes, explains return policy, and offers warranty claim, meeting tone, clarity, and helpfulness criteria."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent states the item is not eligible for return, offers a warranty claim, and says a team member will review it, without promising repair, replacement, or refund. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only states that a team member will review the warranty claim, which is a policy statement and not a promise the agent cannot fulfill. This is allowed. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent’s only timing claim is that a team member will review the warranty claim, which aligns with the policy that warranty claims are handled by a team member. No other timing statements are made. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          false
+        ],
+        "noConclusion": 1
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "scores",
+      "latencyMs": 706,
+      "inputTokens": 1021,
+      "outputTokens": 364,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"Apologizes, explains return policy, and offers warranty claim, meeting tone, clarity, and helpfulness criteria.\"}]}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 846,
+      "inputTokens": 723,
+      "outputTokens": 258,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the item is not eligible for return, offers a warranty claim, and says a team member will review it, without promising repair, replacement, or refund. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 675,
+      "inputTokens": 788,
+      "outputTokens": 365,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states that a team member will review the warranty claim, which is permissible. No promise of future action that the agent cannot perform. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 840,
+      "inputTokens": 777,
+      "outputTokens": 331,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that a team member will review the warranty claim, which aligns with the tool result that warranty claims are handled by a team member. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 841,
+      "inputTokens": 777,
+      "outputTokens": 481,
+      "cached": false,
+      "raw": "{\"why\":\"The agent claims a team member will review the warranty claim, but the tool result and policy do not specify when that review will occur. Therefore the timing claim is unsupported.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 893,
+      "inputTokens": 788,
+      "outputTokens": 377,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states that a team member will review the warranty claim, which is a policy statement and not a promise the agent cannot fulfill. This is allowed. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1037,
+      "inputTokens": 777,
+      "outputTokens": 543,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s only timing claim is that a team member will review the warranty claim, which aligns with the policy that warranty claims are handled by a team member. No other timing statements are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1038,
+      "inputTokens": 788,
+      "outputTokens": 404,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states that a team member will review the warranty claim, which is permissible. It does not promise or imply any future action it cannot perform in this chat. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

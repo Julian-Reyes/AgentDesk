@@ -1,0 +1,764 @@
+{
+  "caseId": "test-invalid-coupon-05",
+  "case": {
+    "id": "test-invalid-coupon-05",
+    "split": "test",
+    "type": "invalid_coupon",
+    "why": "GEAR20 excludes sleeping bags and needs $50 on eligible items. In a Harbor Double bag + Firefly Kids Headlamp cart, only the $14.99 headlamp is eligible, so it fails the minimum (MIN_SPEND_NOT_MET), though the cart is $194.98. Total without a code: $194.98, free shipping.",
+    "source": "test batch 2",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "What's the total for a Harbor double sleeping bag and a Firefly kids headlamp with GEAR20?"
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "price": {
+        "cart": [
+          {
+            "productId": "bag-harbor-double",
+            "qty": 1
+          },
+          {
+            "productId": "lamp-firefly-kids",
+            "qty": 1
+          }
+        ],
+        "coupon": "GEAR20",
+        "totalCents": 19498
+      },
+      "coupon": {
+        "code": "GEAR20",
+        "valid": false,
+        "reason": "MIN_SPEND_NOT_MET"
+      },
+      "leaks": [],
+      "judgeChecks": [
+        "The agent explains GEAR20 doesn't apply to the sleeping bag, and that the rest of the cart doesn't reach its $50 minimum."
+      ]
+    }
+  },
+  "agentModel": "groq/gpt-oss-120b",
+  "team": {
+    "router": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "dcf7b973-59aa-4622-82b8-667eca95ca3a",
+    "turns": [
+      {
+        "customer": "What's the total for a Harbor double sleeping bag and a Firefly kids headlamp with GEAR20?",
+        "reply": "The GEAR20 coupon can’t be applied—it requires a $50 minimum spend and excludes sleeping bags. Without the coupon, your subtotal is $194.98, shipping is free, so the total is $194.98. Thanks!",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "What's the total for a Harbor double sleeping bag and a Firefly kids headlamp with GEAR20?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\":\"shopping\",\"category\":\"pricing_deals\",\"urgency\":\"normal\",\"confidence\":0.99}",
+          "decision": {
+            "route": "shopping",
+            "category": "pricing_deals",
+            "urgency": "normal",
+            "confidence": 0.99
+          },
+          "fallback": false
+        },
+        "inputTokens": 429,
+        "outputTokens": 114,
+        "latencyMs": 631,
+        "cached": false,
+        "costMicros": 133,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_4c3dadf9-015a-4c2b-a152-087d92e64a7c",
+                "name": "search_products",
+                "arguments": "{\"limit\":5,\"query\":\"Harbor double sleeping bag\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to quote price for a cart containing Harbor double sleeping bag and Firefly kids headlamp, applying coupon GEAR20.\n\nFirst, need product IDs for these items. Use search_products.\n\n",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1862,
+        "outputTokens": 78,
+        "latencyMs": 397,
+        "cached": false,
+        "costMicros": 326,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_4c3dadf9-015a-4c2b-a152-087d92e64a7c",
+          "name": "search_products",
+          "arguments": "{\"limit\":5,\"query\":\"Harbor double sleeping bag\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 9,
+              "products": [
+                {
+                  "id": "bag-harbor-double",
+                  "name": "Harbor 3°C Double Sleeping Bag",
+                  "category": "sleeping_bags",
+                  "listPrice": "$179.99",
+                  "currentPrice": "$179.99",
+                  "rating": 4.3,
+                  "description": "Two-person rectangular bag for car camping couples.",
+                  "specs": {
+                    "material": "synthetic fill",
+                    "tempRatingC": 3,
+                    "weightGrams": 2800,
+                    "capacityPersons": 2
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "bag-glacier-minus20",
+                  "name": "Glacier -20°C Expedition Sleeping Bag",
+                  "category": "sleeping_bags",
+                  "listPrice": "$499.00",
+                  "currentPrice": "$499.00",
+                  "rating": 4.9,
+                  "description": "Expedition-grade bag with 800-fill down and a draft collar.",
+                  "specs": {
+                    "material": "800-fill down",
+                    "tempRatingC": -20,
+                    "weightGrams": 1900
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "bag-ember-0",
+                  "name": "Ember 0°C Down Sleeping Bag",
+                  "category": "sleeping_bags",
+                  "listPrice": "$259.00",
+                  "currentPrice": "$259.00",
+                  "rating": 4.7,
+                  "description": "Three-season mummy bag with 650-fill responsibly sourced down.",
+                  "specs": {
+                    "material": "650-fill down",
+                    "tempRatingC": 0,
+                    "weightGrams": 850
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "bag-ember-minus10",
+                  "name": "Ember -10°C Down Sleeping Bag",
+                  "category": "sleeping_bags",
+                  "listPrice": "$349.00",
+                  "currentPrice": "$349.00",
+                  "rating": 4.7,
+                  "description": "Warmer version of the Ember for shoulder-season and early winter trips.",
+                  "specs": {
+                    "material": "650-fill down",
+                    "tempRatingC": -10,
+                    "weightGrams": 1150
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "bag-nightjar-quilt",
+                  "name": "Nightjar 2°C Down Quilt",
+                  "category": "sleeping_bags",
+                  "listPrice": "$229.00",
+                  "currentPrice": "$229.00",
+                  "rating": 4.6,
+                  "description": "Hoodless down quilt with pad straps, popular with ultralight hikers.",
+                  "specs": {
+                    "material": "800-fill down",
+                    "tempRatingC": 2,
+                    "weightGrams": 650
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_6142cbe4-1f04-4e43-851f-5bb3e4b25da8",
+                "name": "search_products",
+                "arguments": "{\"limit\":5,\"query\":\"Firefly kids headlamp\"}"
+              }
+            ]
+          },
+          "reasoning": "We need total for Harbor double sleeping bag (product id bag-harbor-double) and Firefly kids headlamp (need to search). Also apply coupon GEAR20. First, find the headlamp.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2413,
+        "outputTokens": 73,
+        "latencyMs": 489,
+        "cached": false,
+        "costMicros": 406,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_6142cbe4-1f04-4e43-851f-5bb3e4b25da8",
+          "name": "search_products",
+          "arguments": "{\"limit\":5,\"query\":\"Firefly kids headlamp\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 11,
+              "products": [
+                {
+                  "id": "lamp-firefly-kids",
+                  "name": "Firefly Kids Headlamp",
+                  "category": "headlamps",
+                  "listPrice": "$14.99",
+                  "currentPrice": "$14.99",
+                  "rating": 4.3,
+                  "description": "Low-power kids' headlamp with a soft strap.",
+                  "specs": {
+                    "lumens": 100,
+                    "waterproof": false,
+                    "weightGrams": 50,
+                    "burnTimeMinutes": 1500
+                  },
+                  "availability": "low_stock",
+                  "activeDeals": [
+                    "Headlamps: buy 2, get 1 free"
+                  ]
+                },
+                {
+                  "id": "lamp-beacon-900",
+                  "name": "Beacon 900 Rechargeable Headlamp",
+                  "category": "headlamps",
+                  "listPrice": "$79.00",
+                  "currentPrice": "$79.00",
+                  "rating": 4.7,
+                  "description": "High-output rechargeable headlamp with a rear battery pack.",
+                  "specs": {
+                    "lumens": 900,
+                    "waterproof": true,
+                    "weightGrams": 140,
+                    "burnTimeMinutes": 900
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Headlamps: buy 2, get 1 free"
+                  ]
+                },
+                {
+                  "id": "lamp-beacon-500",
+                  "name": "Beacon 500 Rechargeable Headlamp",
+                  "category": "headlamps",
+                  "listPrice": "$49.00",
+                  "currentPrice": "$49.00",
+                  "rating": 4.6,
+                  "description": "USB-C rechargeable headlamp with a lock mode.",
+                  "specs": {
+                    "lumens": 500,
+                    "waterproof": true,
+                    "weightGrams": 86,
+                    "burnTimeMinutes": 1200
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Headlamps: buy 2, get 1 free"
+                  ]
+                },
+                {
+                  "id": "lamp-stride-400",
+                  "name": "Stride 400 Running Headlamp",
+                  "category": "headlamps",
+                  "listPrice": "$59.00",
+                  "currentPrice": "$59.00",
+                  "rating": 4.5,
+                  "description": "Bounce-free headlamp for trail running.",
+                  "specs": {
+                    "lumens": 400,
+                    "waterproof": true,
+                    "weightGrams": 60,
+                    "burnTimeMinutes": 600
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Headlamps: buy 2, get 1 free"
+                  ]
+                },
+                {
+                  "id": "bag-sprout-kids",
+                  "name": "Sprout 5°C Kids Sleeping Bag",
+                  "category": "sleeping_bags",
+                  "listPrice": "$49.00",
+                  "currentPrice": "$49.00",
+                  "rating": 4.4,
+                  "description": "Kid-sized synthetic bag for children up to 150 cm tall.",
+                  "specs": {
+                    "material": "synthetic fill",
+                    "tempRatingC": 5,
+                    "weightGrams": 900
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 3,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_fa93d462-0540-4740-a976-f5bfef10efc8",
+                "name": "validate_coupon",
+                "arguments": "{\"cart\":[{\"productId\":\"bag-harbor-double\",\"qty\":1},{\"productId\":\"lamp-firefly-kids\",\"qty\":1}],\"code\":\"GEAR20\"}"
+              }
+            ]
+          },
+          "reasoning": "We need total for these two items with coupon GEAR20. Need to use quote_price with cart: productId bag-harbor-double qty1, lamp-firefly-kids qty1, coupon \"GEAR20\". But we should first check if coupon is valid. Use validate_coupon.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3003,
+        "outputTokens": 132,
+        "latencyMs": 1085,
+        "cached": false,
+        "costMicros": 530,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_fa93d462-0540-4740-a976-f5bfef10efc8",
+          "name": "validate_coupon",
+          "arguments": "{\"cart\":[{\"productId\":\"bag-harbor-double\",\"qty\":1},{\"productId\":\"lamp-firefly-kids\",\"qty\":1}],\"code\":\"GEAR20\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "valid": false,
+              "code": "GEAR20",
+              "reason": "MIN_SPEND_NOT_MET",
+              "message": "Coupon GEAR20 needs a minimum spend of $50.00 on eligible items; the cart has $14.99.",
+              "minSpend": "$50.00",
+              "eligibleSubtotal": "$14.99",
+              "shortBy": "$35.01",
+              "excludedCategories": [
+                "tents",
+                "sleeping_bags"
+              ]
+            },
+            "policyDecision": "denied"
+          }
+        },
+        "policyDecision": "denied",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 4,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_1adbfc85-9fe3-46b1-96f5-17a3d7f17fa5",
+                "name": "validate_coupon",
+                "arguments": "{\"cart\":[{\"productId\":\"bag-harbor-double\",\"qty\":1},{\"productId\":\"lamp-firefly-kids\",\"qty\":1}],\"code\":\"GEAR20\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to correct the JSON for validate_coupon. The required fields: cart is array of objects each with productId string and qty number. The coupon code string. The earlier call had proper JSON? It had {\"cart\":[...],\"code\":\"GEAR20\"} which is valid JSON. But the system says it's not valid. Maybe need to wrap with top-level object? Already is. Possibly need to include \"cart\": [...], \"code\":\"GEAR20\". That seems fine. Maybe the tool expects property names exactly as defined: \"cart\" and \"code\". That is correct. Maybe the issue is missing quotes around productId? They have. Possibly the tool requires \"productId\" and \"qty\" as numbers, ok. Might need to ensure no extra spaces? Not. Could be that the tool expects a JSON object without surrounding whitespace? Not.\n\nLet's try again but ensure proper JSON formatting.",
+          "failedAttempts": [
+            {
+              "status": 400,
+              "code": "tool_use_failed",
+              "message": "{\"error\":{\"message\":\"Tool call validation failed: tool call validation failed: parameters for tool quote_price did not match schema: errors: [`/coupon`: expected string, but got null]\",\"type\":\"invalid_request_error\",\"code\":\"tool_use_failed\",\"failed_generation\":\"{\\\"name\\\": \\\"quote_price\\\", \\\"argument",
+              "failedGeneration": "{\"name\": \"quote_price\", \"arguments\": {\"cart\":[{\"productId\":\"bag-harbor-double\",\"qty\":1},{\"productId\":\"lamp-firefly-kids\",\"qty\":1}],\"coupon\":null}}"
+            }
+          ],
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3197,
+        "outputTokens": 265,
+        "latencyMs": 1135,
+        "cached": false,
+        "costMicros": 639,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_1adbfc85-9fe3-46b1-96f5-17a3d7f17fa5",
+          "name": "validate_coupon",
+          "arguments": "{\"cart\":[{\"productId\":\"bag-harbor-double\",\"qty\":1},{\"productId\":\"lamp-firefly-kids\",\"qty\":1}],\"code\":\"GEAR20\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "valid": false,
+              "code": "GEAR20",
+              "reason": "MIN_SPEND_NOT_MET",
+              "message": "Coupon GEAR20 needs a minimum spend of $50.00 on eligible items; the cart has $14.99.",
+              "minSpend": "$50.00",
+              "eligibleSubtotal": "$14.99",
+              "shortBy": "$35.01",
+              "excludedCategories": [
+                "tents",
+                "sleeping_bags"
+              ]
+            },
+            "policyDecision": "denied"
+          }
+        },
+        "policyDecision": "denied",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 5,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_6ba035f7-b024-4f8b-9ed1-83cdbee30d1b",
+                "name": "quote_price",
+                "arguments": "{\"cart\":[{\"productId\":\"bag-harbor-double\",\"qty\":1},{\"productId\":\"lamp-firefly-kids\",\"qty\":1}]}"
+              }
+            ]
+          },
+          "reasoning": "We need to give total for those items with coupon GEAR20. The coupon is invalid (MIN_SPEND_NOT_MET). We should explain why, then quote price without coupon (or maybe with coupon not applied). The user asked \"What's the total for a Harbor double sleeping bag and a Firefly kids headlamp with GEAR20?\" So we need to provide total for cart applying GEAR20 but it's invalid, so we must explain it's not applied, then give total without coupon (or we can say cannot apply). Need to get quote_price for cart without coupon. Let's do that.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3305,
+        "outputTokens": 176,
+        "latencyMs": 1188,
+        "cached": false,
+        "costMicros": 601,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_6ba035f7-b024-4f8b-9ed1-83cdbee30d1b",
+          "name": "quote_price",
+          "arguments": "{\"cart\":[{\"productId\":\"bag-harbor-double\",\"qty\":1},{\"productId\":\"lamp-firefly-kids\",\"qty\":1}]}",
+          "result": {
+            "ok": true,
+            "data": {
+              "lines": [
+                {
+                  "productId": "bag-harbor-double",
+                  "name": "Harbor 3°C Double Sleeping Bag",
+                  "qty": 1,
+                  "listPrice": "$179.99",
+                  "discounts": [],
+                  "lineTotal": "$179.99"
+                },
+                {
+                  "productId": "lamp-firefly-kids",
+                  "name": "Firefly Kids Headlamp",
+                  "qty": 1,
+                  "listPrice": "$14.99",
+                  "discounts": [],
+                  "lineTotal": "$14.99"
+                }
+              ],
+              "subtotal": "$194.98",
+              "coupon": null,
+              "totalDiscounts": "$0.00",
+              "shipping": "FREE",
+              "total": "$194.98",
+              "totalCents": 19498
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 6,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_b20cd6cc-8806-49d2-a798-1149c300017d",
+                "name": "reply",
+                "arguments": "{\"message\":\"The GEAR20 coupon can’t be applied—it requires a $50 minimum spend and excludes sleeping bags. Without the coupon, your subtotal is $194.98, shipping is free, so the total is $194.98. Thanks!\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to answer the user: \"What's the total for a Harbor double sleeping bag and a Firefly kids headlamp with GEAR20?\" We have validated coupon GEAR20 and found it's not valid because min spend not met and excluded categories. We must explain why coupon invalid, then give total without coupon, which we have from quote_price: $194.98, shipping free.\n\nWe must respond using reply tool, short friendly, include total. Must mention coupon invalid reason briefly, then give total. Use exact amounts as returned. No emojis.\n\nLet's craft message: \"The GEAR20 coupon can't be applied because it requires a minimum spend of $50 and excludes sleeping bags. Without the coupon, your cart subtotal is $194.98 and shipping is free, so the total is $194.98.\" End warmly.\n\nNow send reply.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3490,
+        "outputTokens": 241,
+        "latencyMs": 2135,
+        "cached": false,
+        "costMicros": 668,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_b20cd6cc-8806-49d2-a798-1149c300017d",
+          "name": "reply",
+          "arguments": "{\"message\":\"The GEAR20 coupon can’t be applied—it requires a $50 minimum spend and excludes sleeping bags. Without the coupon, your subtotal is $194.98, shipping is free, so the total is $194.98. Thanks!\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "The GEAR20 coupon can’t be applied—it requires a $50 minimum spend and excludes sleeping bags. Without the coupon, your subtotal is $194.98, shipping is free, so the total is $194.98. Thanks!"
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "The GEAR20 coupon can’t be applied—it requires a $50 minimum spend and excludes sleeping bags. Without the coupon, your subtotal is $194.98, shipping is free, so the total is $194.98. Thanks!"
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "shopping",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "test-invalid-coupon-05",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to shopping"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "price_quoted",
+        "label": "quote_price for bag-harbor-double×1,lamp-firefly-kids×1 with or without GEAR20, or with a valid alternative code",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "price_stated",
+        "label": "reply 1 states $194.98",
+        "pass": true,
+        "severity": "task",
+        "detail": "amounts in reply: $50.00, $194.98, $194.98"
+      },
+      {
+        "id": "coupon",
+        "label": "checks GEAR20 (MIN_SPEND_NOT_MET)",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "coupon_suggestions_checked",
+        "label": "any other code it mentions was checked for this cart by a tool",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent explains GEAR20 doesn't apply to the sleeping bag, and that the rest of the cart doesn't reach its $50 minimum."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 7,
+    "cachedCalls": 0,
+    "toolCalls": 5,
+    "inputTokens": 17699,
+    "outputTokens": 1079,
+    "latencyMs": 7060,
+    "turnLatencyMs": [
+      7060
+    ],
+    "costMicros": 3303,
+    "wallMs": 8809
+  },
+  "finishedAt": "2026-10-06T14:41:23.407Z"
+}

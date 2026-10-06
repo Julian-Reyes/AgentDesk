@@ -1,0 +1,151 @@
+{
+  "caseId": "test-stock-02",
+  "runId": "61cdf709-fea2-4747-ae01-58c6faa3f960",
+  "questionSet": "7c25e0a6",
+  "agentModel": "groq/gpt-oss-120b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-stock-02",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Is the Scree Trail Runner available in size 12, orange?",
+        "reply": "The Scree Trail Runner in size 12, orange is currently out of stock. Let me know if you'd like to see a similar model or be notified when it’s back in stock."
+      }
+    ],
+    "toolSummary": [
+      "message 1: search_products({\"limit\":5,\"query\":\"Scree Trail Runner\"}) → {\"ok\":true,\"data\":{\"totalMatches\":3,\"products\":[{\"id\":\"boot-scree-runner\",\"name\":\"Scree Trail Runner\",\"category\":\"boots\",\"listPrice\":\"$119.00\",\"currentPrice\":\"$119.00\",\"rating\":4.3,\"description\":\"Breathable, quick-drying trail running shoe.\",\"specs\":{\"material\":\"mesh\",\"waterproof\":false,\"weightGrams\":600},\"availability\":\"in_stock\",\"activeDeals\":[]},{\"id\":\"lamp-stride-400\",\"name\":\"Stride 400 Running Headlamp\",\"category\":\"headlamps\",\"listPrice\":\"$59.00\",\"currentPrice\":\"$59.00\",\"rating\":4.5,\"description\":\"Bounce-free headlamp for trail running.\",\"specs\":{\"lumens\":400,\"waterproof\":true,\"weightGrams\":60,\"burnTimeMinutes\":600},\"availability\":\"in_stock\",\"activeDeals\":[\"Headlamps: buy 2, get 1 free\"]},{\"id\":\"tent-canopy-2\",\"name\":\"Canopy 2 Trail Tent\",\"category\":\"tents\",\"listPrice\":\"$189.00\",\"currentPrice\":\"$151.20\",\"rating\":4.5,\"description\":\"Lightweight two-person trail tent with a full-coverage fly.\",\"specs\":{\"seasons\":3,\"material\":\"20D ripstop polyester\",\"waterproof\":true,\"weightGrams\":2000,\"capacityPersons\":2,\"waterproofRatingMm\":2500},\"availability\":\"in_stock\",\"activeDeals\":[\"Tent Sale: 20% off all tents\"]}],\"note\":\"currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping.\"}}",
+      "message 1: check_stock({\"color\":\"orange\",\"productId\":\"boot-scree-runner\",\"size\":\"12\"}) → {\"ok\":true,\"data\":{\"product\":\"Scree Trail Runner\",\"variants\":[{\"size\":\"12\",\"color\":\"orange\",\"inStock\":false,\"unitsAvailable\":0,\"availability\":\"out_of_stock\"}]}}"
+    ],
+    "judgeNote": "Says 12/orange is out, offers 12 in blue (only 2 left). No restock date.",
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "Any alternative the agent offers (another color, size or product) is in stock according to the tool results."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 4,
+        "why": "The reply clearly states the item is out of stock and offers alternatives, but it could improve by specifying a similar variant."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": false,
+        "why": "The agent did not propose any specific alternative product, color, or size, so the claim that any offered alternative is in stock cannot be verified as true. Answer: no."
+      },
+      {
+        "id": "judge:followup",
+        "answer": false,
+        "why": "The agent offers to notify the customer when the item is back in stock, which is a promise of future action that the agent cannot perform in this chat. This violates the rule.",
+        "votes": [
+          false,
+          false,
+          false
+        ],
+        "noConclusion": 1
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent made no timing claims in the reply, so the condition is satisfied.",
+        "votes": [
+          false,
+          true,
+          true
+        ],
+        "noConclusion": 1
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": false,
+    "judge:followup": false,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 494,
+      "inputTokens": 1047,
+      "outputTokens": 115,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no timing claims in the reply, so the condition is satisfied.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 593,
+      "inputTokens": 1047,
+      "outputTokens": 106,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no timing claims in the reply. Therefore the statement about timing matches the conversation (none). Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 711,
+      "inputTokens": 982,
+      "outputTokens": 378,
+      "cached": false,
+      "raw": "{\"why\":\"The agent did not propose any specific alternative product, color, or size, so the claim that any offered alternative is in stock cannot be verified as true. Answer: no.\",\"answer\":false}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 828,
+      "inputTokens": 1291,
+      "outputTokens": 425,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":4,\"why\":\"The reply clearly states the item is out of stock and offers alternatives, but it could improve by specifying a similar variant.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 999,
+      "inputTokens": 1058,
+      "outputTokens": 425,
+      "cached": false,
+      "raw": "{\"why\":\"The agent says it will notify the customer when the item is back in stock, which is a promise it cannot fulfill within this chat. This violates the rule that the agent must not promise or imply future actions it cannot perform. Answer: no.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1489,
+      "inputTokens": 1058,
+      "outputTokens": 387,
+      "cached": false,
+      "raw": "{\"why\":\"The agent offered to notify the customer when the item is back in stock, which is a promise the agent cannot fulfill in this chat. This violates the rule that the agent must not promise or imply future actions it cannot perform. Answer: no.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1843,
+      "inputTokens": 1047,
+      "outputTokens": 394,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that the item will be back in stock and offers to notify the customer, which is a vague timing claim not supported by any tool result or policy. Therefore the statement about timing does not match a known result or policy. Answer: no.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 3914,
+      "inputTokens": 1058,
+      "outputTokens": 427,
+      "cached": false,
+      "raw": "{\"why\":\"The agent offers to notify the customer when the item is back in stock, which is a promise of future action that the agent cannot perform in this chat. This violates the rule.\",\"answer\":false}"
+    }
+  ]
+}

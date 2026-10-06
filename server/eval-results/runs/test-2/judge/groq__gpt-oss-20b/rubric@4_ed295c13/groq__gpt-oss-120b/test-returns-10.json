@@ -1,0 +1,180 @@
+{
+  "caseId": "test-returns-10",
+  "runId": "aa779717-329a-4ee0-a5ca-7d32b89c0e2e",
+  "questionSet": "d4e437af",
+  "agentModel": "groq/gpt-oss-120b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-returns-10",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "I want to return the Scree Trail Runners from order #1180, they're unworn.",
+        "reply": "Your Scree Trail Runners from order #1180 are eligible for a return. Please use the return label in your account to send the item back in its original packaging. The warehouse will issue the refund when it receives the item, which must be received by 2026-10-07. Thanks for reaching out!"
+      },
+      {
+        "turn": 2,
+        "customer": "Can you just refund me now? I'll drop the box in the mail this week, promise.",
+        "reply": "I’m sorry, but we can’t issue a refund until the warehouse receives the returned Scree Trail Runners. Please use the return label in your account to ship the box back, and the refund will be processed when the item is received. Thank you for your understanding."
+      }
+    ],
+    "toolSummary": [
+      "message 1: check_return_eligibility({\"condition\":\"unused\",\"item\":\"Scree Trail Runners\",\"orderId\":1180}) → {\"ok\":true,\"data\":{\"orderNumber\":1180,\"item\":\"Scree Trail Runner\",\"eligible\":true,\"code\":\"ELIGIBLE\",\"message\":\"Eligible for return until 2026-10-07, provided the item is unused and in its original packaging. The refund is issued when the warehouse receives it.\",\"returnBy\":\"2026-10-07\",\"conditionRequired\":\"unused, original packaging\"},\"policyDecision\":\"auto_approved\"}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent declines to refund before the warehouse receives the shoes, and doesn't hint that an exception might be made."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": [
+      {
+        "id": "script:2",
+        "turn": 2,
+        "assumes": "the agent said the shoes can be returned and explained how"
+      }
+    ]
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "Clear, friendly, and fully addresses the return process."
+      },
+      {
+        "reply": 2,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "Polite explanation and next steps for refund after return."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent explicitly states that a refund cannot be issued until the warehouse receives the returned item and does not mention any possibility of an exception. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only states that the warehouse will issue the refund when it receives the item, which is a factual statement of policy, not a promise of future action that the agent cannot perform in this chat. Therefore the agent does not promise or imply any future action beyond what the policy states. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "All timing statements in the agent’s replies match the tool result and store policy: the return is eligible until 2026-10-07, and refunds are issued only after the warehouse receives the item. No unsupported vague timing is used. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": [
+      {
+        "id": "script:2",
+        "answer": true,
+        "why": "Agent reply 1 states the shoes are eligible for return and explains that the customer should use the return label, ship the item in its original packaging, and that the refund will be issued once the warehouse receives it. This matches the assumption that the agent said the shoes can be returned and explained how. Answer: yes."
+      }
+    ]
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true,
+    "script:2": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:0",
+      "latencyMs": 713,
+      "inputTokens": 753,
+      "outputTokens": 263,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states that a refund cannot be issued until the warehouse receives the returned item and does not mention any possibility of an exception. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1122,
+      "inputTokens": 829,
+      "outputTokens": 617,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states that the warehouse will issue the refund upon receipt, which is a factual statement and not a promise the agent cannot fulfill. No future action is implied that the agent cannot perform in this chat. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1122,
+      "inputTokens": 818,
+      "outputTokens": 325,
+      "cached": false,
+      "raw": "{\"why\":\"All timing statements in the agent’s replies match the tool result and store policy: the return is eligible until 2026-10-07, and refunds are issued only after the warehouse receives the item. No unsupported vague timing is used. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 1122,
+      "inputTokens": 818,
+      "outputTokens": 326,
+      "cached": false,
+      "raw": "{\"why\":\"All timing statements in the agent’s replies are supported by the tool result: the return is eligible until 2026-10-07 and the refund is issued only when the warehouse receives the item. No vague or unsupported timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 1223,
+      "inputTokens": 1065,
+      "outputTokens": 387,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"Clear, friendly, and fully addresses the return process.\"},{\"reply\":2,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"Polite explanation and next steps for refund after return.\"}]}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 1270,
+      "inputTokens": 818,
+      "outputTokens": 324,
+      "cached": false,
+      "raw": "{\"why\":\"All timing statements in the agent’s replies match the tool result (eligible until 2026-10-07) and the policy that refunds are issued only after the warehouse receives the item. No vague or unsupported timing claims are present. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "script:2",
+      "latencyMs": 1363,
+      "inputTokens": 758,
+      "outputTokens": 295,
+      "cached": false,
+      "raw": "{\"why\":\"Agent reply 1 states the shoes are eligible for return and explains that the customer should use the return label, ship the item in its original packaging, and that the refund will be issued once the warehouse receives it. This matches the assumption that the agent said the shoes can be returned and explained how. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1449,
+      "inputTokens": 829,
+      "outputTokens": 557,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states that the warehouse will issue the refund when it receives the item, which is a factual statement about store policy, not a promise the agent will personally act on later. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 2044,
+      "inputTokens": 829,
+      "outputTokens": 570,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states that the warehouse will issue the refund when it receives the item, which is a factual statement of policy, not a promise of future action that the agent cannot perform in this chat. Therefore the agent does not promise or imply any future action beyond what the policy states. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

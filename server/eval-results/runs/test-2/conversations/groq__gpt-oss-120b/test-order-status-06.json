@@ -1,0 +1,425 @@
+{
+  "caseId": "test-order-status-06",
+  "case": {
+    "id": "test-order-status-06",
+    "split": "test",
+    "type": "order_status",
+    "why": "#1205 (Omar Kowalski, Breeze Wind Shell) is in transit; the carrier's estimate is Sep 15–18 (Saturday is Sep 19). The agent can give the estimate but mustn't guarantee arrival by Saturday.",
+    "source": "test batch 2",
+    "customer": "omar.kowalski183@example.com",
+    "turns": [
+      {
+        "customer": "Will order #1205 get here by Saturday? I need the jacket for a trip.",
+        "reply": {
+          "mentions": [
+            [
+              "September 18",
+              "Sep 18",
+              "Sept 18",
+              "9/18",
+              "2026-09-18"
+            ]
+          ],
+          "amounts": [],
+          "avoids": []
+        }
+      }
+    ],
+    "expect": {
+      "route": "support",
+      "outcome": "resolved",
+      "tools": {
+        "required": [
+          {
+            "tool": "get_tracking",
+            "args": {
+              "orderId": 1205
+            }
+          }
+        ],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "leaks": [],
+      "judgeChecks": [
+        "The agent gives the carrier's estimate (Sep 15–18) and doesn't guarantee that the jacket will arrive by Saturday."
+      ]
+    }
+  },
+  "agentModel": "groq/gpt-oss-120b",
+  "team": {
+    "router": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "644636db-8171-4abf-b170-eab66e0fd3d6",
+    "turns": [
+      {
+        "customer": "Will order #1205 get here by Saturday? I need the jacket for a trip.",
+        "reply": "Your order #1205 is currently shipped and the carrier estimates delivery between September 15 and September 18, 2026. That window does not include Saturday, so it may not arrive by then. You can continue to monitor the tracking number PW0009542395 for updates. Let me know if I can help with anything else.",
+        "answeredBy": "support",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Will order #1205 get here by Saturday? I need the jacket for a trip."
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\":\"support\",\"category\":\"order_status\",\"urgency\":\"high\",\"confidence\":0.99}",
+          "decision": {
+            "route": "support",
+            "category": "order_status",
+            "urgency": "high",
+            "confidence": 0.99
+          },
+          "fallback": false
+        },
+        "inputTokens": 426,
+        "outputTokens": 128,
+        "latencyMs": 1556,
+        "cached": false,
+        "costMicros": 141,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Omar Kowalski (omar.kowalski183@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_604d7b3b-03a5-41f7-a1fd-3627b96bcc6e",
+                "name": "get_order",
+                "arguments": "{\"orderId\":1205}"
+              }
+            ]
+          },
+          "reasoning": "We need to check order #1205 status and tracking, see estimated delivery. Use get_order first maybe to see status, then get_tracking for ETA. Let's call get_order with orderId 1205.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1875,
+        "outputTokens": 72,
+        "latencyMs": 2088,
+        "cached": false,
+        "costMicros": 324,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "fc_604d7b3b-03a5-41f7-a1fd-3627b96bcc6e",
+          "name": "get_order",
+          "arguments": "{\"orderId\":1205}",
+          "result": {
+            "ok": true,
+            "data": {
+              "number": 1205,
+              "status": "shipped",
+              "placed": "2026-09-11",
+              "delivered": null,
+              "items": [
+                {
+                  "productId": "jacket-breeze-wind",
+                  "name": "Breeze Wind Shell",
+                  "size": "L",
+                  "color": "yellow",
+                  "qty": 1,
+                  "listPrice": "$89.00",
+                  "discount": "$0.00",
+                  "paid": "$89.00",
+                  "returnedQty": 0
+                }
+              ],
+              "subtotal": "$89.00",
+              "discount": "$0.00",
+              "shipping": "$0.00",
+              "totalPaid": "$89.00",
+              "refunds": []
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Omar Kowalski (omar.kowalski183@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_2509bcd4-b029-4e8d-b5e1-09a1be13a121",
+                "name": "get_tracking",
+                "arguments": "{\"orderId\":1205}"
+              }
+            ]
+          },
+          "reasoning": "We have order 1205, status shipped, placed Sep 11, 2026. No delivered date yet. Need tracking. Use get_tracking.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2025,
+        "outputTokens": 52,
+        "latencyMs": 1647,
+        "cached": false,
+        "costMicros": 335,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "fc_2509bcd4-b029-4e8d-b5e1-09a1be13a121",
+          "name": "get_tracking",
+          "arguments": "{\"orderId\":1205}",
+          "result": {
+            "ok": true,
+            "data": {
+              "orderNumber": 1205,
+              "status": "shipped",
+              "carrier": "Parcelway",
+              "trackingNumber": "PW0009542395",
+              "estimatedDelivery": "2026-09-15 to 2026-09-18",
+              "events": [
+                {
+                  "at": "2026-09-11 14:00",
+                  "status": "order_placed",
+                  "location": "Larchgrove Warehouse, Reno, NV",
+                  "note": null
+                },
+                {
+                  "at": "2026-09-12 14:00",
+                  "status": "shipped",
+                  "location": "Larchgrove Warehouse, Reno, NV",
+                  "note": "Handed to Parcelway Ground"
+                },
+                {
+                  "at": "2026-09-13 14:00",
+                  "status": "in_transit",
+                  "location": "Dallas, TX",
+                  "note": null
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Omar Kowalski (omar.kowalski183@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_f62c561a-73a4-4cf3-8098-912a254091db",
+                "name": "reply",
+                "arguments": "{\"message\":\"Your order #1205 is currently shipped and the carrier estimates delivery between September 15 and September 18, 2026. That window does not include Saturday, so it may not arrive by then. You can continue to monitor the tracking number PW0009542395 for updates. Let me know if I can help with anything else.\"}"
+              }
+            ]
+          },
+          "reasoning": "We have order #1205, status shipped, estimated delivery 2026-09-15 to 2026-09-18. The customer asks: \"Will order #1205 get here by Saturday? I need the jacket for a trip.\"\n\nWe need to answer based on the estimated delivery range. We need to check what day is Saturday relative to current date? The current date is 2026-10-06 (given). However the order's estimated delivery is Sep 15-18 2026. That range includes a Saturday? Let's see: 2026-09-15 is a Tuesday? Let's quickly calculate: 2026-09-01 is a Tuesday (since 2026 is not a leap year? Actually 2024 was a leap year, 2025 not, 2026 not. Let's approximate: 2026-09-01 day-of-week? Not needed; we can just say based on estimate the range includes Saturday? Let's check: September 2026 calendar: September 1, 2026 is Tuesday? Actually 2026-09-01 is Tuesday (I think). Then 2026-09-04 is Friday, 2026-09-05 Saturday, 2026-09-06 Sunday, etc. So 2026-09-15 is Thursday? Wait let's compute: If Sep 1 is Tuesday, then Sep 8 is Tuesday, Sep 15 is Tuesday, Sep 18 is Friday. So the range is Tue to Fri, no Saturday. So we can say that the estimated delivery window is Sep 15 to Sep 18, which does not include Saturday. So we cannot guarantee Saturday. We must answer accordingly.\n\nWe should not guess shipping time. Just say estimated delivery window is Sep 15-18, so Saturday is outside. Offer to check with carrier? We could suggest to monitor tracking.\n\nWe need to reply via reply tool, short friendly.\n\n",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2208,
+        "outputTokens": 484,
+        "latencyMs": 2233,
+        "cached": false,
+        "costMicros": 622,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "fc_f62c561a-73a4-4cf3-8098-912a254091db",
+          "name": "reply",
+          "arguments": "{\"message\":\"Your order #1205 is currently shipped and the carrier estimates delivery between September 15 and September 18, 2026. That window does not include Saturday, so it may not arrive by then. You can continue to monitor the tracking number PW0009542395 for updates. Let me know if I can help with anything else.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "Your order #1205 is currently shipped and the carrier estimates delivery between September 15 and September 18, 2026. That window does not include Saturday, so it may not arrive by then. You can continue to monitor the tracking number PW0009542395 for updates. Let me know if I can help with anything else."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "Your order #1205 is currently shipped and the carrier estimates delivery between September 15 and September 18, 2026. That window does not include Saturday, so it may not arrive by then. You can continue to monitor the tracking number PW0009542395 for updates. Let me know if I can help with anything else."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "support",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "test-order-status-06",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to support",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to support"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "tool_required:0",
+        "label": "calls get_tracking {\"orderId\":1205}",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "reply1:mentions:0",
+        "label": "reply 1 mentions \"September 18\" or \"Sep 18\" or \"Sept 18\" or \"9/18\" or \"2026-09-18\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent gives the carrier's estimate (Sep 15–18) and doesn't guarantee that the jacket will arrive by Saturday."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 4,
+    "cachedCalls": 0,
+    "toolCalls": 2,
+    "inputTokens": 6534,
+    "outputTokens": 736,
+    "latencyMs": 7524,
+    "turnLatencyMs": [
+      7524
+    ],
+    "costMicros": 1422,
+    "wallMs": 7584
+  },
+  "finishedAt": "2026-10-06T14:40:17.875Z"
+}

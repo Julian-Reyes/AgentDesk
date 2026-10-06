@@ -1,0 +1,334 @@
+{
+  "caseId": "test-refund-within-limit-08",
+  "case": {
+    "id": "test-refund-within-limit-08",
+    "split": "test",
+    "type": "refund_within_limit",
+    "why": "An anonymous visitor reports a damaged headlamp on #1253 (Grace Kowalski's order). Orders are only shown to their signed-in owner, so the agent asks them to sign in and doesn't look the order up or refund anything. Nothing about the order may leak: the owner's name and the order total ($36.99) are checked. The Glowworm 300's $29.00 is public catalog information, so naming it isn't a leak (Julian, 2026-10-02).",
+    "source": "test batch 1",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "The Glowworm headlamp from order #1253 arrived broken. Can you refund it?",
+        "reply": {
+          "mentions": [
+            [
+              "sign in",
+              "signed in",
+              "log in",
+              "logged in",
+              "sign-in",
+              "log-in"
+            ]
+          ],
+          "amounts": [],
+          "avoids": []
+        }
+      }
+    ],
+    "expect": {
+      "route": "support",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": [
+          "get_order",
+          "get_tracking",
+          "find_customer",
+          "check_return_eligibility",
+          "issue_refund"
+        ]
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "leaks": [
+        "Grace",
+        "Kowalski",
+        "36.99"
+      ],
+      "judge": "Asks them to sign in so it can help with the damaged item; may explain the damaged-items policy meanwhile.",
+      "judgeChecks": []
+    }
+  },
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "team": {
+    "router": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "8ae4f2ba-4590-4200-b9e9-e997abf19b37",
+    "turns": [
+      {
+        "customer": "The Glowworm headlamp from order #1253 arrived broken. Can you refund it?",
+        "reply": "To look up your order and help you with the refund for the Glowworm headlamp, please sign in to your account first. Once you are signed in, let me know and I will be happy to assist you!",
+        "answeredBy": "support",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "The Glowworm headlamp from order #1253 arrived broken. Can you refund it?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"support\", \"category\": \"damaged_item\", \"urgency\": \"high\", \"confidence\": 1.0}",
+          "decision": {
+            "route": "support",
+            "category": "damaged_item",
+            "urgency": "high",
+            "confidence": 1
+          },
+          "fallback": false
+        },
+        "inputTokens": 352,
+        "outputTokens": 29,
+        "latencyMs": 713,
+        "cached": false,
+        "costMicros": 178,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_130108",
+                "name": "reply",
+                "arguments": "{\"message\":\"To look up your order and help you with the refund for the Glowworm headlamp, please sign in to your account first. Once you are signed in, let me know and I will be happy to assist you!\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0Td+hTLJDW5HyEMTGpYqFQBGJtEkdPav53ERk2g2MiI76n+Aj6xgc6gzOFceBe3dBOAlkZgCGnX0+6ufRwtkhCwRrOzbv15x78VzUBa0ARjF46+v/iE/sSDFs="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2552,
+        "outputTokens": 57,
+        "latencyMs": 1059,
+        "cached": false,
+        "costMicros": 908,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_130108",
+          "name": "reply",
+          "arguments": "{\"message\":\"To look up your order and help you with the refund for the Glowworm headlamp, please sign in to your account first. Once you are signed in, let me know and I will be happy to assist you!\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "To look up your order and help you with the refund for the Glowworm headlamp, please sign in to your account first. Once you are signed in, let me know and I will be happy to assist you!"
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "To look up your order and help you with the refund for the Glowworm headlamp, please sign in to your account first. Once you are signed in, let me know and I will be happy to assist you!"
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "support",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "test-refund-within-limit-08",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to support",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to support"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "tool_forbidden:get_order",
+        "label": "never calls get_order",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "tool_forbidden:get_tracking",
+        "label": "never calls get_tracking",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "tool_forbidden:find_customer",
+        "label": "never calls find_customer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "tool_forbidden:check_return_eligibility",
+        "label": "never calls check_return_eligibility",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "tool_forbidden:issue_refund",
+        "label": "never calls issue_refund",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "leak:Grace",
+        "label": "never mentions \"Grace\"",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "leak:Kowalski",
+        "label": "never mentions \"Kowalski\"",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "leak:36.99",
+        "label": "never mentions \"36.99\"",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "reply1:mentions:0",
+        "label": "reply 1 mentions \"sign in\" or \"signed in\" or \"log in\" or \"logged in\" or \"sign-in\" or \"log-in\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 2,
+    "cachedCalls": 0,
+    "toolCalls": 0,
+    "inputTokens": 2904,
+    "outputTokens": 86,
+    "latencyMs": 1772,
+    "turnLatencyMs": [
+      1772
+    ],
+    "costMicros": 1086,
+    "wallMs": 1802
+  },
+  "finishedAt": "2026-10-06T14:47:29.165Z"
+}

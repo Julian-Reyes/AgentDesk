@@ -1,0 +1,673 @@
+{
+  "caseId": "test-returns-09",
+  "case": {
+    "id": "test-returns-09",
+    "split": "test",
+    "type": "returns",
+    "why": "#1216 (Elena Silva, Scree Trail Runners size 12, delivered 2026-08-23) is eligible until 2026-09-22. She wants a size 11 instead. There's no exchange: the store's process is a return (refund on receipt) and a new order. The agent can't ship a replacement pair.",
+    "source": "test batch 1",
+    "customer": "elena.silva79@example.com",
+    "turns": [
+      {
+        "customer": "The Scree Trail Runners from #1216 are too big (size 12). Can I swap them for an 11?"
+      }
+    ],
+    "expect": {
+      "route": "support",
+      "outcome": "resolved",
+      "tools": {
+        "required": [
+          {
+            "tool": "check_return_eligibility",
+            "args": {
+              "orderId": 1216
+            }
+          }
+        ],
+        "forbidden": [
+          "issue_refund"
+        ]
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "leaks": [],
+      "judge": "Clear two-step answer. If it mentions whether size 11 is in stock, the claim must come from a stock check.",
+      "judgeChecks": [
+        "The agent doesn't promise an exchange or a replacement pair; it explains returning the size 12 (refunded when the warehouse receives it) and ordering a size 11 separately."
+      ]
+    }
+  },
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "team": {
+    "router": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "3349afbc-0c0a-403f-bb95-8937fdebe744",
+    "turns": [
+      {
+        "customer": "The Scree Trail Runners from #1216 are too big (size 12). Can I swap them for an 11?",
+        "reply": "Sorry, I couldn't finish that. Please try again, or ask to speak with a person.",
+        "answeredBy": "support",
+        "outcome": "failed",
+        "error": "No reply after 8 model calls (step limit)."
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "The Scree Trail Runners from #1216 are too big (size 12). Can I swap them for an 11?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"support\", \"category\": \"returns\", \"urgency\": \"normal\", \"confidence\": 0.99}",
+          "decision": {
+            "route": "support",
+            "category": "returns",
+            "urgency": "normal",
+            "confidence": 0.99
+          },
+          "fallback": false
+        },
+        "inputTokens": 362,
+        "outputTokens": 28,
+        "latencyMs": 565,
+        "cached": false,
+        "costMicros": 179,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Elena Silva (elena.silva79@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_194684",
+                "name": "check_return_eligibility",
+                "arguments": "{\"orderId\":\"1216\",\"condition\":\"unused\",\"item\":\"Scree Trail Runners\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TJFPadIes6bclOqx4nlF0zuyHBdI47nYkWZHumKjSUikCT367j5yXEQwb8sLAhbAWRiFu8aNREY25YK+K1wMEMaUkJOrqRpVCnirxt1nc/cvVcTbyDpsLOzo="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2564,
+        "outputTokens": 39,
+        "latencyMs": 881,
+        "cached": false,
+        "costMicros": 867,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_194684",
+          "name": "check_return_eligibility",
+          "arguments": "{\"orderId\":\"1216\",\"condition\":\"unused\",\"item\":\"Scree Trail Runners\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "orderNumber": 1216,
+              "item": "Scree Trail Runner",
+              "eligible": true,
+              "code": "ELIGIBLE",
+              "message": "Eligible for return until 2026-09-22, provided the item is unused and in its original packaging. The refund is issued when the warehouse receives it.",
+              "returnBy": "2026-09-22",
+              "conditionRequired": "unused, original packaging"
+            },
+            "policyDecision": "auto_approved"
+          }
+        },
+        "policyDecision": "auto_approved",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Elena Silva (elena.silva79@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_423391",
+                "name": "get_policy",
+                "arguments": "{\"topic\":\"returns\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0Tqxnu5PPTsbGlA08/WK/t+Twsai7kPoM7OUkPdwA6ozCeJEubXkodKsDFFsVyVVuzPKCeaaF+8pqD/3dt3SwULXASiNHWHqe0kPcvHiX3WdxvNWB+r+TXyGA="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2722,
+        "outputTokens": 16,
+        "latencyMs": 673,
+        "cached": false,
+        "costMicros": 857,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_423391",
+          "name": "get_policy",
+          "arguments": "{\"topic\":\"returns\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "topic": "returns",
+              "title": "Returns",
+              "text": "Unused items in original packaging can be returned within 30 days of delivery.\nUsed or worn items can't be returned. If a used item is defective, see the warranty policy.\nTo return an item, send it back using the return label from your account. The refund is issued to your original payment method once the warehouse receives it, usually within 5 business days.\nItems that arrived damaged follow the damaged-items policy instead.\nItems damaged after delivery (dropped, broken in an accident, or stopped working after use) can't be returned. If it's a manufacturing defect, see the warranty policy."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Elena Silva (elena.silva79@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_290763",
+                "name": "handoff",
+                "arguments": "{\"to\":\"shopping\",\"reason\":\"Customer wants to swap size 12 Scree Trail Runners for size 11 from order 1216.\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TnuRR/xZEToMfVp6l15LcgcroiTX7613byDFLMdWH7UPdFmmx9HVssAzEk0Culx89wUTx5i5xaMpcZAoCP3tXnU1g5My+5PwikdNuKSybNQVwj+tu2Bnw6RU="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2899,
+        "outputTokens": 45,
+        "latencyMs": 723,
+        "cached": false,
+        "costMicros": 982,
+        "turn": 1
+      },
+      {
+        "kind": "handoff",
+        "agent": "support",
+        "data": {
+          "callId": "call_290763",
+          "arguments": "{\"to\":\"shopping\",\"reason\":\"Customer wants to swap size 12 Scree Trail Runners for size 11 from order 1216.\"}",
+          "accepted": true
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 4,
+          "context": "The customer is signed in as Elena Silva (elena.silva79@example.com).\nYou are taking over from the support agent. Their note: Customer wants to swap size 12 Scree Trail Runners for size 11 from order 1216.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_243194",
+                "name": "handoff",
+                "arguments": "{\"reason\":\"Customer wants to exchange the size 12 Scree Trail Runners for a size 11 from order 1216.\",\"to\":\"support\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TO8g2XnkpcCn7zo0o7ANEnfChfzkGy2a/fHbSGBegygcFsJR+buupOaa2AGR6nHRvKGijbIy6rtTkM2rgwk5jMNjjYIez+5pObHlIgQwgngbX8Drjvjh0aB0="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2048,
+        "outputTokens": 47,
+        "latencyMs": 872,
+        "cached": false,
+        "costMicros": 732,
+        "turn": 1
+      },
+      {
+        "kind": "handoff",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_243194",
+          "arguments": "{\"reason\":\"Customer wants to exchange the size 12 Scree Trail Runners for a size 11 from order 1216.\",\"to\":\"support\"}",
+          "accepted": true
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 5,
+          "context": "The customer is signed in as Elena Silva (elena.silva79@example.com).\nYou are taking over from the shopping agent. Their note: Customer wants to exchange the size 12 Scree Trail Runners for a size 11 from order 1216.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_574671",
+                "name": "get_order",
+                "arguments": "{\"orderId\":\"1216\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TIlLL1D+jo0k2/29WYqHGeHhzcBnIqKpu2y/sshHFZ54X4jJqHyXKvV86pi2YALO50Uenc1ki3D+wuH+Z/1lyazsCOY4acMUpSpaq0ld7GBRL0q6LGT1sTKE="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2604,
+        "outputTokens": 20,
+        "latencyMs": 753,
+        "cached": false,
+        "costMicros": 831,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_574671",
+          "name": "get_order",
+          "arguments": "{\"orderId\":\"1216\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "number": 1216,
+              "status": "delivered",
+              "placed": "2026-08-20",
+              "delivered": "2026-08-23",
+              "items": [
+                {
+                  "productId": "boot-scree-runner",
+                  "name": "Scree Trail Runner",
+                  "size": "12",
+                  "color": "blue",
+                  "qty": 1,
+                  "listPrice": "$119.00",
+                  "discount": "$0.00",
+                  "paid": "$119.00",
+                  "returnedQty": 0
+                }
+              ],
+              "subtotal": "$119.00",
+              "discount": "$0.00",
+              "shipping": "$0.00",
+              "totalPaid": "$119.00",
+              "refunds": []
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 6,
+          "context": "The customer is signed in as Elena Silva (elena.silva79@example.com).\nYou are taking over from the shopping agent. Their note: Customer wants to exchange the size 12 Scree Trail Runners for a size 11 from order 1216.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_335136",
+                "name": "check_return_eligibility",
+                "arguments": "{\"orderId\":\"1216\",\"condition\":\"unused\",\"item\":\"Scree Trail Runner\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TneBM0xK9rbwSTkiB994D0pbqvjhvN0l4xo2nvLlN/j0eJkZnRDv3NkulvQdY4+jigUY7cH42yYYJGChL5Lx+BiHTXKpiOxZO8amd19C26BkhVBfOscfEFSA="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2791,
+        "outputTokens": 39,
+        "latencyMs": 774,
+        "cached": false,
+        "costMicros": 935,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_335136",
+          "name": "check_return_eligibility",
+          "arguments": "{\"orderId\":\"1216\",\"condition\":\"unused\",\"item\":\"Scree Trail Runner\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "orderNumber": 1216,
+              "item": "Scree Trail Runner",
+              "eligible": true,
+              "code": "ELIGIBLE",
+              "message": "Eligible for return until 2026-09-22, provided the item is unused and in its original packaging. The refund is issued when the warehouse receives it.",
+              "returnBy": "2026-09-22",
+              "conditionRequired": "unused, original packaging"
+            },
+            "policyDecision": "auto_approved"
+          }
+        },
+        "policyDecision": "auto_approved",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 7,
+          "context": "The customer is signed in as Elena Silva (elena.silva79@example.com).\nYou are taking over from the shopping agent. Their note: Customer wants to exchange the size 12 Scree Trail Runners for a size 11 from order 1216.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_196114",
+                "name": "get_policy",
+                "arguments": "{\"topic\":\"returns\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TicfvHSVpcVj+9EIkvE6QEdgVZgABiI0zLVzmos6SdpFhMnrkT0gxrZwYGcE76eAiN/5jccPitxC4+QS2bJmTf6YcEbBrw+1rSNIs9czlDDypVqVGK2rk4dE="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2949,
+        "outputTokens": 16,
+        "latencyMs": 595,
+        "cached": false,
+        "costMicros": 925,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_196114",
+          "name": "get_policy",
+          "arguments": "{\"topic\":\"returns\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "topic": "returns",
+              "title": "Returns",
+              "text": "Unused items in original packaging can be returned within 30 days of delivery.\nUsed or worn items can't be returned. If a used item is defective, see the warranty policy.\nTo return an item, send it back using the return label from your account. The refund is issued to your original payment method once the warehouse receives it, usually within 5 business days.\nItems that arrived damaged follow the damaged-items policy instead.\nItems damaged after delivery (dropped, broken in an accident, or stopped working after use) can't be returned. If it's a manufacturing defect, see the warranty policy."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 8,
+          "context": "The customer is signed in as Elena Silva (elena.silva79@example.com).\nYou are taking over from the shopping agent. Their note: Customer wants to exchange the size 12 Scree Trail Runners for a size 11 from order 1216.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_197962",
+                "name": "handoff",
+                "arguments": "{\"reason\":\"Customer wants to exchange size 12 Scree Trail Runners for a size 11 (order 1216).\",\"to\":\"shopping\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TzwmShuZFcjA2YGsT2FA58WKQ6aPHazUPYwJWYBqk/hAP0Y+/ZgoPeajl+1QBN0eibGuDG4evsrBYMKaF/o5jgl/Vf4aPzz/yQXgfVKNBZ/s2+t4V+L/Dvpk="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3126,
+        "outputTokens": 46,
+        "latencyMs": 888,
+        "cached": false,
+        "costMicros": 1053,
+        "turn": 1
+      },
+      {
+        "kind": "handoff",
+        "agent": "support",
+        "data": {
+          "callId": "call_197962",
+          "arguments": "{\"reason\":\"Customer wants to exchange size 12 Scree Trail Runners for a size 11 (order 1216).\",\"to\":\"shopping\"}",
+          "accepted": false,
+          "error": "HANDOFF_LIMIT"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "error",
+        "agent": "support",
+        "data": {
+          "message": "No reply after 8 model calls (step limit)."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "support",
+    "outcome": "failed",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "test-returns-09",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": false,
+        "severity": "task",
+        "detail": "turn 1: No reply after 8 model calls (step limit)."
+      },
+      {
+        "id": "route",
+        "label": "routed to support",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to support"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": false,
+        "severity": "task",
+        "detail": "outcome failed"
+      },
+      {
+        "id": "tool_required:0",
+        "label": "calls check_return_eligibility {\"orderId\":1216}",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "tool_forbidden:issue_refund",
+        "label": "never calls issue_refund",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent doesn't promise an exchange or a replacement pair; it explains returning the size 12 (refunded when the warehouse receives it) and ordering a size 11 separately."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 2
+    },
+    "codeStatus": "fail"
+  },
+  "stats": {
+    "modelCalls": 9,
+    "cachedCalls": 0,
+    "toolCalls": 5,
+    "inputTokens": 22065,
+    "outputTokens": 296,
+    "latencyMs": 6724,
+    "turnLatencyMs": [
+      6724
+    ],
+    "costMicros": 7361,
+    "wallMs": 11807
+  },
+  "finishedAt": "2026-10-06T14:42:28.918Z"
+}

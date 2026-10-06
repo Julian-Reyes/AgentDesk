@@ -1,0 +1,149 @@
+{
+  "caseId": "test-comparison-02",
+  "runId": "c77a6558-9509-4924-8600-7e4f69b87c9a",
+  "questionSet": "697b0e02",
+  "agentModel": "groq/gpt-oss-120b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-comparison-02",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Loft Down or Loft Synthetic jacket for wet, cold weather in the Pacific Northwest?",
+        "reply": "The only waterproof, insulated jacket we have that meets the wet, cold conditions of the Pacific Northwest is the **Tundra Insulated Parka** (ID jacket‑tundra‑parka). It combines down insulation with a waterproof shell, is rated for -25 °C, has a 15,000 mm waterproof rating, weighs 1,100 g, is rated 4.8 stars, and costs $329.00. We don’t currently have a waterproof synthetic‑loft jacket in our catalog. Let me know if you’d like to see other non‑waterproof synthetic options or need any other assistance."
+      }
+    ],
+    "toolSummary": [
+      "message 1: search_products({\"filters\":{\"category\":\"jackets\",\"maxPrice\":500,\"waterproof\":true},\"limit\":10,\"query\":\"Loft Down\"}) → {\"ok\":true,\"data\":{\"totalMatches\":1,\"products\":[{\"id\":\"jacket-tundra-parka\",\"name\":\"Tundra Insulated Parka\",\"category\":\"jackets\",\"listPrice\":\"$329.00\",\"currentPrice\":\"$329.00\",\"rating\":4.8,\"description\":\"Waterproof insulated parka for deep winter.\",\"specs\":{\"material\":\"down + waterproof shell\",\"waterproof\":true,\"tempRatingC\":-25,\"weightGrams\":1100,\"waterproofRatingMm\":15000},\"availability\":\"in_stock\",\"activeDeals\":[]}],\"note\":\"currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping.\"}}",
+      "message 1: search_products({\"filters\":{\"category\":\"jackets\",\"maxPrice\":500,\"waterproof\":true},\"limit\":10,\"query\":\"Loft Synthetic\"}) → {\"ok\":true,\"data\":{\"totalMatches\":0,\"products\":[],\"note\":\"currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping.\"}}"
+    ],
+    "judgeNote": "Neither jacket is waterproof; may suggest a rain shell on top. No invented warmth ratings.",
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent says the Loft Synthetic keeps insulating when wet, which suits wet weather, and that the Loft Down is the lighter of the two."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 4,
+        "why": "The reply is warm and professional, but a bit long and misses a suggestion for a rain shell or loft-specific options."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": false,
+        "why": "The agent explicitly states that there is no waterproof synthetic‑loft jacket in the catalog and does not mention any insulation properties of a Loft Synthetic jacket or compare the weight of a Loft Down jacket to a Loft Synthetic. Therefore the claim that the agent said the Loft Synthetic keeps insulating when wet and that the Loft Down is lighter is not supported by the conversation. Answer: no."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only offers to provide additional options or assistance and does not promise or imply any future action it cannot perform in this chat. This complies with the rule. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent made no statements about shipping, arrival, refunds, reviews, or processing times. Therefore all timing claims (none) trivially match the conversation. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": false,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 785,
+      "inputTokens": 966,
+      "outputTokens": 334,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only offered to provide additional options and did not promise any future action such as notifying, following up, or checking on approvals, refunds, or deliveries. This is allowed. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 786,
+      "inputTokens": 966,
+      "outputTokens": 369,
+      "cached": false,
+      "raw": "{\"why\":\"The agent does not promise or imply any future action it cannot perform; it only offers further assistance if requested. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 787,
+      "inputTokens": 966,
+      "outputTokens": 331,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only offers to provide additional options or assistance and does not promise or imply any future action it cannot perform in this chat. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 787,
+      "inputTokens": 955,
+      "outputTokens": 289,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refunds, reviews, or processing times. Therefore all timing claims (none) trivially match the conversation. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 798,
+      "inputTokens": 955,
+      "outputTokens": 289,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refunds, reviews, or processing times. Therefore all timing claims (none) trivially match the conversation. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 899,
+      "inputTokens": 896,
+      "outputTokens": 355,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states that there is no waterproof synthetic‑loft jacket in the catalog and does not mention any insulation properties of a Loft Synthetic jacket or compare the weight of a Loft Down jacket to a Loft Synthetic. Therefore the claim that the agent said the Loft Synthetic keeps insulating when wet and that the Loft Down is lighter is not supported by the conversation. Answer: no.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 1053,
+      "inputTokens": 955,
+      "outputTokens": 289,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refunds, reviews, or processing times. Therefore all timing claims (none) trivially match the conversation. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 1072,
+      "inputTokens": 1199,
+      "outputTokens": 633,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":4,\"why\":\"The reply is warm and professional, but a bit long and misses a suggestion for a rain shell or loft-specific options.\"}]}"
+    }
+  ]
+}

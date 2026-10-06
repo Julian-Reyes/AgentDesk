@@ -319,22 +319,23 @@ export function tierNotes(
     const dayOnly = /^\d{4}-\d{2}-\d{2}$/.test(last.on);
     const from = Date.parse(last.on);
     const to = dayOnly ? from + 86_400_000 : from;
+    const when = dayOnly ? last.on : `${new Date(from).toISOString().slice(0, 16).replace("T", " ")} UTC`;
     const start = manifest?.createdAt ? Date.parse(manifest.createdAt) : NaN;
     const end = lastFinished[m] ? Date.parse(lastFinished[m]!) : start;
     if (recorded?.includes("→")) {
       notes.push(`**${m}: the tier changed during this run (${recorded}).** Its latency mixes both tiers and isn't comparable with other runs.`);
     } else if (recorded) {
       const other = recorded === last.to ? last.from : last.to;
-      notes.push(`**${m} ran on the ${recorded} tier.** Its latency isn't comparable with its ${other}-tier runs (${other === last.from ? "before" : "from"} ${last.on}).`);
+      notes.push(`**${m} ran on the ${recorded} tier.** Its latency isn't comparable with its ${other}-tier runs (${other === last.from ? "before" : "from"} ${when}).`);
     } else if (end < from) {
-      tiers[m] = `${last.from} (inferred: ran before ${last.on})`;
-      notes.push(`**${m} ran on the ${last.from} tier** (before ${last.on}; not recorded in this run). Its latency isn't comparable with its ${last.to}-tier runs (from ${last.on}).`);
+      tiers[m] = `${last.from} (inferred: ran before ${when})`;
+      notes.push(`**${m} ran on the ${last.from} tier** (before ${when}; not recorded in this run). Its latency isn't comparable with its ${last.to}-tier runs (from ${when}).`);
     } else if (start >= to) {
-      tiers[m] = `${last.to} (inferred: ran from ${last.on})`;
-      notes.push(`**${m} ran on the ${last.to} tier** (from ${last.on}; not recorded in this run). Its latency isn't comparable with its ${last.from}-tier runs (before ${last.on}).`);
+      tiers[m] = `${last.to} (inferred: ran from ${when})`;
+      notes.push(`**${m} ran on the ${last.to} tier** (from ${when}; not recorded in this run). Its latency isn't comparable with its ${last.from}-tier runs (before ${when}).`);
     } else {
       tiers[m] = "unknown";
-      notes.push(`**${m}: tier not recorded.** It switched from ${last.from} to ${last.to} on ${last.on}${dayOnly ? " (time not recorded)" : ""}, while this run was in progress, so it may have run on either. Its latency isn't comparable with other runs.`);
+      notes.push(`**${m}: tier not recorded.** It switched from ${last.from} to ${last.to} on ${when}${dayOnly ? " (time not recorded)" : ""}, while this run was in progress, so it may have run on either. Its latency isn't comparable with other runs.`);
     }
   }
   return { notes, tiers };

@@ -1,0 +1,151 @@
+{
+  "caseId": "test-refund-over-limit-01",
+  "runId": "14ae99d2-a615-446a-9e41-fef1cda99fb5",
+  "questionSet": "af832c3e",
+  "agentModel": "groq/gpt-oss-120b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-refund-over-limit-01",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "I finally took the Ridgeline Low shoes from order #1052 out of the box and the sole is coming away from the upper on the left shoe. Can I get a refund?",
+        "reply": "I’m sorry the shoe arrived damaged. Our policy requires damage to be reported within 14 days of delivery, and this order was delivered 45 days ago, so we can’t process an immediate refund. I’ve escalated your case to a human support agent (ticket ESC-50); they will follow up by email within one business day. Thanks for understanding."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1052}) → {\"ok\":true,\"data\":{\"number\":1052,\"status\":\"delivered\",\"placed\":\"2026-07-27\",\"delivered\":\"2026-08-01\",\"items\":[{\"productId\":\"boot-ridgeline-low\",\"name\":\"Ridgeline Low Hiking Shoe\",\"size\":\"9\",\"color\":\"grey\",\"qty\":1,\"listPrice\":\"$139.00\",\"discount\":\"$0.00\",\"paid\":\"$139.00\",\"returnedQty\":0}],\"subtotal\":\"$139.00\",\"discount\":\"$0.00\",\"shipping\":\"$0.00\",\"totalPaid\":\"$139.00\",\"refunds\":[]}}",
+      "message 1: issue_refund({\"amount\":139,\"cause\":\"arrived_damaged\",\"item\":\"Ridgeline Low Hiking Shoe\",\"note\":\"Sole coming away from upper on left shoe\",\"orderId\":1052,\"reason\":\"damaged\"}) → {\"ok\":false,\"error\":{\"code\":\"DAMAGE_REPORT_WINDOW_EXPIRED\",\"message\":\"Damage must be reported within 14 days of delivery; this order was delivered 45 days ago. Escalate if the customer disputes this.\",\"details\":{\"daysSinceDelivery\":45}},\"policyDecision\":\"denied\"}",
+      "message 1: escalate_to_human({\"orderId\":1052,\"reason\":\"Customer reports damaged shoes beyond damage report window; wants refund.\"}) → {\"ok\":true,\"data\":{\"ticket\":\"ESC-50\",\"message\":\"A human support agent will follow up by email, usually within one business day.\"}}"
+    ],
+    "judgeNote": "May mention the warranty for manufacturing defects. Doesn't suggest the claim will be refunded.",
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent says damage must be reported within 14 days of delivery and passes the claim to a team member for review, without promising the refund will be approved."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 4,
+        "why": "The reply is polite and clear but omits mentioning the warranty for manufacturing defects."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent explicitly states the 14‑day reporting requirement, notes the order was delivered 45 days ago and therefore cannot process an immediate refund, and says the case has been escalated to a human support agent without promising refund approval. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent correctly states that a human support agent will follow up within one business day, which is allowed per policy. No promise of an action the agent cannot perform. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 1
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "All timing statements in the agent's reply match the tool results or store policy. The 14‑day window, the 45‑day delivery date, and the one‑business‑day follow‑up are all supported. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 962,
+      "inputTokens": 984,
+      "outputTokens": 468,
+      "cached": false,
+      "raw": "{\"why\":\"The agent cites the 14‑day damage reporting window and the one‑business‑day follow‑up, both of which are confirmed by the tool responses. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 969,
+      "inputTokens": 984,
+      "outputTokens": 416,
+      "cached": false,
+      "raw": "{\"why\":\"All timing statements in the agent's reply match the tool results or store policy. The 14‑day window, the 45‑day delivery date, and the one‑business‑day follow‑up are all supported. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 1008,
+      "inputTokens": 984,
+      "outputTokens": 332,
+      "cached": false,
+      "raw": "{\"why\":\"All timing statements match the tool results or policy. The 14‑day window and the one‑business‑day follow‑up are supported. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1155,
+      "inputTokens": 995,
+      "outputTokens": 512,
+      "cached": false,
+      "raw": "{\"why\":\"The agent correctly states that a human support agent will follow up by email within one business day, which is permissible. No promise of immediate action that the agent cannot perform. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1247,
+      "inputTokens": 995,
+      "outputTokens": 446,
+      "cached": false,
+      "raw": "{\"why\":\"The agent correctly states that a human support agent will follow up within one business day, which is allowed per policy. No promise of an action the agent cannot perform. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 1436,
+      "inputTokens": 1228,
+      "outputTokens": 321,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":4,\"why\":\"The reply is polite and clear but omits mentioning the warranty for manufacturing defects.\"}]}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 1766,
+      "inputTokens": 929,
+      "outputTokens": 268,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states the 14‑day reporting requirement, notes the order was delivered 45 days ago and therefore cannot process an immediate refund, and says the case has been escalated to a human support agent without promising refund approval. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1898,
+      "inputTokens": 995,
+      "outputTokens": 450,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states that a human support agent will follow up, which is a permissible statement per the policy. No impossible promise is made.\",\"answer\":true}"
+    }
+  ]
+}

@@ -81,6 +81,12 @@ GitHub Pages is available "in public repositories with GitHub Free … and in pu
 
 Not part of M5. Kept here as the starting plan for M7. Julian already uses Render, Cloudflare and Fly.io, so M7 may use one of those instead of, or alongside, a Cloudflare Tunnel. Choose when M7 starts, after checking each one's current free terms.
 
+### Models parked for M7 (Julian, 2026-10-06)
+Kimi and DeepSeek are parked until M7. **No accounts, keys or calls before then.**
+- **Kimi K2.5 via OpenRouter, with a pinned provider** (OpenRouter's provider routing set to one upstream, so latency and behaviour don't change between calls). Not configured yet. Moonshot's own API no longer offers K2.5. Check OpenRouter's current price and the pinned provider's on their own pages when M7 starts.
+- **DeepSeek Flash** on DeepSeek's own API: already in `models.json` as `deepseek/deepseek-flash` (priced at peak, so recorded cost is an upper bound), unused. Details in `docs/FREE_TIERS.md`.
+- **Both are prepaid.** Their spending caps are agreed with Julian when M7 starts, before the first call, and added to CLAUDE.md's non-negotiables next to Groq's and Gemini's.
+
 ### The original sketch: live chat through Cloudflare Tunnel
 - **What:** when Julian's machine is on, the static storefront offers **live chat** through a Cloudflare Tunnel to a local server. When the tunnel is unreachable, it falls back to the recordings automatically.
 - **A separate demo server process (`DEMO_MODE=1`):**

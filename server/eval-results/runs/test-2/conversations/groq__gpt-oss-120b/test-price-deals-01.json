@@ -1,0 +1,559 @@
+{
+  "caseId": "test-price-deals-01",
+  "case": {
+    "id": "test-price-deals-01",
+    "split": "test",
+    "type": "price_deals",
+    "why": "Squall Pro ($229.00) + Thicket Fleece ($69.00) = $298.00; GEAR20 takes 20% (jackets aren't excluded, and $298 clears the $50 minimum): $238.40, free shipping.",
+    "source": "test batch 4",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "What's the total for a Squall Pro jacket and a Thicket fleece with code GEAR20?"
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "price": {
+        "cart": [
+          {
+            "productId": "jacket-squall-pro",
+            "qty": 1
+          },
+          {
+            "productId": "jacket-thicket-fleece",
+            "qty": 1
+          }
+        ],
+        "coupon": "GEAR20",
+        "totalCents": 23840
+      },
+      "coupon": {
+        "code": "GEAR20",
+        "valid": true
+      },
+      "leaks": [],
+      "judgeChecks": []
+    }
+  },
+  "agentModel": "groq/gpt-oss-120b",
+  "team": {
+    "router": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "a867b477-ca39-4b80-9ef1-d8bd8f81bcbf",
+    "turns": [
+      {
+        "customer": "What's the total for a Squall Pro jacket and a Thicket fleece with code GEAR20?",
+        "reply": "Your cart with the Squall Pro Rain Jacket and Thicket Fleece Jacket, using code GEAR20, totals $238.40 (shipping is free).",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "What's the total for a Squall Pro jacket and a Thicket fleece with code GEAR20?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\":\"shopping\",\"category\":\"pricing_deals\",\"urgency\":\"normal\",\"confidence\":0.99}",
+          "decision": {
+            "route": "shopping",
+            "category": "pricing_deals",
+            "urgency": "normal",
+            "confidence": 0.99
+          },
+          "fallback": false
+        },
+        "inputTokens": 428,
+        "outputTokens": 168,
+        "latencyMs": 1305,
+        "cached": false,
+        "costMicros": 165,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_7ad10c70-b1c0-44ae-82dc-1ac4be21475d",
+                "name": "search_products",
+                "arguments": "{\"filters\":{\"category\":\"jackets\"},\"limit\":5,\"query\":\"Squall Pro jacket\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to compute total for two products with coupon GEAR20. First search for product IDs. Use search_products query \"Squall Pro jacket\".",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1861,
+        "outputTokens": 83,
+        "latencyMs": 1716,
+        "cached": false,
+        "costMicros": 329,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_7ad10c70-b1c0-44ae-82dc-1ac4be21475d",
+          "name": "search_products",
+          "arguments": "{\"filters\":{\"category\":\"jackets\"},\"limit\":5,\"query\":\"Squall Pro jacket\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 8,
+              "products": [
+                {
+                  "id": "jacket-squall-pro",
+                  "name": "Squall Pro Rain Jacket",
+                  "category": "jackets",
+                  "listPrice": "$229.00",
+                  "currentPrice": "$229.00",
+                  "rating": 4.7,
+                  "description": "3-layer storm shell for mountain weather.",
+                  "specs": {
+                    "material": "3-layer nylon",
+                    "waterproof": true,
+                    "weightGrams": 420,
+                    "waterproofRatingMm": 20000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "jacket-tundra-parka",
+                  "name": "Tundra Insulated Parka",
+                  "category": "jackets",
+                  "listPrice": "$329.00",
+                  "currentPrice": "$329.00",
+                  "rating": 4.8,
+                  "description": "Waterproof insulated parka for deep winter.",
+                  "specs": {
+                    "material": "down + waterproof shell",
+                    "waterproof": true,
+                    "tempRatingC": -25,
+                    "weightGrams": 1100,
+                    "waterproofRatingMm": 15000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "jacket-squall",
+                  "name": "Squall Rain Jacket",
+                  "category": "jackets",
+                  "listPrice": "$149.00",
+                  "currentPrice": "$149.00",
+                  "rating": 4.5,
+                  "description": "Packable 2.5-layer rain jacket with pit zips.",
+                  "specs": {
+                    "material": "2.5-layer nylon",
+                    "waterproof": true,
+                    "weightGrams": 380,
+                    "waterproofRatingMm": 10000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "jacket-loft-down",
+                  "name": "Loft Down Jacket",
+                  "category": "jackets",
+                  "listPrice": "$199.00",
+                  "currentPrice": "$199.00",
+                  "rating": 4.6,
+                  "description": "Warm, packable down jacket for cold camps.",
+                  "specs": {
+                    "material": "800-fill down",
+                    "waterproof": false,
+                    "weightGrams": 350
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "jacket-loft-synthetic",
+                  "name": "Loft Synthetic Jacket",
+                  "category": "jackets",
+                  "listPrice": "$149.00",
+                  "currentPrice": "$149.00",
+                  "rating": 4.4,
+                  "description": "Synthetic insulated jacket that keeps insulating when wet.",
+                  "specs": {
+                    "material": "synthetic insulation",
+                    "waterproof": false,
+                    "weightGrams": 400
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_d8c1dc0e-5516-43ab-9a90-6aead530826c",
+                "name": "search_products",
+                "arguments": "{\"filters\":{\"category\":\"jackets\"},\"limit\":10,\"query\":\"Thicket fleece\"}"
+              }
+            ]
+          },
+          "reasoning": "We need total for Squall Pro jacket and Thicket fleece with coupon GEAR20. Need product IDs for both. Search fleece.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2403,
+        "outputTokens": 61,
+        "latencyMs": 603,
+        "cached": false,
+        "costMicros": 397,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_d8c1dc0e-5516-43ab-9a90-6aead530826c",
+          "name": "search_products",
+          "arguments": "{\"filters\":{\"category\":\"jackets\"},\"limit\":10,\"query\":\"Thicket fleece\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 1,
+              "products": [
+                {
+                  "id": "jacket-thicket-fleece",
+                  "name": "Thicket Fleece Jacket",
+                  "category": "jackets",
+                  "listPrice": "$69.00",
+                  "currentPrice": "$69.00",
+                  "rating": 4.3,
+                  "description": "Mid-weight grid fleece for layering.",
+                  "specs": {
+                    "material": "polyester fleece",
+                    "waterproof": false,
+                    "weightGrams": 320
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 3,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_2f77c34a-a10c-4ac5-8869-d6700c4dc985",
+                "name": "quote_price",
+                "arguments": "{\"cart\":[{\"productId\":\"jacket-squall-pro\",\"qty\":1},{\"productId\":\"jacket-thicket-fleece\",\"qty\":1}],\"coupon\":\"GEAR20\"}"
+              }
+            ]
+          },
+          "reasoning": "We need total for these two items with coupon GEAR20. Need to quote_price. Use product IDs: jacket-squall-pro and jacket-thicket-fleece. Qty 1 each. Coupon GEAR20.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2568,
+        "outputTokens": 111,
+        "latencyMs": 867,
+        "cached": false,
+        "costMicros": 452,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_2f77c34a-a10c-4ac5-8869-d6700c4dc985",
+          "name": "quote_price",
+          "arguments": "{\"cart\":[{\"productId\":\"jacket-squall-pro\",\"qty\":1},{\"productId\":\"jacket-thicket-fleece\",\"qty\":1}],\"coupon\":\"GEAR20\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "lines": [
+                {
+                  "productId": "jacket-squall-pro",
+                  "name": "Squall Pro Rain Jacket",
+                  "qty": 1,
+                  "listPrice": "$229.00",
+                  "discounts": [],
+                  "lineTotal": "$229.00"
+                },
+                {
+                  "productId": "jacket-thicket-fleece",
+                  "name": "Thicket Fleece Jacket",
+                  "qty": 1,
+                  "listPrice": "$69.00",
+                  "discounts": [],
+                  "lineTotal": "$69.00"
+                }
+              ],
+              "subtotal": "$298.00",
+              "coupon": {
+                "code": "GEAR20",
+                "applied": true,
+                "discount": "-$59.60"
+              },
+              "totalDiscounts": "-$59.60",
+              "shipping": "FREE",
+              "total": "$238.40",
+              "totalCents": 23840
+            },
+            "policyDecision": "auto_approved"
+          }
+        },
+        "policyDecision": "auto_approved",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 4,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_10174531-523d-4375-913f-d299a71326c0",
+                "name": "reply",
+                "arguments": "{\"message\":\"Your cart with the Squall Pro Rain Jacket and Thicket Fleece Jacket, using code GEAR20, totals $238.40 (shipping is free).\"}"
+              }
+            ]
+          },
+          "reasoning": "We have the total. Need to reply to user with total. Must use reply tool. Provide total amount $238.40. Also mention coupon applied. Keep short friendly.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2784,
+        "outputTokens": 89,
+        "latencyMs": 1041,
+        "cached": false,
+        "costMicros": 471,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_10174531-523d-4375-913f-d299a71326c0",
+          "name": "reply",
+          "arguments": "{\"message\":\"Your cart with the Squall Pro Rain Jacket and Thicket Fleece Jacket, using code GEAR20, totals $238.40 (shipping is free).\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "Your cart with the Squall Pro Rain Jacket and Thicket Fleece Jacket, using code GEAR20, totals $238.40 (shipping is free)."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "Your cart with the Squall Pro Rain Jacket and Thicket Fleece Jacket, using code GEAR20, totals $238.40 (shipping is free)."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "shopping",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "test-price-deals-01",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to shopping"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "price_quoted",
+        "label": "quote_price for jacket-squall-pro×1,jacket-thicket-fleece×1 with GEAR20",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "price_stated",
+        "label": "reply 1 states $238.40",
+        "pass": true,
+        "severity": "task",
+        "detail": "amounts in reply: $238.40"
+      },
+      {
+        "id": "coupon",
+        "label": "checks GEAR20 (valid)",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 5,
+    "cachedCalls": 0,
+    "toolCalls": 3,
+    "inputTokens": 10044,
+    "outputTokens": 512,
+    "latencyMs": 5532,
+    "turnLatencyMs": [
+      5532
+    ],
+    "costMicros": 1814,
+    "wallMs": 5608
+  },
+  "finishedAt": "2026-10-06T14:34:02.360Z"
+}

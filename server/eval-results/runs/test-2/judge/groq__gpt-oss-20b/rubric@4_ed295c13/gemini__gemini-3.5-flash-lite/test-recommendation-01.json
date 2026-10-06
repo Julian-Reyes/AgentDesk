@@ -1,0 +1,129 @@
+{
+  "caseId": "test-recommendation-01",
+  "runId": "c254d1e0-a236-40aa-98fa-6b20a69c7b6a",
+  "questionSet": "2a2c12d8",
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-recommendation-01",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "I need a waterproof headlamp for under $40. What do you suggest?",
+        "reply": "Here are two waterproof headlamps under $40:\n\n- Glowworm 300 Headlamp: $29.00 (300 lumens, waterproof, weight 78g, burn time 1800 minutes)\n- Nightowl 200 Red-Light Headlamp: $34.00 (200 lumens, waterproof, weight 74g, burn time 2000 minutes)\n\nBoth are currently in stock. Let me know if you would like help with either of these!"
+      }
+    ],
+    "toolSummary": [
+      "message 1: search_products({\"filters\":{\"category\":\"headlamps\",\"waterproof\":true,\"maxPrice\":40}}) → {\"ok\":true,\"data\":{\"totalMatches\":2,\"products\":[{\"id\":\"lamp-glowworm-300\",\"name\":\"Glowworm 300 Headlamp\",\"category\":\"headlamps\",\"listPrice\":\"$29.00\",\"currentPrice\":\"$29.00\",\"rating\":4.4,\"description\":\"All-round AAA headlamp with a red night mode.\",\"specs\":{\"lumens\":300,\"waterproof\":true,\"weightGrams\":78,\"burnTimeMinutes\":1800},\"availability\":\"in_stock\",\"activeDeals\":[\"Headlamps: buy 2, get 1 free\"]},{\"id\":\"lamp-nightowl-200\",\"name\":\"Nightowl 200 Red-Light Headlamp\",\"category\":\"headlamps\",\"listPrice\":\"$34.00\",\"currentPrice\":\"$34.00\",\"rating\":4.2,\"description\":\"Headlamp with a strong red mode for stargazing.\",\"specs\":{\"lumens\":200,\"waterproof\":true,\"weightGrams\":74,\"burnTimeMinutes\":2000},\"availability\":\"in_stock\",\"activeDeals\":[\"Headlamps: buy 2, get 1 free\"]}],\"note\":\"currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping.\"}}"
+    ],
+    "checks": [
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "The reply offers two suitable headlamps with clear specs and asks for next steps, meeting all criteria."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only offers options and asks if the customer wants help, with no promises of future actions it cannot perform. This complies with the rule. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent made no statements about shipping, arrival, refunds, reviews, or processing times, so all timing claims are either absent or unsupported. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 773,
+      "inputTokens": 928,
+      "outputTokens": 106,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refunds, reviews, or processing times, so all timing claims are either absent or unsupported. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 794,
+      "inputTokens": 928,
+      "outputTokens": 106,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refunds, reviews, or processing times, so all timing claims are either absent or unsupported. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 831,
+      "inputTokens": 939,
+      "outputTokens": 348,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only offers options and asks if the customer wants help, with no promises of future actions it cannot perform. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 983,
+      "inputTokens": 928,
+      "outputTokens": 106,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refunds, reviews, or processing times, so all timing claims are either absent or unsupported. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 1072,
+      "inputTokens": 1172,
+      "outputTokens": 186,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"The reply offers two suitable headlamps with clear specs and asks for next steps, meeting all criteria.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1208,
+      "inputTokens": 939,
+      "outputTokens": 369,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only provided product options and asked if the customer wants help, without promising future actions it cannot perform. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1336,
+      "inputTokens": 939,
+      "outputTokens": 348,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only offers options and asks if the customer wants help, with no promises of future actions it cannot perform. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

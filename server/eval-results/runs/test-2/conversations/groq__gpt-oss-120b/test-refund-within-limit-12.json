@@ -1,0 +1,524 @@
+{
+  "caseId": "test-refund-within-limit-12",
+  "case": {
+    "id": "test-refund-within-limit-12",
+    "split": "test",
+    "type": "refund_within_limit",
+    "why": "#1292 (Nora Mbeki) is delayed: the $7.99 shipping is refunded once, automatically. She then asks for the shipping to be refunded again. There's nothing left to refund for lateness (the tool denies a second one), so exactly one refund. A goodwill coupon of 10% or less is allowed, not required.",
+    "source": "test batch 1",
+    "customer": "nora.mbeki189@example.com",
+    "turns": [
+      {
+        "customer": "Order #1292 is delayed. Can I get the shipping refunded?",
+        "reply": {
+          "mentions": [],
+          "amounts": [
+            799
+          ],
+          "avoids": []
+        }
+      },
+      {
+        "customer": "Thanks. Actually, can you refund the shipping again? It's still not here.",
+        "assumes": "the agent refunded the $7.99 shipping"
+      }
+    ],
+    "expect": {
+      "route": "support",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [
+          {
+            "order": 1292,
+            "amountCents": 799,
+            "reason": "late",
+            "status": "issued"
+          }
+        ],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": [
+            {
+              "maxPercent": 10,
+              "order": 1292,
+              "status": "issued"
+            }
+          ]
+        },
+        "escalation": "forbidden"
+      },
+      "leaks": [],
+      "judgeChecks": [
+        "In its last reply, the agent says the shipping was already refunded and doesn't claim a second refund."
+      ]
+    }
+  },
+  "agentModel": "groq/gpt-oss-120b",
+  "team": {
+    "router": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "fe31dc28-3be1-41d8-b226-090afff2a587",
+    "turns": [
+      {
+        "customer": "Order #1292 is delayed. Can I get the shipping refunded?",
+        "reply": "Your shipping cost of $7.99 has been refunded to the original payment method. The refund has been processed and should appear on your statement shortly. Thanks for your patience.",
+        "answeredBy": "support",
+        "outcome": "resolved"
+      },
+      {
+        "customer": "Thanks. Actually, can you refund the shipping again? It's still not here.",
+        "reply": "I’m sorry, but the shipping charge for this order has already been refunded, so another refund isn’t possible. As a gesture for the continued delay, I can issue a one‑time discount coupon for up to 10 % off a future purchase. Let me know if you’d like me to create that coupon for you.",
+        "answeredBy": "support",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Order #1292 is delayed. Can I get the shipping refunded?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\":\"support\",\"category\":\"refunds\",\"urgency\":\"normal\",\"confidence\":0.99}",
+          "decision": {
+            "route": "support",
+            "category": "refunds",
+            "urgency": "normal",
+            "confidence": 0.99
+          },
+          "fallback": false
+        },
+        "inputTokens": 422,
+        "outputTokens": 122,
+        "latencyMs": 1380,
+        "cached": false,
+        "costMicros": 137,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Nora Mbeki (nora.mbeki189@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_8afe3916-6664-49a2-b3ca-3046077c3d06",
+                "name": "get_policy",
+                "arguments": "{\"topic\":\"refunds\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to handle order #1292 delayed shipping. Customer wants shipping refund. Need to check order details and see if shipping cost can be refunded for delayed orders. Policy: shipping refunds for delayed orders? Let's get policy on refunds maybe. Use get_policy with topic \"refunds\" or \"shipping\"? Probably refunds policy includes shipping refunds for delayed. Let's retrieve.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1871,
+        "outputTokens": 102,
+        "latencyMs": 889,
+        "cached": false,
+        "costMicros": 342,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "fc_8afe3916-6664-49a2-b3ca-3046077c3d06",
+          "name": "get_policy",
+          "arguments": "{\"topic\":\"refunds\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "topic": "refunds",
+              "title": "Refunds",
+              "text": "Refunds go back to the original payment method.\nA refund can never be more than what was paid for the order.\nOur support team can issue refunds for items that arrived damaged, lost orders and late deliveries (shipping cost only). Refunds up to $50.00 per order are processed right away; larger amounts are reviewed by a team member, usually within one business day.\nDamaged items are refunded per item, up to what was paid for that item. An item that cost more than $50.00 (per unit) is always reviewed by a team member, whatever amount is requested.\nRefunds for returned items are issued when the warehouse receives the return."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Nora Mbeki (nora.mbeki189@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_03cdd101-cc11-4e7c-90b1-ed5536566db9",
+                "name": "get_order",
+                "arguments": "{\"orderId\":1292}"
+              }
+            ]
+          },
+          "reasoning": "We need to handle order #1292 delayed shipping refund request. Need to get order details and tracking perhaps. Use get_order first.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2054,
+        "outputTokens": 51,
+        "latencyMs": 637,
+        "cached": false,
+        "costMicros": 339,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "fc_03cdd101-cc11-4e7c-90b1-ed5536566db9",
+          "name": "get_order",
+          "arguments": "{\"orderId\":1292}",
+          "result": {
+            "ok": true,
+            "data": {
+              "number": 1292,
+              "status": "delayed",
+              "placed": "2026-09-07",
+              "delivered": null,
+              "items": [
+                {
+                  "productId": "stove-pocket-pro",
+                  "name": "Pocket Pro Canister Stove",
+                  "size": null,
+                  "color": null,
+                  "qty": 1,
+                  "listPrice": "$55.00",
+                  "discount": "$0.00",
+                  "paid": "$55.00",
+                  "returnedQty": 0
+                }
+              ],
+              "subtotal": "$55.00",
+              "discount": "$0.00",
+              "shipping": "$7.99",
+              "totalPaid": "$62.99",
+              "refunds": []
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Nora Mbeki (nora.mbeki189@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_82a59e58-b674-4862-af67-1b5c5ef8010e",
+                "name": "issue_refund",
+                "arguments": "{\"amount\":7.99,\"note\":\"Shipping refund for delayed delivery\",\"orderId\":1292,\"reason\":\"late\"}"
+              }
+            ]
+          },
+          "reasoning": "We have order #1292 delayed. Customer asks for shipping refund. Policy: refunds for late deliveries (shipping cost only). Shipping cost is $7.99. Refunds up to $50 are processed right away. So we can issue refund of $7.99 for shipping. Must call issue_refund with amount 7.99, reason \"late\", cause maybe not needed (cause optional). orderId 1292. Then respond with result. Let's call issue_refund.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2203,
+        "outputTokens": 155,
+        "latencyMs": 2200,
+        "cached": false,
+        "costMicros": 423,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "fc_82a59e58-b674-4862-af67-1b5c5ef8010e",
+          "name": "issue_refund",
+          "arguments": "{\"amount\":7.99,\"note\":\"Shipping refund for delayed delivery\",\"orderId\":1292,\"reason\":\"late\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "status": "refunded",
+              "refundId": 193,
+              "amount": "$7.99",
+              "message": "Refund of $7.99 issued to the original payment method."
+            },
+            "policyDecision": "auto_approved"
+          }
+        },
+        "policyDecision": "auto_approved",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 4,
+          "context": "The customer is signed in as Nora Mbeki (nora.mbeki189@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_d5a65ed4-8d15-45d2-b6ec-3362ef27f17c",
+                "name": "reply",
+                "arguments": "{\"message\":\"Your shipping cost of $7.99 has been refunded to the original payment method. The refund has been processed and should appear on your statement shortly. Thanks for your patience.\"}"
+              }
+            ]
+          },
+          "reasoning": "We have order #1292 delayed, shipping $7.99, refund issued auto approved. Need to reply to customer stating shipping refunded, amount, and that it's been issued to original payment method. Also maybe mention if any further steps? According to policy: refund processed. Provide confirmation. Use reply tool.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2297,
+        "outputTokens": 119,
+        "latencyMs": 1098,
+        "cached": false,
+        "costMicros": 416,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "fc_d5a65ed4-8d15-45d2-b6ec-3362ef27f17c",
+          "name": "reply",
+          "arguments": "{\"message\":\"Your shipping cost of $7.99 has been refunded to the original payment method. The refund has been processed and should appear on your statement shortly. Thanks for your patience.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "Your shipping cost of $7.99 has been refunded to the original payment method. The refund has been processed and should appear on your statement shortly. Thanks for your patience."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "Your shipping cost of $7.99 has been refunded to the original payment method. The refund has been processed and should appear on your statement shortly. Thanks for your patience."
+        },
+        "turn": 1
+      },
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Thanks. Actually, can you refund the shipping again? It's still not here."
+        },
+        "turn": 2
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Nora Mbeki (nora.mbeki189@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": "I’m sorry, but the shipping charge for this order has already been refunded, so another refund isn’t possible. As a gesture for the continued delay, I can issue a one‑time discount coupon for up to 10 % off a future purchase. Let me know if you’d like me to create that coupon for you."
+          },
+          "reasoning": "The customer wants another refund of shipping for same order. Already refunded shipping once. The policy: refunds for late deliveries (shipping cost only) up to $50 auto approved. But shipping already refunded. We cannot refund again because already refunded. Should explain that shipping already refunded and cannot refund twice. Could offer goodwill coupon? We can issue a goodwill coupon for delayed shipping if needed. The policy: issue_goodwill_coupon allowed for store-caused problem (delayed) up to 10% per 30 days. The order total $62.99, 10% = $6.30. Could issue maybe 10% coupon. But the request is refund shipping again. We should politely say shipping already refunded, can't refund again. Offer a goodwill coupon if they'd like. But we shouldn't assume they'd want. The user explicitly asks \"refund the shipping again\". We must refuse that request and give reason, offer what is possible (cannot refund again). Could offer a goodwill coupon. So we can say cannot refund again because already refunded; we can offer a goodwill coupon as alternative. Need to use reply only.\n\nWe must not use issue_goodwill_coupon unless they request? We could proactively offer, it's allowed. But the instruction says \"offer what IS possible\". Offering coupon is possible. So we can say we cannot refund again, but can issue a goodwill coupon of up to 10% as apology. Ask if they'd like that. But we should give a direct answer. Might need to ask for confirmation. Could just state we cannot refund again, but we can issue a coupon. Probably acceptable.\n\nWe must not mention tools. So reply accordingly.",
+          "finishReason": "stop"
+        },
+        "inputTokens": 2424,
+        "outputTokens": 408,
+        "latencyMs": 2336,
+        "cached": false,
+        "costMicros": 608,
+        "turn": 2
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "I’m sorry, but the shipping charge for this order has already been refunded, so another refund isn’t possible. As a gesture for the continued delay, I can issue a one‑time discount coupon for up to 10 % off a future purchase. Let me know if you’d like me to create that coupon for you.",
+          "implicit": true
+        },
+        "turn": 2
+      }
+    ],
+    "finalAgent": "support",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [
+        {
+          "order": 1292,
+          "amountCents": 799,
+          "reason": "late",
+          "status": "issued",
+          "item": null
+        }
+      ],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "test-refund-within-limit-12",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to support",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to support"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "refund_required:0",
+        "label": "refund: $7.99 late refund on #1292, issued",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "reply1:amount:799",
+        "label": "reply 1 states $7.99",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      },
+      {
+        "turn": 2,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "In its last reply, the agent says the shipping was already refunded and doesn't claim a second refund."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      },
+      {
+        "id": "script:2",
+        "kind": "script_fit",
+        "turn": 2,
+        "assumes": "the agent refunded the $7.99 shipping",
+        "previousReply": "Your shipping cost of $7.99 has been refunded to the original payment method. The refund has been processed and should appear on your statement shortly. Thanks for your patience."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 6,
+    "cachedCalls": 0,
+    "toolCalls": 3,
+    "inputTokens": 11271,
+    "outputTokens": 957,
+    "latencyMs": 8540,
+    "turnLatencyMs": [
+      6204,
+      2336
+    ],
+    "costMicros": 2265,
+    "wallMs": 8623
+  },
+  "finishedAt": "2026-10-06T14:38:13.015Z"
+}

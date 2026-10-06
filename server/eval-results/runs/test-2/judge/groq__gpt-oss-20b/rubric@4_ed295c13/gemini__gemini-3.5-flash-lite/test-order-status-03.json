@@ -1,0 +1,134 @@
+{
+  "caseId": "test-order-status-03",
+  "runId": "bc1e301c-ba3c-48d4-b6b5-c4717ccd33ee",
+  "questionSet": "2a2c12d8",
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-order-status-03",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Can you give me a quick rundown of where all my orders stand?",
+        "reply": "Here is the rundown of your orders:\n\n- Order #1197 (Placed on 2026-09-11, Total: $426.00): Shipped with Parcelway (Tracking: PW0009479043). Estimated delivery is between 2026-09-15 and 2026-09-18. It is currently in transit in Salt Lake City, UT.\n- Order #1217 (Placed on 2026-09-03, Total: $548.00): Delayed with Parcelway (Tracking: PW0009637423) due to weather and volume backlog in Portland, OR.\n- Order #1145 (Placed on 2026-08-14, Total: $297.00): Marked as lost by Parcelway (Tracking: PW0009067255) in Sacramento, CA.\n- Order #1319 (Placed on 2026-07-10, Total: $348.00): Delivered to your front door on 2026-07-15."
+      }
+    ],
+    "toolSummary": [
+      "message 1: find_customer({\"email\":\"kenji.kaur117@example.com\"}) → {\"ok\":true,\"data\":{\"name\":\"Kenji Kaur\",\"email\":\"kenji.kaur117@example.com\",\"orders\":[{\"number\":1197,\"status\":\"shipped\",\"placed\":\"2026-09-11\",\"total\":\"$426.00\"},{\"number\":1217,\"status\":\"delayed\",\"placed\":\"2026-09-03\",\"total\":\"$548.00\"},{\"number\":1145,\"status\":\"lost\",\"placed\":\"2026-08-14\",\"total\":\"$297.00\"},{\"number\":1319,\"status\":\"delivered\",\"placed\":\"2026-07-10\",\"total\":\"$348.00\"}]}}",
+      "message 1: get_tracking({\"orderId\":1197}) → {\"ok\":true,\"data\":{\"orderNumber\":1197,\"status\":\"shipped\",\"carrier\":\"Parcelway\",\"trackingNumber\":\"PW0009479043\",\"estimatedDelivery\":\"2026-09-15 to 2026-09-18\",\"events\":[{\"at\":\"2026-09-11 11:00\",\"status\":\"order_placed\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":null},{\"at\":\"2026-09-12 11:00\",\"status\":\"shipped\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":\"Handed to Parcelway Ground\"},{\"at\":\"2026-09-13 11:00\",\"status\":\"in_transit\",\"location\":\"Salt Lake City, UT\",\"note\":null}]}}",
+      "message 1: get_tracking({\"orderId\":1217}) → {\"ok\":true,\"data\":{\"orderNumber\":1217,\"status\":\"delayed\",\"carrier\":\"Parcelway\",\"trackingNumber\":\"PW0009637423\",\"estimatedDelivery\":null,\"events\":[{\"at\":\"2026-09-03 08:00\",\"status\":\"order_placed\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":null},{\"at\":\"2026-09-04 08:00\",\"status\":\"shipped\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":\"Handed to Parcelway Ground\"},{\"at\":\"2026-09-05 08:00\",\"status\":\"in_transit\",\"location\":\"Portland, OR\",\"note\":null},{\"at\":\"2026-09-07 08:00\",\"status\":\"delayed\",\"location\":\"Portland, OR\",\"note\":\"Carrier delay: weather and volume backlog\"}]}}",
+      "message 1: get_tracking({\"orderId\":1145}) → {\"ok\":true,\"data\":{\"orderNumber\":1145,\"status\":\"lost\",\"carrier\":\"Parcelway\",\"trackingNumber\":\"PW0009067255\",\"estimatedDelivery\":null,\"events\":[{\"at\":\"2026-08-14 21:00\",\"status\":\"order_placed\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":null},{\"at\":\"2026-08-15 21:00\",\"status\":\"shipped\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":\"Handed to Parcelway Ground\"},{\"at\":\"2026-08-16 21:00\",\"status\":\"in_transit\",\"location\":\"Sacramento, CA\",\"note\":null},{\"at\":\"2026-08-21 21:00\",\"status\":\"exception\",\"location\":\"Sacramento, CA\",\"note\":\"Package could not be located by the carrier\"},{\"at\":\"2026-08-27 21:00\",\"status\":\"lost\",\"location\":\"Sacramento, CA\",\"note\":\"Carrier declared the package lost\"}]}}",
+      "message 1: get_tracking({\"orderId\":1319}) → {\"ok\":true,\"data\":{\"orderNumber\":1319,\"status\":\"delivered\",\"carrier\":\"Parcelway\",\"trackingNumber\":\"PW0010445161\",\"estimatedDelivery\":null,\"events\":[{\"at\":\"2026-07-10 11:00\",\"status\":\"order_placed\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":null},{\"at\":\"2026-07-11 11:00\",\"status\":\"shipped\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":\"Handed to Parcelway Ground\"},{\"at\":\"2026-07-12 11:00\",\"status\":\"in_transit\",\"location\":\"Salt Lake City, UT\",\"note\":null},{\"at\":\"2026-07-15 10:00\",\"status\":\"out_for_delivery\",\"location\":\"Local delivery station\",\"note\":null},{\"at\":\"2026-07-15 16:00\",\"status\":\"delivered\",\"location\":\"Front door\",\"note\":null}]}}"
+    ],
+    "judgeNote": "A short list, one line per order, with the right status for each. Flags the lost one and what happens next.",
+    "checks": [
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 4,
+        "why": "The reply is professional, clear, and covers all orders, but it omits next steps for the lost package."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only reports current status and does not promise or imply future action that cannot be done in this chat. Therefore the statement is correct. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "All timing statements in the agent’s reply match the tool data: the estimated delivery window for order 1197, the delayed status and cause for order 1217, the lost status for order 1145, and the delivery date for order 1319 are all consistent with the tracking information returned. No unsupported vague timing was used. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "scores",
+      "latencyMs": 720,
+      "inputTokens": 1990,
+      "outputTokens": 270,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":4,\"why\":\"The reply is professional, clear, and covers all orders, but it omits next steps for the lost package.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 832,
+      "inputTokens": 1757,
+      "outputTokens": 371,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports the current status of each order and does not promise or imply any future action that cannot be performed in this chat. Therefore the rule is satisfied. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1040,
+      "inputTokens": 1757,
+      "outputTokens": 312,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports current status and does not promise or imply future action that cannot be done in this chat. Therefore the statement is correct. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1128,
+      "inputTokens": 1746,
+      "outputTokens": 565,
+      "cached": false,
+      "raw": "{\"why\":\"All timing statements in the agent’s reply match the tool data: the estimated delivery window for order 1197, the delayed status and cause for order 1217, the lost status for order 1145, and the delivery date for order 1319 are all consistent with the tracking information returned. No unsupported vague timing was used. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 1152,
+      "inputTokens": 1746,
+      "outputTokens": 559,
+      "cached": false,
+      "raw": "{\"why\":\"The agent's timing claims match the tool data: order 1197's estimated delivery matches the tracking data, and order 1319's delivery date matches the tracking record. No unsupported vague timing was used. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 1217,
+      "inputTokens": 1746,
+      "outputTokens": 559,
+      "cached": false,
+      "raw": "{\"why\":\"The agent's timing claims match the tool data: order 1197's estimated delivery matches the tracking data, and order 1319's delivery date matches the tracking record. No unsupported vague timing was used. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1275,
+      "inputTokens": 1757,
+      "outputTokens": 386,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports the current status of each order and does not promise or imply any future action that cannot be performed in this chat. Therefore the rule is satisfied. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

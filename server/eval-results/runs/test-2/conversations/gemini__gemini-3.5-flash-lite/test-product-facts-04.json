@@ -1,0 +1,540 @@
+{
+  "caseId": "test-product-facts-04",
+  "case": {
+    "id": "test-product-facts-04",
+    "split": "test",
+    "type": "product_facts",
+    "why": "The Breeze Wind Shell is not waterproof (catalog: waterproof false; a 1500 mm rating, a featherweight wind shell). Asked whether it's enough for rain, the right answer is no; the waterproof Squall is a fair suggestion.",
+    "source": "test batch 4",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "Is the Breeze Wind Shell waterproof enough to wear in the rain?"
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "leaks": [],
+      "judgeChecks": [
+        "The agent says the Breeze Wind Shell isn't waterproof (it's a wind shell), and doesn't present it as a rain jacket."
+      ]
+    }
+  },
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "team": {
+    "router": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "ab10339b-f610-4438-8066-f3b49eebd428",
+    "turns": [
+      {
+        "customer": "Is the Breeze Wind Shell waterproof enough to wear in the rain?",
+        "reply": "The Breeze Wind Shell is not waterproof—it is designed as a featherweight wind shell for protection against wind rather than rain.",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Is the Breeze Wind Shell waterproof enough to wear in the rain?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"shopping\", \"category\": \"product_info\", \"urgency\": \"normal\", \"confidence\": 0.95}",
+          "decision": {
+            "route": "shopping",
+            "category": "product_info",
+            "urgency": "normal",
+            "confidence": 0.95
+          },
+          "fallback": false
+        },
+        "inputTokens": 345,
+        "outputTokens": 30,
+        "latencyMs": 1229,
+        "cached": false,
+        "costMicros": 179,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_161402",
+                "name": "search_products",
+                "arguments": "{\"query\":\"Breeze Wind Shell\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TF+3nBLibjrPVVlQyXelEfM65DH9nLj6H/9uOcE7Z6MYcdFNeu8Obu7HQJz1YVY47v90Z/UIang5qppPWHV+ynOsrYby066qdgBq1W8iLUafiPqfwQHqvGR4="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1991,
+        "outputTokens": 19,
+        "latencyMs": 1211,
+        "cached": false,
+        "costMicros": 645,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_161402",
+          "name": "search_products",
+          "arguments": "{\"query\":\"Breeze Wind Shell\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 6,
+              "products": [
+                {
+                  "id": "jacket-breeze-wind",
+                  "name": "Breeze Wind Shell",
+                  "category": "jackets",
+                  "listPrice": "$89.00",
+                  "currentPrice": "$89.00",
+                  "rating": 4.1,
+                  "description": "Featherweight wind shell that packs into its own pocket.",
+                  "specs": {
+                    "material": "10D nylon",
+                    "waterproof": false,
+                    "weightGrams": 90,
+                    "waterproofRatingMm": 1500
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "jacket-gale-softshell",
+                  "name": "Gale Softshell Jacket",
+                  "category": "jackets",
+                  "listPrice": "$129.00",
+                  "currentPrice": "$129.00",
+                  "rating": 4.2,
+                  "description": "Stretchy, wind-resistant softshell for active days.",
+                  "specs": {
+                    "material": "softshell",
+                    "waterproof": false,
+                    "weightGrams": 480,
+                    "waterproofRatingMm": 5000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "jacket-tundra-parka",
+                  "name": "Tundra Insulated Parka",
+                  "category": "jackets",
+                  "listPrice": "$329.00",
+                  "currentPrice": "$329.00",
+                  "rating": 4.8,
+                  "description": "Waterproof insulated parka for deep winter.",
+                  "specs": {
+                    "material": "down + waterproof shell",
+                    "waterproof": true,
+                    "tempRatingC": -25,
+                    "weightGrams": 1100,
+                    "waterproofRatingMm": 15000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "tent-tundra-2",
+                  "name": "Tundra 2 Four-Season Tent",
+                  "category": "tents",
+                  "listPrice": "$549.00",
+                  "currentPrice": "$439.20",
+                  "rating": 4.8,
+                  "description": "Two-person mountaineering tent built for snow load and high winds.",
+                  "specs": {
+                    "seasons": 4,
+                    "material": "40D ripstop nylon",
+                    "waterproof": true,
+                    "weightGrams": 3300,
+                    "capacityPersons": 2,
+                    "waterproofRatingMm": 5000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Tent Sale: 20% off all tents"
+                  ]
+                },
+                {
+                  "id": "jacket-squall-pro",
+                  "name": "Squall Pro Rain Jacket",
+                  "category": "jackets",
+                  "listPrice": "$229.00",
+                  "currentPrice": "$229.00",
+                  "rating": 4.7,
+                  "description": "3-layer storm shell for mountain weather.",
+                  "specs": {
+                    "material": "3-layer nylon",
+                    "waterproof": true,
+                    "weightGrams": 420,
+                    "waterproofRatingMm": 20000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "stove-pocket-pro",
+                  "name": "Pocket Pro Canister Stove",
+                  "category": "stoves",
+                  "listPrice": "$55.00",
+                  "currentPrice": "$55.00",
+                  "rating": 4.6,
+                  "description": "Pocket stove with a push-button igniter and wind shield.",
+                  "specs": {
+                    "fuel": "isobutane canister",
+                    "weightGrams": 95
+                  },
+                  "availability": "low_stock",
+                  "activeDeals": []
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_412684",
+                "name": "get_product",
+                "arguments": "{\"id\":\"jacket-breeze-wind\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TgNLDI2eF12oPtUsIVh1is2fiF7ogAn6b8X0EZEDzolP/SZkjNDih7DnF2/o9cJ5kjqsGSlWCw5IthONCr87jrI6ASS2M1uj5oqsBEEpldhVgU2ScmBkt7LM="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2734,
+        "outputTokens": 21,
+        "latencyMs": 953,
+        "cached": false,
+        "costMicros": 873,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_412684",
+          "name": "get_product",
+          "arguments": "{\"id\":\"jacket-breeze-wind\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "id": "jacket-breeze-wind",
+              "name": "Breeze Wind Shell",
+              "category": "jackets",
+              "listPrice": "$89.00",
+              "currentPrice": "$89.00",
+              "rating": 4.1,
+              "description": "Featherweight wind shell that packs into its own pocket.",
+              "specs": {
+                "material": "10D nylon",
+                "waterproof": false,
+                "weightGrams": 90,
+                "waterproofRatingMm": 1500
+              },
+              "availability": "in_stock",
+              "activeDeals": [],
+              "variants": [
+                {
+                  "size": "L",
+                  "color": "blue",
+                  "availability": "low_stock"
+                },
+                {
+                  "size": "L",
+                  "color": "yellow",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "M",
+                  "color": "blue",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "M",
+                  "color": "yellow",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "S",
+                  "color": "blue",
+                  "availability": "low_stock"
+                },
+                {
+                  "size": "S",
+                  "color": "yellow",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "XL",
+                  "color": "blue",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "XL",
+                  "color": "yellow",
+                  "availability": "low_stock"
+                },
+                {
+                  "size": "XS",
+                  "color": "blue",
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "XS",
+                  "color": "yellow",
+                  "availability": "low_stock"
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 3,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_188599",
+                "name": "reply",
+                "arguments": "{\"message\":\"The Breeze Wind Shell is not waterproof—it is designed as a featherweight wind shell for protection against wind rather than rain.\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0Tg5nF9wdvjIxuWA3QF7FLVAT9+BezECsupgkZcRZ7BZdFFJzxFPJcDhZ7oZA5BUzhHOSTFsUZRSGzU32y3fB/7FgwODazxPDWU+6CUWo1zximhNAJSIEl/Ps="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 3023,
+        "outputTokens": 38,
+        "latencyMs": 1869,
+        "cached": false,
+        "costMicros": 1002,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_188599",
+          "name": "reply",
+          "arguments": "{\"message\":\"The Breeze Wind Shell is not waterproof—it is designed as a featherweight wind shell for protection against wind rather than rain.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "The Breeze Wind Shell is not waterproof—it is designed as a featherweight wind shell for protection against wind rather than rain."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "The Breeze Wind Shell is not waterproof—it is designed as a featherweight wind shell for protection against wind rather than rain."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "shopping",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "test-product-facts-04",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to shopping"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent says the Breeze Wind Shell isn't waterproof (it's a wind shell), and doesn't present it as a rain jacket."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 4,
+    "cachedCalls": 0,
+    "toolCalls": 2,
+    "inputTokens": 8093,
+    "outputTokens": 108,
+    "latencyMs": 5262,
+    "turnLatencyMs": [
+      5262
+    ],
+    "costMicros": 2699,
+    "wallMs": 5339
+  },
+  "finishedAt": "2026-10-06T14:32:26.304Z"
+}

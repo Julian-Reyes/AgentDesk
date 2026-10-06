@@ -1,0 +1,616 @@
+{
+  "caseId": "test-stock-02",
+  "case": {
+    "id": "test-stock-02",
+    "split": "test",
+    "type": "stock",
+    "why": "Scree Trail Runner size 12 orange is out of stock (0); size 12 blue has 2. Any alternative offered must really be in stock.",
+    "source": "test batch 4",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "Is the Scree Trail Runner available in size 12, orange?",
+        "reply": {
+          "mentions": [
+            [
+              "out of stock",
+              "sold out",
+              "not in stock",
+              "not available",
+              "unavailable",
+              "none left"
+            ]
+          ],
+          "amounts": [],
+          "avoids": []
+        }
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "outcome": "resolved",
+      "tools": {
+        "required": [
+          {
+            "anyOf": [
+              {
+                "tool": "check_stock",
+                "args": {
+                  "productId": "boot-scree-runner"
+                }
+              },
+              {
+                "tool": "get_product",
+                "args": {
+                  "id": "boot-scree-runner"
+                }
+              }
+            ]
+          }
+        ],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "leaks": [],
+      "judge": "Says 12/orange is out, offers 12 in blue (only 2 left). No restock date.",
+      "judgeChecks": [
+        "Any alternative the agent offers (another color, size or product) is in stock according to the tool results."
+      ]
+    }
+  },
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "team": {
+    "router": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "b4e19545-b35b-42b0-ace5-e137d35da0fa",
+    "turns": [
+      {
+        "customer": "Is the Scree Trail Runner available in size 12, orange?",
+        "reply": "The Scree Trail Runner in size 12, orange is currently out of stock. However, it is available in size 12 in blue. Let me know if you would like to check other sizes or colors!",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Is the Scree Trail Runner available in size 12, orange?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"shopping\", \"category\": \"stock\", \"urgency\": \"normal\", \"confidence\": 1.0}",
+          "decision": {
+            "route": "shopping",
+            "category": "stock",
+            "urgency": "normal",
+            "confidence": 1
+          },
+          "fallback": false
+        },
+        "inputTokens": 347,
+        "outputTokens": 27,
+        "latencyMs": 866,
+        "cached": false,
+        "costMicros": 172,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_384131",
+                "name": "search_products",
+                "arguments": "{\"query\":\"Scree Trail Runner\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TOncQ5/Oc96oyaBl3H/827di8OhCaIWuY8vYHhQgcPzstyJdT7QOedbEsrmQRaTNCbAF//JXWhtVi/AReg2kWwuz7QbvX33mYRUMiDtSy+kMxnQEqRFvkr2A="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1993,
+        "outputTokens": 20,
+        "latencyMs": 1071,
+        "cached": false,
+        "costMicros": 648,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_384131",
+          "name": "search_products",
+          "arguments": "{\"query\":\"Scree Trail Runner\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 3,
+              "products": [
+                {
+                  "id": "boot-scree-runner",
+                  "name": "Scree Trail Runner",
+                  "category": "boots",
+                  "listPrice": "$119.00",
+                  "currentPrice": "$119.00",
+                  "rating": 4.3,
+                  "description": "Breathable, quick-drying trail running shoe.",
+                  "specs": {
+                    "material": "mesh",
+                    "waterproof": false,
+                    "weightGrams": 600
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "lamp-stride-400",
+                  "name": "Stride 400 Running Headlamp",
+                  "category": "headlamps",
+                  "listPrice": "$59.00",
+                  "currentPrice": "$59.00",
+                  "rating": 4.5,
+                  "description": "Bounce-free headlamp for trail running.",
+                  "specs": {
+                    "lumens": 400,
+                    "waterproof": true,
+                    "weightGrams": 60,
+                    "burnTimeMinutes": 600
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Headlamps: buy 2, get 1 free"
+                  ]
+                },
+                {
+                  "id": "tent-canopy-2",
+                  "name": "Canopy 2 Trail Tent",
+                  "category": "tents",
+                  "listPrice": "$189.00",
+                  "currentPrice": "$151.20",
+                  "rating": 4.5,
+                  "description": "Lightweight two-person trail tent with a full-coverage fly.",
+                  "specs": {
+                    "seasons": 3,
+                    "material": "20D ripstop polyester",
+                    "waterproof": true,
+                    "weightGrams": 2000,
+                    "capacityPersons": 2,
+                    "waterproofRatingMm": 2500
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Tent Sale: 20% off all tents"
+                  ]
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_282789",
+                "name": "check_stock",
+                "arguments": "{\"color\":\"orange\",\"productId\":\"boot-scree-runner\",\"size\":\"12\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0T2AxbcMmfgijW9hltZTlXLgsmS5mm3S1lpgD2EmsAountNGFcJXzJuOrZb+jtiIb2owIOJLEBolUF24/0pM1g0hbrs6BnxeVlnRux9IkqLOio+q30MTpuUUU="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2415,
+        "outputTokens": 34,
+        "latencyMs": 1271,
+        "cached": false,
+        "costMicros": 810,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_282789",
+          "name": "check_stock",
+          "arguments": "{\"color\":\"orange\",\"productId\":\"boot-scree-runner\",\"size\":\"12\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "product": "Scree Trail Runner",
+              "variants": [
+                {
+                  "size": "12",
+                  "color": "orange",
+                  "inStock": false,
+                  "unitsAvailable": 0,
+                  "availability": "out_of_stock"
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 3,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_341047",
+                "name": "check_stock",
+                "arguments": "{\"productId\":\"boot-scree-runner\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0T5j4vW6PQhMVQ30hIVmRYkGfpT7qx/efYjNQrGsY6T8VuWIjjuC9X/sJBFmLHX0HU86xDu5cko9Rm9g5+2DG+3thr6M2im3JgOuxp6O+ZyrOXTLraDW1h+uo="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2508,
+        "outputTokens": 21,
+        "latencyMs": 1161,
+        "cached": false,
+        "costMicros": 805,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_341047",
+          "name": "check_stock",
+          "arguments": "{\"productId\":\"boot-scree-runner\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "product": "Scree Trail Runner",
+              "variants": [
+                {
+                  "size": "10",
+                  "color": "blue",
+                  "inStock": true,
+                  "unitsAvailable": 3,
+                  "availability": "low_stock"
+                },
+                {
+                  "size": "10",
+                  "color": "orange",
+                  "inStock": true,
+                  "unitsAvailable": 31,
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "11",
+                  "color": "blue",
+                  "inStock": true,
+                  "unitsAvailable": 13,
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "11",
+                  "color": "orange",
+                  "inStock": true,
+                  "unitsAvailable": 2,
+                  "availability": "low_stock"
+                },
+                {
+                  "size": "12",
+                  "color": "blue",
+                  "inStock": true,
+                  "unitsAvailable": 2,
+                  "availability": "low_stock"
+                },
+                {
+                  "size": "12",
+                  "color": "orange",
+                  "inStock": false,
+                  "unitsAvailable": 0,
+                  "availability": "out_of_stock"
+                },
+                {
+                  "size": "7",
+                  "color": "blue",
+                  "inStock": true,
+                  "unitsAvailable": 1,
+                  "availability": "low_stock"
+                },
+                {
+                  "size": "7",
+                  "color": "orange",
+                  "inStock": true,
+                  "unitsAvailable": 13,
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "8",
+                  "color": "blue",
+                  "inStock": false,
+                  "unitsAvailable": 0,
+                  "availability": "out_of_stock"
+                },
+                {
+                  "size": "8",
+                  "color": "orange",
+                  "inStock": true,
+                  "unitsAvailable": 4,
+                  "availability": "low_stock"
+                },
+                {
+                  "size": "9",
+                  "color": "blue",
+                  "inStock": true,
+                  "unitsAvailable": 30,
+                  "availability": "in_stock"
+                },
+                {
+                  "size": "9",
+                  "color": "orange",
+                  "inStock": true,
+                  "unitsAvailable": 23,
+                  "availability": "in_stock"
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 4,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_421164",
+                "name": "reply",
+                "arguments": "{\"message\":\"The Scree Trail Runner in size 12, orange is currently out of stock. However, it is available in size 12 in blue. Let me know if you would like to check other sizes or colors!\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TUgx/zt8tMt4gPCU2ylqBiuybZYeynd2o7XSkQVHJZAs24fPwXYrpUTRIjPbfdyhxu8xgfh0HxWHYt6MyM97lf1RVTwFoQzMMKV08kpAajIoir9RkONiDLEs="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2864,
+        "outputTokens": 58,
+        "latencyMs": 1118,
+        "cached": false,
+        "costMicros": 1004,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_421164",
+          "name": "reply",
+          "arguments": "{\"message\":\"The Scree Trail Runner in size 12, orange is currently out of stock. However, it is available in size 12 in blue. Let me know if you would like to check other sizes or colors!\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "The Scree Trail Runner in size 12, orange is currently out of stock. However, it is available in size 12 in blue. Let me know if you would like to check other sizes or colors!"
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "The Scree Trail Runner in size 12, orange is currently out of stock. However, it is available in size 12 in blue. Let me know if you would like to check other sizes or colors!"
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "shopping",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "test-stock-02",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to shopping"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "tool_required:0",
+        "label": "calls check_stock {\"productId\":\"boot-scree-runner\"} or get_product {\"id\":\"boot-scree-runner\"}",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "reply1:mentions:0",
+        "label": "reply 1 mentions \"out of stock\" or \"sold out\" or \"not in stock\" or \"not available\" or \"unavailable\" or \"none left\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "Any alternative the agent offers (another color, size or product) is in stock according to the tool results."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 5,
+    "cachedCalls": 0,
+    "toolCalls": 3,
+    "inputTokens": 10127,
+    "outputTokens": 160,
+    "latencyMs": 5487,
+    "turnLatencyMs": [
+      5487
+    ],
+    "costMicros": 3439,
+    "wallMs": 5781
+  },
+  "finishedAt": "2026-10-06T14:38:26.501Z"
+}

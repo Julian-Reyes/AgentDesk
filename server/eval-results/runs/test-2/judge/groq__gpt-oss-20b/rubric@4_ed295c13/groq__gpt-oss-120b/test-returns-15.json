@@ -1,0 +1,167 @@
+{
+  "caseId": "test-returns-15",
+  "runId": "c1e707b5-9b1d-420c-8396-8b0a5cf80bff",
+  "questionSet": "fe511832",
+  "agentModel": "groq/gpt-oss-120b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-returns-15",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "I got the Ridgeline Low shoes from order #1036 in mid-August and never wore them. Am I still in time to return them?",
+        "reply": "I’m sorry, but returns are only accepted within 30 days of delivery, and your Ridgeline Low Hiking Shoe was delivered on 2026‑08‑16, which is now beyond that window. Since the item is unused but past the return period, we can’t process a return. If you have any other concerns, please let us know. Thanks for understanding."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1036}) → {\"ok\":true,\"data\":{\"number\":1036,\"status\":\"delivered\",\"placed\":\"2026-08-13\",\"delivered\":\"2026-08-16\",\"items\":[{\"productId\":\"boot-ridgeline-low\",\"name\":\"Ridgeline Low Hiking Shoe\",\"size\":\"7\",\"color\":\"grey\",\"qty\":1,\"listPrice\":\"$139.00\",\"discount\":\"$0.00\",\"paid\":\"$139.00\",\"returnedQty\":0}],\"subtotal\":\"$139.00\",\"discount\":\"$0.00\",\"shipping\":\"$0.00\",\"totalPaid\":\"$139.00\",\"refunds\":[]}}",
+      "message 1: get_policy({\"topic\":\"returns\"}) → {\"ok\":true,\"data\":{\"topic\":\"returns\",\"title\":\"Returns\",\"text\":\"Unused items in original packaging can be returned within 30 days of delivery.\\nUsed or worn items can't be returned. If a used item is defective, see the warranty policy.\\nTo return an item, send it back using the return label from your account. The refund is issued to your original payment method once the warehouse receives it, usually within 5 business days.\\nItems that arrived damaged follow the damaged-items policy instead.\\nItems damaged after delivery (dropped, broken in an accident, or stopped working after use) can't be returned. If it's a manufacturing defect, see the warranty policy.\"}}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent says the shoes can still be returned and that today (September 15) is the last day."
+      },
+      {
+        "id": "judge:1",
+        "statement": "The agent explains the process (return label from the account, refund when the warehouse receives the item) and never says it will process, accept or refund the return itself."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "The reply clearly explains the return policy and the reason the return cannot be accepted, while offering further assistance."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": false,
+        "why": "The agent explicitly states that the return period has passed and the shoes cannot be returned, contradicting the claim that they can still be returned and that September 15 is the last day. Answer: no."
+      },
+      {
+        "id": "judge:1",
+        "answer": false,
+        "why": "The agent does not explain the return process (e.g., return label, refund timing) and explicitly states they cannot process the return. Therefore the statement is not true."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only informs the customer that the return window has passed and that no return can be processed; it does not promise or imply any future action that it cannot perform. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 1
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent states that returns are accepted within 30 days of delivery, which matches the policy text, and notes the delivery date of 2026-08-16, which matches the tool data. No other timing claims are made. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": false,
+    "judge:1": false,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:0",
+      "latencyMs": 606,
+      "inputTokens": 868,
+      "outputTokens": 244,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states that the return period has passed and the shoes cannot be returned, contradicting the claim that they can still be returned and that September 15 is the last day. Answer: no.\",\"answer\":false}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 638,
+      "inputTokens": 1177,
+      "outputTokens": 266,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"The reply clearly explains the return policy and the reason the return cannot be accepted, while offering further assistance.\"}]}"
+    },
+    {
+      "purpose": "judge:1",
+      "latencyMs": 644,
+      "inputTokens": 880,
+      "outputTokens": 321,
+      "cached": false,
+      "raw": "{\"why\":\"The agent does not explain the return process (e.g., return label, refund timing) and explicitly states they cannot process the return. Therefore the statement is not true.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 748,
+      "inputTokens": 944,
+      "outputTokens": 409,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only informs the customer that the return window has passed and that no return can be processed; it does not promise or imply any future action that it cannot perform. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 848,
+      "inputTokens": 944,
+      "outputTokens": 409,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only informs the customer that the return window has passed and that no return can be processed; it does not promise or imply any future action that it cannot perform. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1898,
+      "inputTokens": 944,
+      "outputTokens": 374,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only informs the customer that the return window has passed and that no return can be processed; it does not promise or imply any future action it cannot perform. Therefore the agent complies with the rule.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 555,
+      "inputTokens": 933,
+      "outputTokens": 260,
+      "cached": false,
+      "raw": "{\"why\":\"All timing statements match the policy and tool data. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 790,
+      "inputTokens": 933,
+      "outputTokens": 293,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that returns are accepted within 30 days of delivery, which matches the policy text, and notes the delivery date of 2026-08-16, which matches the tool data. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 631,
+      "inputTokens": 933,
+      "outputTokens": 260,
+      "cached": false,
+      "raw": "{\"why\":\"All timing statements match the policy and tool data. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

@@ -46,8 +46,8 @@ describe("tierNotes: reports flag latency that isn't comparable across tiers", (
   });
   it("with an exact switch time, runs on that day are placed on either side", () => {
     const exact = (m: string) => (m === FL ? { tierChanges: [{ on: "2026-10-06T16:00:00Z", from: "free", to: "paid" }] } : undefined);
-    expect(tierNotes([FL], { createdAt: "2026-10-05T15:00:00Z" }, exact, { [FL]: "2026-10-06T09:50:00Z" }).tiers).toEqual({ [FL]: "free (inferred: ran before 2026-10-06T16:00:00Z)" });
-    expect(tierNotes([FL], { createdAt: "2026-10-06T17:00:00Z" }, exact).tiers).toEqual({ [FL]: "paid (inferred: ran from 2026-10-06T16:00:00Z)" });
+    expect(tierNotes([FL], { createdAt: "2026-10-05T15:00:00Z" }, exact, { [FL]: "2026-10-06T09:50:00Z" }).tiers).toEqual({ [FL]: "free (inferred: ran before 2026-10-06 16:00 UTC)" });
+    expect(tierNotes([FL], { createdAt: "2026-10-06T17:00:00Z" }, exact).tiers).toEqual({ [FL]: "paid (inferred: ran from 2026-10-06 16:00 UTC)" });
   });
   it("a run that changed tier part-way", () => {
     expect(tierNotes([FL], { tiers: { [FL]: "free → paid" } }, configFor).notes[0]).toMatch(/tier changed during this run \(free → paid\).*mixes both tiers/);

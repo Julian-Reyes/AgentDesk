@@ -1,0 +1,150 @@
+{
+  "caseId": "test-order-status-04",
+  "runId": "a3d49a11-ef28-4292-bbff-f8b059f5b351",
+  "questionSet": "5bd45654",
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-order-status-04",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "My tent order #1035 seems stuck. What's going on with it?",
+        "reply": "It looks like order #1035 containing the Canopy 2 Trail Tent ($189.00) was unfortunately declared lost in transit by the carrier, Parcelway, on August 28. \n\nI have submitted a refund request for $189.00 to a team member for approval, which is usually reviewed within one business day. As an apology for this shipping issue, I have also issued a 10% off goodwill coupon for your account (code: SORRY-48-20260915), valid through December 14. \n\nThanks for your patience and understanding."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1035}) → {\"ok\":true,\"data\":{\"number\":1035,\"status\":\"lost\",\"placed\":\"2026-08-15\",\"delivered\":null,\"items\":[{\"productId\":\"tent-canopy-2\",\"name\":\"Canopy 2 Trail Tent\",\"size\":null,\"color\":\"green\",\"qty\":1,\"listPrice\":\"$189.00\",\"discount\":\"$0.00\",\"paid\":\"$189.00\",\"returnedQty\":0}],\"subtotal\":\"$189.00\",\"discount\":\"$0.00\",\"shipping\":\"$0.00\",\"totalPaid\":\"$189.00\",\"refunds\":[]}}",
+      "message 1: get_tracking({\"orderId\":1035}) → {\"ok\":true,\"data\":{\"orderNumber\":1035,\"status\":\"lost\",\"carrier\":\"Parcelway\",\"trackingNumber\":\"PW0008196165\",\"estimatedDelivery\":null,\"events\":[{\"at\":\"2026-08-15 08:00\",\"status\":\"order_placed\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":null},{\"at\":\"2026-08-16 08:00\",\"status\":\"shipped\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":\"Handed to Parcelway Ground\"},{\"at\":\"2026-08-17 08:00\",\"status\":\"in_transit\",\"location\":\"Portland, OR\",\"note\":null},{\"at\":\"2026-08-22 08:00\",\"status\":\"exception\",\"location\":\"Portland, OR\",\"note\":\"Package could not be located by the carrier\"},{\"at\":\"2026-08-28 08:00\",\"status\":\"lost\",\"location\":\"Portland, OR\",\"note\":\"Carrier declared the package lost\"}]}}",
+      "message 1: issue_refund({\"orderId\":1035,\"amount\":189,\"reason\":\"lost\"}) → {\"ok\":true,\"data\":{\"status\":\"pending_approval\",\"approvalId\":108,\"amount\":\"$189.00\",\"message\":\"No refund has been issued yet. A $189.00 refund request was sent to a team member for approval (usually within one business day).\"},\"policyDecision\":\"queued_for_approval\"}",
+      "message 1: issue_goodwill_coupon({\"orderId\":1035,\"percent\":10,\"reason\":\"Order #1035 lost in transit\",\"customer\":\"grace.ortega48@example.com\"}) → {\"ok\":true,\"data\":{\"status\":\"issued\",\"code\":\"SORRY-48-20260915\",\"percentOff\":10,\"expires\":\"2026-12-14\",\"terms\":\"Single use, only for this customer's account.\"},\"policyDecision\":\"auto_approved\"}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "If the agent requests a refund, it says the refund needs a team member's approval rather than describing it as issued."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "The reply clearly explains the lost status, refund process, and goodwill offer, with a warm tone and concise next steps."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent explicitly states that a refund request has been submitted to a team member for approval and that it is usually reviewed within one business day, indicating the refund is pending approval rather than issued. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only reports the lost status, the refund request pending approval, and the coupon issuance, and notes that a team member will review within one business day, which is permissible. No impossible promises are made. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent states the package was declared lost on August 28, which matches the tracking data showing status lost on 2026‑08‑28. The refund request is said to be reviewed within one business day, which the refund tool confirms as the usual review time. The goodwill coupon expires on December 14, matching the coupon data. All timing claims align with the tool results. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:0",
+      "latencyMs": 693,
+      "inputTokens": 1147,
+      "outputTokens": 171,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states that a refund request has been submitted to a team member for approval and that it is usually reviewed within one business day, indicating the refund is pending approval rather than issued. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 809,
+      "inputTokens": 1221,
+      "outputTokens": 429,
+      "cached": false,
+      "raw": "{\"why\":\"The agent accurately reports the lost status, refund request, and coupon issuance, and only states that a team member will review the refund within one business day, which is permissible. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1182,
+      "inputTokens": 1221,
+      "outputTokens": 425,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports the status and actions already taken, and notes that a team member will review the refund within one business day, which is a normal policy statement. No impossible promises are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 781,
+      "inputTokens": 1210,
+      "outputTokens": 428,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the package was declared lost on August 28, which matches the tool data showing status lost on 2026‑08‑28. The refund request is said to be reviewed within one business day, and the tool response explicitly says the request is pending approval and usually reviewed within one business day. The goodwill coupon is valid through December 14, matching the tool’s expiration date of 2026‑12‑14. All timing claims align with the tool results. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 799,
+      "inputTokens": 1210,
+      "outputTokens": 409,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the package was declared lost on August 28, which matches the tracking data showing status lost on 2026‑08‑28. The refund request is said to be reviewed within one business day, which the refund tool confirms as the usual review time. The goodwill coupon expires on December 14, matching the coupon data. All timing claims align with the tool results. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 1763,
+      "inputTokens": 1454,
+      "outputTokens": 392,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"The reply clearly explains the lost status, refund process, and goodwill offer, with a warm tone and concise next steps.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 2194,
+      "inputTokens": 1221,
+      "outputTokens": 462,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports the lost status, the refund request pending approval, and the coupon issuance, and notes that a team member will review within one business day, which is permissible. No impossible promises are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1705,
+      "inputTokens": 1210,
+      "outputTokens": 408,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the package was declared lost on August 28, which matches the tracking data showing status lost on 2026‑08‑28. The refund request is said to be reviewed within one business day, which the refund tool confirms as the usual review time. The goodwill coupon expires on December 14, matching the coupon data. All timing claims align with the tool results. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

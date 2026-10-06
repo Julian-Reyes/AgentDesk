@@ -1,0 +1,150 @@
+{
+  "caseId": "test-returns-04",
+  "runId": "7a13401c-2e76-48a2-ac16-ba7f016f0bb7",
+  "questionSet": "3c80dae1",
+  "agentModel": "groq/gpt-oss-120b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "test-returns-04",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Order #1039 hasn't even arrived yet but I already know I don't want those sandals. Can I send them back once they get here?",
+        "reply": "You can start a return once the Riverwalk Camp Sandal is delivered. After it arrives, use the return label in your account to send it back, and the warehouse will process the refund when the item is received. Let us know if you need any help after delivery."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1039}) → {\"ok\":true,\"data\":{\"number\":1039,\"status\":\"shipped\",\"placed\":\"2026-09-12\",\"delivered\":null,\"items\":[{\"productId\":\"boot-riverwalk-sandal\",\"name\":\"Riverwalk Camp Sandal\",\"size\":\"9\",\"color\":\"black\",\"qty\":1,\"listPrice\":\"$59.00\",\"discount\":\"$0.00\",\"paid\":\"$59.00\",\"returnedQty\":0}],\"subtotal\":\"$59.00\",\"discount\":\"$0.00\",\"shipping\":\"$7.99\",\"totalPaid\":\"$66.99\",\"refunds\":[]}}",
+      "message 1: check_return_eligibility({\"condition\":\"unused\",\"item\":\"Riverwalk Camp Sandal\",\"orderId\":1039}) → {\"ok\":true,\"data\":{\"orderNumber\":1039,\"item\":\"Riverwalk Camp Sandal\",\"eligible\":false,\"code\":\"NOT_DELIVERED_YET\",\"message\":\"The order hasn't been delivered yet. Returns can start once it arrives.\"},\"policyDecision\":\"denied\"}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent says the sandals can be returned after delivery if unused (within 30 days of delivery), and doesn't promise to cancel the order or stop the shipment."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "The reply clearly explains the return process and next steps, with a warm tone and no unnecessary details."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent states that a return can be started once the sandals are delivered and does not mention canceling or stopping the shipment. This matches the policy that returns are allowed after delivery (within 30 days) and the agent does not promise to cancel the order. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only informs the customer how to return the item and offers future help, but does not promise any future action it cannot perform in this chat. This complies with the rule. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 2
+      },
+      {
+        "id": "judge:timing",
+        "answer": false,
+        "why": "The agent states that the refund will be processed when the item is received, but the tool results and conversation do not provide any evidence or policy that specifies this timing. The only timing information available is that returns can start once the item arrives. Therefore the statement about refund timing does not match a tool result or shown policy.",
+        "votes": [
+          true,
+          false,
+          false
+        ],
+        "noConclusion": 2
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": false
+  },
+  "calls": [
+    {
+      "purpose": "scores",
+      "latencyMs": 541,
+      "inputTokens": 1083,
+      "outputTokens": 250,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"The reply clearly explains the return process and next steps, with a warm tone and no unnecessary details.\"}]}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 594,
+      "inputTokens": 839,
+      "outputTokens": 233,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states that a return can be started once the item is delivered and that the refund will be processed when the item is received, which are conditions rather than time estimates. No vague or unsupported timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 723,
+      "inputTokens": 850,
+      "outputTokens": 378,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only informs the customer of the return process and what will happen after delivery, which is allowed. No promise of future action that the agent cannot perform in this chat.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 789,
+      "inputTokens": 850,
+      "outputTokens": 450,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only informs the customer that a return can be started once the item arrives and that the warehouse will process the refund upon receipt. It does not promise or imply any future action that the agent cannot perform in this chat, such as notifying the customer or following up. Therefore the statement is compliant.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 932,
+      "inputTokens": 839,
+      "outputTokens": 483,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that the refund will be processed when the item is received, but the tool results do not provide any information about refund timing, and no store policy text is shown in the conversation to confirm this claim. Therefore the timing claim is not supported by the available evidence.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1014,
+      "inputTokens": 850,
+      "outputTokens": 384,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only informs the customer how to return the item and offers future help, but does not promise any future action it cannot perform in this chat. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 1020,
+      "inputTokens": 784,
+      "outputTokens": 521,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that a return can be started once the sandals are delivered and does not mention canceling or stopping the shipment. This matches the policy that returns are allowed after delivery (within 30 days) and the agent does not promise to cancel the order. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 1022,
+      "inputTokens": 839,
+      "outputTokens": 496,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that the refund will be processed when the item is received, but the tool results and conversation do not provide any evidence or policy that specifies this timing. The only timing information available is that returns can start once the item arrives. Therefore the statement about refund timing does not match a tool result or shown policy.\",\"answer\":false}"
+    }
+  ]
+}
