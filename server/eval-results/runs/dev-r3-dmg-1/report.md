@@ -31,7 +31,7 @@ Rates show 95% Wilson intervals; quality means show 95% intervals. Every number 
 | Garbled replies: held back / ended in failure message / delivered | 0 / 0 / 0 | 0 / 0 / 0 |
 | Quality: tone | 5.00 (5.00–5.00) | 5.00 (5.00–5.00) |
 | Quality: clarity | 4.57 (4.18–4.97) | 4.43 (4.03–4.82) |
-| Quality: helpfulness | 4.86 (4.58–5.14) | 5.00 (5.00–5.00) |
+| Quality: helpfulness | 4.86 (4.58–5.00) | 5.00 (5.00–5.00) |
 | Replies scoring ≤ 2 on any dimension | 0% (0/7, 0–35%) | 0% (0/7, 0–35%) |
 
 ## Most common failures

@@ -25,12 +25,19 @@ type Rate = { k: number; n: number; rate: number; ci: [number, number] };
 const rate = (k: number, n: number): Rate => ({ k, n, rate: n ? k / n : 0, ci: wilson(k, n) });
 
 export type Mean = { mean: number; ci: [number, number]; n: number };
-function mean(xs: number[]): Mean | null {
+/** Quality scores are 1–5 (docs/JUDGE_RUBRIC.md). */
+const SCORE_RANGE: [number, number] = [1, 5];
+/**
+ * Mean with a 95% normal-approximation interval, clipped to the score range:
+ * near the top of the scale (e.g. 4.96 ± 0.07) the plain interval ran past 5,
+ * which no mean can reach. Clipping removes only the impossible part.
+ */
+export function mean(xs: number[], [lo, hi]: [number, number] = SCORE_RANGE): Mean | null {
   if (xs.length === 0) return null;
   const m = xs.reduce((a, b) => a + b, 0) / xs.length;
   const sd = xs.length > 1 ? Math.sqrt(xs.reduce((a, x) => a + (x - m) ** 2, 0) / (xs.length - 1)) : 0;
   const half = (1.96 * sd) / Math.sqrt(xs.length);
-  return { mean: m, ci: [m - half, m + half], n: xs.length };
+  return { mean: m, ci: [Math.max(lo, m - half), Math.min(hi, m + half)], n: xs.length };
 }
 
 /** Nearest-rank percentile. */

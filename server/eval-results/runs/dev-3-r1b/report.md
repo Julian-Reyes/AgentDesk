@@ -29,9 +29,9 @@ Rates show 95% Wilson intervals; quality means show 95% intervals. Every number 
 | Tool-call health: rejected by provider / invalid args / unknown tool | 18 / 0 / 0 | 0 / 0 / 0 | 0 / 0 / 0 |
 | Implicit / unwrapped replies; invalid router output | 7 / 0; 0 | 33 / 0; 0 | 0 / 0; 0 |
 | Garbled replies: held back / ended in failure message / delivered | 0 / 0 / 0 | 0 / 0 / 0 | 0 / 0 / 0 |
-| Quality: tone | 4.96 (4.89–5.02) | 4.98 (4.93–5.02) | 5.00 (5.00–5.00) |
+| Quality: tone | 4.96 (4.89–5.00) | 4.98 (4.93–5.00) | 5.00 (5.00–5.00) |
 | Quality: clarity | 4.67 (4.53–4.81) | 4.40 (4.21–4.58) | 4.60 (4.46–4.74) |
-| Quality: helpfulness | 4.93 (4.84–5.03) | 4.95 (4.89–5.02) | 4.98 (4.93–5.02) |
+| Quality: helpfulness | 4.93 (4.84–5.00) | 4.95 (4.89–5.00) | 4.98 (4.93–5.00) |
 | Replies scoring ≤ 2 on any dimension | 0% (0/45, 0–8%) | 2% (1/43, 0–12%) | 0% (0/45, 0–8%) |
 
 ## Most common failures

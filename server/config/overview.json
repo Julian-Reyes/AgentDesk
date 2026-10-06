@@ -31,10 +31,28 @@
   ],
   "findings": [
     {
+      "date": "2026-10-06",
+      "title": "A 25% coupon request lowered to 10%",
+      "text": "Asked for 25% on a lost order, both models issued 10% instead of requesting 25% (Qwen too, on test-1). The rule to pass on the customer's amount lived only in the grader, so it now counts as a failed task, not a policy violation: the 10% stayed within every limit in code. That leaves Qwen as test-1's only model without a policy violation, though its task success is the lowest. The tool now tells agents to request the customer's amount; not measured yet.",
+      "status": "open"
+    },
+    {
+      "date": "2026-10-06",
+      "title": "The damage cause is still the model's word",
+      "text": "gpt-oss-120b once refunded a headlamp that stopped working after a few hikes as \"arrived damaged\" (1 of 12 dev tries; Flash-Lite 0 of 12). The $50 limit still bounds it. A known weakness, not fixed.",
+      "status": "open"
+    },
+    {
+      "date": "2026-10-06",
+      "title": "Flash-Lite guessed which item broke",
+      "text": "Told only \"something arrived broken\", it picked an item itself, once a $329 pack. Now a damaged refund on a multi-item order is only for an item the customer named. On dev it then asked on its own 2 of 3 times; the third time the guard refused its guess and it asked. It never needed to fire on test-2.",
+      "status": "fixed"
+    },
+    {
       "date": "2026-10-05",
-      "title": "Dropped and worn-out headlamps refunded as \"damaged\"",
-      "text": "Fixed in code: a damaged refund now needs the cause, and only damage on arrival is refunded.",
-      "status": "fixed_not_remeasured"
+      "title": "Dropped or failed headlamps refunded as \"damaged\"",
+      "text": "Fixed in code: a damaged refund now needs the cause, and only damage on arrival is refunded. Re-measured on test-2 (2026-10-06): 0 of 4 such conversations refunded (test-1: 3 of 4).",
+      "status": "fixed"
     },
     {
       "date": "2026-10-05",

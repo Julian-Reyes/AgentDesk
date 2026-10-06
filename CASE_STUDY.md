@@ -1,7 +1,7 @@
 <!--
-DRAFT (M6, 2026-10-06). Claude drafts, Julian edits. Sections 1–4 drafted; 5–7 wait for test-2.
+DRAFT (M6, 2026-10-06). Claude drafts, Julian edits. All sections drafted.
 Every number has a source note in an HTML comment next to it. Before publishing, check each against the file it names.
-Target: ~800 words. Sections 1–4 are budgeted at ~460.
+Target: ~800 words.
 -->
 
 # AgentDesk: a case study
@@ -14,7 +14,7 @@ A store's chat mixes easy questions with ones that move money, which makes it a 
 
 Every business rule is enforced by a tool, never only by a prompt. Refunds up to $50 are paid automatically, larger ones wait for a person, <!-- source: server/src/policy/rules.ts --> and customers see only their own orders. The policy text the agents read is generated from the same constants, so it can't promise what the code won't do.
 
-The held-out test showed where this wasn't enough. Two models refunded a headlamp the customer said they had *dropped*, calling it "damaged". <!-- source: docs/history/M3.md, "test-1 results", policy violations 1 and 2 --> The $50 limit held, but the code trusted the model's reason. So the reason became a rule: a damaged refund must say when the damage happened, and only damage on arrival is refunded. Afterwards, on the development cases, neither model refunded any of the 6 lamps that were dropped or failed after use. <!-- source: docs/history/M3.md, "dev-dmg finished" (0/6 for each model) --> When one model guessed which item had broken instead of asking, the fix again went into code: a damaged refund is only for an item the customer has named. [TODO after test-2: what the guard did on the test set.]
+The first test run showed where that wasn't enough: two models refunded a headlamp the customer had *dropped*, calling it "damaged". <!-- source: docs/history/M3.md, "test-1 results" --> The $50 limit held, but the code trusted the model's reason. Now a damaged refund must say when the damage happened, and only damage on arrival is refunded: such refunds went from 3 of 4 test conversations to 0 of 4. <!-- source: docs/history/M6.md, "test-2 results" --> The cause is still the model's word, though, and gpt-oss once got it wrong on dev. <!-- source: docs/history/M6.md, "The dev check" (1 of 12) --> When Flash-Lite guessed which item had broken, the fix again went into code: a damaged refund is only for an item the customer named.
 
 ## How grounding is checked
 
@@ -22,22 +22,24 @@ Invented products, prices or specs are the headline safety metric, and a code ch
 
 ## The eval method and judge validation
 
-I reviewed all 153 eval conversations: 43 for development, which I tuned the prompts on, and 110 held out and never tuned on. <!-- source: PROGRESS.md, "Eval sets"; server/src/evals/cases/ --> Each case states its expected route, tools, refunds and coupons, and a validator recomputes every expected amount with the store's own policy code. It caught mistakes in the cases too, such as one that failed a correct run. <!-- source: docs/history/M3.md, "dev-dmg finished" -->
+I reviewed all 153 eval conversations: 43 for development, which I tuned the prompts on, and 110 held out and never tuned on. <!-- source: PROGRESS.md, "Eval sets"; server/src/evals/cases/ --> Each case states its expected route, tools, refunds and coupons, and a validator recomputes every expected amount with the store's own policy code. It catches mistakes in the cases too. <!-- source: docs/history/M3.md, "dev-dmg finished" -->
 
 Code grades what code can check. An LLM judge (gpt-oss-20b) answers only the yes/no questions code can't, such as "does the reply promise a follow-up the agent can't do?", and scores tone, clarity and helpfulness. Rates carry 95% Wilson intervals. I graded 30 replies blind, and the judge's yes/no answers agreed with mine 95% of the time (77 of 81, 88–98%; an earlier rubric version). <!-- source: server/eval-results/judge-check/dev-1/agreement.md (rubric@2) --> It scores bad replies too generously, so pass/fail comes from the checks, not the scores.
 
 ## The model comparison
 
-[After test-2: Flash-Lite and gpt-oss-120b on round 3; Qwen's test-1 column, labelled. The no-winner rule. The drop from dev to test. Latency and cost. ~120 words.]
+On the 110 held-out cases, Flash-Lite passed 78% (69–85%) and gpt-oss-120b 63% (53–71%) after the fixes; Qwen3.8-27B, measured only before them, 65%. <!-- source: server/eval-results/runs/test-2/report.md; server/eval-results/runs/test-1/report.md --> The comparison only highlights a model with zero policy violations, and only calls it a winner if its interval clears the runner-up's. Flash-Lite leads, but not significantly. Two identical dev runs moved one model's score by 13 points, <!-- source: dev-3-r2a and dev-3-r2b reports (gpt-oss 75% vs 62%) --> so I don't credit the fixes with Flash-Lite's gain or blame them for gpt-oss's drop. Every model scored lower on held-out cases than on the dev cases I tuned on: Flash-Lite 85% → 72% on the first test run. <!-- source: docs/history/M3.md, "test-1 results" --> The paid tier cost $0.37 for 110 Flash-Lite conversations. <!-- source: server/eval-results/runs/test-2/report.md -->
 
 ## What failed and what I changed
 
-[After test-2, ~150 words: lenient item matching; raw tool syntax in a reply; gpt-oss's follow-up promises; the grader-side case bug.]
+A garbled item name was accepted for a refund, so item matching became strict. A reply showed raw tool syntax to a customer and my graders missed it; both the live check and the grader now catch it. gpt-oss still promises follow-ups no tool can do, in 4 of 110 test conversations. <!-- source: server/eval-results/runs/test-2 (eval:compare test-1 test-2) -->
+
+Some failures were mine. Two split refunds that paid exactly the right total counted as violations; refunds are now graded per order. And when a customer asked for a 25% coupon, both models issued 10% instead of asking a person to approve 25%. I had graded that as a policy violation, but the rule lived only in my grader: the agents were never told, and the 10% stayed within every limit enforced in code. It's now a failed task, and the tool tells agents to request the customer's amount (not yet measured). <!-- source: docs/history/M6.md, "A lowered coupon is a task failure" --> A rule the agents aren't told and the code doesn't enforce isn't a rule.
 
 ## The retirement decision
 
-[~70 words: Qwen retired from the shopping role on 2026-10-05, Julian's reason, the test-1 shopping numbers (59% vs 78% and 83%), why no winner was declared; anything decided after test-2.]
+After the first test run, I retired Qwen from the shopping role as the worst performer: 59% (43–72%) on shopping cases, against 78% for Flash-Lite and 83% for gpt-oss. <!-- source: server/eval-results/runs/test-1/report.md --> Flash-Lite now runs all three roles. Re-grading the coupon left Qwen as that run's only model without a policy violation, but still the lowest scorer; I haven't changed the decision. Flash-Lite's later lead isn't significant, so I made no further switch.
 
 ---
 
-*Limits and what's next: the public site is a static snapshot; live chat is planned as Milestone 7 and a small open model as Milestone 8.*
+*Limits and what's next: the public site is a static snapshot; live chat and more models are planned for Milestone 7, and a small open model for Milestone 8.*

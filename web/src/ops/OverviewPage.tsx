@@ -1,9 +1,9 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { getAgents, getComparisonList, getComparisonSet, getOverview, type AgentsView, type ComparisonSet, type Finding, type SafetyFact } from "../lib/api.ts";
+import { getAgents, getComparisonList, getComparisonSet, getOverview, getSnapshotMeta, type AgentsView, type ComparisonSet, type Finding, type SafetyFact } from "../lib/api.ts";
 import { ROLE_LABEL } from "./agents.ts";
 import { ciBar, ciText, winnerText } from "./comparison.ts";
 import { SPLIT_LABEL, devGap, kpiTiles, latestDecision, shortModel, teamModel } from "./overview.ts";
-import { IS_STATIC, SITE_ROOT } from "../lib/static.ts";
+import { IS_STATIC, SITE_ROOT, type SnapshotMeta } from "../lib/static.ts";
 import { href } from "./route.ts";
 
 /**
@@ -19,6 +19,8 @@ export function OverviewPage() {
   const [agents, setAgents] = useState<AgentsView | null>(null);
   const [curated, setCurated] = useState<{ safety: SafetyFact[]; findings: Finding[] } | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // The public site links the case study in the repo; locally there's no repo URL to link.
+  const [meta, setMeta] = useState<SnapshotMeta | null>(null);
 
   useEffect(() => {
     const fail = (e: Error) => setError(e.message);
@@ -29,6 +31,7 @@ export function OverviewPage() {
     }, fail);
     getAgents().then(setAgents, fail);
     getOverview().then(setCurated, fail);
+    if (IS_STATIC) void getSnapshotMeta().then(setMeta);
   }, []);
 
   if (error) return <p className="rounded-md bg-rust-50 p-3 text-sm text-rust-600">{error}</p>;
@@ -198,6 +201,11 @@ export function OverviewPage() {
             {label}
           </a>
         ))}
+        {meta?.repoUrl && (
+          <a href={`${meta.repoUrl}/blob/main/CASE_STUDY.md`} className="rounded-lg border border-stone-300 bg-white px-4 py-3 text-sm text-forest-800 hover:border-forest-600">
+            Case study
+          </a>
+        )}
       </nav>
     </div>
   );

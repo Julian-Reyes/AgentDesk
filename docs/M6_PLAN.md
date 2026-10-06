@@ -1,6 +1,6 @@
 # Milestone 6 plan: the story
 
-Agreed with Julian on 2026-10-06. Spec: `docs/PROJECT.md` ("Deliverables", milestone 6: final comparison runs, README, case study, polish). Detailed record: `docs/history/M6.md`.
+Agreed with Julian on 2026-10-06. **Status: Milestone 6 closed 2026-10-06** (`docs/history/M6.md`, "Milestone 6 closed"); the GIF, the phone check, the Approvals-notes decision and Julian's case-study edit are carried. Spec: `docs/PROJECT.md` ("Deliverables", milestone 6: final comparison runs, README, case study, polish). Detailed record: `docs/history/M6.md`.
 
 ## Julian's decisions (2026-10-06)
 - **M5 closed first** (done 2026-10-06), its small leftovers carried into the polish step here.
@@ -9,7 +9,7 @@ Agreed with Julian on 2026-10-06. Spec: `docs/PROJECT.md` ("Deliverables", miles
 
 ## 1. Round 3
 - **The `issue_refund` item guard** (design in M3 history, "Julian's decisions on `dev-dmg`"): on an order with more than one item, a damaged refund only for an item the customer named in their own messages; otherwise "ask the customer which item". Code, tests, and the same check in the case validator.
-- **Prompt changes: none.** The agents keep the round-2 prompts. Only `issue_refund`'s description gains one clause about the guard. gpt-oss's follow-up promises stay a documented weakness; a prompt fix would need Julian's review of the wording first.
+- **Prompt changes: none.** The agents keep the round-2 prompts. Only `issue_refund`'s description gains one clause about the guard. gpt-oss's follow-up promises stay a documented weakness; a prompt fix would need Julian's review of the wording first. (After `test-2`, Julian also added one sentence to `issue_goodwill_coupon`'s description, not measured.)
 - **Dev check, `dev-r3`:** the full dev set once, plus the 6 damage cases twice more (`dev-r3-dmg-1`, `-2`), on Flash-Lite and gpt-oss-120b. Cost estimate before running.
 
 ## 2. `test-2`
