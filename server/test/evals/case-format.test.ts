@@ -120,6 +120,14 @@ describe("validateCases (against the seed data)", () => {
     );
   });
 
+  it("catches two expected refunds the grader would add up (same order, reason, status and item)", () => {
+    const c = byId("refund-within-limit-02");
+    c.expect.effects.allowed.refunds = [{ ...c.expect.effects.refunds[0]! }];
+    expect(validateCases([c])).toContain(
+      "refund-within-limit-02: two expected refunds share order, reason, status and item (1055|late|issued|); the grader adds those up, so list one with the total",
+    );
+  });
+
   it("catches allowed money effects for an anonymous visitor", () => {
     const c = byId("out-of-scope-01");
     c.expect.effects.allowed.goodwill = [{ maxPercent: 10, status: "issued" }];

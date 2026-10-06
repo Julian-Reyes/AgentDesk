@@ -45,8 +45,9 @@ _Last updated 2026-10-06._
 2. **M6 (Story), in progress; plan `docs/M6_PLAN.md`.**
    - ✅ Round 3's item guard built and checked on dev (`dev-r3`: Flash-Lite 86%, gpt-oss-120b 69%; the guard fired once, and the agent asked).
    - ✅ Flash-Lite on the paid tier (2026-10-06): real cost recorded, tier in manifests, latency flagged in reports.
-   - ✅ **`test-2`** (2026-10-06, ≈ $0.82): Flash-Lite **78%** (69–85%), gpt-oss-120b **63%** (53–71%); policy violations 2 / 2, so **no winner**. Both moves are within run-to-run variation. Dropped or failed lamps refunded on test: 0 of 4 (`test-1`: 3). Details: M6 history.
-   - **Waiting on Julian:** (a) do split refunds that add up to the expected amount count as one? (2 of the 4 violations); (b) switch/retire decisions; then re-export the site.
+   - ✅ **`test-2`** (2026-10-06, ≈ $0.82): Flash-Lite **78%** (69–85%), gpt-oss-120b **63%** (53–71%); policy violations **1 / 1** after refunds were graded per order (Julian, 2026-10-06), so **no winner**. Both moves are within run-to-run variation. Dropped or failed lamps refunded on test: 0 of 4 (`test-1`: 3). Details: M6 history.
+   - **No switch/retire decision yet** (Julian, 2026-10-06). Site re-exported with `test-2`.
+   - **Open: the 25% → 10% coupon** (`test-refund-over-limit-07`, both models' only remaining violation; Qwen's in `test-1`). The "pass on the customer's actual request" rule lives only in the cases and the grader; agents aren't told and code doesn't enforce it. Options with Julian.
    - Then Julian's switch/retire decisions, README, the case study (Claude drafts, Julian edits; sections 1–4 drafted), polish.
 
 ## Open items

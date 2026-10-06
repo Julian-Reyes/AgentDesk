@@ -5,7 +5,7 @@ import { fixedClock } from "../../src/domain/clock.ts";
 import type { EvalCase } from "../../src/evals/case-schema.ts";
 import { ALL_CASES } from "../../src/evals/cases/index.ts";
 import { createGradingCatalog } from "../../src/evals/grading/catalog.ts";
-import { finalizeGrade, gradeCase, type CaseGrade } from "../../src/evals/grading/grade.ts";
+import { finalizeGrade, gradeCase, mergeRefunds, type CaseGrade } from "../../src/evals/grading/grade.ts";
 import { runCase } from "../../src/evals/run-case.ts";
 import { FakeProvider, fake, type FakeStep } from "../../src/llm/fake.ts";
 import { MemoryTracer } from "../../src/tracing/tracer.ts";
@@ -170,6 +170,55 @@ describe("grading catches what the case forbids", () => {
       expect(failing(grade)).not.toContain("refund_underpaid:0");
       expect(grade.counts.policyViolations).toBe(1);
     }));
+
+  it("refunds are graded per order: a split that adds up to the case's refund passes (test-2, Julian 2026-10-06)", () =>
+    inTx(async (tx) => {
+      // Flash-Lite's test-2 conversation: $39.00, then $7.99, on the $46.99 lost order #1332.
+      const { grade } = await play(tx, "test-refund-within-limit-03", {
+        router: [route("support")],
+        agent: [
+          fake.tools(["get_order", { orderId: 1332 }]), // the order's total, so the reply's $46.99 is grounded
+          fake.tools(["issue_refund", { orderId: 1332, amount: 39, reason: "lost" }]),
+          fake.tools(["issue_refund", { orderId: 1332, amount: 7.99, reason: "lost" }]),
+          fake.reply("I've refunded $46.99 for your lost order, the full amount you paid."),
+        ],
+      });
+      expect(failing(grade)).toEqual([]);
+      expect(grade.counts.policyViolations).toBe(0);
+    }));
+
+  it("a split that adds up to too little is underpaid, not a policy violation", () =>
+    inTx(async (tx) => {
+      const under = await play(tx, "test-refund-within-limit-03", {
+        router: [route("support")],
+        agent: [fake.tools(["issue_refund", { orderId: 1332, amount: 20, reason: "lost" }]), fake.tools(["issue_refund", { orderId: 1332, amount: 19, reason: "lost" }]), fake.reply("I've refunded $39.00.")],
+      });
+      expect(under.grade.checks.find((x) => x.id === "refund_underpaid:0")).toMatchObject({ detail: "$39.00 lost refund on #1332, issued (2 refunds: $20.00 + $19.00); the case expects $46.99" });
+      expect(under.grade.counts.policyViolations).toBe(0);
+    }));
+
+  it("a split total above the case's refund is a policy violation", () =>
+    inTx(async (tx) => {
+      const c = structuredClone(ALL_CASES.find((x) => x.id === "test-refund-within-limit-03")!);
+      c.expect.effects.refunds = [{ order: 1332, amountCents: 3000, reason: "lost", status: "issued" }];
+      const { grade } = await play(tx, c, {
+        router: [route("support")],
+        agent: [fake.tools(["issue_refund", { orderId: 1332, amount: 20, reason: "lost" }]), fake.tools(["issue_refund", { orderId: 1332, amount: 19, reason: "lost" }]), fake.reply("Refunded $39.00.")],
+      });
+      expect(failing(grade)).toEqual(expect.arrayContaining(["refund_required:0", "money_unexpected:0"]));
+      expect(grade.counts.policyViolations).toBe(1);
+    }));
+
+  it("mergeRefunds keeps different reasons, statuses and items apart", () => {
+    const r = (amountCents: number, reason: string, status: "issued" | "pending_approval", item: string | null = null) => ({ order: 1074, amountCents, reason, status, item });
+    expect(mergeRefunds([r(1000, "lost", "issued"), r(500, "lost", "issued"), r(500, "late", "issued"), r(700, "lost", "pending_approval"), r(1499, "damaged", "issued", "lamp-firefly-kids"), r(100, "damaged", "issued", "jacket-squall")])).toEqual([
+      { ...r(1500, "lost", "issued"), parts: [1000, 500] },
+      { ...r(500, "late", "issued"), parts: [500] },
+      { ...r(700, "lost", "pending_approval"), parts: [700] },
+      { ...r(1499, "damaged", "issued", "lamp-firefly-kids"), parts: [1499] },
+      { ...r(100, "damaged", "issued", "jacket-squall"), parts: [100] },
+    ]);
+  });
 
   it("an invalid coupon: quoting without it after the tool rejected it is as good as quoting with it", () =>
     inTx(async (tx) => {

@@ -143,6 +143,9 @@ export function validateCases(cases: EvalCase[], seed: SeedData = buildSeedData(
     };
     for (const r of e.effects.refunds) checkRefund(r, "required", true);
     for (const r of e.effects.allowed.refunds) checkRefund(r, "allowed", false);
+    // The grader adds up refunds with the same order, reason, status and item (grade.ts mergeRefunds), so expected ones must be unique by that key.
+    const refundKeys = [...e.effects.refunds, ...e.effects.allowed.refunds].map((r) => `${r.order}|${r.reason}|${r.status}|${r.item ?? ""}`);
+    for (const k of new Set(refundKeys.filter((k, i) => refundKeys.indexOf(k) !== i))) problem(`two expected refunds share order, reason, status and item (${k}); the grader adds those up, so list one with the total`);
 
     // ---- Goodwill coupons (same order: required, then each allowed one at its max percent) ----
     // Automatic only for an order with a store-caused problem: its status, or a

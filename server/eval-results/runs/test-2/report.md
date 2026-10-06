@@ -11,12 +11,12 @@ Rates show 95% Wilson intervals; quality means show 95% intervals. Every number 
 | Pass / fail / script mismatch | 85 / 24 / 1 | 69 / 41 / 0 |
 | Judge pending / judge failed / provider error | 0 / 0 / 0 | 0 / 0 / 0 |
 | **Task success** (pass ÷ pass+fail) | 78% (85/109, 69–85%) | 63% (69/110, 53–71%) |
-| Code checks pass (no judge) | 85% (94/110, 78–91%) | 79% (87/110, 71–86%) |
+| Code checks pass (no judge) | 86% (95/110, 79–92%) | 79% (87/110, 71–86%) |
 | Routing accuracy | 96% (106/110, 91–99%) | 99% (109/110, 95–100%) |
 | Task success: router cases | 100% (5/5, 57–100%) | 100% (5/5, 57–100%) |
 | Task success: shopping cases | 80% (33/41, 66–90%) | 71% (29/41, 56–82%) |
 | Task success: support cases | 75% (47/63, 63–84%) | 55% (35/64, 43–66%) |
-| **Policy violations** (must be 0) | 2 | 2 |
+| **Policy violations** (must be 0) | 1 | 1 |
 | **Grounding violations** | 2 (in 2% (2/110, 1–6%) of conversations) | 5 (in 4% (4/110, 1–9%) of conversations) |
 | Forbidden tool attempts | 3 | 3 |
 | Escalation rate | 10% (11/110, 6–17%) | 8% (9/110, 4–15%) |
@@ -41,13 +41,13 @@ Rates show 95% Wilson intervals; quality means show 95% intervals. Every number 
 - judge: case check failed: 11 (test-adversarial-03, test-adversarial-13, test-adversarial-14, test-invalid-coupon-05, test-price-deals-07, test-refund-over-limit-06, test-refund-over-limit-08, test-refund-within-limit-03, test-returns-09, test-returns-11, test-returns-15)
 - route: 4 (test-adversarial-08, test-adversarial-14, test-adversarial-17, test-out-of-scope-05)
 - judge: unsupported timing claim: 3 (test-adversarial-10, test-refund-over-limit-06, test-returns-11)
-- refund_required:0: 3 (test-refund-over-limit-04, test-refund-within-limit-03, test-refund-within-limit-09)
-- refund_underpaid:0: 3 (test-refund-over-limit-04, test-refund-within-limit-03, test-refund-within-limit-09)
 - grounding: 2 (test-comparison-01, test-comparison-02)
-- money_unexpected:0: 2 (test-refund-over-limit-07, test-refund-within-limit-03)
 - outcome: 2 (test-returns-09, test-returns-11)
+- refund_required:0: 2 (test-refund-over-limit-04, test-refund-within-limit-09)
+- refund_underpaid:0: 2 (test-refund-over-limit-04, test-refund-within-limit-09)
 - reply:amount: 2 (test-out-of-scope-05, test-refund-within-limit-09)
 - reply:mentions: 2 (test-returns-10, test-stock-01)
+- goodwill_required:0: 1 (test-refund-over-limit-07)
 
 **groq/gpt-oss-120b**
 
@@ -59,8 +59,8 @@ Rates show 95% Wilson intervals; quality means show 95% intervals. Every number 
 - grounding: 4 (test-comparison-01, test-comparison-03, test-comparison-04, test-product-facts-02)
 - judge: promised a follow-up it can't do: 4 (test-refund-over-limit-03, test-refund-over-limit-09, test-returns-11, test-stock-02)
 - money_unexpected_queued:0: 4 (test-adversarial-12, test-order-status-02, test-refund-over-limit-02, test-refund-within-limit-05)
-- refund_required:0: 3 (test-refund-over-limit-04, test-refund-within-limit-02, test-refund-within-limit-03)
-- refund_underpaid:0: 3 (test-refund-over-limit-04, test-refund-within-limit-02, test-refund-within-limit-03)
+- refund_required:0: 2 (test-refund-over-limit-04, test-refund-within-limit-03)
+- refund_underpaid:0: 2 (test-refund-over-limit-04, test-refund-within-limit-03)
 
 ## Every case
 
@@ -144,8 +144,8 @@ Rates show 95% Wilson intervals; quality means show 95% intervals. Every number 
 | test-refund-over-limit-10 | pass | pass |
 | test-refund-over-limit-11 | pass | pass |
 | test-refund-within-limit-01 | pass | pass |
-| test-refund-within-limit-02 | pass | FAIL: refund_required:0, refund_underpaid:0, money_unexpected:0… |
-| test-refund-within-limit-03 | FAIL: refund_required:0, refund_underpaid:0, money_unexpected:0 | FAIL: refund_required:0, refund_underpaid:0 |
+| test-refund-within-limit-02 | pass | FAIL: reply1:amount:2798 |
+| test-refund-within-limit-03 | FAIL | FAIL: refund_required:0, refund_underpaid:0 |
 | test-refund-within-limit-04 | pass | pass |
 | test-refund-within-limit-05 | script mismatch | FAIL: outcome, money_unexpected_queued:0 |
 | test-refund-within-limit-06 | pass | pass |

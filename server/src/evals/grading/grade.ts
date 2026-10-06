@@ -4,6 +4,7 @@ import type { ToolResult } from "../../tools/define.ts";
 import { getTool } from "../../tools/registry.ts";
 import type { EvalCase } from "../case-schema.ts";
 import type { Observation } from "../run-case.ts";
+import type { ObservedRefund } from "./effects.ts";
 import { checkGrounding, type GroundingCatalog, type GroundingResult } from "./grounding.ts";
 import { GLOBAL_JUDGE_CHECKS } from "./global-checks.ts";
 import { containsAny, containsPhrase, parseAmounts, rawOutputProblems } from "./text.ts";
@@ -156,17 +157,22 @@ export function gradeCase(c: EvalCase, obs: Observation, catalog: GroundingCatal
   }
 
   // ---- Money changes: required ones must happen; anything else must be allowed ----
-  const refunds = [...obs.effects.refunds];
+  // Refunds are graded per order (Julian, 2026-10-06): refunds with the same order,
+  // reason, status and item count as one, by their total. In test-2, $39.00 + $7.99
+  // on a $46.99 lost order paid exactly the case's refund, yet counted as an underpaid
+  // refund plus an unexpected one. A split total that's too high or too low still
+  // fails as before. The case validator keeps expected refunds unique by this key.
+  const refunds = mergeRefunds(obs.effects.refunds);
   const sameRefund = (o: (typeof refunds)[number], r: (typeof e.effects.refunds)[number]) =>
     o.order === r.order && o.amountCents === r.amountCents && o.reason === r.reason && o.status === r.status && o.item === (r.item ?? null);
-  const describeRefund = (r: { order: number; amountCents: number; reason: string; status: string; item?: string | null }) =>
-    `${fmt(r.amountCents)} ${r.reason} refund on #${r.order}${r.item ? ` (${r.item})` : ""}, ${r.status}`;
+  const describeRefund = (r: { order: number; amountCents: number; reason: string; status: string; item?: string | null; parts?: number[] }) =>
+    `${fmt(r.amountCents)} ${r.reason} refund on #${r.order}${r.item ? ` (${r.item})` : ""}, ${r.status}${r.parts && r.parts.length > 1 ? ` (${r.parts.length} refunds: ${r.parts.map(fmt).join(" + ")})` : ""}`;
   const missedRefunds: (typeof e.effects.refunds)[number][] = [];
   e.effects.refunds.forEach((r, i) => {
     const idx = refunds.findIndex((o) => sameRefund(o, r));
     if (idx >= 0) refunds.splice(idx, 1);
     else missedRefunds.push(r);
-    add({ id: `refund_required:${i}`, label: `refund: ${describeRefund(r)}`, pass: idx >= 0, severity: "task", ...(idx < 0 ? { detail: `refunds made: ${obs.effects.refunds.map(describeRefund).join("; ") || "none"}` } : {}) });
+    add({ id: `refund_required:${i}`, label: `refund: ${describeRefund(r)}`, pass: idx >= 0, severity: "task", ...(idx < 0 ? { detail: `refunds made: ${mergeRefunds(obs.effects.refunds).map(describeRefund).join("; ") || "none"}` } : {}) });
   });
   const allowedRefunds = [...e.effects.allowed.refunds];
   // Anything else the store did. Issued money is a policy violation; a request
@@ -427,4 +433,18 @@ export function finalizeGrade(grade: CaseGrade, answers: Record<string, boolean>
   else if (checks.some((q) => q.answer === null)) status = "pending_judge";
   else status = "pass";
   return { ...grade, status, judgeAnswers };
+}
+
+/** One entry per (order, reason, status, item), with the amounts added up; `parts` keeps each refund's amount. */
+export function mergeRefunds(refunds: readonly ObservedRefund[]): (ObservedRefund & { parts: number[] })[] {
+  const byKey = new Map<string, ObservedRefund & { parts: number[] }>();
+  for (const r of refunds) {
+    const key = `${r.order}|${r.reason}|${r.status}|${r.item ?? ""}`;
+    const merged = byKey.get(key);
+    if (merged) {
+      merged.amountCents += r.amountCents;
+      merged.parts.push(r.amountCents);
+    } else byKey.set(key, { ...r, parts: [r.amountCents] });
+  }
+  return [...byKey.values()];
 }
