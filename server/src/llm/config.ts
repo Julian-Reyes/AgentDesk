@@ -39,6 +39,15 @@ export const ModelConfigSchema = z.object({
   rpm: z.number().int().positive().optional(),
   /** Throttle: at most this many tokens (input + output) per minute. */
   tpm: z.number().int().positive().optional(),
+  /**
+   * The provider tier this config runs on. Recorded in every eval run's manifest,
+   * because it changes latency and limits: a paid-tier run's latency isn't
+   * comparable with a free-tier run's. A paid model has no daily limit unless
+   * rpd/tpd say so. Omitted = not recorded.
+   */
+  tier: z.enum(["free", "paid", "local"]).optional(),
+  /** Past tier changes, oldest first, so reports on older runs (with no tier in their manifest) can say which tier they ran on. */
+  tierChanges: z.array(z.object({ /** A date (YYYY-MM-DD, start of that day UTC) or an exact ISO time. */ on: z.string().refine((s) => !Number.isNaN(Date.parse(s)), "a date or ISO time"), from: z.enum(["free", "paid", "local"]), to: z.enum(["free", "paid", "local"]) })).optional(),
   /** Free-tier requests per day, for the preflight estimate only (not enforced; a daily-quota 429 fails fast). Omitted = unknown. */
   rpd: z.number().int().positive().optional(),
   /** Free-tier tokens per day, for the preflight estimate only. Omitted = unknown. */

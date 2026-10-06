@@ -28,7 +28,7 @@ import { confirm, coverageNote, duration, judgeEventLine, throttleNotice } from 
 import { estimateAgents, estimateJudge, renderEstimate } from "../evals/runner/estimate.ts";
 import { writeRunReport } from "../evals/runner/finish.ts";
 import { judgeCoverage, runAgentsStage, runJudgeStage, unjudged } from "../evals/runner/stages.ts";
-import { RunStore } from "../evals/runner/store.ts";
+import { mergeTiers, RunStore } from "../evals/runner/store.ts";
 import { validateCases } from "../evals/validate-cases.ts";
 import { getJudgeIds, getModelConfig, otherJudge } from "../llm/config.ts";
 import { cacheModeFromEnv, createProvider } from "../llm/factory.ts";
@@ -112,6 +112,8 @@ store.saveManifest({
   createdAt: existing?.createdAt ?? new Date().toISOString(),
   promptSet,
   cacheMode: cacheModeFromEnv(),
+  // A run saved before tiers were recorded: its earlier sessions' tier is unknown, so resuming it reads "not recorded → paid".
+  tiers: mergeTiers(existing && !existing.tiers ? Object.fromEntries(existing.models.map((m) => [m, "not recorded"])) : existing?.tiers, Object.fromEntries([...configs, ...(judgeConfig ? [judgeConfig] : [])].map((c) => [c.id, c.tier ?? "not recorded"]))),
 });
 for (const r of errored) store.removeConversation(r.agentModel, r.caseId);
 

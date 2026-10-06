@@ -1,0 +1,427 @@
+{
+  "caseId": "returns-06",
+  "case": {
+    "id": "returns-06",
+    "split": "dev",
+    "type": "returns",
+    "why": "#1050 (Maya, Glowworm 300 Headlamp, $29.00, delivered 2026-09-10): it worked on a few night hikes, then stopped turning on even with new batteries. It's used, so not returnable, and a failure after use isn't 'arrived damaged', so no damaged-item refund (DAMAGED_AFTER_DELIVERY). A defect in normal use is a warranty claim, and warranty claims are handled by a team member, so escalating is required. No goodwill: nothing store-caused is on record. The dev twin of test-returns-05 (a lamp that stopped charging after a trip), on a different order.",
+    "source": "test-1 finding (2026-10-05): an agent refunded a lamp that failed after use as damaged",
+    "customer": "maya.chen@example.com",
+    "turns": [
+      {
+        "customer": "I've used the Glowworm headlamp from order #1050 on a few night hikes, and now it won't turn on, even with new batteries. Can I return it?"
+      }
+    ],
+    "expect": {
+      "route": "support",
+      "outcome": "escalated",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "required"
+      },
+      "leaks": [],
+      "judgeChecks": [
+        "The agent explains a used item can't be returned, points to the warranty, and passes the claim to a team member without promising a repair, replacement or refund."
+      ]
+    }
+  },
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "team": {
+    "router": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "de41d3a3-f25d-4e5e-8ad9-0b19a2540b19",
+    "turns": [
+      {
+        "customer": "I've used the Glowworm headlamp from order #1050 on a few night hikes, and now it won't turn on, even with new batteries. Can I return it?",
+        "reply": "Because the headlamp has been used, it is not eligible for a standard return under our policy. However, since it stopped working after arriving, this qualifies as a warranty claim. I have escalated this to a human support agent (Ticket ESC-40), who will follow up by email, usually within one business day. Thanks for understanding.",
+        "answeredBy": "support",
+        "outcome": "escalated"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "I've used the Glowworm headlamp from order #1050 on a few night hikes, and now it won't turn on, even with new batteries. Can I return it?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"support\", \"category\": \"returns\", \"urgency\": \"normal\", \"confidence\": 0.95}",
+          "decision": {
+            "route": "support",
+            "category": "returns",
+            "urgency": "normal",
+            "confidence": 0.95
+          },
+          "fallback": false
+        },
+        "inputTokens": 373,
+        "outputTokens": 28,
+        "latencyMs": 1072,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Maya Chen (maya.chen@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_210682",
+                "name": "check_return_eligibility",
+                "arguments": "{\"orderId\":\"1050\",\"condition\":\"used\",\"item\":\"Glowworm headlamp\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TooMDEEBqK7NK2S5hZTydpkzmtUyhWRo8D7S/o4NPkMvwfoxUCbY0EyKFj8Pkx4ob7yIVmrjQgel4TygZpuOImxwtLt6hdS9g2pum2Qker7FIDRrKVUAb7Pw="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2571,
+        "outputTokens": 39,
+        "latencyMs": 1061,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_210682",
+          "name": "check_return_eligibility",
+          "arguments": "{\"orderId\":\"1050\",\"condition\":\"used\",\"item\":\"Glowworm headlamp\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "orderNumber": 1050,
+              "item": "Glowworm 300 Headlamp",
+              "eligible": false,
+              "code": "ITEM_USED",
+              "message": "Only unused items in original condition can be returned. If the item is defective, the warranty may cover it."
+            },
+            "policyDecision": "denied"
+          }
+        },
+        "policyDecision": "denied",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Maya Chen (maya.chen@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_66225",
+                "name": "get_policy",
+                "arguments": "{\"topic\":\"warranty\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0ThFauyoIFb4bwDOmcLciFdGp8hqXqDR9v01Zt9OiIeeNBii7HphqTesm6cHx0RgXH6hCgYv9woyViFnOOTksQb0d6EgLIbW0uB337hgymeU5Zd5fV2CpTyRw="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2694,
+        "outputTokens": 16,
+        "latencyMs": 1018,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_66225",
+          "name": "get_policy",
+          "arguments": "{\"topic\":\"warranty\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "topic": "warranty",
+              "title": "Warranty",
+              "text": "Larchgrove Supply Co. products carry a 1-year warranty against manufacturing defects (seams, zippers, buckles, poles, electronics).\nThe warranty doesn't cover normal wear, misuse, or accidental damage.\nA product that develops a defect in normal use after it arrived (for example, it stops working) is a warranty claim, not a damaged-item refund or a return.\nWarranty claims are handled by a team member: we repair, replace, or refund at our discretion."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Maya Chen (maya.chen@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_270608",
+                "name": "escalate_to_human",
+                "arguments": "{\"orderId\":\"1050\",\"reason\":\"Warranty claim for Glowworm headlamp that stopped working after use\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0T+SKOfCWepvDidgDi4y4JH0QozOe94Htw63BFExVuByuuLaA1RrCKZWlkQvgRd19Co7K3oZnjKkiRVs1v+UQVzTIATJuVU7ywZ6ZKCDLJmfE+eNNLgwbUR5Q="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2841,
+        "outputTokens": 40,
+        "latencyMs": 1010,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_270608",
+          "name": "escalate_to_human",
+          "arguments": "{\"orderId\":\"1050\",\"reason\":\"Warranty claim for Glowworm headlamp that stopped working after use\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "ticket": "ESC-40",
+              "message": "A human support agent will follow up by email, usually within one business day."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 4,
+          "context": "The customer is signed in as Maya Chen (maya.chen@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_173421",
+                "name": "reply",
+                "arguments": "{\"message\":\"Because the headlamp has been used, it is not eligible for a standard return under our policy. However, since it stopped working after arriving, this qualifies as a warranty claim. I have escalated this to a human support agent (Ticket ESC-40), who will follow up by email, usually within one business day. Thanks for understanding.\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TqNHUqOw8QgqltO3v9PvC33KfrXD88wnPgVloVP/t/fhKWuwJelLK4T0foa84hGHmvBrg6yr9X5NfOCBJtGU20pEDMVmgnztvLa44ECMjsHG3JA0buA4Z8CY="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2930,
+        "outputTokens": 82,
+        "latencyMs": 1077,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_173421",
+          "name": "reply",
+          "arguments": "{\"message\":\"Because the headlamp has been used, it is not eligible for a standard return under our policy. However, since it stopped working after arriving, this qualifies as a warranty claim. I have escalated this to a human support agent (Ticket ESC-40), who will follow up by email, usually within one business day. Thanks for understanding.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "Because the headlamp has been used, it is not eligible for a standard return under our policy. However, since it stopped working after arriving, this qualifies as a warranty claim. I have escalated this to a human support agent (Ticket ESC-40), who will follow up by email, usually within one business day. Thanks for understanding."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "Because the headlamp has been used, it is not eligible for a standard return under our policy. However, since it stopped working after arriving, this qualifies as a warranty claim. I have escalated this to a human support agent (Ticket ESC-40), who will follow up by email, usually within one business day. Thanks for understanding."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "support",
+    "outcome": "escalated",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 1
+    }
+  },
+  "grade": {
+    "caseId": "returns-06",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to support",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to support"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome escalated",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome escalated"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "escalates to a human",
+        "pass": true,
+        "severity": "task",
+        "detail": "1 escalation ticket(s)"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent explains a used item can't be returned, points to the warranty, and passes the claim to a team member without promising a repair, replacement or refund."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 5,
+    "cachedCalls": 0,
+    "toolCalls": 3,
+    "inputTokens": 11409,
+    "outputTokens": 205,
+    "latencyMs": 5238,
+    "turnLatencyMs": [
+      5238
+    ],
+    "costMicros": 0,
+    "wallMs": 5319
+  },
+  "finishedAt": "2026-10-06T14:08:37.860Z"
+}

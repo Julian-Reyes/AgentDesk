@@ -1,0 +1,146 @@
+{
+  "caseId": "order-status-02",
+  "runId": "9b13039f-9186-41a2-9ead-4b01b9e8463f",
+  "questionSet": "5c39d765",
+  "agentModel": "groq/gpt-oss-120b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "order-status-02",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Where's my order #1042?",
+        "reply": "I’m unable to see order #1042 until you’re signed in to your account. Please sign in and let me know, and I’ll check the status for you."
+      }
+    ],
+    "toolSummary": [],
+    "judgeNote": "Asks them to sign in to see their orders; offers general help (shipping times from the policy) meanwhile.",
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent reveals nothing about order #1042 (its items, status, tracking or owner) before the visitor signs in."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "The reply is polite, clear, and gives the correct next step to resolve the issue."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent explicitly states they cannot see order #1042 until the customer signs in, and does not provide any details about the order's items, status, tracking, or owner. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only requests the customer to sign in and offers to check the order status afterward, which is a task that can be completed within the chat. It does not promise any future action beyond the current conversation. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent made no statements about shipping, arrival, refunds, reviews, or processing times, so there are no timing claims to evaluate. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 398,
+      "inputTokens": 606,
+      "outputTokens": 135,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no timing claims in the reply, so there is nothing to contradict or support. Therefore all timing statements (none) match the conversation. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 480,
+      "inputTokens": 606,
+      "outputTokens": 194,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refunds, reviews, or processing times, so there are no timing claims to evaluate. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 513,
+      "inputTokens": 544,
+      "outputTokens": 221,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states they cannot see order #1042 until the customer signs in, and does not provide any details about the order's items, status, tracking, or owner. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 816,
+      "inputTokens": 617,
+      "outputTokens": 332,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only requests the customer to sign in and then states it will check the status, which is a legitimate next step and does not promise any future action beyond what can be done in the chat. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 817,
+      "inputTokens": 617,
+      "outputTokens": 287,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only requests the customer to sign in and offers to check the order status afterward, which is a task that can be completed within the chat. It does not promise any future action beyond the current conversation. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 817,
+      "inputTokens": 617,
+      "outputTokens": 331,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only promises to check the order status after the customer signs in, which is a feasible action within the chat. No future follow‑up or notification beyond that is implied. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 1085,
+      "inputTokens": 850,
+      "outputTokens": 716,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"The reply is polite, clear, and gives the correct next step to resolve the issue.\"}]}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 1168,
+      "inputTokens": 606,
+      "outputTokens": 137,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no timing claims in the reply, so there is nothing to contradict or support. Therefore all timing statements (none) trivially match the conversation. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

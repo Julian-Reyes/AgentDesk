@@ -3,6 +3,8 @@
 Judge: groq/gpt-oss-20b, rubric@4#ed295c13.
 Rates show 95% Wilson intervals; quality means show 95% intervals. Every number comes from this run's saved files.
 
+**gemini/gemini-3.5-flash-lite: tier not recorded.** It switched from free to paid on 2026-10-06 (time not recorded), while this run was in progress, so it may have run on either. Its latency isn't comparable with other runs.
+
 | Metric | gemini/gemini-3.5-flash-lite | groq/gpt-oss-120b |
 | --- | --- | --- |
 | Conversations | 6 | 6 |

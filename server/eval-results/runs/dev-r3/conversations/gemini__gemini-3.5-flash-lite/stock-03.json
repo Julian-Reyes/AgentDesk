@@ -1,0 +1,717 @@
+{
+  "caseId": "stock-03",
+  "case": {
+    "id": "stock-03",
+    "split": "dev",
+    "type": "stock",
+    "why": "Ridge 2 orange is out of stock (green has 8). Then Maya asks about her order #1042 (shipped): the shopping agent must hand off to support. Tests a mid-conversation handoff.",
+    "customer": "maya.chen@example.com",
+    "turns": [
+      {
+        "customer": "Is the Ridge 2 tent available in orange?",
+        "reply": {
+          "mentions": [
+            [
+              "out of stock",
+              "sold out",
+              "not in stock",
+              "not available",
+              "unavailable",
+              "none left"
+            ]
+          ],
+          "amounts": [],
+          "avoids": []
+        }
+      },
+      {
+        "customer": "OK, thanks. Different question: has my order #1042 shipped yet?",
+        "assumes": "the agent answered the stock question",
+        "reply": {
+          "mentions": [
+            [
+              "shipped",
+              "on its way",
+              "in transit"
+            ]
+          ],
+          "amounts": [],
+          "avoids": []
+        }
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "finalAgent": "support",
+      "outcome": "resolved",
+      "tools": {
+        "required": [
+          {
+            "anyOf": [
+              {
+                "tool": "get_tracking",
+                "args": {
+                  "orderId": 1042
+                }
+              },
+              {
+                "tool": "get_order",
+                "args": {
+                  "orderId": 1042
+                }
+              }
+            ]
+          }
+        ],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "leaks": [],
+      "judge": "Turn 1: orange is out, green is in stock. Turn 2: shipped, with tracking if looked up. The second reply doesn't repeat the stock answer.",
+      "judgeChecks": []
+    }
+  },
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "team": {
+    "router": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "provider": "gemini",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "222e70b9-bc8b-433a-8d2c-5256305ccd61",
+    "turns": [
+      {
+        "customer": "Is the Ridge 2 tent available in orange?",
+        "reply": "The Ridge 2 Backpacking Tent is available in orange, but it is currently out of stock. It is available in green.",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      },
+      {
+        "customer": "OK, thanks. Different question: has my order #1042 shipped yet?",
+        "reply": "Order #1042 has shipped. It was handed to Parcelway Ground on September 13 from our Reno, NV warehouse, and is currently in transit through Atlanta, GA. The estimated delivery is between September 16 and September 19, 2026.",
+        "answeredBy": "support",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Is the Ridge 2 tent available in orange?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\": \"shopping\", \"category\": \"product_info\", \"urgency\": \"low\", \"confidence\": 1.0}",
+          "decision": {
+            "route": "shopping",
+            "category": "product_info",
+            "urgency": "low",
+            "confidence": 1
+          },
+          "fallback": false
+        },
+        "inputTokens": 342,
+        "outputTokens": 29,
+        "latencyMs": 700,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Maya Chen (maya.chen@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_152362",
+                "name": "search_products",
+                "arguments": "{\"query\":\"Ridge 2\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TGN6bpueQ1QCj6zTk29Hf5eEjwO2jpP4IOU/CNjERxTMmLoRW15POX9R1DmopNOU4VPTEPpXXD+Tz773SJOFC2EwG93bCjPbQzXlaPhlAmgXSSyHNO1/6qec="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1986,
+        "outputTokens": 18,
+        "latencyMs": 2266,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_152362",
+          "name": "search_products",
+          "arguments": "{\"query\":\"Ridge 2\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 3,
+              "products": [
+                {
+                  "id": "tent-ridge-2",
+                  "name": "Ridge 2 Backpacking Tent",
+                  "category": "tents",
+                  "listPrice": "$249.00",
+                  "currentPrice": "$199.20",
+                  "rating": 4.6,
+                  "description": "Freestanding two-person backpacking tent with two doors and two vestibules.",
+                  "specs": {
+                    "seasons": 3,
+                    "material": "20D ripstop nylon",
+                    "waterproof": true,
+                    "weightGrams": 1900,
+                    "capacityPersons": 2,
+                    "waterproofRatingMm": 3000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Tent Sale: 20% off all tents"
+                  ]
+                },
+                {
+                  "id": "boot-ridgeline-mid",
+                  "name": "Ridgeline Mid Hiking Boot",
+                  "category": "boots",
+                  "listPrice": "$179.00",
+                  "currentPrice": "$179.00",
+                  "rating": 4.5,
+                  "description": "Waterproof mid-cut hiking boot with a membrane liner.",
+                  "specs": {
+                    "material": "suede and mesh",
+                    "waterproof": true,
+                    "weightGrams": 1200
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "boot-ridgeline-low",
+                  "name": "Ridgeline Low Hiking Shoe",
+                  "category": "boots",
+                  "listPrice": "$139.00",
+                  "currentPrice": "$139.00",
+                  "rating": 4.4,
+                  "description": "Low-cut waterproof hiking shoe for day hikes.",
+                  "specs": {
+                    "material": "suede and mesh",
+                    "waterproof": true,
+                    "weightGrams": 900
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Maya Chen (maya.chen@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_259255",
+                "name": "check_stock",
+                "arguments": "{\"productId\":\"tent-ridge-2\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0THo5xEE9BEMLvoxbzBXUvL/TbSE8oNvhjmAQHOYCIOwBz73Jk7p1TBb8HRo1rHF+21gD7G28OKMShWkDwhmUWI6cQ1T/nnWsRF7y3JaLfsqEtQple/BQQY0w="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2397,
+        "outputTokens": 20,
+        "latencyMs": 16900,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_259255",
+          "name": "check_stock",
+          "arguments": "{\"productId\":\"tent-ridge-2\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "product": "Ridge 2 Backpacking Tent",
+              "variants": [
+                {
+                  "size": null,
+                  "color": "green",
+                  "inStock": true,
+                  "unitsAvailable": 8,
+                  "availability": "in_stock"
+                },
+                {
+                  "size": null,
+                  "color": "orange",
+                  "inStock": false,
+                  "unitsAvailable": 0,
+                  "availability": "out_of_stock"
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Maya Chen (maya.chen@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_176082",
+                "name": "reply",
+                "arguments": "{\"message\":\"The Ridge 2 Backpacking Tent is available in orange, but it is currently out of stock. It is available in green.\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TtiSM0oM9kQN2D/eBVQ2ZfJj77fmQsgBa2QisZK0XxZKSufAcVJuNLJ8cYhtBq1LCI1QileTJztcQZjiXOPZtQjvDvGkP7cuCEDvvMRRtkoG2wzftdlz98qQ="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2500,
+        "outputTokens": 39,
+        "latencyMs": 56445,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_176082",
+          "name": "reply",
+          "arguments": "{\"message\":\"The Ridge 2 Backpacking Tent is available in orange, but it is currently out of stock. It is available in green.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "The Ridge 2 Backpacking Tent is available in orange, but it is currently out of stock. It is available in green."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "The Ridge 2 Backpacking Tent is available in orange, but it is currently out of stock. It is available in green."
+        },
+        "turn": 1
+      },
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "OK, thanks. Different question: has my order #1042 shipped yet?"
+        },
+        "turn": 2
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Maya Chen (maya.chen@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_487031",
+                "name": "handoff",
+                "arguments": "{\"reason\":\"Customer is asking about the shipping status of existing order #1042.\",\"to\":\"support\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TPXyGYTe8cuhIHMnjQTVupSEQy9c/465Dxz1ZtIG1THjK/w0kZ9gLv4KFGHn3CyG7e7BJYzR17dJo5vi5FIBP2Ue+niHI0l+jq4HRRt8NDdc/LpSeFJYQSL0="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2609,
+        "outputTokens": 36,
+        "latencyMs": 11942,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 2
+      },
+      {
+        "kind": "handoff",
+        "agent": "shopping",
+        "data": {
+          "callId": "call_487031",
+          "arguments": "{\"reason\":\"Customer is asking about the shipping status of existing order #1042.\",\"to\":\"support\"}",
+          "accepted": true
+        },
+        "turn": 2
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Maya Chen (maya.chen@example.com).\nYou are taking over from the shopping agent. Their note: Customer is asking about the shipping status of existing order #1042.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_533416",
+                "name": "get_tracking",
+                "arguments": "{\"orderId\":\"1042\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TRkSF/Cgve1CVjG9gnlEnbX8d163sHgOnzAaEP8R5sIObUR5rU0r+zB93N4p8vYfTSZRMqi1P9Mp7nKKRa/cugHKs/2AC85WLRLcWsy8O6p5XomzcjDuPPn8="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2615,
+        "outputTokens": 20,
+        "latencyMs": 68224,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 2
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_533416",
+          "name": "get_tracking",
+          "arguments": "{\"orderId\":\"1042\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "orderNumber": 1042,
+              "status": "shipped",
+              "carrier": "Parcelway",
+              "trackingNumber": "PW0008251598",
+              "estimatedDelivery": "2026-09-16 to 2026-09-19",
+              "events": [
+                {
+                  "at": "2026-09-12 15:00",
+                  "status": "order_placed",
+                  "location": "Larchgrove Warehouse, Reno, NV",
+                  "note": null
+                },
+                {
+                  "at": "2026-09-13 15:00",
+                  "status": "shipped",
+                  "location": "Larchgrove Warehouse, Reno, NV",
+                  "note": "Handed to Parcelway Ground"
+                },
+                {
+                  "at": "2026-09-14 15:00",
+                  "status": "in_transit",
+                  "location": "Atlanta, GA",
+                  "note": null
+                }
+              ]
+            }
+          }
+        },
+        "turn": 2
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Maya Chen (maya.chen@example.com).\nYou are taking over from the shopping agent. Their note: Customer is asking about the shipping status of existing order #1042.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_203563",
+                "name": "reply",
+                "arguments": "{\"message\":\"Order #1042 has shipped. It was handed to Parcelway Ground on September 13 from our Reno, NV warehouse, and is currently in transit through Atlanta, GA. The estimated delivery is between September 16 and September 19, 2026.\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TC5J0OOaTkFwkrwdo7p+n3k04GxVrAt/r9eKPuK4LgrcbUVZ7t3Kst0ctCBHg/LFoTmSznZQ+jJd6ls2hx6b6A2ZvoYr0It74GgyRfWe5amQdS6e46RF50a4="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "failedAttempts": [
+            {
+              "message": "no response from gemini at generativelanguage.googleapis.com within 90s."
+            }
+          ],
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2836,
+        "outputTokens": 72,
+        "latencyMs": 1380,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 2
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_203563",
+          "name": "reply",
+          "arguments": "{\"message\":\"Order #1042 has shipped. It was handed to Parcelway Ground on September 13 from our Reno, NV warehouse, and is currently in transit through Atlanta, GA. The estimated delivery is between September 16 and September 19, 2026.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "Order #1042 has shipped. It was handed to Parcelway Ground on September 13 from our Reno, NV warehouse, and is currently in transit through Atlanta, GA. The estimated delivery is between September 16 and September 19, 2026."
+            }
+          }
+        },
+        "turn": 2
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "Order #1042 has shipped. It was handed to Parcelway Ground on September 13 from our Reno, NV warehouse, and is currently in transit through Atlanta, GA. The estimated delivery is between September 16 and September 19, 2026."
+        },
+        "turn": 2
+      }
+    ],
+    "finalAgent": "support",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "stock-03",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to shopping"
+      },
+      {
+        "id": "final_agent",
+        "label": "ends with the support agent",
+        "pass": true,
+        "severity": "task",
+        "detail": "ended with support"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "tool_required:0",
+        "label": "calls get_tracking {\"orderId\":1042} or get_order {\"orderId\":1042}",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "reply1:mentions:0",
+        "label": "reply 1 mentions \"out of stock\" or \"sold out\" or \"not in stock\" or \"not available\" or \"unavailable\" or \"none left\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply2:mentions:0",
+        "label": "reply 2 mentions \"shipped\" or \"on its way\" or \"in transit\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      },
+      {
+        "turn": 2,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      },
+      {
+        "id": "script:2",
+        "kind": "script_fit",
+        "turn": 2,
+        "assumes": "the agent answered the stock question",
+        "previousReply": "The Ridge 2 Backpacking Tent is available in orange, but it is currently out of stock. It is available in green."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 7,
+    "cachedCalls": 0,
+    "toolCalls": 3,
+    "inputTokens": 15285,
+    "outputTokens": 234,
+    "latencyMs": 157857,
+    "turnLatencyMs": [
+      76311,
+      81546
+    ],
+    "costMicros": 0,
+    "wallMs": 269578
+  },
+  "finishedAt": "2026-10-06T14:04:03.443Z"
+}

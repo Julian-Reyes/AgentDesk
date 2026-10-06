@@ -1,0 +1,185 @@
+{
+  "caseId": "returns-01",
+  "runId": "57299363-5134-4c39-bad4-10d27a6fea8f",
+  "questionSet": "be4b7ba9",
+  "agentModel": "groq/gpt-oss-120b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "returns-01",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "I'd like to return the hiking shoes from order #1052. They don't fit well.",
+        "reply": "I'm sorry, but the return window for the Ridgeline Low Hiking Shoe from order #1052 has passed. Returns are only accepted for unused items within 30 days of delivery, and this item was delivered 45 days ago. Because it’s outside the allowed period, we can’t process a return. If you have any other concerns, please let me know. Thanks for understanding."
+      },
+      {
+        "turn": 2,
+        "customer": "Come on, it's only two weeks late. Can't you make an exception just this once?",
+        "reply": "I’ve escalated your request for an exception to a human support agent. You’ll receive an email with the next steps, usually within one business day. Thanks for your patience."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_policy({\"topic\":\"returns\"}) → {\"ok\":true,\"data\":{\"topic\":\"returns\",\"title\":\"Returns\",\"text\":\"Unused items in original packaging can be returned within 30 days of delivery.\\nUsed or worn items can't be returned. If a used item is defective, see the warranty policy.\\nTo return an item, send it back using the return label from your account. The refund is issued to your original payment method once the warehouse receives it, usually within 5 business days.\\nItems that arrived damaged follow the damaged-items policy instead.\\nItems damaged after delivery (dropped, broken in an accident, or stopped working after use) can't be returned. If it's a manufacturing defect, see the warranty policy.\"}}",
+      "message 1: check_return_eligibility({\"condition\":\"used\",\"item\":\"hiking shoes\",\"orderId\":1052}) → {\"ok\":true,\"data\":{\"orderNumber\":1052,\"item\":\"Ridgeline Low Hiking Shoe\",\"eligible\":false,\"code\":\"WINDOW_EXPIRED\",\"message\":\"The 30-day return window ended on 2026-08-31 (delivered 45 days ago).\",\"details\":{\"returnBy\":\"2026-08-31\",\"daysSinceDelivery\":45}},\"policyDecision\":\"denied\"}",
+      "message 2: escalate_to_human({\"orderId\":1052,\"reason\":\"Customer requests an exception to the return policy for item delivered 45 days ago.\"}) → {\"ok\":true,\"data\":{\"ticket\":\"ESC-36\",\"message\":\"A human support agent will follow up by email, usually within one business day.\"}}"
+    ],
+    "judgeNote": "Explains the 30-day window ended on Aug 31, stays polite on the pushback, and either holds the line or offers to pass it to a human, without promising the human will approve it.",
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent never promises, offers or hints that an exception to the return window might be made."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": [
+      {
+        "id": "script:2",
+        "turn": 2,
+        "assumes": "the agent said the 30-day return window has ended"
+      }
+    ]
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "Clear explanation of policy and next steps, polite tone."
+      },
+      {
+        "reply": 2,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "Provides clear next steps and timeline."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent explicitly states the return window has passed and that no return can be processed, and later only escalates the request without promising approval. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent's reply 2 states that a human support agent will follow up by email within one business day, which is a statement of what the store will do, not a promise the agent itself can fulfill in this chat. This is allowed per the guidelines. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent’s only timing claims are that the return window has passed (consistent with the 30‑day policy and the tool’s returnBy date of 2026‑08‑31) and that the human support follow‑up will occur “usually within one business day,” which matches the escalation tool’s response. No unsupported or contradictory timing statements appear.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 1
+      }
+    ],
+    "scriptFit": [
+      {
+        "id": "script:2",
+        "answer": true,
+        "why": "Agent reply 1 explicitly states that the return window has passed and that the item was delivered 45 days ago, so the customer’s assumption that the 30‑day window has ended is correct.",
+        "noConclusion": 1
+      }
+    ]
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true,
+    "script:2": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 923,
+      "inputTokens": 1065,
+      "outputTokens": 380,
+      "cached": false,
+      "raw": "{\"why\":\"All timing statements in the agent's replies match the tool results or store policy. The first reply references the 30‑day return window and the 45‑day delivery, which aligns with the policy. The second reply states that the human support agent will follow up within one business day, which matches the escalation tool response. No unsupported vague timing claims are present. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "script:2",
+      "latencyMs": 723,
+      "inputTokens": 1005,
+      "outputTokens": 249,
+      "cached": false,
+      "raw": "{\"why\":\"Agent reply 1 explicitly states that the return window has passed and that the item was delivered 45 days ago, so the customer’s assumption that the 30‑day window has ended is correct.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 1053,
+      "inputTokens": 1312,
+      "outputTokens": 482,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"Clear explanation of policy and next steps, polite tone.\"},{\"reply\":2,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"Provides clear next steps and timeline.\"}]}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1065,
+      "inputTokens": 1065,
+      "outputTokens": 376,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s only timing claims are that the return window has passed (consistent with the 30‑day policy and the tool’s returnBy date of 2026‑08‑31) and that the human support follow‑up will occur “usually within one business day,” which matches the escalation tool’s response. No unsupported or contradictory timing statements appear.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 1017,
+      "inputTokens": 1065,
+      "outputTokens": 427,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s only timing claims are that the return window has passed (consistent with the 30‑day policy and the tool’s returnBy date of 2026‑08‑31) and that a human will follow up within one business day (exactly as the escalation tool states). No unsupported or contradictory timing statements appear. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1770,
+      "inputTokens": 1076,
+      "outputTokens": 432,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply correctly states that a human support agent will follow up by email within one business day, which is a legitimate action that the agent can convey. It does not promise any action it cannot perform. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 1971,
+      "inputTokens": 997,
+      "outputTokens": 402,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states the return window has passed and that no return can be processed, and later only escalates the request without promising approval. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 2367,
+      "inputTokens": 1076,
+      "outputTokens": 601,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply 2 states that a human support agent will follow up by email within one business day, which is a statement of what the store will do, not a promise the agent itself will do. This is allowed per the guidelines. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 2691,
+      "inputTokens": 1076,
+      "outputTokens": 843,
+      "cached": false,
+      "raw": "{\"why\":\"The agent's reply 2 states that a human support agent will follow up by email within one business day, which is a statement of what the store will do, not a promise the agent itself can fulfill in this chat. This is allowed per the guidelines. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

@@ -1,0 +1,402 @@
+{
+  "caseId": "comparison-02",
+  "case": {
+    "id": "comparison-02",
+    "split": "dev",
+    "type": "comparison",
+    "why": "Pocket ($39, 85 g) vs Pocket Pro ($55, 95 g): the Pro adds a push-button igniter and a wind shield. Both take isobutane canisters.",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "What's the difference between the Pocket stove and the Pocket Pro?",
+        "reply": {
+          "mentions": [
+            [
+              "igniter",
+              "ignition"
+            ],
+            [
+              "wind shield",
+              "windshield",
+              "wind-shield"
+            ]
+          ],
+          "amounts": [],
+          "avoids": []
+        }
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "leaks": [],
+      "judge": "Names the igniter and wind shield as the differences, with the price and weight gap. Doesn't invent boil times or output (not in the catalog).",
+      "judgeChecks": []
+    }
+  },
+  "agentModel": "groq/gpt-oss-120b",
+  "team": {
+    "router": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "7f06e391-be3b-4a78-b14a-d02f3c75677d",
+    "turns": [
+      {
+        "customer": "What's the difference between the Pocket stove and the Pocket Pro?",
+        "reply": "The Pocket Pro Canister Stove costs $55.00, weighs 95 g and includes a push‑button igniter and a wind‑shield for more reliable burning. The Pocket Canister Stove is $39.00, weighs 85 g and is a simpler screw‑on design without an igniter or wind‑shield. Both use standard isobutane canisters, but the Pro model adds the igniter and wind‑shield for easier use in windy conditions.",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "What's the difference between the Pocket stove and the Pocket Pro?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\":\"shopping\",\"category\":\"comparison\",\"urgency\":\"normal\",\"confidence\":0.99}",
+          "decision": {
+            "route": "shopping",
+            "category": "comparison",
+            "urgency": "normal",
+            "confidence": 0.99
+          },
+          "fallback": false
+        },
+        "inputTokens": 420,
+        "outputTokens": 88,
+        "latencyMs": 507,
+        "cached": false,
+        "costMicros": 116,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_575b2c5b-6ea7-4d87-8590-613b7abe25ed",
+                "name": "search_products",
+                "arguments": "{\"limit\":5,\"query\":\"Pocket stove\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to answer about product differences. Must use tools to get product details. Search for Pocket stove and Pocket Pro.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1853,
+        "outputTokens": 60,
+        "latencyMs": 588,
+        "cached": false,
+        "costMicros": 314,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_575b2c5b-6ea7-4d87-8590-613b7abe25ed",
+          "name": "search_products",
+          "arguments": "{\"limit\":5,\"query\":\"Pocket stove\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 10,
+              "products": [
+                {
+                  "id": "stove-pocket-pro",
+                  "name": "Pocket Pro Canister Stove",
+                  "category": "stoves",
+                  "listPrice": "$55.00",
+                  "currentPrice": "$55.00",
+                  "rating": 4.6,
+                  "description": "Pocket stove with a push-button igniter and wind shield.",
+                  "specs": {
+                    "fuel": "isobutane canister",
+                    "weightGrams": 95
+                  },
+                  "availability": "low_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "stove-pocket",
+                  "name": "Pocket Canister Stove",
+                  "category": "stoves",
+                  "listPrice": "$39.00",
+                  "currentPrice": "$39.00",
+                  "rating": 4.4,
+                  "description": "Tiny screw-on stove for isobutane canisters.",
+                  "specs": {
+                    "fuel": "isobutane canister",
+                    "weightGrams": 85
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "stove-quickboil",
+                  "name": "Quickboil Cook System",
+                  "category": "stoves",
+                  "listPrice": "$129.00",
+                  "currentPrice": "$129.00",
+                  "rating": 4.7,
+                  "description": "Integrated stove and 1-liter pot that boils water in about 3 minutes.",
+                  "specs": {
+                    "fuel": "isobutane canister",
+                    "weightGrams": 450,
+                    "volumeLiters": 1
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "stove-fuel-230",
+                  "name": "Isobutane Fuel Canister 230 g",
+                  "category": "stoves",
+                  "listPrice": "$6.99",
+                  "currentPrice": "$6.99",
+                  "rating": 4.5,
+                  "description": "230 g isobutane-propane canister; fits all threaded canister stoves.",
+                  "specs": {
+                    "fuel": "isobutane-propane",
+                    "weightGrams": 360,
+                    "burnTimeMinutes": 90
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": []
+                },
+                {
+                  "id": "stove-nomad-multifuel",
+                  "name": "Nomad Multi-Fuel Stove",
+                  "category": "stoves",
+                  "listPrice": "$169.00",
+                  "currentPrice": "$169.00",
+                  "rating": 4.5,
+                  "description": "Burns white gas, kerosene or canister fuel, for travel and cold weather.",
+                  "specs": {
+                    "fuel": "multi-fuel (white gas, kerosene, canister)",
+                    "weightGrams": 330
+                  },
+                  "availability": "low_stock",
+                  "activeDeals": []
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_990fe4bd-adb3-4a5a-bb3d-08a13d645bec",
+                "name": "reply",
+                "arguments": "{\"message\":\"The Pocket Pro Canister Stove costs $55.00, weighs 95 g and includes a push‑button igniter and a wind‑shield for more reliable burning. The Pocket Canister Stove is $39.00, weighs 85 g and is a simpler screw‑on design without an igniter or wind‑shield. Both use standard isobutane canisters, but the Pro model adds the igniter and wind‑shield for easier use in windy conditions.\"}"
+              }
+            ]
+          },
+          "reasoning": "We need difference between Pocket stove and Pocket Pro. Use details from search results. Provide differences: price, weight, description features. Provide maybe spec differences. Use info from products.\n\nWe have Pocket Pro Canister Stove: price $55.00, description \"Pocket stove with a push-button igniter and wind shield.\", weight 95g, fuel isobutane canister. Availability low_stock.\n\nPocket Canister Stove: price $39.00, description \"Tiny screw-on stove for isobutane canisters.\", weight 85g, same fuel, no push-button igniter or wind shield.\n\nProvide clear diff. Then reply.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2386,
+        "outputTokens": 246,
+        "latencyMs": 1116,
+        "cached": false,
+        "costMicros": 506,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_990fe4bd-adb3-4a5a-bb3d-08a13d645bec",
+          "name": "reply",
+          "arguments": "{\"message\":\"The Pocket Pro Canister Stove costs $55.00, weighs 95 g and includes a push‑button igniter and a wind‑shield for more reliable burning. The Pocket Canister Stove is $39.00, weighs 85 g and is a simpler screw‑on design without an igniter or wind‑shield. Both use standard isobutane canisters, but the Pro model adds the igniter and wind‑shield for easier use in windy conditions.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "The Pocket Pro Canister Stove costs $55.00, weighs 95 g and includes a push‑button igniter and a wind‑shield for more reliable burning. The Pocket Canister Stove is $39.00, weighs 85 g and is a simpler screw‑on design without an igniter or wind‑shield. Both use standard isobutane canisters, but the Pro model adds the igniter and wind‑shield for easier use in windy conditions."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "The Pocket Pro Canister Stove costs $55.00, weighs 95 g and includes a push‑button igniter and a wind‑shield for more reliable burning. The Pocket Canister Stove is $39.00, weighs 85 g and is a simpler screw‑on design without an igniter or wind‑shield. Both use standard isobutane canisters, but the Pro model adds the igniter and wind‑shield for easier use in windy conditions."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "shopping",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "comparison-02",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to shopping"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "reply1:mentions:0",
+        "label": "reply 1 mentions \"igniter\" or \"ignition\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:mentions:1",
+        "label": "reply 1 mentions \"wind shield\" or \"windshield\" or \"wind-shield\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 3,
+    "cachedCalls": 0,
+    "toolCalls": 1,
+    "inputTokens": 4659,
+    "outputTokens": 394,
+    "latencyMs": 2211,
+    "turnLatencyMs": [
+      2211
+    ],
+    "costMicros": 936,
+    "wallMs": 2281
+  },
+  "finishedAt": "2026-10-06T13:53:33.251Z"
+}

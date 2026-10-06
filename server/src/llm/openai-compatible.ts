@@ -365,8 +365,22 @@ export function fromWireResponse(json: any, latencyMs: number): ChatResponse {
     finishReason: choice.finish_reason ?? "unknown",
     usage: {
       inputTokens: json.usage?.prompt_tokens ?? 0,
-      outputTokens: json.usage?.completion_tokens ?? 0,
+      outputTokens: outputTokens(json.usage),
     },
     latencyMs,
   };
+}
+
+/**
+ * Output tokens as billed: thinking counts as output. Groq's completion_tokens
+ * already includes reasoning, so total = prompt + completion. A provider that
+ * leaves thinking out of completion_tokens (Gemini's native API reports it
+ * separately) still counts it in total_tokens, so the larger of the two is
+ * used. On Gemini's OpenAI-compatible endpoint, total was prompt + completion
+ * in both calls checked on 2026-10-06, so nothing changes there today.
+ */
+export function outputTokens(usage: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number } | undefined): number {
+  const completion = usage?.completion_tokens ?? 0;
+  const fromTotal = usage?.total_tokens !== undefined ? usage.total_tokens - (usage.prompt_tokens ?? 0) : 0;
+  return Math.max(completion, fromTotal);
 }

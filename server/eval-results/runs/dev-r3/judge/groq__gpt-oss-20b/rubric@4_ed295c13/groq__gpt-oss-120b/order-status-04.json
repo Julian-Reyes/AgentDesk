@@ -1,0 +1,150 @@
+{
+  "caseId": "order-status-04",
+  "runId": "e4065fc0-7fa4-4890-a714-222ffa2213f0",
+  "questionSet": "bb59b3c4",
+  "agentModel": "groq/gpt-oss-120b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "order-status-04",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Where's my order #1055? It's been almost two weeks.",
+        "reply": "Your order #1055 is still in transit. The carrier’s tracking shows it was delayed in Salt Lake City due to weather and a volume backlog. The tracking number is PW0008354545. I’ve submitted a request for a 10 % goodwill coupon for this delay, and it is pending approval. Thanks for your patience."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1055}) → {\"ok\":true,\"data\":{\"number\":1055,\"status\":\"delayed\",\"placed\":\"2026-09-03\",\"delivered\":null,\"items\":[{\"productId\":\"stove-pocket\",\"name\":\"Pocket Canister Stove\",\"size\":null,\"color\":null,\"qty\":1,\"listPrice\":\"$39.00\",\"discount\":\"$0.00\",\"paid\":\"$39.00\",\"returnedQty\":0},{\"productId\":\"stove-fuel-230\",\"name\":\"Isobutane Fuel Canister 230 g\",\"size\":null,\"color\":null,\"qty\":2,\"listPrice\":\"$6.99\",\"discount\":\"$0.00\",\"paid\":\"$13.98\",\"returnedQty\":0}],\"subtotal\":\"$52.98\",\"discount\":\"$0.00\",\"shipping\":\"$7.99\",\"totalPaid\":\"$60.97\",\"refunds\":[]}}",
+      "message 1: issue_goodwill_coupon({\"customer\":\"sofia.alvarez@example.com\",\"orderId\":1055,\"percent\":10,\"reason\":\"order delayed\"}) → {\"ok\":true,\"data\":{\"status\":\"pending_approval\",\"approvalId\":73,\"message\":\"No coupon has been issued yet. A 10% goodwill coupon request was sent to a team member for approval.\"},\"policyDecision\":\"queued_for_approval\"}",
+      "message 1: get_tracking({\"orderId\":1055}) → {\"ok\":true,\"data\":{\"orderNumber\":1055,\"status\":\"delayed\",\"carrier\":\"Parcelway\",\"trackingNumber\":\"PW0008354545\",\"estimatedDelivery\":null,\"events\":[{\"at\":\"2026-09-03 14:00\",\"status\":\"order_placed\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":null},{\"at\":\"2026-09-04 14:00\",\"status\":\"shipped\",\"location\":\"Larchgrove Warehouse, Reno, NV\",\"note\":\"Handed to Parcelway Ground\"},{\"at\":\"2026-09-05 14:00\",\"status\":\"in_transit\",\"location\":\"Salt Lake City, UT\",\"note\":null},{\"at\":\"2026-09-07 14:00\",\"status\":\"delayed\",\"location\":\"Salt Lake City, UT\",\"note\":\"Carrier delay: weather and volume backlog\"}]}}"
+    ],
+    "judgeNote": "Apologizes, explains the carrier delay from the tracking note, and may offer the shipping refund. Doesn't blame the customer or promise a date.",
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent doesn't give a delivery date (the tracking has no estimate for this delayed order)."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 4,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "Tone is warm but lacks an apology for the delay."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent’s reply mentions the delay and provides a tracking number and a goodwill coupon request, but does not give any estimated delivery date. Therefore the statement is true."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only reports what has already been done and does not promise future actions beyond what the tools indicate. Therefore the agent does not promise or imply any future action it cannot do in this chat. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent states the order is still in transit, which matches the tracking data showing a delayed status. They also say the goodwill coupon request is pending approval, which matches the tool response indicating a pending approval. No other timing claims are made. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 622,
+      "inputTokens": 1126,
+      "outputTokens": 250,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the order is still in transit, which matches the tracking data showing a delayed status. They also say the goodwill coupon request is pending approval, which matches the tool response indicating a pending approval. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 651,
+      "inputTokens": 1126,
+      "outputTokens": 330,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the order is still in transit, cites a delay in Salt Lake City due to weather and volume backlog, gives the tracking number PW0008354545, and notes the goodwill coupon request is pending approval. All of these statements are directly supported by the tool results: the tracking data shows a delayed event on 2026‑09‑07, the status is delayed, and the coupon request is pending approval. No unsupported or vague timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 655,
+      "inputTokens": 1057,
+      "outputTokens": 218,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply mentions the delay and provides a tracking number and a goodwill coupon request, but does not give any estimated delivery date. Therefore the statement is true.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 796,
+      "inputTokens": 1137,
+      "outputTokens": 407,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports what has already been done and states that the coupon request is pending approval; it does not promise future actions beyond that. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 908,
+      "inputTokens": 1126,
+      "outputTokens": 369,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the order is still in transit, cites a delay in Salt Lake City due to weather and volume backlog, provides the tracking number PW0008354545, and notes the goodwill coupon request is pending approval. All of these timing-related claims are directly supported by the tool results: the tracking data shows a delayed status, the tracking number matches, and the coupon request is indeed pending approval. No unsupported or vague timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1065,
+      "inputTokens": 1137,
+      "outputTokens": 412,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports the current status and the fact that a goodwill coupon request has been submitted and is pending approval; it does not promise or imply any future action it cannot perform in this chat. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 2113,
+      "inputTokens": 1370,
+      "outputTokens": 467,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":4,\"clarity\":5,\"helpfulness\":5,\"why\":\"Tone is warm but lacks an apology for the delay.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 2383,
+      "inputTokens": 1137,
+      "outputTokens": 450,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports what has already been done and does not promise future actions beyond what the tools indicate. Therefore the agent does not promise or imply any future action it cannot do in this chat. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

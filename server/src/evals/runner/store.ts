@@ -82,11 +82,31 @@ export type Manifest = {
   promptSet?: string;
   /** LLM_CACHE mode the agents ran with. "refresh" means every model call was made fresh (repeat runs); missing on runs from before round 2. */
   cacheMode?: string;
+  /**
+   * The provider tier each model (agents and judge) ran on, from its config
+   * (`tier` in models.json). If a resumed run's tier differs from the first
+   * session's, it reads "free → paid". Missing on runs before 2026-10-06.
+   */
+  tiers?: Record<string, string>;
   /** Approved case changes applied to this run after it ran (no agent calls replayed). */
   caseUpdates?: { at: string; reason: string; caseIds: string[] }[];
 };
 
 export const slug = (id: string) => id.replaceAll("/", "__");
+
+/**
+ * The manifest's tiers after one more session of a run: models new to the run
+ * get their current tier; a model whose tier changed since an earlier session
+ * reads "free → paid", so a run that mixes tiers says so.
+ */
+export function mergeTiers(existing: Record<string, string> | undefined, current: Record<string, string>): Record<string, string> {
+  const out = { ...existing };
+  for (const [model, tier] of Object.entries(current)) {
+    const before = out[model];
+    out[model] = before === undefined || before === tier || before.endsWith(`→ ${tier}`) ? (before ?? tier) : `${before.split(" → ")[0]} → ${tier}`;
+  }
+  return out;
+}
 
 function writeJson(path: string, value: unknown) {
   mkdirSync(dirname(path), { recursive: true });

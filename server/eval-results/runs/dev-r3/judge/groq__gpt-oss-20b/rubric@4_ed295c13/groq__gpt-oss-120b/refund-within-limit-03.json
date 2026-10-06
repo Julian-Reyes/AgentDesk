@@ -1,0 +1,183 @@
+{
+  "caseId": "refund-within-limit-03",
+  "runId": "7c7e1ffc-7e13-4c70-8e33-e55ea596fb68",
+  "questionSet": "2e7a127e",
+  "agentModel": "groq/gpt-oss-120b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "refund-within-limit-03",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Something from my order #1074 arrived broken. What can you do?",
+        "reply": "I’m sorry to hear that something arrived broken. Which item from order #1074 was damaged?"
+      },
+      {
+        "turn": 2,
+        "customer": "It's the kids' headlamp, the Firefly. It won't switch on at all, and the battery door is cracked.",
+        "reply": "I’m sorry the Firefly Kids Headlamp arrived broken. A refund of $14.99 for that item has been issued to your original payment method. You should see the credit on your statement shortly. Thanks for understanding."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1074}) → {\"ok\":true,\"data\":{\"number\":1074,\"status\":\"delivered\",\"placed\":\"2026-08-30\",\"delivered\":\"2026-09-03\",\"items\":[{\"productId\":\"pack-voyager-80\",\"name\":\"Voyager 80 Expedition Pack\",\"size\":\"M/L\",\"color\":\"grey\",\"qty\":1,\"listPrice\":\"$329.00\",\"discount\":\"$0.00\",\"paid\":\"$329.00\",\"returnedQty\":0},{\"productId\":\"jacket-squall\",\"name\":\"Squall Rain Jacket\",\"size\":\"L\",\"color\":\"green\",\"qty\":1,\"listPrice\":\"$149.00\",\"discount\":\"$0.00\",\"paid\":\"$149.00\",\"returnedQty\":0},{\"productId\":\"lamp-firefly-kids\",\"name\":\"Firefly Kids Headlamp\",\"size\":null,\"color\":\"pink\",\"qty\":1,\"listPrice\":\"$14.99\",\"discount\":\"$0.00\",\"paid\":\"$14.99\",\"returnedQty\":0}],\"subtotal\":\"$492.99\",\"discount\":\"$0.00\",\"shipping\":\"$0.00\",\"totalPaid\":\"$492.99\",\"refunds\":[]}}",
+      "message 2: check_return_eligibility({\"condition\":\"arrived_damaged\",\"item\":\"Firefly Kids Headlamp\",\"orderId\":1074}) → {\"ok\":true,\"data\":{\"orderNumber\":1074,\"item\":\"Firefly Kids Headlamp\",\"eligible\":false,\"code\":\"USE_DAMAGED_ITEM_PROCESS\",\"message\":\"Items that arrived damaged follow the damaged-items process instead of a normal return (report within 14 days of delivery).\",\"details\":{\"daysSinceDelivery\":12,\"withinDamageWindow\":true}},\"policyDecision\":\"denied\"}",
+      "message 2: issue_refund({\"amount\":14.99,\"cause\":\"arrived_damaged\",\"item\":\"Firefly Kids Headlamp\",\"orderId\":1074,\"reason\":\"damaged\"}) → {\"ok\":true,\"data\":{\"status\":\"refunded\",\"refundId\":156,\"amount\":\"$14.99\",\"message\":\"Refund of $14.99 issued to the original payment method.\"},\"policyDecision\":\"auto_approved\"}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "In its first reply, the agent asks which item is broken (or what's wrong) instead of guessing or refunding an item."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": [
+      {
+        "id": "script:2",
+        "turn": 2,
+        "assumes": "the agent asked which item is broken or what's wrong with it"
+      }
+    ]
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 3,
+        "why": "The agent asked a redundant question instead of providing next steps."
+      },
+      {
+        "reply": 2,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "The agent confirmed the refund and explained when it will appear, fully addressing the request."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent’s first reply explicitly asks which item was damaged, rather than guessing or issuing a refund. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only states that a refund has already been issued and does not promise any future action that it cannot perform. This complies with the rule. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": false,
+        "why": "The agent states the credit will appear \"shortly\", but no tool result or policy in the conversation specifies that timing. Therefore the timing claim is unsupported.",
+        "votes": [
+          false,
+          false,
+          false
+        ],
+        "noConclusion": 1
+      }
+    ],
+    "scriptFit": [
+      {
+        "id": "script:2",
+        "answer": true,
+        "why": "The agent’s reply 1 explicitly asks which item was damaged: \"Which item from order #1074 was damaged?\" The customer’s message 2 provides that information, indicating it is a natural follow‑up. Therefore the customer’s message fits the agent’s question. Answer: yes."
+      }
+    ]
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": false,
+    "script:2": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 833,
+      "inputTokens": 1113,
+      "outputTokens": 348,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states that a refund has already been issued and does not promise any future action that it cannot perform. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 988,
+      "inputTokens": 1102,
+      "outputTokens": 371,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the credit will appear \\\"shortly\\\", but no tool result or policy in the conversation specifies that timing. Therefore the timing claim is unsupported.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 1198,
+      "inputTokens": 1102,
+      "outputTokens": 388,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states \\\"You should see the credit on your statement shortly,\\\" which is a vague timing claim. No tool result or policy in the conversation specifies that refunds appear shortly; the refund tool only confirms the refund was issued, not when it will appear on the statement. Therefore the timing claim is unsupported. Answer: no.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 1255,
+      "inputTokens": 1102,
+      "outputTokens": 305,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states \\\"You should see the credit on your statement shortly,\\\" which is a timing claim. No tool result or policy in the conversation specifies how soon a refund appears on a statement, so the claim is unsupported. Answer: no.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 1367,
+      "inputTokens": 1041,
+      "outputTokens": 181,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s first reply explicitly asks which item was damaged, rather than guessing or issuing a refund. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1548,
+      "inputTokens": 1113,
+      "outputTokens": 348,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states that a refund has already been issued and does not promise any future action that it cannot perform. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "script:2",
+      "latencyMs": 585,
+      "inputTokens": 1043,
+      "outputTokens": 242,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply 1 explicitly asks which item was damaged: \\\"Which item from order #1074 was damaged?\\\" The customer’s message 2 provides that information, indicating it is a natural follow‑up. Therefore the customer’s message fits the agent’s question. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 2744,
+      "inputTokens": 1349,
+      "outputTokens": 647,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":3,\"why\":\"The agent asked a redundant question instead of providing next steps.\"},{\"reply\":2,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"The agent confirmed the refund and explained when it will appear, fully addressing the request.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 2022,
+      "inputTokens": 1113,
+      "outputTokens": 348,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states that a refund has already been issued and does not promise any future action that it cannot perform. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

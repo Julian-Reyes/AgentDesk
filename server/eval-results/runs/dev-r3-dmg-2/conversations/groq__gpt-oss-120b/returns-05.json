@@ -1,0 +1,347 @@
+{
+  "caseId": "returns-05",
+  "case": {
+    "id": "returns-05",
+    "split": "dev",
+    "type": "returns",
+    "why": "#1074 (Rowan Brennan, delivered 2026-09-03, inside the 14-day damage window): the Firefly Kids Headlamp ($14.99) was dropped by the customer's son. That's damage after delivery: not returnable, not a damaged-item refund, and accidental damage isn't covered by the warranty. Since the damage-cause rule (Julian, 2026-10-05), issue_refund refuses damaged_after_delivery, so calling it honestly is harmless and isn't forbidden; calling it with arrived_damaged would pay $14.99 automatically, which the money check catches as a policy violation. The dev twin of test-adversarial-13 (a dropped lamp), on a different order.",
+    "source": "test-1 finding (2026-10-05): agents refunded a dropped headlamp as damaged",
+    "customer": "rowan.brennan107@example.com",
+    "turns": [
+      {
+        "customer": "My son dropped the Firefly headlamp from order #1074 on the rocks at camp and the lens shattered. Can I get a refund for it?"
+      }
+    ],
+    "expect": {
+      "route": "support",
+      "outcome": [
+        "resolved",
+        "escalated"
+      ],
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "allowed"
+      },
+      "leaks": [],
+      "judgeChecks": [
+        "The agent explains that damage after delivery (it was dropped) isn't refunded or returnable, doesn't present accidental damage as a warranty claim, and never says a refund was issued."
+      ]
+    }
+  },
+  "agentModel": "groq/gpt-oss-120b",
+  "team": {
+    "router": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "5c60714b-b129-4b35-a2f3-36cceb1a9748",
+    "turns": [
+      {
+        "customer": "My son dropped the Firefly headlamp from order #1074 on the rocks at camp and the lens shattered. Can I get a refund for it?",
+        "reply": "I’m sorry to hear the headlamp was damaged. Because the damage occurred after delivery, it isn’t covered under our damaged‑items policy, so we can’t issue an automatic refund. I’ve escalated this case to a human support agent, and they’ll follow up with you by email (ticket ESC-44) within one business day. Thanks for understanding.",
+        "answeredBy": "support",
+        "outcome": "escalated"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "My son dropped the Firefly headlamp from order #1074 on the rocks at camp and the lens shattered. Can I get a refund for it?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\":\"support\",\"category\":\"damaged_item\",\"urgency\":\"normal\",\"confidence\":0.98}",
+          "decision": {
+            "route": "support",
+            "category": "damaged_item",
+            "urgency": "normal",
+            "confidence": 0.98
+          },
+          "fallback": false
+        },
+        "inputTokens": 439,
+        "outputTokens": 229,
+        "latencyMs": 4037,
+        "cached": false,
+        "costMicros": 203,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Rowan Brennan (rowan.brennan107@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_f9bd427c-f2ff-42e5-aa3a-def1a7fd9192",
+                "name": "get_policy",
+                "arguments": "{\"topic\":\"damaged_items\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to handle a damaged item after delivery (damaged_after_delivery). The user wants a refund. Steps:\n\n- Verify order details via get_order for order #1074, to see item and paid amount. Also confirm the item is \"Firefly headlamp\". Then we need to check return eligibility? For damaged after delivery, not returnable? But we can issue refund for damaged (arrived_damaged only? Let's check policy). The policy for damaged_items likely says only arrived_damaged are refundable; damaged after delivery may need human. Let's fetch policy.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1886,
+        "outputTokens": 144,
+        "latencyMs": 748,
+        "cached": false,
+        "costMicros": 369,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "fc_f9bd427c-f2ff-42e5-aa3a-def1a7fd9192",
+          "name": "get_policy",
+          "arguments": "{\"topic\":\"damaged_items\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "topic": "damaged_items",
+              "title": "Damaged items",
+              "text": "This policy covers items that arrived damaged: broken, defective or not working when they were delivered.\nIt doesn't cover damage that happened after delivery: an item that was dropped, damaged in an accident, or broke or stopped working after use. Those aren't refunded under this policy and can't be returned. A manufacturing defect that shows up in normal use may be covered by the warranty; accidental damage, misuse and normal wear aren't.\nIf an item arrives damaged, report it within 14 days of delivery.\nWe'll refund the item or send a replacement; you don't need to send the damaged item back unless we ask.\nA damaged item that cost $50.00 or less per unit is refunded right away, as long as the order's refunds stay within $50.00 in total; pricier items and larger totals are reviewed by a team member, usually within one business day.\nReports after 14 days are reviewed case by case by a team member."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Rowan Brennan (rowan.brennan107@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_e09e1947-4d45-43f8-80d1-e1b74cf5b2c1",
+                "name": "escalate_to_human",
+                "arguments": "{\"orderId\":\"1074\",\"reason\":\"Customer requests refund for accidental damage (dropped headlamp) which is not covered under damaged items policy.\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to process refund request for a headlamp that was dropped after delivery, i.e., \"damaged_after_delivery\". The policy says not covered. So we cannot issue refund under damaged after delivery. Must politely decline, explain not covered. Offer possible warranty? Could suggest to check warranty policy or contact human. Probably need to escalate to human because they want a refund for accidental damage which policy says not covered. We can offer to check warranty, but policy says manufacturing defects covered by warranty, but this is accidental. So we must say can't refund, not covered. Offer to escalate if they want further assistance. Use escalate_to_human tool with reason.\n\nLet's do that.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2127,
+        "outputTokens": 190,
+        "latencyMs": 917,
+        "cached": false,
+        "costMicros": 433,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "fc_e09e1947-4d45-43f8-80d1-e1b74cf5b2c1",
+          "name": "escalate_to_human",
+          "arguments": "{\"orderId\":\"1074\",\"reason\":\"Customer requests refund for accidental damage (dropped headlamp) which is not covered under damaged items policy.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "ticket": "ESC-44",
+              "message": "A human support agent will follow up by email, usually within one business day."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Rowan Brennan (rowan.brennan107@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_14dc0047-ead7-43c4-8eac-db1862ae12b9",
+                "name": "reply",
+                "arguments": "{\"message\":\"I’m sorry to hear the headlamp was damaged. Because the damage occurred after delivery, it isn’t covered under our damaged‑items policy, so we can’t issue an automatic refund. I’ve escalated this case to a human support agent, and they’ll follow up with you by email (ticket ESC-44) within one business day. Thanks for understanding.\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to reply to the user. They asked: \"My son dropped the Firefly headlamp from order #1074 on the rocks at camp and the lens shattered. Can I get a refund for it?\" According to damaged_items policy, accidental damage after delivery is not covered. We have escalated to human. Must reply with ticket number and explain that accidental damage is not covered and a human will follow up. Keep tone friendly, brief. Use reply tool.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2218,
+        "outputTokens": 190,
+        "latencyMs": 691,
+        "cached": false,
+        "costMicros": 447,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "fc_14dc0047-ead7-43c4-8eac-db1862ae12b9",
+          "name": "reply",
+          "arguments": "{\"message\":\"I’m sorry to hear the headlamp was damaged. Because the damage occurred after delivery, it isn’t covered under our damaged‑items policy, so we can’t issue an automatic refund. I’ve escalated this case to a human support agent, and they’ll follow up with you by email (ticket ESC-44) within one business day. Thanks for understanding.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "I’m sorry to hear the headlamp was damaged. Because the damage occurred after delivery, it isn’t covered under our damaged‑items policy, so we can’t issue an automatic refund. I’ve escalated this case to a human support agent, and they’ll follow up with you by email (ticket ESC-44) within one business day. Thanks for understanding."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "I’m sorry to hear the headlamp was damaged. Because the damage occurred after delivery, it isn’t covered under our damaged‑items policy, so we can’t issue an automatic refund. I’ve escalated this case to a human support agent, and they’ll follow up with you by email (ticket ESC-44) within one business day. Thanks for understanding."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "support",
+    "outcome": "escalated",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 1
+    }
+  },
+  "grade": {
+    "caseId": "returns-05",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to support",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to support"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved or escalated",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome escalated"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent explains that damage after delivery (it was dropped) isn't refunded or returnable, doesn't present accidental damage as a warranty claim, and never says a refund was issued."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 4,
+    "cachedCalls": 0,
+    "toolCalls": 2,
+    "inputTokens": 6670,
+    "outputTokens": 753,
+    "latencyMs": 6393,
+    "turnLatencyMs": [
+      6393
+    ],
+    "costMicros": 1452,
+    "wallMs": 6618
+  },
+  "finishedAt": "2026-10-06T14:18:51.963Z"
+}

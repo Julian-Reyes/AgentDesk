@@ -29,7 +29,7 @@ export type LiveMetrics = {
   latencyMs: { p50: number | null; p95: number | null };
   inputTokens: number;
   outputTokens: number;
-  /** From the uncached calls' tokens and the model's pricing in config/models.json; null if the model isn't configured anymore. */
+  /** From the uncached calls' tokens and the model's pricing in config/models.json, counting only calls made on a paid tier (tierChanges); null if the model isn't configured anymore. */
   costMicros: number | null;
 };
 
@@ -42,6 +42,14 @@ export async function liveMetrics(db: DbOrTx, since: Date, configs: readonly Mod
     .where(and(inArray(s.runs.source, [...LIVE_SOURCES]), gte(s.runs.startedAt, since)));
 
   const where = and(sql`${s.runSteps.runId} in ${liveRuns}`, ROLE_STEP, sql`${s.runSteps.modelConfigId} is not null`);
+  // A call is priced only if it was made after the model's last move from a free
+  // tier (tierChanges), so today's price isn't charged to free-tier history. A
+  // date-only change counts from the start of that day, which may overstate it.
+  const paidSince = configs.flatMap((c) => {
+    const change = c.tierChanges?.filter((x) => x.from === "free").at(-1);
+    return change ? [sql`when ${c.id} then ${s.runSteps.createdAt} >= ${new Date(change.on).toISOString()}::timestamptz`] : [];
+  });
+  const priced = paidSince.length ? sql`(case ${s.runSteps.modelConfigId} ${sql.join(paidSince, sql` `)} else true end)` : sql`true`;
   const totals = await db
     .select({
       role: s.runSteps.agent,
@@ -52,9 +60,9 @@ export async function liveMetrics(db: DbOrTx, since: Date, configs: readonly Mod
       p95: sql<number | null>`percentile_disc(0.95) within group (order by ${s.runSteps.latencyMs})`,
       inputTokens: sql<number>`coalesce(sum(${s.runSteps.inputTokens}), 0)::int`,
       outputTokens: sql<number>`coalesce(sum(${s.runSteps.outputTokens}), 0)::int`,
-      // Calls answered from the record/replay cache cost nothing.
-      paidInput: sql<number>`coalesce(sum(${s.runSteps.inputTokens}) filter (where ${s.runSteps.cached} is not true), 0)::int`,
-      paidOutput: sql<number>`coalesce(sum(${s.runSteps.outputTokens}) filter (where ${s.runSteps.cached} is not true), 0)::int`,
+      // Calls answered from the record/replay cache cost nothing, and neither do calls on a free tier.
+      paidInput: sql<number>`coalesce(sum(${s.runSteps.inputTokens}) filter (where ${s.runSteps.cached} is not true and ${priced}), 0)::int`,
+      paidOutput: sql<number>`coalesce(sum(${s.runSteps.outputTokens}) filter (where ${s.runSteps.cached} is not true and ${priced}), 0)::int`,
     })
     .from(s.runSteps)
     .where(where)

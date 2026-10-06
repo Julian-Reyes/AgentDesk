@@ -43,8 +43,10 @@ const BASE: Profile = {
 const MEASURED: Record<string, Partial<Profile>> = {
   "groq/gpt-oss-120b": { latencyMsPerCall: 600, source: "M2 measurements (p50 0.6 s)" },
   "groq/qwen3.8-27b": { tokenFactor: 1.5, latencyMsPerCall: 700, source: "M2 measurements (~50% more tokens, p50 0.7 s)" },
-  // Tokens: Gemini 3.8 Flash's first agent step was ~1,840 vs ~1,400 on gpt-oss; assumed the same tokenizer for Flash-Lite.
-  "gemini/gemini-3.5-flash-lite": { tokenFactor: 1.3, latencyMsPerCall: 13000, source: "M2 measurements (p50 13 s; tokens from 3.8 Flash)" },
+  // test-1 (2026-10-05, free tier), 485 calls: 2,209 input tokens per call vs gpt-oss-120b's 1,576 (×1.4),
+  // 45 output tokens per call, 1.9 s mean latency. Replaces the M2 guess (13 s, tokens from 3.8 Flash), which was
+  // ~7× too slow. The latency is the free tier's; the paid tier (from 2026-10-06) may differ.
+  "gemini/gemini-3.5-flash-lite": { tokenFactor: 1.4, outputTokensPerCall: 45, latencyMsPerCall: 1900, source: "test-1 measurements (free tier: 1.9 s per call)" },
 };
 
 /** One judge call per conversation (measured once on Gemma 4 31B: 1,115 in / 248 out, 62.6 s; real tool summaries run longer). */
@@ -97,6 +99,8 @@ export type ModelEstimate = {
   activeMinutes: number;
   /** Calendar days needed because of daily limits (1 = fits in one day); null if unknown. */
   daysNeeded: number | null;
+  /** True for a paid tier with no configured daily limit. */
+  noDailyLimit: boolean;
   bottleneck: string;
   costUsd: number;
 };
@@ -120,7 +124,9 @@ export function estimateModel(
   const days = { requests: config.rpd ? calls / config.rpd : null, tokens: config.tpd ? tokens / config.tpd : null };
   const active = Math.max(minutes.requests ?? 0, minutes.tokens ?? 0, minutes.latency);
   const knownDays = [days.requests, days.tokens].filter((d): d is number => d !== null);
-  const daysNeeded = knownDays.length ? Math.max(1, Math.ceil(Math.max(...knownDays) - 1e-9)) : null;
+  // A paid tier has no daily cap unless the config gives one, so the run fits in a day.
+  const noDailyLimit = config.tier === "paid" && !config.rpd && !config.tpd;
+  const daysNeeded = knownDays.length ? Math.max(1, Math.ceil(Math.max(...knownDays) - 1e-9)) : noDailyLimit ? 1 : null;
 
   let bottleneck: string;
   if (daysNeeded !== null && daysNeeded > 1) {
@@ -134,7 +140,7 @@ export function estimateModel(
     bottleneck = which.sort((a, b) => b[0] - a[0])[0]![1];
   }
   const costUsd = (inputTokens * config.pricing.inputPerMTok + outputTokens * config.pricing.outputPerMTok) / 1e6;
-  return { model: config.id, role, conversations: costs.length, calls: Math.round(calls), inputTokens, outputTokens, source, minutes, days, activeMinutes: active, daysNeeded, bottleneck, costUsd };
+  return { model: config.id, role, conversations: costs.length, calls: Math.round(calls), inputTokens, outputTokens, source, minutes, days, activeMinutes: active, daysNeeded, noDailyLimit, bottleneck, costUsd };
 }
 
 /** Agent-side estimate for one model: measured averages from finished conversations if there are enough, else the case shapes. */
@@ -161,8 +167,9 @@ export function renderEstimate(estimates: ModelEstimate[]): string {
     const perMin = [e.minutes.requests !== null ? `${dur(e.minutes.requests)} by req/min` : null, e.minutes.tokens !== null ? `${dur(e.minutes.tokens)} by tok/min` : null, `${dur(e.minutes.latency)} by latency`]
       .filter(Boolean)
       .join("; ");
-    const daily =
-      e.daysNeeded === null
+    const daily = e.noDailyLimit
+      ? "no daily limit (paid tier)"
+      : e.daysNeeded === null
         ? "daily limit unknown"
         : `${e.days.requests !== null ? `${Math.round(e.days.requests * 100)}% of req/day` : ""}${e.days.requests !== null && e.days.tokens !== null ? ", " : ""}${e.days.tokens !== null ? `${Math.round(e.days.tokens * 100)}% of tok/day` : ""}${e.daysNeeded > 1 ? ` → ${e.daysNeeded} days` : ""}`;
     return `| ${e.model} (${e.role}) | ${e.conversations} | ${e.calls} | ${k(e.inputTokens)} / ${k(e.outputTokens)} | ${perMin} | ${daily} | **${e.daysNeeded && e.daysNeeded > 1 ? `${e.daysNeeded} days` : dur(e.activeMinutes)}** | ${e.bottleneck} | $${e.costUsd.toFixed(2)} |`;

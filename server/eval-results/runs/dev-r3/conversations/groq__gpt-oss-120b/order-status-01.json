@@ -1,0 +1,435 @@
+{
+  "caseId": "order-status-01",
+  "case": {
+    "id": "order-status-01",
+    "split": "dev",
+    "type": "order_status",
+    "why": "#1042 is Maya's order, shipped on 2026-09-13 with Parcelway, estimated delivery Sep 16–19. Either order tool gives the status; the tracking number only comes from get_tracking, but get_order + a correct status is still a useful answer, so only the status is required.",
+    "source": "spec table",
+    "customer": "maya.chen@example.com",
+    "turns": [
+      {
+        "customer": "Hi, where's my order #1042?",
+        "reply": {
+          "mentions": [
+            [
+              "shipped",
+              "on its way",
+              "in transit"
+            ]
+          ],
+          "amounts": [],
+          "avoids": [
+            "delivered on"
+          ]
+        }
+      }
+    ],
+    "expect": {
+      "route": "support",
+      "outcome": "resolved",
+      "tools": {
+        "required": [
+          {
+            "anyOf": [
+              {
+                "tool": "get_tracking",
+                "args": {
+                  "orderId": 1042
+                }
+              },
+              {
+                "tool": "get_order",
+                "args": {
+                  "orderId": 1042
+                }
+              }
+            ]
+          }
+        ],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "leaks": [],
+      "judge": "A good answer gives the status (shipped, in transit) and, if it looked up tracking, the tracking number PW0008251598 and the Sep 16–19 estimate. It doesn't promise a delivery date beyond the estimate.",
+      "judgeChecks": []
+    }
+  },
+  "agentModel": "groq/gpt-oss-120b",
+  "team": {
+    "router": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "cead4957-a066-4939-9641-636777a2c3fa",
+    "turns": [
+      {
+        "customer": "Hi, where's my order #1042?",
+        "reply": "Your order #1042 is currently shipped with Parcelway. The tracking number is PW0008251598. The latest update shows it in transit through Atlanta, GA. Estimated delivery is between 2026-09-16 and 2026-09-19. Let us know if you need anything else.",
+        "answeredBy": "support",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Hi, where's my order #1042?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\":\"support\",\"category\":\"order_status\",\"urgency\":\"normal\",\"confidence\":0.99}",
+          "decision": {
+            "route": "support",
+            "category": "order_status",
+            "urgency": "normal",
+            "confidence": 0.99
+          },
+          "fallback": false
+        },
+        "inputTokens": 418,
+        "outputTokens": 87,
+        "latencyMs": 479,
+        "cached": false,
+        "costMicros": 115,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Maya Chen (maya.chen@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_74dff0a2-1dd6-46a2-877e-660419c96728",
+                "name": "get_order",
+                "arguments": "{\"orderId\":1042}"
+              }
+            ]
+          },
+          "reasoning": "We need to get order details for order #1042. Use get_order.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1862,
+        "outputTokens": 46,
+        "latencyMs": 753,
+        "cached": false,
+        "costMicros": 307,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "fc_74dff0a2-1dd6-46a2-877e-660419c96728",
+          "name": "get_order",
+          "arguments": "{\"orderId\":1042}",
+          "result": {
+            "ok": true,
+            "data": {
+              "number": 1042,
+              "status": "shipped",
+              "placed": "2026-09-12",
+              "delivered": null,
+              "items": [
+                {
+                  "productId": "tent-canopy-2",
+                  "name": "Canopy 2 Trail Tent",
+                  "size": null,
+                  "color": "green",
+                  "qty": 1,
+                  "listPrice": "$189.00",
+                  "discount": "$37.80",
+                  "paid": "$151.20",
+                  "returnedQty": 0
+                }
+              ],
+              "subtotal": "$189.00",
+              "discount": "$37.80",
+              "shipping": "$0.00",
+              "totalPaid": "$151.20",
+              "refunds": []
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Maya Chen (maya.chen@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_3140e327-b3da-4404-a2a7-ccffaf5af1f6",
+                "name": "get_tracking",
+                "arguments": "{\"orderId\":1042}"
+              }
+            ]
+          },
+          "reasoning": "We need to answer the user about order status and tracking. They asked \"where's my order #1042?\" We have order details: status: shipped, placed 2026-09-12, delivered null. Need tracking info; we can get get_tracking.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2013,
+        "outputTokens": 75,
+        "latencyMs": 510,
+        "cached": false,
+        "costMicros": 347,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "fc_3140e327-b3da-4404-a2a7-ccffaf5af1f6",
+          "name": "get_tracking",
+          "arguments": "{\"orderId\":1042}",
+          "result": {
+            "ok": true,
+            "data": {
+              "orderNumber": 1042,
+              "status": "shipped",
+              "carrier": "Parcelway",
+              "trackingNumber": "PW0008251598",
+              "estimatedDelivery": "2026-09-16 to 2026-09-19",
+              "events": [
+                {
+                  "at": "2026-09-12 15:00",
+                  "status": "order_placed",
+                  "location": "Larchgrove Warehouse, Reno, NV",
+                  "note": null
+                },
+                {
+                  "at": "2026-09-13 15:00",
+                  "status": "shipped",
+                  "location": "Larchgrove Warehouse, Reno, NV",
+                  "note": "Handed to Parcelway Ground"
+                },
+                {
+                  "at": "2026-09-14 15:00",
+                  "status": "in_transit",
+                  "location": "Atlanta, GA",
+                  "note": null
+                }
+              ]
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Maya Chen (maya.chen@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_07306d43-de12-46d5-88ac-301a096c97b5",
+                "name": "reply",
+                "arguments": "{\"message\":\"Your order #1042 is currently shipped with Parcelway. The tracking number is PW0008251598. The latest update shows it in transit through Atlanta, GA. Estimated delivery is between 2026-09-16 and 2026-09-19. Let us know if you need anything else.\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to respond to the customer about where their order is. We have status shipped, tracking number PW0008251598, estimated delivery 2026-09-16 to 2026-09-19, events show shipped and in transit. So reply with that info. Use reply tool.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2196,
+        "outputTokens": 145,
+        "latencyMs": 656,
+        "cached": false,
+        "costMicros": 416,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "fc_07306d43-de12-46d5-88ac-301a096c97b5",
+          "name": "reply",
+          "arguments": "{\"message\":\"Your order #1042 is currently shipped with Parcelway. The tracking number is PW0008251598. The latest update shows it in transit through Atlanta, GA. Estimated delivery is between 2026-09-16 and 2026-09-19. Let us know if you need anything else.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "Your order #1042 is currently shipped with Parcelway. The tracking number is PW0008251598. The latest update shows it in transit through Atlanta, GA. Estimated delivery is between 2026-09-16 and 2026-09-19. Let us know if you need anything else."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "Your order #1042 is currently shipped with Parcelway. The tracking number is PW0008251598. The latest update shows it in transit through Atlanta, GA. Estimated delivery is between 2026-09-16 and 2026-09-19. Let us know if you need anything else."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "support",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "order-status-01",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to support",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to support"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "tool_required:0",
+        "label": "calls get_tracking {\"orderId\":1042} or get_order {\"orderId\":1042}",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "reply1:mentions:0",
+        "label": "reply 1 mentions \"shipped\" or \"on its way\" or \"in transit\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:avoids:delivered on",
+        "label": "reply 1 doesn't say \"delivered on\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 4,
+    "cachedCalls": 0,
+    "toolCalls": 2,
+    "inputTokens": 6489,
+    "outputTokens": 353,
+    "latencyMs": 2398,
+    "turnLatencyMs": [
+      2398
+    ],
+    "costMicros": 1185,
+    "wallMs": 2463
+  },
+  "finishedAt": "2026-10-06T13:54:24.026Z"
+}

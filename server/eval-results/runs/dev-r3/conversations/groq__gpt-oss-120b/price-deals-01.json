@@ -1,0 +1,508 @@
+{
+  "caseId": "price-deals-01",
+  "case": {
+    "id": "price-deals-01",
+    "split": "dev",
+    "type": "price_deals",
+    "why": "Two Ridge 2 tents: $498.00 list, the 20% tent sale takes it to $398.40, SUMMER10 takes 10% of that, shipping is free over $75. The total must be quote_price's, not the model's own arithmetic.",
+    "source": "spec table",
+    "customer": null,
+    "turns": [
+      {
+        "customer": "How much would 2 Ridge 2 tents cost with code SUMMER10?"
+      }
+    ],
+    "expect": {
+      "route": "shopping",
+      "outcome": "resolved",
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "price": {
+        "cart": [
+          {
+            "productId": "tent-ridge-2",
+            "qty": 2
+          }
+        ],
+        "coupon": "SUMMER10",
+        "totalCents": 35856
+      },
+      "coupon": {
+        "code": "SUMMER10",
+        "valid": true
+      },
+      "leaks": [],
+      "judgeChecks": []
+    }
+  },
+  "agentModel": "groq/gpt-oss-120b",
+  "team": {
+    "router": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "db72a9d8-63b2-4c5d-9fed-30fda21693fc",
+    "turns": [
+      {
+        "customer": "How much would 2 Ridge 2 tents cost with code SUMMER10?",
+        "reply": "Two Ridge 2 Backpacking Tents with coupon SUMMER10 total $358.56 (includes the 20% tent sale and the coupon discount).",
+        "answeredBy": "shopping",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "How much would 2 Ridge 2 tents cost with code SUMMER10?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\":\"shopping\",\"category\":\"pricing_deals\",\"urgency\":\"normal\",\"confidence\":0.99}",
+          "decision": {
+            "route": "shopping",
+            "category": "pricing_deals",
+            "urgency": "normal",
+            "confidence": 0.99
+          },
+          "fallback": false
+        },
+        "inputTokens": 424,
+        "outputTokens": 147,
+        "latencyMs": 618,
+        "cached": false,
+        "costMicros": 152,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 1,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_56061943-f95d-46ff-8aaf-40148bae5d0f",
+                "name": "search_products",
+                "arguments": "{\"filters\":{\"category\":\"tents\",\"inStockOnly\":true},\"limit\":5,\"query\":\"Ridge 2 tent\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to get product IDs for \"Ridge 2 tents\". Likely product name \"Ridge 2\". Need to search.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1857,
+        "outputTokens": 90,
+        "latencyMs": 681,
+        "cached": false,
+        "costMicros": 333,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_56061943-f95d-46ff-8aaf-40148bae5d0f",
+          "name": "search_products",
+          "arguments": "{\"filters\":{\"category\":\"tents\",\"inStockOnly\":true},\"limit\":5,\"query\":\"Ridge 2 tent\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "totalMatches": 8,
+              "products": [
+                {
+                  "id": "tent-ridge-2",
+                  "name": "Ridge 2 Backpacking Tent",
+                  "category": "tents",
+                  "listPrice": "$249.00",
+                  "currentPrice": "$199.20",
+                  "rating": 4.6,
+                  "description": "Freestanding two-person backpacking tent with two doors and two vestibules.",
+                  "specs": {
+                    "seasons": 3,
+                    "material": "20D ripstop nylon",
+                    "waterproof": true,
+                    "weightGrams": 1900,
+                    "capacityPersons": 2,
+                    "waterproofRatingMm": 3000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Tent Sale: 20% off all tents"
+                  ]
+                },
+                {
+                  "id": "tent-tundra-2",
+                  "name": "Tundra 2 Four-Season Tent",
+                  "category": "tents",
+                  "listPrice": "$549.00",
+                  "currentPrice": "$439.20",
+                  "rating": 4.8,
+                  "description": "Two-person mountaineering tent built for snow load and high winds.",
+                  "specs": {
+                    "seasons": 4,
+                    "material": "40D ripstop nylon",
+                    "waterproof": true,
+                    "weightGrams": 3300,
+                    "capacityPersons": 2,
+                    "waterproofRatingMm": 5000
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Tent Sale: 20% off all tents"
+                  ]
+                },
+                {
+                  "id": "tent-canopy-2",
+                  "name": "Canopy 2 Trail Tent",
+                  "category": "tents",
+                  "listPrice": "$189.00",
+                  "currentPrice": "$151.20",
+                  "rating": 4.5,
+                  "description": "Lightweight two-person trail tent with a full-coverage fly.",
+                  "specs": {
+                    "seasons": 3,
+                    "material": "20D ripstop polyester",
+                    "waterproof": true,
+                    "weightGrams": 2000,
+                    "capacityPersons": 2,
+                    "waterproofRatingMm": 2500
+                  },
+                  "availability": "in_stock",
+                  "activeDeals": [
+                    "Tent Sale: 20% off all tents"
+                  ]
+                },
+                {
+                  "id": "tent-summit-3",
+                  "name": "Summit 3 Trekking Tent",
+                  "category": "tents",
+                  "listPrice": "$329.00",
+                  "currentPrice": "$263.20",
+                  "rating": 4.5,
+                  "description": "Roomy three-person trekking tent with a steep-walled design for long trips.",
+                  "specs": {
+                    "seasons": 3,
+                    "material": "30D ripstop nylon",
+                    "waterproof": true,
+                    "weightGrams": 2600,
+                    "capacityPersons": 3,
+                    "waterproofRatingMm": 3000
+                  },
+                  "availability": "low_stock",
+                  "activeDeals": [
+                    "Tent Sale: 20% off all tents"
+                  ]
+                },
+                {
+                  "id": "tent-fernlight-2",
+                  "name": "Fernlight 2 Ultralight Tent",
+                  "category": "tents",
+                  "listPrice": "$389.00",
+                  "currentPrice": "$311.20",
+                  "rating": 4.4,
+                  "description": "Trekking-pole-supported ultralight shelter for two.",
+                  "specs": {
+                    "seasons": 3,
+                    "material": "silnylon",
+                    "waterproof": true,
+                    "weightGrams": 1200,
+                    "capacityPersons": 2,
+                    "waterproofRatingMm": 1500
+                  },
+                  "availability": "low_stock",
+                  "activeDeals": [
+                    "Tent Sale: 20% off all tents"
+                  ]
+                }
+              ],
+              "note": "currentPrice is today's price for one unit. Use quote_price for a cart total with multi-buy deals, coupons and shipping."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 2,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_e1b26a6b-5ac4-4122-8704-59052c048a46",
+                "name": "quote_price",
+                "arguments": "{\"cart\":[{\"productId\":\"tent-ridge-2\",\"qty\":2}],\"coupon\":\"SUMMER10\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to get price for 2 Ridge 2 tents with coupon SUMMER10. Need to quote_price. First need to validate coupon? Could directly quote_price with coupon, it will indicate if invalid. Let's try quote_price.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2555,
+        "outputTokens": 106,
+        "latencyMs": 671,
+        "cached": false,
+        "costMicros": 447,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_e1b26a6b-5ac4-4122-8704-59052c048a46",
+          "name": "quote_price",
+          "arguments": "{\"cart\":[{\"productId\":\"tent-ridge-2\",\"qty\":2}],\"coupon\":\"SUMMER10\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "lines": [
+                {
+                  "productId": "tent-ridge-2",
+                  "name": "Ridge 2 Backpacking Tent",
+                  "qty": 2,
+                  "listPrice": "$249.00",
+                  "discounts": [
+                    {
+                      "deal": "Tent Sale: 20% off all tents",
+                      "amount": "-$99.60"
+                    }
+                  ],
+                  "lineTotal": "$398.40"
+                }
+              ],
+              "subtotal": "$498.00",
+              "coupon": {
+                "code": "SUMMER10",
+                "applied": true,
+                "discount": "-$39.84"
+              },
+              "totalDiscounts": "-$139.44",
+              "shipping": "FREE",
+              "total": "$358.56",
+              "totalCents": 35856
+            },
+            "policyDecision": "auto_approved"
+          }
+        },
+        "policyDecision": "auto_approved",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "shopping",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "shopping@3#e36d3d2f",
+        "data": {
+          "step": 3,
+          "context": "The customer is not signed in. Order and account lookups need them to sign in first.",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_1bcab7ef-07cb-4e03-ad7a-9e7c9709c43d",
+                "name": "reply",
+                "arguments": "{\"message\":\"Two Ridge 2 Backpacking Tents with coupon SUMMER10 total $358.56 (includes the 20% tent sale and the coupon discount).\"}"
+              }
+            ]
+          },
+          "reasoning": "We need to reply with the total cost: $358.56. Also include line details? The user asked \"How much would 2 Ridge 2 tents cost with code SUMMER10?\" So answer: total $358.56. Also maybe mention discount applied. Must use reply tool.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2735,
+        "outputTokens": 112,
+        "latencyMs": 560,
+        "cached": false,
+        "costMicros": 477,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "shopping",
+        "data": {
+          "callId": "fc_1bcab7ef-07cb-4e03-ad7a-9e7c9709c43d",
+          "name": "reply",
+          "arguments": "{\"message\":\"Two Ridge 2 Backpacking Tents with coupon SUMMER10 total $358.56 (includes the 20% tent sale and the coupon discount).\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "Two Ridge 2 Backpacking Tents with coupon SUMMER10 total $358.56 (includes the 20% tent sale and the coupon discount)."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "shopping",
+        "data": {
+          "message": "Two Ridge 2 Backpacking Tents with coupon SUMMER10 total $358.56 (includes the 20% tent sale and the coupon discount)."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "shopping",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "price-deals-01",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to shopping",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to shopping"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "price_quoted",
+        "label": "quote_price for tent-ridge-2×2 with SUMMER10",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "price_stated",
+        "label": "reply 1 states $358.56",
+        "pass": true,
+        "severity": "task",
+        "detail": "amounts in reply: $358.56"
+      },
+      {
+        "id": "coupon",
+        "label": "checks SUMMER10 (valid)",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 4,
+    "cachedCalls": 0,
+    "toolCalls": 2,
+    "inputTokens": 7571,
+    "outputTokens": 455,
+    "latencyMs": 2530,
+    "turnLatencyMs": [
+      2530
+    ],
+    "costMicros": 1409,
+    "wallMs": 2597
+  },
+  "finishedAt": "2026-10-06T13:53:48.577Z"
+}

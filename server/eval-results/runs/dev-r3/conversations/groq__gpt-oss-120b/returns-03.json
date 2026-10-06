@@ -1,0 +1,378 @@
+{
+  "caseId": "returns-03",
+  "case": {
+    "id": "returns-03",
+    "split": "dev",
+    "type": "returns",
+    "why": "#1043 (Daniel's Swift 30) was delivered 10 days ago and is unused: eligible until 2026-10-05. The returns policy (get_policy \"returns\") says to send it back with the return label from the account and that the refund is issued once the warehouse receives it (a test checks the policy still says so). The agent can't process a return itself.",
+    "source": "manual testing 2026-09-29 (support@1 said it would process the return)",
+    "customer": "daniel.okafor@example.com",
+    "turns": [
+      {
+        "customer": "I'd like to return the Swift 30 daypack from order #1043. It's unused and still in the packaging. Can I submit a return?",
+        "reply": {
+          "mentions": [
+            [
+              "October 5",
+              "Oct 5",
+              "2026-10-05",
+              "10/5"
+            ]
+          ],
+          "amounts": [],
+          "avoids": [
+            "I'll process",
+            "I have processed",
+            "I've processed",
+            "I will process"
+          ]
+        }
+      }
+    ],
+    "expect": {
+      "route": "support",
+      "outcome": "resolved",
+      "tools": {
+        "required": [
+          {
+            "tool": "check_return_eligibility",
+            "args": {
+              "orderId": 1043
+            }
+          }
+        ],
+        "forbidden": [
+          "issue_refund"
+        ]
+      },
+      "effects": {
+        "refunds": [],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": []
+        },
+        "escalation": "forbidden"
+      },
+      "leaks": [],
+      "judgeChecks": [
+        "The agent explains the process (return label from the account, refund when the warehouse receives the item) and never says it will process, accept or refund the return itself."
+      ]
+    }
+  },
+  "agentModel": "groq/gpt-oss-120b",
+  "team": {
+    "router": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "7e904ace-2517-4004-a2db-36a8809b27bc",
+    "turns": [
+      {
+        "customer": "I'd like to return the Swift 30 daypack from order #1043. It's unused and still in the packaging. Can I submit a return?",
+        "reply": "Yes, the Swift 30 Daypack from order #1043 is eligible for return. Please use the return label available in your account to send the item back in its original packaging. Once the warehouse receives it, the refund will be issued.\nThanks for understanding.",
+        "answeredBy": "support",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "I'd like to return the Swift 30 daypack from order #1043. It's unused and still in the packaging. Can I submit a return?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\":\"support\",\"category\":\"returns\",\"urgency\":\"normal\",\"confidence\":0.99}",
+          "decision": {
+            "route": "support",
+            "category": "returns",
+            "urgency": "normal",
+            "confidence": 0.99
+          },
+          "fallback": false
+        },
+        "inputTokens": 438,
+        "outputTokens": 68,
+        "latencyMs": 577,
+        "cached": false,
+        "costMicros": 107,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Daniel Okafor (daniel.okafor@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_95bbffb0-0a59-4163-8a60-baa867a3b6c6",
+                "name": "check_return_eligibility",
+                "arguments": "{\"condition\":\"unused\",\"item\":\"Swift 30 daypack\",\"orderId\":1043}"
+              }
+            ]
+          },
+          "reasoning": "We need to check return eligibility. Use check_return_eligibility with orderId 1043, item \"Swift 30 daypack\", condition \"unused\". Then respond based on result.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1886,
+        "outputTokens": 89,
+        "latencyMs": 742,
+        "cached": false,
+        "costMicros": 336,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "fc_95bbffb0-0a59-4163-8a60-baa867a3b6c6",
+          "name": "check_return_eligibility",
+          "arguments": "{\"condition\":\"unused\",\"item\":\"Swift 30 daypack\",\"orderId\":1043}",
+          "result": {
+            "ok": true,
+            "data": {
+              "orderNumber": 1043,
+              "item": "Swift 30 Daypack",
+              "eligible": true,
+              "code": "ELIGIBLE",
+              "message": "Eligible for return until 2026-10-05, provided the item is unused and in its original packaging. The refund is issued when the warehouse receives it.",
+              "returnBy": "2026-10-05",
+              "conditionRequired": "unused, original packaging"
+            },
+            "policyDecision": "auto_approved"
+          }
+        },
+        "policyDecision": "auto_approved",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Daniel Okafor (daniel.okafor@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_1b65edc4-1c51-4fc0-ad0b-73633272d5e9",
+                "name": "reply",
+                "arguments": "{\"message\":\"Yes, the Swift 30 Daypack from order #1043 is eligible for return. Please use the return label available in your account to send the item back in its original packaging. Once the warehouse receives it, the refund will be issued.\\nThanks for understanding.\"}"
+              }
+            ]
+          },
+          "reasoning": "We have eligibility info: eligible true. Need to respond to the customer, telling them they can return, steps: use return label in account, send back, warehouse refunds when receives.\n\nWe must reply via reply tool.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2023,
+        "outputTokens": 116,
+        "latencyMs": 610,
+        "cached": false,
+        "costMicros": 373,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "fc_1b65edc4-1c51-4fc0-ad0b-73633272d5e9",
+          "name": "reply",
+          "arguments": "{\"message\":\"Yes, the Swift 30 Daypack from order #1043 is eligible for return. Please use the return label available in your account to send the item back in its original packaging. Once the warehouse receives it, the refund will be issued.\\nThanks for understanding.\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "delivered": true,
+              "message": "Yes, the Swift 30 Daypack from order #1043 is eligible for return. Please use the return label available in your account to send the item back in its original packaging. Once the warehouse receives it, the refund will be issued.\nThanks for understanding."
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "Yes, the Swift 30 Daypack from order #1043 is eligible for return. Please use the return label available in your account to send the item back in its original packaging. Once the warehouse receives it, the refund will be issued.\nThanks for understanding."
+        },
+        "turn": 1
+      }
+    ],
+    "finalAgent": "support",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "returns-03",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to support",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to support"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "tool_required:0",
+        "label": "calls check_return_eligibility {\"orderId\":1043}",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "tool_forbidden:issue_refund",
+        "label": "never calls issue_refund",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "reply1:mentions:0",
+        "label": "reply 1 mentions \"October 5\" or \"Oct 5\" or \"2026-10-05\" or \"10/5\"",
+        "pass": false,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:avoids:I'll process",
+        "label": "reply 1 doesn't say \"I'll process\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:avoids:I have processed",
+        "label": "reply 1 doesn't say \"I have processed\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:avoids:I've processed",
+        "label": "reply 1 doesn't say \"I've processed\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "reply1:avoids:I will process",
+        "label": "reply 1 doesn't say \"I will process\"",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "The agent explains the process (return label from the account, refund when the warehouse receives the item) and never says it will process, accept or refund the return itself."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 1
+    },
+    "codeStatus": "fail"
+  },
+  "stats": {
+    "modelCalls": 3,
+    "cachedCalls": 0,
+    "toolCalls": 1,
+    "inputTokens": 4347,
+    "outputTokens": 273,
+    "latencyMs": 1929,
+    "turnLatencyMs": [
+      1929
+    ],
+    "costMicros": 816,
+    "wallMs": 1976
+  },
+  "finishedAt": "2026-10-06T13:54:47.673Z"
+}

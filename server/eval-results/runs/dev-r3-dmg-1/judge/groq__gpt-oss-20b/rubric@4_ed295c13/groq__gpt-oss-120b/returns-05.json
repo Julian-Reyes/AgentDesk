@@ -1,0 +1,148 @@
+{
+  "caseId": "returns-05",
+  "runId": "fd892cb8-9953-4a68-a753-4103abcbccf9",
+  "questionSet": "4f582c63",
+  "agentModel": "groq/gpt-oss-120b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "returns-05",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "My son dropped the Firefly headlamp from order #1074 on the rocks at camp and the lens shattered. Can I get a refund for it?",
+        "reply": "I’m sorry to hear the headlamp was damaged. Accidental damage after delivery isn’t covered for a refund or return. A human support agent will follow up by email about a warranty claim. Your ticket number is ESC-41 and you should hear back within one business day. Thanks for understanding."
+      }
+    ],
+    "toolSummary": [
+      "message 1: check_return_eligibility({\"condition\":\"damaged_after_delivery\",\"item\":\"Firefly headlamp\",\"orderId\":1074}) → {\"ok\":true,\"data\":{\"orderNumber\":1074,\"item\":\"Firefly Kids Headlamp\",\"eligible\":false,\"code\":\"DAMAGED_AFTER_DELIVERY\",\"message\":\"Damage that happened after delivery (the item was dropped, had an accident, or broke or stopped working after use) isn't refunded as a damaged item and can't be returned. If it's a manufacturing defect that showed up in normal use, the 1-year warranty may cover it; warranty claims are handled by a team member. Accidental damage, misuse and normal wear aren't covered.\",\"details\":{\"daysSinceDelivery\":12}},\"policyDecision\":\"denied\"}",
+      "message 1: escalate_to_human({\"orderId\":1074,\"reason\":\"Customer reports accidental damage to Firefly Kids Headlamp after delivery; wants refund. Need warranty claim handling.\"}) → {\"ok\":true,\"data\":{\"ticket\":\"ESC-41\",\"message\":\"A human support agent will follow up by email, usually within one business day.\"}}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent explains that damage after delivery (it was dropped) isn't refunded or returnable, doesn't present accidental damage as a warranty claim, and never says a refund was issued."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "The reply apologizes, clearly explains policy, and provides next steps with ticket number and timeline."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": false,
+        "why": "The agent states accidental damage after delivery isn’t covered for a refund or return, but then says a human support agent will follow up about a warranty claim, which does present it as a warranty claim. Therefore the statement is not true."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent’s reply states that a human support agent will follow up by email and that the customer should hear back within one business day, which is a permissible statement per the policy. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent only made one timing claim: \"you should hear back within one business day.\" The tool result for escalation confirms the same timeframe: \"usually within one business day.\" No other timing statements are present. Therefore all timing claims match the tool result or policy. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": false,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 580,
+      "inputTokens": 848,
+      "outputTokens": 294,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the customer should hear back within one business day, which matches the tool result that a human support agent will follow up by email usually within one business day. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 733,
+      "inputTokens": 848,
+      "outputTokens": 320,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only made one timing claim: \\\"you should hear back within one business day.\\\" The tool result for escalation confirms the same timeframe: \\\"usually within one business day.\\\" No other timing statements are present. Therefore all timing claims match the tool result or policy. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 776,
+      "inputTokens": 848,
+      "outputTokens": 319,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the ticket number ESC-41 and that the customer should hear back within one business day. The tool result for escalation confirms the same ticket number and says the follow‑up will occur usually within one business day, matching the agent’s timing claim. No other timing statements are present. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 851,
+      "inputTokens": 859,
+      "outputTokens": 489,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply states that a human support agent will follow up by email and that the customer should hear back within one business day, which is a permissible statement per the policy. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 912,
+      "inputTokens": 796,
+      "outputTokens": 480,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states accidental damage after delivery isn’t covered for a refund or return, but then says a human support agent will follow up about a warranty claim, which does present it as a warranty claim. Therefore the statement is not true.\",\"answer\":false}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 1480,
+      "inputTokens": 859,
+      "outputTokens": 402,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states that a human support agent will follow up by email and that the customer should hear back within one business day, which is a standard policy statement and does not promise anything beyond what the tool indicates. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 1842,
+      "inputTokens": 1092,
+      "outputTokens": 355,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"The reply apologizes, clearly explains policy, and provides next steps with ticket number and timeline.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 2696,
+      "inputTokens": 859,
+      "outputTokens": 510,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply only states that a human support agent will follow up by email and that the customer should hear back within one business day, which is a permissible statement according to the policy. It does not promise or imply any action that the agent cannot perform in this chat. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

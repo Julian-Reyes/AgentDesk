@@ -176,7 +176,7 @@ const STATUS_LABEL: Record<FinalStatus, string> = {
   provider_error: "provider error",
 };
 
-export function renderReport(title: string, reports: ModelReport[], results: ConversationResult[], judgeLabel: string | null): string {
+export function renderReport(title: string, reports: ModelReport[], results: ConversationResult[], judgeLabel: string | null, notes: string[] = []): string {
   const cols = reports.map((r) => r.model);
   const row = (label: string, f: (r: ModelReport) => string) => `| ${label} | ${reports.map(f).join(" | ")} |`;
   const out = [
@@ -184,6 +184,7 @@ export function renderReport(title: string, reports: ModelReport[], results: Con
     "",
     judgeLabel ? `Judge: ${judgeLabel}.` : "Judge: not run (`--no-judge`). Cases with judge checks or scripted follow-ups show as *judge pending* and are left out of task success.",
     "Rates show 95% Wilson intervals; quality means show 95% intervals. Every number comes from this run's saved files.",
+    ...notes.flatMap((n) => ["", n]),
     "",
     `| Metric | ${cols.join(" | ")} |`,
     `| --- | ${cols.map(() => "---").join(" | ")} |`,
@@ -290,4 +291,51 @@ export function renderJudgeComparison(main: string, other: string, both: { recor
     renderAgreement(`Scores and yes/no answers (first = ${main}, second = ${other})`, agreementReport(pairsFromOutputs(both.map((b) => ({ agentModel: b.record.agentModel, a: b.main.output!, b: b.other.output! }))))),
   );
   return out.join("\n");
+}
+
+/**
+ * Notes for a run's report about each model's provider tier, for models whose
+ * tier has changed (tierChanges in models.json). Latency depends on the tier,
+ * so a run on one tier isn't comparable with a run on another. Runs from
+ * before tiers were recorded are inferred from when the model's conversations
+ * actually ran (`span`: the run's start and the model's last finished
+ * conversation): all before the change means the old tier; a run that spans
+ * the change is "unknown", never guessed.
+ */
+export function tierNotes(
+  models: string[],
+  manifest: { createdAt?: string; tiers?: Record<string, string> } | null,
+  configFor: (model: string) => { tier?: string; tierChanges?: { on: string; from: string; to: string }[] } | undefined,
+  lastFinished: Record<string, string | undefined> = {},
+): { notes: string[]; tiers: Record<string, string> } {
+  const notes: string[] = [];
+  const tiers: Record<string, string> = {};
+  for (const m of models) {
+    const recorded = manifest?.tiers?.[m];
+    if (recorded) tiers[m] = recorded;
+    const last = configFor(m)?.tierChanges?.at(-1);
+    if (!last) continue;
+    // A date alone means "some time that day", so a run touching that day can't be placed; an exact time can.
+    const dayOnly = /^\d{4}-\d{2}-\d{2}$/.test(last.on);
+    const from = Date.parse(last.on);
+    const to = dayOnly ? from + 86_400_000 : from;
+    const start = manifest?.createdAt ? Date.parse(manifest.createdAt) : NaN;
+    const end = lastFinished[m] ? Date.parse(lastFinished[m]!) : start;
+    if (recorded?.includes("→")) {
+      notes.push(`**${m}: the tier changed during this run (${recorded}).** Its latency mixes both tiers and isn't comparable with other runs.`);
+    } else if (recorded) {
+      const other = recorded === last.to ? last.from : last.to;
+      notes.push(`**${m} ran on the ${recorded} tier.** Its latency isn't comparable with its ${other}-tier runs (${other === last.from ? "before" : "from"} ${last.on}).`);
+    } else if (end < from) {
+      tiers[m] = `${last.from} (inferred: ran before ${last.on})`;
+      notes.push(`**${m} ran on the ${last.from} tier** (before ${last.on}; not recorded in this run). Its latency isn't comparable with its ${last.to}-tier runs (from ${last.on}).`);
+    } else if (start >= to) {
+      tiers[m] = `${last.to} (inferred: ran from ${last.on})`;
+      notes.push(`**${m} ran on the ${last.to} tier** (from ${last.on}; not recorded in this run). Its latency isn't comparable with its ${last.from}-tier runs (before ${last.on}).`);
+    } else {
+      tiers[m] = "unknown";
+      notes.push(`**${m}: tier not recorded.** It switched from ${last.from} to ${last.to} on ${last.on}${dayOnly ? " (time not recorded)" : ""}, while this run was in progress, so it may have run on either. Its latency isn't comparable with other runs.`);
+    }
+  }
+  return { notes, tiers };
 }

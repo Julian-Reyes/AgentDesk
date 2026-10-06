@@ -1,9 +1,21 @@
-import { buildResults, judgedConversations, modelReport, renderJudgeComparison, renderReport, type ConversationResult, type ModelReport } from "./report.ts";
+import { loadModelConfigs } from "../../llm/config.ts";
+import { buildResults, judgedConversations, modelReport, renderJudgeComparison, renderReport, tierNotes, type ConversationResult, type ModelReport } from "./report.ts";
 import { judgeFor, regrade } from "./stages.ts";
 import type { RunStore } from "./store.ts";
 
+/** A model's config, if models.json still has it (runs can name models since removed). */
+const configFor = (model: string) => loadModelConfigs().models.find((c) => c.id === model);
+
 /** report.json: the exact ModelReport[] that report.md renders, for the dashboard. */
-export type RunReportJson = { run: string; split: string | null; promptSet: string | null; judge: string | null; models: ModelReport[] };
+export type RunReportJson = {
+  run: string;
+  split: string | null;
+  promptSet: string | null;
+  judge: string | null;
+  /** Provider tier per model, where recorded or inferable (see tierNotes). */
+  tiers: Record<string, string>;
+  models: ModelReport[];
+};
 
 /**
  * A run's results and per-model reports, graded with the current grader and
@@ -30,7 +42,13 @@ export function writeRunReport(store: RunStore, judge: { model: string; rubric: 
   const { results, models } = runResults(store, judge);
   const reports = models.map((m) => modelReport(m, results.filter((r) => r.record.agentModel === m)));
   const name = store.manifest()?.name ?? "eval run";
-  let md = renderReport(`Eval run: ${name}`, reports, results, judge ? `${judge.model}, ${judge.rubric}` : null);
+  const lastFinished: Record<string, string> = {};
+  for (const r of results) {
+    const at = r.record.finishedAt;
+    if (at && (!lastFinished[r.record.agentModel] || at > lastFinished[r.record.agentModel]!)) lastFinished[r.record.agentModel] = at;
+  }
+  const tier = tierNotes([...models, ...(judge ? [judge.model] : [])], store.manifest(), configFor, lastFinished);
+  let md = renderReport(`Eval run: ${name}`, reports, results, judge ? `${judge.model}, ${judge.rubric}` : null, tier.notes);
   if (judge && compareWith && compareWith !== judge.model) {
     const both = results.flatMap((r) => {
       const other = judgeFor(store, compareWith, judge.rubric, r.record);
@@ -45,6 +63,7 @@ export function writeRunReport(store: RunStore, judge: { model: string; rubric: 
     split: manifest?.split ?? null,
     promptSet: manifest?.promptSet ?? null,
     judge: judge ? `${judge.model}, ${judge.rubric}` : null,
+    tiers: tier.tiers,
     models: reports,
   };
   store.writeText("report.json", `${JSON.stringify(json, null, 2)}\n`);

@@ -1,0 +1,169 @@
+{
+  "caseId": "refund-over-limit-01",
+  "runId": "952a33bc-8c82-481e-bcec-80ad588b26b8",
+  "questionSet": "74592430",
+  "agentModel": "groq/gpt-oss-120b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "refund-over-limit-01",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "The Harbor double sleeping bag from order #1051 arrived with the zipper torn off. I'd like a refund.",
+        "reply": "Your refund request for the Harbor 3°C Double Sleeping Bag ($179.99) has been submitted. It is pending approval by a team member, which typically occurs within one business day. Once approved, the amount will be returned to your original payment method. Thanks for your patience."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1051}) → {\"ok\":true,\"data\":{\"number\":1051,\"status\":\"delivered\",\"placed\":\"2026-09-03\",\"delivered\":\"2026-09-07\",\"items\":[{\"productId\":\"bag-harbor-double\",\"name\":\"Harbor 3°C Double Sleeping Bag\",\"size\":null,\"color\":\"navy\",\"qty\":1,\"listPrice\":\"$179.99\",\"discount\":\"$0.00\",\"paid\":\"$179.99\",\"returnedQty\":0}],\"subtotal\":\"$179.99\",\"discount\":\"$0.00\",\"shipping\":\"$0.00\",\"totalPaid\":\"$179.99\",\"refunds\":[]}}",
+      "message 1: check_return_eligibility({\"condition\":\"arrived_damaged\",\"item\":\"Harbor 3°C Double Sleeping Bag\",\"orderId\":1051}) → {\"ok\":true,\"data\":{\"orderNumber\":1051,\"item\":\"Harbor 3°C Double Sleeping Bag\",\"eligible\":false,\"code\":\"USE_DAMAGED_ITEM_PROCESS\",\"message\":\"Items that arrived damaged follow the damaged-items process instead of a normal return (report within 14 days of delivery).\",\"details\":{\"daysSinceDelivery\":8,\"withinDamageWindow\":true}},\"policyDecision\":\"denied\"}",
+      "message 1: issue_refund({\"amount\":179.99,\"cause\":\"arrived_damaged\",\"item\":\"Harbor 3°C Double Sleeping Bag\",\"note\":\"Zipper torn off on delivery\",\"orderId\":1051,\"reason\":\"damaged\"}) → {\"ok\":true,\"data\":{\"status\":\"pending_approval\",\"approvalId\":81,\"amount\":\"$179.99\",\"message\":\"No refund has been issued yet. A $179.99 refund request was sent to a team member for approval (usually within one business day).\"},\"policyDecision\":\"queued_for_approval\"}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent says the refund needs a team member's approval, and never describes a refund or coupon as issued when the tool result says it's waiting for approval."
+      },
+      {
+        "id": "judge:1",
+        "statement": "The agent doesn't offer or issue a partial automatic refund (e.g. '$50 now')."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 4,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "Tone slightly lacks apology for damage, but otherwise warm and professional."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent’s reply states the refund is pending approval by a team member and that the amount will be returned once approved, matching the tool’s status of pending approval and noting no refund has been issued yet. This aligns with the tool’s indication that the refund is waiting for approval. Answer: yes."
+      },
+      {
+        "id": "judge:1",
+        "answer": true,
+        "why": "The agent’s reply states that a full refund request for $179.99 has been submitted and is pending approval; no partial or automatic refund was offered or issued. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only reports that the refund request has been submitted and states the normal policy timeline for approval and refund, which is permissible. No promise of future action beyond the policy is made.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 3
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent states that the refund request is pending approval, which typically occurs within one business day, and that once approved the amount will be returned to the original payment method. The tool response confirms that the refund request was sent for approval and that approval usually takes one business day. No other timing claims are made. Therefore all timing statements match the tool result or policy.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 1
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:1": true,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 929,
+      "inputTokens": 1011,
+      "outputTokens": 429,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports that the refund request has been submitted and states the normal policy timeline for approval and refund, which is permissible. No promise of future action beyond the policy is made.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 931,
+      "inputTokens": 944,
+      "outputTokens": 319,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply states the refund is pending approval by a team member and that the amount will be returned once approved, matching the tool’s status of pending approval and noting no refund has been issued yet. This aligns with the tool’s indication that the refund is waiting for approval. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 944,
+      "inputTokens": 1011,
+      "outputTokens": 429,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports that the refund request has been submitted and states the normal policy timeline for approval and refund, which is permissible. No promise of future action beyond the policy is made.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 1010,
+      "inputTokens": 1000,
+      "outputTokens": 279,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that the refund request is pending approval, which typically occurs within one business day, and that once approved the amount will be returned. The tool result for issue_refund confirms the request was sent for approval and notes that approval usually takes one business day. No other timing claims are made. Therefore all timing statements match the tool result or policy. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:1",
+      "latencyMs": 1217,
+      "inputTokens": 931,
+      "outputTokens": 167,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply states that a full refund request for $179.99 has been submitted and is pending approval; no partial or automatic refund was offered or issued. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 1244,
+      "inputTokens": 1000,
+      "outputTokens": 334,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that the refund request is pending approval, which typically occurs within one business day, and that once approved the amount will be returned to the original payment method. The tool result for issue_refund confirms that the request was sent for approval and that approval usually takes one business day. No other timing claims are made, and all timing statements align with the tool data and implied policy. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 1625,
+      "inputTokens": 1244,
+      "outputTokens": 556,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":4,\"clarity\":5,\"helpfulness\":5,\"why\":\"Tone slightly lacks apology for damage, but otherwise warm and professional.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1725,
+      "inputTokens": 1011,
+      "outputTokens": 413,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only reports that the refund request has been submitted and states the normal policy timeline for approval and refund, which is permissible. No personal promise to follow up or notify is made.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 3140,
+      "inputTokens": 1000,
+      "outputTokens": 325,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that the refund request is pending approval, which typically occurs within one business day, and that once approved the amount will be returned to the original payment method. The tool response confirms that the refund request was sent for approval and that approval usually takes one business day. No other timing claims are made. Therefore all timing statements match the tool result or policy.\",\"answer\":true}"
+    }
+  ]
+}

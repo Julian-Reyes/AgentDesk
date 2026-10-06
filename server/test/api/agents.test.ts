@@ -34,7 +34,7 @@ describe("GET /api/agents", () => {
       expect(data.envOverride).toBeNull();
       expect(data.liveWindowDays).toBe(7);
       const byId = new Map(data.models.map((m: any) => [m.id, m]));
-      expect(byId.get(LITE)).toMatchObject({ paid: false });
+      expect(byId.get(LITE)).toMatchObject({ paid: true }); // paid tier since 2026-10-06
       expect(byId.get(OSS)).toMatchObject({ paid: true });
       expect(byId.has("fake")).toBe(false);
     }));

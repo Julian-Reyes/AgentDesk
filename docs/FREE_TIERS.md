@@ -16,11 +16,20 @@ Every number below comes from the provider's **official docs**. Third-party blog
 | **Modal** (vLLM) | planned for official evals + demo; **not signed up** | ✅ via vLLM's OpenAI-compatible server | ✅ depends on vLLM's tool-call parser for the model | Starter plan: **$30/month free compute credit**. **Payment method required.** Billed per second (e.g. L4 GPU $0.000222/s ≈ $0.80/h) | not checked |
 | **Ollama Cloud** | optional, not checked | ✅ `https://ollama.com/v1/` | ✅ | not checked | not checked |
 
-**Comparison lineup (decided 2026-09-29):** Gemini **3.5 Flash Lite** (`gemini-3.5-flash-lite`: 15 RPM, 250K TPM, daily limit unknown; chosen over 3.8 Flash's 20 requests/day) · Groq `openai/gpt-oss-120b` (the "GPT" slot, replacing GitHub Models) · Groq `qwen/qwen3.8-27b` (large open model) · a small open model (developed on Ollama on the Mac mini; **official eval runs and the public demo serve it with vLLM on Modal**; Modal's pricing/free terms are not checked yet). *Since 2026-10-06 the small open model is the optional Milestone 8; the comparison has the other three until then.* Groq's limits are per model, so the two Groq models don't share a quota.
+**Comparison lineup (decided 2026-09-29):** Gemini **3.5 Flash Lite** (`gemini-3.5-flash-lite`: 15 RPM, 250K TPM, daily limit unknown on the free tier; chosen over 3.8 Flash's 20 requests/day; **paid tier since 2026-10-06**, see below) · Groq `openai/gpt-oss-120b` (the "GPT" slot, replacing GitHub Models) · Groq `qwen/qwen3.8-27b` (large open model) · a small open model (developed on Ollama on the Mac mini; **official eval runs and the public demo serve it with vLLM on Modal**; Modal's pricing/free terms are not checked yet). *Since 2026-10-06 the small open model is the optional Milestone 8; the comparison has the other three until then.* Groq's limits are per model, so the two Groq models don't share a quota.
 
 ## Details and sources
 
 ### Gemini API
+**Paid tier since 2026-10-06 (Julian enabled billing on the project).** The free-tier notes below describe the project before that date, and `test-1` and earlier runs.
+- **Price, `gemini-3.5-flash-lite`, standard paid tier:** $0.30 per 1M input tokens, $2.50 per 1M output tokens; the output price is "including thinking tokens". Batch mode is half ($0.15 / $1.25). No context caching on the standard tier. (Source: [pricing](https://ai.google.dev/gemini-api/docs/pricing), checked 2026-10-06.) In `server/config/models.json` with `tier: "paid"` and a `tierChanges` entry.
+- **Thinking tokens:** our client counts output as the larger of `completion_tokens` and `total_tokens − prompt_tokens`, so thinking is billed as output even if a provider leaves it out of `completion_tokens`. In two test calls on 2026-10-06 (OpenAI-compatible endpoint, our default settings), total was exactly prompt + completion: Flash-Lite didn't think.
+- **No daily cap:** Tier 1 applies once a Cloud project has an active billing account ("Tier upgrades from the Free to Tier 1 will typically take effect instantly"). Google doesn't publish Tier 1's per-minute numbers for this model; they're shown in AI Studio's rate-limit page. **Not checked yet**, so the config keeps the free tier's 15 RPM / 250K TPM as our own throttle, and that's now the bottleneck (about 34 min for 110 conversations).
+- **Data use changes:** on paid services "Google doesn't use your prompts … or responses to improve our products", and no human reviewers read them for that; on unpaid services they may ([terms](https://ai.google.dev/gemini-api/terms), checked 2026-10-06). Every project with an active billing account is paid, so this applies to Gemma 4 31B and 3.8 Flash on the same project too.
+- **Every model on the project is billed now**, including Gemma 4 31B and 3.8 Flash, which have no pricing in `models.json`. Neither is used; add their prices before using either, or their cost would be recorded as $0.
+- **Latency:** paid-tier runs aren't comparable with free-tier runs (e.g. `test-1`). Each run's manifest records the tier, and reports say so.
+
+**Free tier (until 2026-10-06):**
 - The official rate-limits page says limits "depend on a variety of factors" and points to AI Studio instead of listing numbers.
 - OpenAI compatibility is "still in beta"; parameters it doesn't support are **silently ignored**, and reasoning can't be turned off for some models.
 - Pro models have no free tier. The free models are Flash / Flash-Lite (e.g. `gemini-3.8-flash`, `gemini-3.5-flash-lite`) plus older 2.5 models.
@@ -108,7 +117,7 @@ The Render/Neon/Supabase/Cloud Run notes below were checked for the earlier serv
   - **at a limit, compute is suspended or writes fail; "Neon does not bill overages on the Free plan."**
 - **Supabase, free plan** (third-party summaries, e.g. [UI Bakery](https://uibakery.io/blog/supabase-pricing)): 500 MB database; **a project pauses after 7 days without database activity** and must be un-paused by hand.
 - **Google Cloud Run, always free:** 2M requests, 180K vCPU-s and 360K GiB-s per month, but **a billing account must be linked** ([summary](https://lalatenduswain.medium.com/building-cloud-native-apps-for-free-in-2026-the-complete-developers-guide-to-google-cloud-s-3d93b77c4adb)).
-- **Gemini API free tier for a public demo:** Google may use free-tier prompts and responses to improve its products, and human reviewers may read them ([summary](https://apisrouter.com/gemini-ai-free)). Fine for fictional store data, but visitors must be told not to type personal information. Quotas are per project, so a separate demo project keeps the demo from using the eval quota.
+- **Gemini API free tier for a public demo** (written while the project was on the free tier; it's paid since 2026-10-06): Google may use free-tier prompts and responses to improve its products, and human reviewers may read them ([summary](https://apisrouter.com/gemini-ai-free)). Fine for fictional store data, but visitors must be told not to type personal information. Quotas are per project, so a separate demo project keeps the demo from using the eval quota.
 
 ## What the limits mean for eval runs (rough, to be replaced by measured numbers)
 

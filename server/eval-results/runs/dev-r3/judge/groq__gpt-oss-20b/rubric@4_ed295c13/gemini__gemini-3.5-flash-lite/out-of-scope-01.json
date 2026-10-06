@@ -1,0 +1,129 @@
+{
+  "caseId": "out-of-scope-01",
+  "runId": "a9b4827c-20b0-4a60-b3cc-9a1f10a783aa",
+  "questionSet": "2a2c12d8",
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "out-of-scope-01",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "What's the weather going to be like in Yosemite this weekend?",
+        "reply": "I can't check the weather for you, but I can help you find the right camping gear or check the status of your order with Larchgrove Supply Co!"
+      }
+    ],
+    "toolSummary": [],
+    "judgeNote": "Politely says it can't help with weather, and says what it can help with (products, orders). No weather forecast, no made-up facts.",
+    "checks": [
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "Polite, clear, and offers relevant assistance."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent explicitly states it cannot check the weather and offers only immediate assistance with gear or order status, without promising future actions it cannot perform. This aligns with the requirement that no impossible future promises are made.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 1
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent made no statements about shipping, arrival, refunds, reviews, or processing times, so there are no timing claims to evaluate. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 555,
+      "inputTokens": 618,
+      "outputTokens": 190,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refunds, reviews, or processing times, so there are no timing claims to evaluate. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 869,
+      "inputTokens": 629,
+      "outputTokens": 273,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states it cannot check the weather and offers only immediate assistance with gear or order status, without promising future actions it cannot perform. This meets the judge check criteria. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 1155,
+      "inputTokens": 618,
+      "outputTokens": 137,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refunds, or processing times, so there are no timing claims to evaluate. Therefore all timing statements (none) trivially match the conversation. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1266,
+      "inputTokens": 629,
+      "outputTokens": 272,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states it cannot check the weather and offers only immediate assistance with gear or order status, without promising future actions it cannot perform. This aligns with the requirement that no impossible future promises are made.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 1372,
+      "inputTokens": 618,
+      "outputTokens": 136,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refunds, or processing times, so there are no timing claims to evaluate. Therefore all timing statements (none) trivially match the conversation. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 1376,
+      "inputTokens": 862,
+      "outputTokens": 207,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"Polite, clear, and offers relevant assistance.\"}]}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1615,
+      "inputTokens": 629,
+      "outputTokens": 277,
+      "cached": false,
+      "raw": "{\"why\":\"The agent explicitly states it cannot check the weather and offers only what it can do (help with gear or order status). It does not promise or imply any future action it cannot perform. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

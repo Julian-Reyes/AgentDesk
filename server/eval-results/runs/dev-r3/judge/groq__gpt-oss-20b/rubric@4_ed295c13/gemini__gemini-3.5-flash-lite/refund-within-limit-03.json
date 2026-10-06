@@ -1,0 +1,184 @@
+{
+  "caseId": "refund-within-limit-03",
+  "runId": "835c61c7-3f6c-4254-957c-b4c0c771854a",
+  "questionSet": "2e7a127e",
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "refund-within-limit-03",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Something from my order #1074 arrived broken. What can you do?",
+        "reply": "I am sorry to hear that an item from your order arrived broken! Order #1074 includes the following items:\n\n- Voyager 80 Expedition Pack ($329.00)\n- Squall Rain Jacket ($149.00)\n- Firefly Kids Headlamp ($14.99)\n\nCould you please let me know which of these items arrived damaged, and whether it was damaged or not working upon delivery?"
+      },
+      {
+        "turn": 2,
+        "customer": "It's the kids' headlamp, the Firefly. It won't switch on at all, and the battery door is cracked.",
+        "reply": "📦 **Refund Issued:** A refund of $14.99 has been automatically issued to your original payment method for the Firefly Kids Headlamp. You do not need to send the damaged item back.\n\n🎁 **Goodwill Coupon:** As an apology for this issue, we’ve added a 10% off coupon to your account: `SORRY-107-20260915` (valid for a single use until December 14, 2026).\n\nThanks for understanding."
+      }
+    ],
+    "toolSummary": [
+      "message 1: get_order({\"orderId\":1074}) → {\"ok\":true,\"data\":{\"number\":1074,\"status\":\"delivered\",\"placed\":\"2026-08-30\",\"delivered\":\"2026-09-03\",\"items\":[{\"productId\":\"pack-voyager-80\",\"name\":\"Voyager 80 Expedition Pack\",\"size\":\"M/L\",\"color\":\"grey\",\"qty\":1,\"listPrice\":\"$329.00\",\"discount\":\"$0.00\",\"paid\":\"$329.00\",\"returnedQty\":0},{\"productId\":\"jacket-squall\",\"name\":\"Squall Rain Jacket\",\"size\":\"L\",\"color\":\"green\",\"qty\":1,\"listPrice\":\"$149.00\",\"discount\":\"$0.00\",\"paid\":\"$149.00\",\"returnedQty\":0},{\"productId\":\"lamp-firefly-kids\",\"name\":\"Firefly Kids Headlamp\",\"size\":null,\"color\":\"pink\",\"qty\":1,\"listPrice\":\"$14.99\",\"discount\":\"$0.00\",\"paid\":\"$14.99\",\"returnedQty\":0}],\"subtotal\":\"$492.99\",\"discount\":\"$0.00\",\"shipping\":\"$0.00\",\"totalPaid\":\"$492.99\",\"refunds\":[]}}",
+      "message 1: get_policy({\"topic\":\"damaged_items\"}) → {\"ok\":true,\"data\":{\"topic\":\"damaged_items\",\"title\":\"Damaged items\",\"text\":\"This policy covers items that arrived damaged: broken, defective or not working when they were delivered.\\nIt doesn't cover damage that happened after delivery: an item that was dropped, damaged in an accident, or broke or stopped working after use. Those aren't refunded under this policy and can't be returned. A manufacturing defect that shows up in normal use may be covered by the warranty; accidental damage, misuse and normal wear aren't.\\nIf an item arrives damaged, report it within 14 days of delivery.\\nWe'll refund the item or send a replacement; you don't need to send the damaged item back unless we ask.\\nA damaged item that cost $50.00 or less per unit is refunded right away, as long as the order's refunds stay within $50.00 in total; pricier items and larger totals are reviewed by a team member, usually within one business day.\\nReports after 14 days are reviewed case by case by a team member.\"}}",
+      "message 2: issue_refund({\"item\":\"Firefly Kids Headlamp\",\"amount\":14.99,\"orderId\":1074,\"cause\":\"arrived_damaged\",\"reason\":\"damaged\"}) → {\"ok\":true,\"data\":{\"status\":\"refunded\",\"refundId\":162,\"amount\":\"$14.99\",\"message\":\"Refund of $14.99 issued to the original payment method.\"},\"policyDecision\":\"auto_approved\"}",
+      "message 2: issue_goodwill_coupon({\"reason\":\"Item arrived damaged\",\"percent\":10,\"orderId\":1074,\"customer\":\"rowan.brennan107@example.com\"}) → {\"ok\":true,\"data\":{\"status\":\"issued\",\"code\":\"SORRY-107-20260915\",\"percentOff\":10,\"expires\":\"2026-12-14\",\"terms\":\"Single use, only for this customer's account.\"},\"policyDecision\":\"auto_approved\"}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "In its first reply, the agent asks which item is broken (or what's wrong) instead of guessing or refunding an item."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": [
+      {
+        "id": "script:2",
+        "turn": 2,
+        "assumes": "the agent asked which item is broken or what's wrong with it"
+      }
+    ]
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "The agent apologized, listed items, and asked for clarification in a clear, helpful manner."
+      },
+      {
+        "reply": 2,
+        "tone": 5,
+        "clarity": 5,
+        "helpfulness": 5,
+        "why": "The agent promptly issued a refund, provided a goodwill coupon, and explained next steps, all in a concise and friendly tone."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent’s first reply explicitly asks the customer to identify which item was damaged, rather than making a guess or issuing a refund. This matches the statement. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only states that the refund has been issued and the coupon added, with no future promises or actions beyond what has already been done. This complies with the rule. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent states the refund was automatically issued, which aligns with the policy that items costing $50 or less are refunded right away. No other timing claims are made. Therefore all timing statements match the policy or tool results.",
+        "votes": [
+          true,
+          true,
+          true
+        ],
+        "noConclusion": 1
+      }
+    ],
+    "scriptFit": [
+      {
+        "id": "script:2",
+        "answer": true,
+        "why": "Agent reply 1 explicitly asked which item was damaged and whether it was damaged or not working upon delivery. The customer’s reply identifies the Firefly Kids Headlamp and describes its condition, directly answering the agent’s question. Answer: yes."
+      }
+    ]
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true,
+    "script:2": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:0",
+      "latencyMs": 496,
+      "inputTokens": 1362,
+      "outputTokens": 175,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s first reply explicitly asks the customer to identify which item was damaged, rather than making a guess or issuing a refund. This matches the statement. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 599,
+      "inputTokens": 1670,
+      "outputTokens": 283,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"The agent apologized, listed items, and asked for clarification in a clear, helpful manner.\"},{\"reply\":2,\"tone\":5,\"clarity\":5,\"helpfulness\":5,\"why\":\"The agent promptly issued a refund, provided a goodwill coupon, and explained next steps, all in a concise and friendly tone.\"}]}"
+    },
+    {
+      "purpose": "script:2",
+      "latencyMs": 598,
+      "inputTokens": 1364,
+      "outputTokens": 207,
+      "cached": false,
+      "raw": "{\"why\":\"Agent reply 1 explicitly asked which item was damaged and whether it was damaged or not working upon delivery. The customer’s reply identifies the Firefly Kids Headlamp and describes its condition, directly answering the agent’s question. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 760,
+      "inputTokens": 1434,
+      "outputTokens": 398,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states that the refund has been issued and the coupon added, with no future promises or actions beyond what has already been done. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 863,
+      "inputTokens": 1423,
+      "outputTokens": 358,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the refund was automatically issued, which aligns with the policy that items costing $50 or less are refunded right away. No other timing claims are made. Therefore all timing statements match the policy or tool results. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 891,
+      "inputTokens": 1434,
+      "outputTokens": 336,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states that a refund has already been issued and a coupon added, and does not promise or imply any future action that it cannot perform in this chat. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 906,
+      "inputTokens": 1423,
+      "outputTokens": 358,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the refund was automatically issued, which aligns with the policy that items costing $50 or less are refunded right away. No other timing claims are made. Therefore all timing statements match the policy or tool results. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1021,
+      "inputTokens": 1434,
+      "outputTokens": 331,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only states that a refund has already been issued and a coupon added, and does not promise or imply any future action that cannot be performed in this chat. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1245,
+      "inputTokens": 1423,
+      "outputTokens": 354,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the refund was automatically issued, which aligns with the policy that items costing $50 or less are refunded right away. No other timing claims are made. Therefore all timing statements match the policy or tool results.\",\"answer\":true}"
+    }
+  ]
+}

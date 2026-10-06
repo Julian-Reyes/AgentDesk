@@ -1,0 +1,148 @@
+{
+  "caseId": "returns-06",
+  "runId": "0486638a-e66b-4a83-a4db-429725ff2b25",
+  "questionSet": "6b07e905",
+  "agentModel": "groq/gpt-oss-120b",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "returns-06",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "I've used the Glowworm headlamp from order #1050 on a few night hikes, and now it won't turn on, even with new batteries. Can I return it?",
+        "reply": "I’m sorry the Glowworm headlamp stopped working. Because the issue occurred after use, it isn’t eligible for a return or refund. However, a warranty claim may be possible. I’ve created a support ticket (ESC-38) and a team member will follow up by email within one business day. Thanks for understanding."
+      }
+    ],
+    "toolSummary": [
+      "message 1: check_return_eligibility({\"condition\":\"damaged_after_delivery\",\"item\":\"Glowworm headlamp\",\"orderId\":1050}) → {\"ok\":true,\"data\":{\"orderNumber\":1050,\"item\":\"Glowworm 300 Headlamp\",\"eligible\":false,\"code\":\"DAMAGED_AFTER_DELIVERY\",\"message\":\"Damage that happened after delivery (the item was dropped, had an accident, or broke or stopped working after use) isn't refunded as a damaged item and can't be returned. If it's a manufacturing defect that showed up in normal use, the 1-year warranty may cover it; warranty claims are handled by a team member. Accidental damage, misuse and normal wear aren't covered.\",\"details\":{\"daysSinceDelivery\":5}},\"policyDecision\":\"denied\"}",
+      "message 1: escalate_to_human({\"orderId\":1050,\"reason\":\"Customer reported headlamp stopped working after use; needs warranty assistance\"}) → {\"ok\":true,\"data\":{\"ticket\":\"ESC-38\",\"message\":\"A human support agent will follow up by email, usually within one business day.\"}}"
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "statement": "The agent explains a used item can't be returned, points to the warranty, and passes the claim to a team member without promising a repair, replacement or refund."
+      },
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "The reply clearly explains the return policy, offers a warranty option, and gives a next step with a ticket, making it helpful and supportive."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:0",
+        "answer": true,
+        "why": "The agent states the item cannot be returned or refunded, mentions warranty, and escalates to a team member without promising repair, replacement or refund. Answer: yes."
+      },
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent’s reply correctly states that a support ticket was created and a team member will follow up by email within one business day, which is permissible. No promise of action that the agent cannot perform in this chat. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent states that a team member will follow up by email within one business day, which matches the tool result that a human support agent will follow up within one business day. No other timing claims are made. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:0": true,
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 836,
+      "inputTokens": 849,
+      "outputTokens": 215,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that a team member will follow up by email within one business day, which matches the tool result that a human support agent will follow up within one business day. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 964,
+      "inputTokens": 849,
+      "outputTokens": 261,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states a follow‑up will occur within one business day, which matches the tool response that a human support agent will follow up by email usually within one business day. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 1404,
+      "inputTokens": 849,
+      "outputTokens": 215,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that a team member will follow up by email within one business day, which matches the tool result that a human support agent will follow up within one business day. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "scores",
+      "latencyMs": 1420,
+      "inputTokens": 1093,
+      "outputTokens": 358,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"The reply clearly explains the return policy, offers a warranty option, and gives a next step with a ticket, making it helpful and supportive.\"}]}"
+    },
+    {
+      "purpose": "judge:0",
+      "latencyMs": 1641,
+      "inputTokens": 794,
+      "outputTokens": 313,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the item cannot be returned or refunded, mentions warranty, and escalates to a team member without promising repair, replacement or refund. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1667,
+      "inputTokens": 860,
+      "outputTokens": 486,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply correctly states that a support ticket was created and a team member will follow up by email within one business day, which is permissible. No promise of action that the agent cannot perform in this chat. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 2023,
+      "inputTokens": 860,
+      "outputTokens": 408,
+      "cached": false,
+      "raw": "{\"why\":\"The agent’s reply only states that a support ticket was created and that a team member will follow up by email within one business day, which is a permissible reference to a tool result or policy. It does not promise anything the agent cannot do in this chat. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 2291,
+      "inputTokens": 860,
+      "outputTokens": 451,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states that a support ticket was created and a team member will follow up by email within one business day, which is a permissible statement per policy. This does not promise the agent itself will do something later that it cannot do in this chat. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}

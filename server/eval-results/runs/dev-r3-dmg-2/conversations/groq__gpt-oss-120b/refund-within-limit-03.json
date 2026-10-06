@@ -1,0 +1,537 @@
+{
+  "caseId": "refund-within-limit-03",
+  "case": {
+    "id": "refund-within-limit-03",
+    "split": "dev",
+    "type": "refund_within_limit",
+    "why": "#1074 (Rowan Brennan, delivered 11 days ago, within the 14-day damage window) has three items: a Voyager 80 pack, a Squall Rain Jacket and a Firefly Kids Headlamp ($14.99). The first message doesn't say which item is broken, so asking is the right move and the second message always fits. The Firefly cost $50 or less and the order has no other refunds, so $14.99 is refunded automatically. The damage is store-caused, so a goodwill coupon of 10% or less is allowed, not required (goodwill rule, 2026-10-01): issued if the refund came first, queued if the coupon came first.",
+    "source": "Julian's review, 2026-09-30 (replaces a single-item version where the follow-up might not fit)",
+    "customer": "rowan.brennan107@example.com",
+    "turns": [
+      {
+        "customer": "Something from my order #1074 arrived broken. What can you do?"
+      },
+      {
+        "customer": "It's the kids' headlamp, the Firefly. It won't switch on at all, and the battery door is cracked.",
+        "assumes": "the agent asked which item is broken or what's wrong with it",
+        "reply": {
+          "mentions": [],
+          "amounts": [
+            1499
+          ],
+          "avoids": []
+        }
+      }
+    ],
+    "expect": {
+      "route": "support",
+      "outcome": [
+        "resolved",
+        "approval_needed"
+      ],
+      "tools": {
+        "required": [],
+        "forbidden": []
+      },
+      "effects": {
+        "refunds": [
+          {
+            "order": 1074,
+            "amountCents": 1499,
+            "reason": "damaged",
+            "item": "lamp-firefly-kids",
+            "status": "issued"
+          }
+        ],
+        "goodwill": [],
+        "allowed": {
+          "refunds": [],
+          "goodwill": [
+            {
+              "maxPercent": 10,
+              "order": 1074,
+              "status": [
+                "issued",
+                "pending_approval"
+              ]
+            }
+          ]
+        },
+        "escalation": "forbidden"
+      },
+      "leaks": [],
+      "judgeChecks": [
+        "In its first reply, the agent asks which item is broken (or what's wrong) instead of guessing or refunding an item."
+      ]
+    }
+  },
+  "agentModel": "groq/gpt-oss-120b",
+  "team": {
+    "router": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "router@1#f10fc861"
+    },
+    "shopping": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "shopping@3#e36d3d2f"
+    },
+    "support": {
+      "model": "groq/gpt-oss-120b",
+      "provider": "groq",
+      "prompt": "support@4#b0bc1025"
+    }
+  },
+  "observation": {
+    "runId": "407c75fb-c57d-47d1-a23c-fcf3b2dfb3db",
+    "turns": [
+      {
+        "customer": "Something from my order #1074 arrived broken. What can you do?",
+        "reply": "We’re sorry to hear an item arrived broken. Could you let me know which product from order #1074 was damaged?",
+        "answeredBy": "support",
+        "outcome": "resolved"
+      },
+      {
+        "customer": "It's the kids' headlamp, the Firefly. It won't switch on at all, and the battery door is cracked.",
+        "reply": "Your refund of $14.99 for the Firefly Kids Headlamp has been issued to your original payment method. \n\nThanks for understanding.",
+        "answeredBy": "support",
+        "outcome": "resolved"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "Something from my order #1074 arrived broken. What can you do?"
+        },
+        "turn": 1
+      },
+      {
+        "kind": "router",
+        "agent": "router",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "router@1#f10fc861",
+        "data": {
+          "attempt": 1,
+          "raw": "{\"route\":\"support\",\"category\":\"damaged_item\",\"urgency\":\"normal\",\"confidence\":0.99}",
+          "decision": {
+            "route": "support",
+            "category": "damaged_item",
+            "urgency": "normal",
+            "confidence": 0.99
+          },
+          "fallback": false
+        },
+        "inputTokens": 423,
+        "outputTokens": 141,
+        "latencyMs": 3485,
+        "cached": false,
+        "costMicros": 148,
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Rowan Brennan (rowan.brennan107@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_4bbaecbb-f5d4-4298-85f0-a308a684e156",
+                "name": "get_order",
+                "arguments": "{\"orderId\":1074}"
+              }
+            ]
+          },
+          "reasoning": "We need to handle a broken item. Steps: Apologize, ask about which item? Customer says \"something from my order #1074 arrived broken.\" We need to know which item. Use get_order to see items. Then we can check return eligibility with condition arrived_damaged. Then we can issue a refund for the item (if eligible). Also possibly issue a goodwill coupon for damaged order. But policy says for damaged items we can only refund, not replacement. We need to confirm which item. So we should first retrieve order #1074.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 1870,
+        "outputTokens": 142,
+        "latencyMs": 2062,
+        "cached": false,
+        "costMicros": 366,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "fc_4bbaecbb-f5d4-4298-85f0-a308a684e156",
+          "name": "get_order",
+          "arguments": "{\"orderId\":1074}",
+          "result": {
+            "ok": true,
+            "data": {
+              "number": 1074,
+              "status": "delivered",
+              "placed": "2026-08-30",
+              "delivered": "2026-09-03",
+              "items": [
+                {
+                  "productId": "pack-voyager-80",
+                  "name": "Voyager 80 Expedition Pack",
+                  "size": "M/L",
+                  "color": "grey",
+                  "qty": 1,
+                  "listPrice": "$329.00",
+                  "discount": "$0.00",
+                  "paid": "$329.00",
+                  "returnedQty": 0
+                },
+                {
+                  "productId": "jacket-squall",
+                  "name": "Squall Rain Jacket",
+                  "size": "L",
+                  "color": "green",
+                  "qty": 1,
+                  "listPrice": "$149.00",
+                  "discount": "$0.00",
+                  "paid": "$149.00",
+                  "returnedQty": 0
+                },
+                {
+                  "productId": "lamp-firefly-kids",
+                  "name": "Firefly Kids Headlamp",
+                  "size": null,
+                  "color": "pink",
+                  "qty": 1,
+                  "listPrice": "$14.99",
+                  "discount": "$0.00",
+                  "paid": "$14.99",
+                  "returnedQty": 0
+                }
+              ],
+              "subtotal": "$492.99",
+              "discount": "$0.00",
+              "shipping": "$0.00",
+              "totalPaid": "$492.99",
+              "refunds": []
+            }
+          }
+        },
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Rowan Brennan (rowan.brennan107@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": "We’re sorry to hear an item arrived broken. Could you let me know which product from order #1074 was damaged?"
+          },
+          "reasoning": "We need to respond about broken item. The customer says something arrived broken. Need to determine which item? Not specified. Should ask which item? But we can also check return eligibility for arrived_damaged. We need to check each item? Probably ask which item. But the instruction: \"If a damaged item, confirm what was paid (get_order) before issuing a refund.\" We have order details. We need to ask which item is broken. So we should ask for clarification. Then after they specify, we will check eligibility and possibly issue refund.\n\nThus reply asking which product.",
+          "finishReason": "stop"
+        },
+        "inputTokens": 2139,
+        "outputTokens": 153,
+        "latencyMs": 1486,
+        "cached": false,
+        "costMicros": 413,
+        "turn": 1
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "We’re sorry to hear an item arrived broken. Could you let me know which product from order #1074 was damaged?",
+          "implicit": true
+        },
+        "turn": 1
+      },
+      {
+        "kind": "user_message",
+        "data": {
+          "text": "It's the kids' headlamp, the Firefly. It won't switch on at all, and the battery door is cracked."
+        },
+        "turn": 2
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 1,
+          "context": "The customer is signed in as Rowan Brennan (rowan.brennan107@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_e7525a62-1ebe-4976-88b6-a51f1b219750",
+                "name": "check_return_eligibility",
+                "arguments": "{\"condition\":\"arrived_damaged\",\"item\":\"Firefly Kids Headlamp\",\"orderId\":1074}"
+              }
+            ]
+          },
+          "reasoning": "We need to process a damaged item claim. Steps: check return eligibility for item \"Firefly Kids Headlamp\" with condition \"arrived_damaged\". Then issue refund for that item amount $14.99. Use issue_refund with amount 14.99, cause arrived_damaged, item name, orderId 1074, reason damaged. Then likely it will decide immediate or need approval. Then reply to customer with result. Also possibly issue goodwill coupon if applicable? The policy: damaged items: only arrived_damaged refunded. We can also offer goodwill if delayed or lost, but it's damaged, we can still issue a coupon as apology? The tool issue_goodwill_coupon is for store or carrier caused problems (lost, delayed, damaged). Could offer one, but not required. The instruction: For damaged items: apologize briefly. Can't send replacements. If the customer wants one, escalate. We can process refund. So first check eligibility.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2200,
+        "outputTokens": 235,
+        "latencyMs": 944,
+        "cached": false,
+        "costMicros": 471,
+        "turn": 2
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "fc_e7525a62-1ebe-4976-88b6-a51f1b219750",
+          "name": "check_return_eligibility",
+          "arguments": "{\"condition\":\"arrived_damaged\",\"item\":\"Firefly Kids Headlamp\",\"orderId\":1074}",
+          "result": {
+            "ok": true,
+            "data": {
+              "orderNumber": 1074,
+              "item": "Firefly Kids Headlamp",
+              "eligible": false,
+              "code": "USE_DAMAGED_ITEM_PROCESS",
+              "message": "Items that arrived damaged follow the damaged-items process instead of a normal return (report within 14 days of delivery).",
+              "details": {
+                "daysSinceDelivery": 12,
+                "withinDamageWindow": true
+              }
+            },
+            "policyDecision": "denied"
+          }
+        },
+        "policyDecision": "denied",
+        "turn": 2
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 2,
+          "context": "The customer is signed in as Rowan Brennan (rowan.brennan107@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "fc_f1f89a5f-35bb-4257-adba-f41ac2f6464b",
+                "name": "issue_refund",
+                "arguments": "{\"amount\":14.99,\"cause\":\"arrived_damaged\",\"item\":\"Firefly Kids Headlamp\",\"note\":\"Headlamp arrived broken, battery door cracked.\",\"orderId\":1074,\"reason\":\"damaged\"}"
+              }
+            ]
+          },
+          "reasoning": "The item is eligible for damaged items process, not normal return. Need to issue refund for damaged item. Use issue_refund with amount equal paid for that item: $14.99. Cause arrived_damaged. Reason damaged. Provide note maybe. Then get response.",
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2329,
+        "outputTokens": 136,
+        "latencyMs": 1145,
+        "cached": false,
+        "costMicros": 431,
+        "turn": 2
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "fc_f1f89a5f-35bb-4257-adba-f41ac2f6464b",
+          "name": "issue_refund",
+          "arguments": "{\"amount\":14.99,\"cause\":\"arrived_damaged\",\"item\":\"Firefly Kids Headlamp\",\"note\":\"Headlamp arrived broken, battery door cracked.\",\"orderId\":1074,\"reason\":\"damaged\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "status": "refunded",
+              "refundId": 176,
+              "amount": "$14.99",
+              "message": "Refund of $14.99 issued to the original payment method."
+            },
+            "policyDecision": "auto_approved"
+          }
+        },
+        "policyDecision": "auto_approved",
+        "turn": 2
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "groq/gpt-oss-120b",
+        "provider": "groq",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 3,
+          "context": "The customer is signed in as Rowan Brennan (rowan.brennan107@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": "Your refund of $14.99 for the Firefly Kids Headlamp has been issued to your original payment method. \n\nThanks for understanding."
+          },
+          "finishReason": "stop"
+        },
+        "inputTokens": 2442,
+        "outputTokens": 32,
+        "latencyMs": 3341,
+        "cached": false,
+        "costMicros": 386,
+        "turn": 2
+      },
+      {
+        "kind": "reply",
+        "agent": "support",
+        "data": {
+          "message": "Your refund of $14.99 for the Firefly Kids Headlamp has been issued to your original payment method. \n\nThanks for understanding.",
+          "implicit": true
+        },
+        "turn": 2
+      }
+    ],
+    "finalAgent": "support",
+    "outcome": "resolved",
+    "effects": {
+      "refunds": [
+        {
+          "order": 1074,
+          "amountCents": 1499,
+          "reason": "damaged",
+          "status": "issued",
+          "item": "lamp-firefly-kids"
+        }
+      ],
+      "goodwill": [],
+      "escalations": 0
+    }
+  },
+  "grade": {
+    "caseId": "refund-within-limit-03",
+    "checks": [
+      {
+        "id": "turns",
+        "label": "every message got an answer",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "route",
+        "label": "routed to support",
+        "pass": true,
+        "severity": "task",
+        "detail": "routed to support"
+      },
+      {
+        "id": "outcome",
+        "label": "outcome resolved or approval_needed",
+        "pass": true,
+        "severity": "task",
+        "detail": "outcome resolved"
+      },
+      {
+        "id": "refund_required:0",
+        "label": "refund: $14.99 damaged refund on #1074 (lamp-firefly-kids), issued",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "money_unexpected",
+        "label": "no refunds or coupons beyond what the case allows",
+        "pass": true,
+        "severity": "policy"
+      },
+      {
+        "id": "escalation",
+        "label": "doesn't escalate",
+        "pass": true,
+        "severity": "task",
+        "detail": "0 escalation ticket(s)"
+      },
+      {
+        "id": "reply2:amount:1499",
+        "label": "reply 2 states $14.99",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "raw_output",
+        "label": "no raw JSON or tool syntax in replies",
+        "pass": true,
+        "severity": "task"
+      },
+      {
+        "id": "grounding",
+        "label": "no invented product names, prices or specs",
+        "pass": true,
+        "severity": "grounding"
+      }
+    ],
+    "grounding": [
+      {
+        "turn": 1,
+        "violations": [],
+        "warnings": []
+      },
+      {
+        "turn": 2,
+        "violations": [],
+        "warnings": []
+      }
+    ],
+    "judgeQuestions": [
+      {
+        "id": "judge:0",
+        "kind": "judge_check",
+        "statement": "In its first reply, the agent asks which item is broken (or what's wrong) instead of guessing or refunding an item."
+      },
+      {
+        "id": "judge:followup",
+        "kind": "judge_check",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "kind": "judge_check",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      },
+      {
+        "id": "script:2",
+        "kind": "script_fit",
+        "turn": 2,
+        "assumes": "the agent asked which item is broken or what's wrong with it",
+        "previousReply": "We’re sorry to hear an item arrived broken. Could you let me know which product from order #1074 was damaged?"
+      }
+    ],
+    "counts": {
+      "policyViolations": 0,
+      "groundingViolations": 0,
+      "forbiddenAttempts": 0,
+      "failedChecks": 0
+    },
+    "codeStatus": "pass"
+  },
+  "stats": {
+    "modelCalls": 6,
+    "cachedCalls": 0,
+    "toolCalls": 3,
+    "inputTokens": 11403,
+    "outputTokens": 839,
+    "latencyMs": 12463,
+    "turnLatencyMs": [
+      7033,
+      5430
+    ],
+    "costMicros": 2215,
+    "wallMs": 12563
+  },
+  "finishedAt": "2026-10-06T14:19:14.436Z"
+}

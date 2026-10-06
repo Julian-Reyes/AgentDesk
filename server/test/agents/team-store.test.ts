@@ -154,7 +154,7 @@ describe("live metrics", () => {
         outcomes: { resolved: 1, failed: 1, escalated: 0, approval_needed: 0 },
         failureRate: 0.5,
         latencyMs: { p50: 200, p95: 300 },
-        costMicros: 0, // Flash-Lite is free
+        costMicros: 0, // these calls (2026-10-01/02) were on Flash-Lite's free tier, before its paid tier began on 2026-10-06
       });
       // gpt-oss-120b: 3 calls, one from the cache, so 2M input + 200K output tokens are paid.
       const oss = loadModelConfigs().models.find((x) => x.id === OSS)!;
@@ -165,6 +165,19 @@ describe("live metrics", () => {
         inputTokens: 3_000_000,
         latencyMs: { p50: 2000, p95: 3000 },
         costMicros: Math.round(2_000_000 * oss.pricing.inputPerMTok + 200_000 * oss.pricing.outputPerMTok),
+      });
+    }));
+
+  it("prices Flash-Lite's calls from its paid tier on, never its free-tier history", () =>
+    inTx(async (tx) => {
+      await run(tx, "t-free", "demo", new Date("2026-10-05T12:00:00Z"), "resolved", [{ kind: "router", agent: "router", model: LITE, latencyMs: 100 }]);
+      await run(tx, "t-paid", "demo", new Date("2026-10-07T12:00:00Z"), "resolved", [{ kind: "router", agent: "router", model: LITE, latencyMs: 100 }]);
+      const lite = loadModelConfigs().models.find((x) => x.id === LITE)!;
+      const m = await liveMetrics(tx, new Date("2026-10-01T00:00:00Z"), loadModelConfigs().models);
+      // Both calls count, but only the paid one (1M in / 100K out) is priced.
+      expect(m.find((x) => x.role === "router" && x.model === LITE)).toMatchObject({
+        calls: 2,
+        costMicros: Math.round(1_000_000 * lite.pricing.inputPerMTok + 100_000 * lite.pricing.outputPerMTok),
       });
     }));
 });

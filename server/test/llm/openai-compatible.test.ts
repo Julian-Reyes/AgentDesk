@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { ModelConfig } from "../../src/llm/config.ts";
 import {
+  outputTokens,
   ProviderError,
   createOpenAICompatibleProvider,
   describeNetworkError,
@@ -334,5 +335,18 @@ describe("network errors (Node's fetch only says 'fetch failed'; the reason is i
       retryable: true,
       reachedProvider: true,
     });
+  });
+});
+
+describe("outputTokens: thinking bills as output", () => {
+  it("uses completion_tokens when total = prompt + completion (Groq; Gemini's OpenAI endpoint on 2026-10-06)", () => {
+    expect(outputTokens({ prompt_tokens: 74, completion_tokens: 6, total_tokens: 80 })).toBe(6);
+  });
+  it("counts thinking that only shows in total_tokens", () => {
+    expect(outputTokens({ prompt_tokens: 74, completion_tokens: 6, total_tokens: 380 })).toBe(306);
+  });
+  it("copes with missing fields", () => {
+    expect(outputTokens(undefined)).toBe(0);
+    expect(outputTokens({ completion_tokens: 9 })).toBe(9);
   });
 });

@@ -1,0 +1,133 @@
+{
+  "caseId": "invalid-coupon-01",
+  "runId": "c5d0d8ba-a592-4bb0-97d6-9dab5f5b9a7e",
+  "questionSet": "2a2c12d8",
+  "agentModel": "gemini/gemini-3.5-flash-lite",
+  "judgeModel": "groq/gpt-oss-20b",
+  "rubric": "rubric@4#ed295c13",
+  "input": {
+    "caseId": "invalid-coupon-01",
+    "turns": [
+      {
+        "turn": 1,
+        "customer": "Can I use code SPRING15 on a Swift 20 Daypack? What would I pay?",
+        "reply": "The SPRING15 coupon expired on May 31, 2026, so it cannot be used. However, you can use coupon GEAR20 for 20% off items over $50. With GEAR20, the Swift 20 Daypack is $71.20, plus $7.99 for shipping, making your total $79.19. Thanks for understanding."
+      }
+    ],
+    "toolSummary": [
+      "message 1: search_products({\"query\":\"Swift 20 Daypack\"}) → {\"ok\":true,\"data\":{\"totalMatches\":9,\"products\":[{\"id\":\"pack-swift-20\",\"name\":\"Swift 20 Daypack\",\"category\":\"backpacks\",\"listPrice\":\"$89.00\",\"currentPrice\":\"$89.00\",\"rating\":4.3,\"description\":\"Light everyday daypack with a hydration sleeve.\",\"specs\":{\"material\":\"100D nylon\",\"waterproof\":false,\"weightGrams\":700,\"volumeLiters\":20},\"availability\":\"in_stock\",\"activeDeals\":[]},{\"id\":\"pack-swift-30\",\"name\":\"Swift 30 Daypack\",\"category\":\"backpacks\",\"listPrice\":\"$119.00\",\"currentPrice\":\"$119.00\",\"rating\":4.4,\"description\":\"Day-hike pack with hip belt pockets and a rain cover.\",\"specs\":{\"material\":\"100D nylon\",\"waterproof\":false,\"weightGrams\":900,\"volumeLiters\":30},\"availability\":\"in_stock\",\"activeDeals\":[]},{\"id\":\"bag-glacier-minus20\",\"name\":\"Glacier -20°C Expedition Sleeping Bag\",\"category\":\"sleeping_bags\",\"listPrice\":\"$499.00\",\"currentPrice\":\"$499.00\",\"rating\":4.9,\"description\":\"Expedition-grade bag with 800-fill down and a draft collar.\",\"specs\":{\"material\":\"800-fill down\",\"tempRatingC\":-20,\"weightGrams\":1900},\"availability\":\"in_stock\",\"activeDeals\":[]},{\"id\":\"pack-voyager-80\",\"name\":\"Voyager 80 Expedition Pack\",\"category\":\"backpacks\",\"listPrice\":\"$329.00\",\"currentPrice\":\"$329.00\",\"rating\":4.6,\"description\":\"Load-hauling expedition pack for heavy, long trips.\",\"specs\":{\"material\":\"420D nylon\",\"waterproof\":false,\"weightGrams\":2600,\"volumeLiters\":80},\"availability\":\"low_stock\",\"activeDeals\":[]},{\"id\":\"tent-ridge-2\",\"name\":\"Ridge 2 Backpacking Tent\",\"category\":\"tents\",\"listPrice\":\"$24… (trimmed)",
+      "message 1: validate_coupon({\"cart\":[{\"productId\":\"pack-swift-20\",\"qty\":1}],\"code\":\"SPRING15\"}) → {\"ok\":true,\"data\":{\"valid\":false,\"code\":\"SPRING15\",\"reason\":\"EXPIRED\",\"message\":\"Coupon SPRING15 expired on 2026-05-31.\",\"expiredOn\":\"2026-05-31\"},\"policyDecision\":\"denied\"}",
+      "message 1: get_active_promotions({}) → {\"ok\":true,\"data\":{\"promotions\":[{\"name\":\"Tent Sale: 20% off all tents\",\"endsOn\":\"2026-10-05\"},{\"name\":\"Headlamps: buy 2, get 1 free\",\"endsOn\":\"2026-10-15\"}],\"freeShipping\":\"Free shipping on orders of $75.00 or more; otherwise $7.99.\",\"couponCodes\":[{\"code\":\"SUMMER10\",\"terms\":\"10% off; expires 2026-09-30\"},{\"code\":\"TRAIL25\",\"terms\":\"$25.00 off; minimum spend $150.00; expires 2026-12-31\"},{\"code\":\"GEAR20\",\"terms\":\"20% off; minimum spend $50.00; not valid on tents, sleeping bags; expires 2026-10-30\"}],\"rules\":\"One coupon per order. Sales apply first, then buy-2-get-1, then the coupon.\"}}",
+      "message 1: quote_price({\"cart\":[{\"productId\":\"pack-swift-20\",\"qty\":1}],\"coupon\":\"GEAR20\"}) → {\"ok\":true,\"data\":{\"lines\":[{\"productId\":\"pack-swift-20\",\"name\":\"Swift 20 Daypack\",\"qty\":1,\"listPrice\":\"$89.00\",\"discounts\":[],\"lineTotal\":\"$89.00\"}],\"subtotal\":\"$89.00\",\"coupon\":{\"code\":\"GEAR20\",\"applied\":true,\"discount\":\"-$17.80\"},\"totalDiscounts\":\"-$17.80\",\"shipping\":\"$7.99\",\"total\":\"$79.19\",\"totalCents\":7919},\"policyDecision\":\"auto_approved\"}"
+    ],
+    "judgeNote": "Says SPRING15 has expired. Gives the price without a coupon ($89.00), or suggests a current code it checked for this cart, with that code's real terms and total.",
+    "checks": [
+      {
+        "id": "judge:followup",
+        "statement": "The agent never promises or implies that it will do something later that it can't do in this chat, such as notifying the customer, following up, checking back, or keeping an eye on an approval, refund or delivery. Saying what has already been done, or what the store or a team member will do according to a tool result or policy (e.g. 'a team member will review it, usually within one business day'), is fine."
+      },
+      {
+        "id": "judge:timing",
+        "statement": "Every statement about timing (when something will ship, arrive, be refunded, reviewed or processed, or how long it takes) matches a tool result or store policy shown in the conversation. Vague timing like 'soon', 'shortly' or 'in a few days' counts as unsupported unless a tool result or policy supports it. If the agent makes no timing claims, answer yes."
+      }
+    ],
+    "scriptFit": []
+  },
+  "ok": true,
+  "output": {
+    "replies": [
+      {
+        "reply": 1,
+        "tone": 5,
+        "clarity": 4,
+        "helpfulness": 5,
+        "why": "The reply clearly explains the coupon status, offers a valid alternative, and gives the exact price and shipping, meeting all customer needs."
+      }
+    ],
+    "checks": [
+      {
+        "id": "judge:followup",
+        "answer": true,
+        "why": "The agent only informs about coupon expiration and offers an alternative coupon, with no future promises or actions beyond what is already possible in the chat. This complies with the rule. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "id": "judge:timing",
+        "answer": true,
+        "why": "The agent made no statements about shipping, arrival, refunds, or processing times, so there are no timing claims to evaluate. Answer: yes.",
+        "votes": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "scriptFit": []
+  },
+  "answers": {
+    "judge:followup": true,
+    "judge:timing": true
+  },
+  "calls": [
+    {
+      "purpose": "scores",
+      "latencyMs": 646,
+      "inputTokens": 1796,
+      "outputTokens": 289,
+      "cached": false,
+      "raw": "{\"replies\":[{\"reply\":1,\"tone\":5,\"clarity\":4,\"helpfulness\":5,\"why\":\"The reply clearly explains the coupon status, offers a valid alternative, and gives the exact price and shipping, meeting all customer needs.\"}]}"
+    },
+    {
+      "purpose": "judge:timing vote 3",
+      "latencyMs": 714,
+      "inputTokens": 1552,
+      "outputTokens": 285,
+      "cached": false,
+      "raw": "{\"why\":\"The agent states the coupon expired on May 31, 2026, which matches the tool result showing the same expiration date. No other timing claims are made. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 2",
+      "latencyMs": 729,
+      "inputTokens": 1563,
+      "outputTokens": 382,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only informs about coupon expiration and offers an alternative coupon, with no future promises or actions beyond what is already available. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 3",
+      "latencyMs": 1205,
+      "inputTokens": 1563,
+      "outputTokens": 382,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only informs about coupon expiration and offers an alternative coupon, with no future promises or actions beyond what is already known. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 2",
+      "latencyMs": 1211,
+      "inputTokens": 1552,
+      "outputTokens": 341,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refunds, or processing times, so there are no timing claims to evaluate. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:followup vote 1",
+      "latencyMs": 1218,
+      "inputTokens": 1563,
+      "outputTokens": 390,
+      "cached": false,
+      "raw": "{\"why\":\"The agent only informs about coupon expiration and offers an alternative coupon, with no future promises or actions beyond what is already possible in the chat. This complies with the rule. Answer: yes.\",\"answer\":true}"
+    },
+    {
+      "purpose": "judge:timing vote 1",
+      "latencyMs": 1289,
+      "inputTokens": 1552,
+      "outputTokens": 341,
+      "cached": false,
+      "raw": "{\"why\":\"The agent made no statements about shipping, arrival, refunds, or processing times, so there are no timing claims to evaluate. Answer: yes.\",\"answer\":true}"
+    }
+  ]
+}
