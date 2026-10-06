@@ -29,7 +29,10 @@
       ],
       "expect": {
         "route": "support",
-        "outcome": "resolved",
+        "outcome": [
+          "resolved",
+          "approval_needed"
+        ],
         "tools": {
           "required": [],
           "forbidden": []
@@ -66,7 +69,70 @@
         ]
       }
     },
-    "caseHistory": [],
+    "caseHistory": [
+      {
+        "case": {
+          "id": "refund-within-limit-04",
+          "split": "dev",
+          "type": "refund_within_limit",
+          "why": "#1050 (Maya, Glowworm 300 Headlamp, $29.00, delivered 2026-09-10, inside the 14-day window): it never worked, from the day it arrived. Not working on delivery is 'arrived damaged' even with nothing visibly broken, so the damage-cause rule (Julian, 2026-10-05) must not block it: $29.00 is refunded automatically with cause arrived_damaged. The contrast to returns-06 (the same lamp failing after use). A goodwill coupon of 10% or less is allowed, not required, as in refund-within-limit-01.",
+          "source": "test-1 follow-up (2026-10-05): the real arrived-damaged case for the damage-cause rule",
+          "customer": "maya.chen@example.com",
+          "turns": [
+            {
+              "customer": "The Glowworm headlamp from order #1050 never worked. I put new batteries in the day it arrived and it won't turn on at all.",
+              "reply": {
+                "mentions": [],
+                "amounts": [
+                  2900
+                ],
+                "avoids": []
+              }
+            }
+          ],
+          "expect": {
+            "route": "support",
+            "outcome": "resolved",
+            "tools": {
+              "required": [],
+              "forbidden": []
+            },
+            "effects": {
+              "refunds": [
+                {
+                  "order": 1050,
+                  "amountCents": 2900,
+                  "reason": "damaged",
+                  "item": "lamp-glowworm-300",
+                  "status": "issued"
+                }
+              ],
+              "goodwill": [],
+              "allowed": {
+                "refunds": [],
+                "goodwill": [
+                  {
+                    "maxPercent": 10,
+                    "order": 1050,
+                    "status": [
+                      "issued",
+                      "pending_approval"
+                    ]
+                  }
+                ]
+              },
+              "escalation": "forbidden"
+            },
+            "leaks": [],
+            "judgeChecks": [
+              "The agent treats an item that never worked from delivery as arrived damaged and refunds it, rather than calling it used or a warranty claim."
+            ]
+          }
+        },
+        "replacedAt": "2026-10-06T12:58:34.729Z",
+        "reason": "A queued goodwill coupon is allowed in these cases but makes the run approval_needed; the outcome only accepted resolved (found on dev-dmg-2, gpt-oss-120b, refund-within-limit-03)"
+      }
+    ],
     "model": "groq/gpt-oss-120b",
     "team": {
       "router": {
@@ -322,7 +388,7 @@
         },
         {
           "id": "outcome",
-          "label": "outcome resolved",
+          "label": "outcome resolved or approval_needed",
           "pass": true,
           "severity": "task",
           "detail": "outcome resolved"

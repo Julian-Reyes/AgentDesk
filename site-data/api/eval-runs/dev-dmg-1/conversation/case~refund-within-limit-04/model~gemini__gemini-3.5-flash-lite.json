@@ -1,7 +1,7 @@
 {
   "ok": true,
   "data": {
-    "run": "dev-dmg-3",
+    "run": "dev-dmg-1",
     "status": "pass",
     "judge": {
       "model": "groq/gpt-oss-20b",
@@ -129,25 +129,25 @@
             ]
           }
         },
-        "replacedAt": "2026-10-06T12:58:37.394Z",
+        "replacedAt": "2026-10-06T12:58:32.014Z",
         "reason": "A queued goodwill coupon is allowed in these cases but makes the run approval_needed; the outcome only accepted resolved (found on dev-dmg-2, gpt-oss-120b, refund-within-limit-03)"
       }
     ],
-    "model": "groq/gpt-oss-120b",
+    "model": "gemini/gemini-3.5-flash-lite",
     "team": {
       "router": {
-        "model": "groq/gpt-oss-120b",
-        "provider": "groq",
+        "model": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
         "prompt": "router@1#f10fc861"
       },
       "shopping": {
-        "model": "groq/gpt-oss-120b",
-        "provider": "groq",
+        "model": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
         "prompt": "shopping@3#e36d3d2f"
       },
       "support": {
-        "model": "groq/gpt-oss-120b",
-        "provider": "groq",
+        "model": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
         "prompt": "support@4#b0bc1025"
       }
     },
@@ -162,7 +162,12 @@
           "item": "lamp-glowworm-300"
         }
       ],
-      "goodwill": [],
+      "goodwill": [
+        {
+          "percent": 10,
+          "status": "issued"
+        }
+      ],
       "escalations": 0
     },
     "steps": [
@@ -176,32 +181,32 @@
       {
         "kind": "router",
         "agent": "router",
-        "modelConfigId": "groq/gpt-oss-120b",
-        "provider": "groq",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
         "promptVersion": "router@1#f10fc861",
         "data": {
           "attempt": 1,
-          "raw": "{\"route\":\"support\",\"category\":\"damaged_item\",\"urgency\":\"normal\",\"confidence\":0.97}",
+          "raw": "{\"route\": \"support\", \"category\": \"damaged_item\", \"urgency\": \"high\", \"confidence\": 0.99}",
           "decision": {
             "route": "support",
             "category": "damaged_item",
-            "urgency": "normal",
-            "confidence": 0.97
+            "urgency": "high",
+            "confidence": 0.99
           },
           "fallback": false
         },
-        "inputTokens": 438,
-        "outputTokens": 160,
-        "latencyMs": 587,
+        "inputTokens": 366,
+        "outputTokens": 30,
+        "latencyMs": 733,
         "cached": false,
-        "costMicros": 162,
+        "costMicros": 0,
         "turn": 1
       },
       {
         "kind": "model_call",
         "agent": "support",
-        "modelConfigId": "groq/gpt-oss-120b",
-        "provider": "groq",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
         "promptVersion": "support@4#b0bc1025",
         "data": {
           "step": 1,
@@ -211,27 +216,33 @@
             "content": null,
             "toolCalls": [
               {
-                "id": "fc_994f0529-6cdf-4624-b23d-1cdc6f3e0eb5",
+                "id": "call_384868",
                 "name": "get_order",
-                "arguments": "{\"orderId\":1050}"
+                "arguments": "{\"orderId\":1050}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TkZcqlhGiobN0ma/oNqofA/y+w1D2zQSFJIvVc9OkCtS7myCQ7T3uAkORhQgOd3YctYSr/BW1rIr4oqJXnED9W8kNWeDi4xv40DHD2Y6D8Yi9EXLMCNcf7rU="
+                    }
+                  }
+                }
               }
             ]
           },
-          "reasoning": "We need to handle damaged item. Customer says headlamp never worked, put new batteries, won't turn on. That is \"arrived_damaged\". Need to check order #1050 details, confirm item. Use get_order. Then check_return_eligibility? For damaged items we can issue refund. Need to issue refund for the item amount paid. First get order.",
           "finishReason": "tool_calls"
         },
-        "inputTokens": 1858,
-        "outputTokens": 105,
-        "latencyMs": 2566,
+        "inputTokens": 2538,
+        "outputTokens": 18,
+        "latencyMs": 715,
         "cached": false,
-        "costMicros": 342,
+        "costMicros": 0,
         "turn": 1
       },
       {
         "kind": "tool_call",
         "agent": "support",
         "data": {
-          "callId": "fc_994f0529-6cdf-4624-b23d-1cdc6f3e0eb5",
+          "callId": "call_384868",
           "name": "get_order",
           "arguments": "{\"orderId\":1050}",
           "result": {
@@ -267,8 +278,8 @@
       {
         "kind": "model_call",
         "agent": "support",
-        "modelConfigId": "groq/gpt-oss-120b",
-        "provider": "groq",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
         "promptVersion": "support@4#b0bc1025",
         "data": {
           "step": 2,
@@ -278,138 +289,40 @@
             "content": null,
             "toolCalls": [
               {
-                "id": "fc_c5e07049-fedb-40d8-bbd2-6b435c43ab5a",
-                "name": "get_policy",
-                "arguments": "{\"topic\":\"returns\"}"
-              }
-            ]
-          },
-          "reasoning": "The customer says \"Glowworm headlamp from order #1050 never worked. I put new batteries in the day it arrived and it won't turn on at all.\"\n\nWe need to handle damaged item. The policy: For arrived_damaged, we can issue refund (only arrived_damaged is refunded). The item is a headlamp, presumably arrived damaged. The customer reported within 14 days of delivery? Delivered on 2026-09-10. Today is 2026-10-05, that's 25 days later, beyond 14 days. However they reported now; but policy says only arrived_damaged is refunded within 14 days of delivery. Since it's beyond, we cannot automatically refund; we should check return eligibility? Actually return policy may also have timeframe. Let's fetch returns policy.",
-          "finishReason": "tool_calls"
-        },
-        "inputTokens": 2015,
-        "outputTokens": 180,
-        "latencyMs": 967,
-        "cached": false,
-        "costMicros": 410,
-        "turn": 1
-      },
-      {
-        "kind": "tool_call",
-        "agent": "support",
-        "data": {
-          "callId": "fc_c5e07049-fedb-40d8-bbd2-6b435c43ab5a",
-          "name": "get_policy",
-          "arguments": "{\"topic\":\"returns\"}",
-          "result": {
-            "ok": true,
-            "data": {
-              "topic": "returns",
-              "title": "Returns",
-              "text": "Unused items in original packaging can be returned within 30 days of delivery.\nUsed or worn items can't be returned. If a used item is defective, see the warranty policy.\nTo return an item, send it back using the return label from your account. The refund is issued to your original payment method once the warehouse receives it, usually within 5 business days.\nItems that arrived damaged follow the damaged-items policy instead.\nItems damaged after delivery (dropped, broken in an accident, or stopped working after use) can't be returned. If it's a manufacturing defect, see the warranty policy."
-            }
-          }
-        },
-        "turn": 1
-      },
-      {
-        "kind": "model_call",
-        "agent": "support",
-        "modelConfigId": "groq/gpt-oss-120b",
-        "provider": "groq",
-        "promptVersion": "support@4#b0bc1025",
-        "data": {
-          "step": 3,
-          "context": "The customer is signed in as Maya Chen (maya.chen@example.com).",
-          "message": {
-            "role": "assistant",
-            "content": null,
-            "toolCalls": [
-              {
-                "id": "fc_ab6ab36f-852b-46e6-a754-e47684c21e47",
-                "name": "check_return_eligibility",
-                "arguments": "{\"condition\":\"arrived_damaged\",\"item\":\"Glowworm 300 Headlamp\",\"orderId\":1050}"
-              }
-            ]
-          },
-          "reasoning": "The customer says headlamp never worked, put new batteries, won't turn on. That's a defect at arrival. Should be considered \"arrived_damaged\" maybe. The policy says items arrived damaged follow damaged-items policy. We need to check return eligibility with condition \"arrived_damaged\". Then possibly issue refund or goodwill? For damaged items, we can issue refund via issue_refund with cause arrived_damaged, reason damaged. Need to get eligibility first.\n\nLet's call check_return_eligibility.",
-          "finishReason": "tool_calls"
-        },
-        "inputTokens": 2179,
-        "outputTokens": 144,
-        "latencyMs": 1015,
-        "cached": false,
-        "costMicros": 413,
-        "turn": 1
-      },
-      {
-        "kind": "tool_call",
-        "agent": "support",
-        "data": {
-          "callId": "fc_ab6ab36f-852b-46e6-a754-e47684c21e47",
-          "name": "check_return_eligibility",
-          "arguments": "{\"condition\":\"arrived_damaged\",\"item\":\"Glowworm 300 Headlamp\",\"orderId\":1050}",
-          "result": {
-            "ok": true,
-            "data": {
-              "orderNumber": 1050,
-              "item": "Glowworm 300 Headlamp",
-              "eligible": false,
-              "code": "USE_DAMAGED_ITEM_PROCESS",
-              "message": "Items that arrived damaged follow the damaged-items process instead of a normal return (report within 14 days of delivery).",
-              "details": {
-                "daysSinceDelivery": 5,
-                "withinDamageWindow": true
-              }
-            },
-            "policyDecision": "denied"
-          }
-        },
-        "policyDecision": "denied",
-        "turn": 1
-      },
-      {
-        "kind": "model_call",
-        "agent": "support",
-        "modelConfigId": "groq/gpt-oss-120b",
-        "provider": "groq",
-        "promptVersion": "support@4#b0bc1025",
-        "data": {
-          "step": 4,
-          "context": "The customer is signed in as Maya Chen (maya.chen@example.com).",
-          "message": {
-            "role": "assistant",
-            "content": null,
-            "toolCalls": [
-              {
-                "id": "fc_cc834f45-34df-41ed-b271-72388982601a",
+                "id": "call_272743",
                 "name": "issue_refund",
-                "arguments": "{\"amount\":29,\"cause\":\"arrived_damaged\",\"item\":\"Glowworm 300 Headlamp\",\"note\":\"Headlamp never turned on with new batteries.\",\"orderId\":1050,\"reason\":\"damaged\"}"
+                "arguments": "{\"amount\":29,\"orderId\":1050,\"cause\":\"arrived_damaged\",\"reason\":\"damaged\",\"item\":\"Glowworm 300 Headlamp\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0Tn96amP2bWlTyEWqRJ5UXQNOVb3GaBmwZmVhwhCZYIZPnEqj9+FsaETnSeMzZzekQG3pHVe+TNKXU8wqU5DQeGYun68sE1FqCPhTGlrDTnCWKBYIsNmzCDT0="
+                    }
+                  }
+                }
               }
             ]
           },
-          "reasoning": "We need to respond: The headlamp arrived damaged, not eligible for return but can be processed under damaged-items. Need to issue refund? Customer says it never worked. We can issue refund for damaged item (arrived_damaged). Must issue_refund with amount equal to paid $29.00 (the item price). Also possibly shipping? The policy says damaged items get refund for item, not shipping maybe. We'll issue refund for the item amount.\n\nWe need to call issue_refund. Provide amount 29.00, cause arrived_damaged, item name, orderId 1050, reason damaged, note perhaps. Let's do that.",
           "finishReason": "tool_calls"
         },
-        "inputTokens": 2310,
-        "outputTokens": 213,
-        "latencyMs": 900,
+        "inputTokens": 2724,
+        "outputTokens": 52,
+        "latencyMs": 1020,
         "cached": false,
-        "costMicros": 474,
+        "costMicros": 0,
         "turn": 1
       },
       {
         "kind": "tool_call",
         "agent": "support",
         "data": {
-          "callId": "fc_cc834f45-34df-41ed-b271-72388982601a",
+          "callId": "call_272743",
           "name": "issue_refund",
-          "arguments": "{\"amount\":29,\"cause\":\"arrived_damaged\",\"item\":\"Glowworm 300 Headlamp\",\"note\":\"Headlamp never turned on with new batteries.\",\"orderId\":1050,\"reason\":\"damaged\"}",
+          "arguments": "{\"amount\":29,\"orderId\":1050,\"cause\":\"arrived_damaged\",\"reason\":\"damaged\",\"item\":\"Glowworm 300 Headlamp\"}",
           "result": {
             "ok": true,
             "data": {
               "status": "refunded",
-              "refundId": 134,
+              "refundId": 140,
               "amount": "$29.00",
               "message": "Refund of $29.00 issued to the original payment method."
             },
@@ -422,53 +335,109 @@
       {
         "kind": "model_call",
         "agent": "support",
-        "modelConfigId": "groq/gpt-oss-120b",
-        "provider": "groq",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
         "promptVersion": "support@4#b0bc1025",
         "data": {
-          "step": 5,
+          "step": 3,
           "context": "The customer is signed in as Maya Chen (maya.chen@example.com).",
           "message": {
             "role": "assistant",
             "content": null,
             "toolCalls": [
               {
-                "id": "fc_117f28e7-02a6-45cd-bb62-c383dd68ac71",
-                "name": "reply",
-                "arguments": "{\"message\":\"I’m sorry the Glowworm headlamp didn’t work. A refund of $29.00 has been issued to your original payment method for order #1050. Thank you for your patience.\"}"
+                "id": "call_496759",
+                "name": "issue_goodwill_coupon",
+                "arguments": "{\"customer\":\"maya.chen@example.com\",\"orderId\":1050,\"percent\":10,\"reason\":\"Glowworm 300 Headlamp arrived not working\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0T1pVpeaq+h+R5GbRvb+s67wtq9OOTGnQOU4gW1sTE1Wq7KAqIiUIZhZRUmX9FbImvsNAQCU7R2ohL361aEPzJDXUCXlcM0SFJxqza9hgzxsHGlbkkrOKJO4E="
+                    }
+                  }
+                }
               }
             ]
           },
-          "reasoning": "The user points out that the assistant used a typo \"replу\". We need to correct and send a reply using the reply tool. We have already processed the refund. So we need to inform the customer that the refund of $29.00 has been issued. Also maybe mention that the refund is to original payment method. And perhaps mention the policy. Keep short, friendly, no emojis. Use reply tool.",
-          "failedAttempts": [
-            {
-              "status": 400,
-              "code": "tool_use_failed",
-              "message": "{\"error\":{\"message\":\"Failed to parse tool call arguments as JSON\",\"type\":\"invalid_request_error\",\"code\":\"tool_use_failed\",\"failed_generation\":\"{\\\"name\\\": \\\"replу\\\", \\\"arguments\\\": I’m sorry the Glowworm 300 Headlamp didn’t work. A refund of $29.00 for that item has been processed and will be returne",
-              "failedGeneration": "{\"name\": \"replу\", \"arguments\": I’m sorry the Glowworm 300 Headlamp didn’t work. A refund of $29.00 for that item has been processed and will be returned to your original payment method. If you’d like a replacement or have any other concerns, just let us know. Thanks for your patience.\"}"
-            }
-          ],
           "finishReason": "tool_calls"
         },
-        "inputTokens": 2465,
-        "outputTokens": 144,
-        "latencyMs": 1240,
+        "inputTokens": 2842,
+        "outputTokens": 55,
+        "latencyMs": 825,
         "cached": false,
-        "costMicros": 456,
+        "costMicros": 0,
         "turn": 1
       },
       {
         "kind": "tool_call",
         "agent": "support",
         "data": {
-          "callId": "fc_117f28e7-02a6-45cd-bb62-c383dd68ac71",
+          "callId": "call_496759",
+          "name": "issue_goodwill_coupon",
+          "arguments": "{\"customer\":\"maya.chen@example.com\",\"orderId\":1050,\"percent\":10,\"reason\":\"Glowworm 300 Headlamp arrived not working\"}",
+          "result": {
+            "ok": true,
+            "data": {
+              "status": "issued",
+              "code": "SORRY-1-20260915",
+              "percentOff": 10,
+              "expires": "2026-12-14",
+              "terms": "Single use, only for this customer's account."
+            },
+            "policyDecision": "auto_approved"
+          }
+        },
+        "policyDecision": "auto_approved",
+        "turn": 1
+      },
+      {
+        "kind": "model_call",
+        "agent": "support",
+        "modelConfigId": "gemini/gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "promptVersion": "support@4#b0bc1025",
+        "data": {
+          "step": 4,
+          "context": "The customer is signed in as Maya Chen (maya.chen@example.com).",
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "toolCalls": [
+              {
+                "id": "call_305979",
+                "name": "reply",
+                "arguments": "{\"message\":\"I am so sorry to hear that your Glowworm 300 Headlamp arrived not working. I have issued a refund of $29.00 to your original payment method. As an apology for the trouble, I have also added a 10% off coupon to your account (code: SORRY-1-20260915, valid until December 14, 2026). Thanks for understanding.\"}",
+                "providerData": {
+                  "extra_content": {
+                    "google": {
+                      "thought_signature": "EmAKXgFpFH0TIXHLbenWjXGsIyOLOvISxmZkC+paBWeXDDkeRqJirYx/xzXh5D1OjLYj9CrqPUJRDF0bT6Ln/yPVqTa0hjkqvZtpiXQEJHFfmIeZPLs7tJOPqYTTtRcH40g="
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "finishReason": "tool_calls"
+        },
+        "inputTokens": 2980,
+        "outputTokens": 106,
+        "latencyMs": 1047,
+        "cached": false,
+        "costMicros": 0,
+        "turn": 1
+      },
+      {
+        "kind": "tool_call",
+        "agent": "support",
+        "data": {
+          "callId": "call_305979",
           "name": "reply",
-          "arguments": "{\"message\":\"I’m sorry the Glowworm headlamp didn’t work. A refund of $29.00 has been issued to your original payment method for order #1050. Thank you for your patience.\"}",
+          "arguments": "{\"message\":\"I am so sorry to hear that your Glowworm 300 Headlamp arrived not working. I have issued a refund of $29.00 to your original payment method. As an apology for the trouble, I have also added a 10% off coupon to your account (code: SORRY-1-20260915, valid until December 14, 2026). Thanks for understanding.\"}",
           "result": {
             "ok": true,
             "data": {
               "delivered": true,
-              "message": "I’m sorry the Glowworm headlamp didn’t work. A refund of $29.00 has been issued to your original payment method for order #1050. Thank you for your patience."
+              "message": "I am so sorry to hear that your Glowworm 300 Headlamp arrived not working. I have issued a refund of $29.00 to your original payment method. As an apology for the trouble, I have also added a 10% off coupon to your account (code: SORRY-1-20260915, valid until December 14, 2026). Thanks for understanding."
             }
           }
         },
@@ -478,7 +447,7 @@
         "kind": "reply",
         "agent": "support",
         "data": {
-          "message": "I’m sorry the Glowworm headlamp didn’t work. A refund of $29.00 has been issued to your original payment method for order #1050. Thank you for your patience."
+          "message": "I am so sorry to hear that your Glowworm 300 Headlamp arrived not working. I have issued a refund of $29.00 to your original payment method. As an apology for the trouble, I have also added a 10% off coupon to your account (code: SORRY-1-20260915, valid until December 14, 2026). Thanks for understanding."
         },
         "turn": 1
       }
@@ -510,6 +479,12 @@
           "label": "refund: $29.00 damaged refund on #1050 (lamp-glowworm-300), issued",
           "pass": true,
           "severity": "task"
+        },
+        {
+          "id": "goodwill_allowed:4",
+          "label": "allowed goodwill coupon: 10%, issued",
+          "pass": true,
+          "severity": "policy"
         },
         {
           "id": "money_unexpected",
@@ -574,36 +549,38 @@
           {
             "reply": 1,
             "tone": 5,
-            "clarity": 5,
+            "clarity": 4,
             "helpfulness": 5,
-            "why": "The reply apologizes, clearly states the refund and order details, and fully addresses the customer's issue."
+            "why": "The reply is warm, clear, and fully addresses the refund and goodwill offer."
           }
         ],
         "checks": [
           {
             "id": "judge:0",
             "answer": true,
-            "why": "The agent issued a refund for the headlamp that never worked, without referencing a warranty claim or labeling it as used. This indicates the agent treated the item as arrived damaged and refunded it, rather than calling it used or a warranty claim. Answer: yes."
+            "why": "The agent explicitly states the headlamp arrived not working and issues a refund, treating it as an arrival damage rather than a used or warranty issue. Answer: yes."
           },
           {
             "id": "judge:followup",
             "answer": true,
-            "why": "The agent only states that a refund has already been issued, which is a completed action, and does not promise any future action that it cannot perform. This complies with the rule. Answer: yes.",
+            "why": "The agent only reports actions already completed (refund issued, coupon added) and does not promise or imply any future action that it cannot perform in this chat. Therefore the reply complies with the rule.",
             "votes": [
               true,
               true,
               true
-            ]
+            ],
+            "noConclusion": 3
           },
           {
             "id": "judge:timing",
             "answer": true,
-            "why": "The agent states the refund has been issued, which matches the tool result showing status \"refunded\" and the message confirming the refund. No other timing claims are made. Answer: yes.",
+            "why": "The agent states the refund was issued and the coupon expires on December 14, 2026, both of which match the tool results (refund status \"refunded\" and coupon expiration \"2026-12-14\"). No other timing claims are made. Answer: yes.",
             "votes": [
               true,
               true,
               true
-            ]
+            ],
+            "noConclusion": 2
           }
         ],
         "scriptFit": []
@@ -611,17 +588,17 @@
       "error": null
     },
     "stats": {
-      "modelCalls": 6,
+      "modelCalls": 5,
       "cachedCalls": 0,
-      "toolCalls": 4,
-      "inputTokens": 11265,
-      "outputTokens": 946,
-      "latencyMs": 7275,
+      "toolCalls": 3,
+      "inputTokens": 11450,
+      "outputTokens": 261,
+      "latencyMs": 4340,
       "turnLatencyMs": [
-        7275
+        4340
       ],
-      "costMicros": 2257,
-      "wallMs": 8586
+      "costMicros": 0,
+      "wallMs": 4411
     },
     "providerError": null
   }
