@@ -60,7 +60,7 @@ const STATUS_ORDER: Record<EvalStatus, number> = { current: 0, retired: 1, forme
  * The Agents page shows eval results, not live chats (Julian, 2026-10-06):
  * every evaluated model, plus the current and retired ones even without
  * results (dashes, never invented). Current first, then retired, switched
- * out, others. Each model's figures come from the first agentsPage set that
+ * out, others. Each model's figures come from the first latest set that
  * has it (test-2, else test-1).
  */
 export function evalRows(role: Pick<RoleView, "role" | "model" | "retired" | "history">, ev: AgentsEval): EvalRow[] {

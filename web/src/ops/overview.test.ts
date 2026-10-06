@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import type { ComparisonSet, ModelReport, Rate, TeamChange } from "../lib/api.ts";
-import { devGap, kpiTiles, latestDecision, shortModel, teamModel } from "./overview.ts";
+import { devGap, headlineSet, kpiTiles, latestDecision, otherRunModels, runTag, shortModel, teamModel } from "./overview.ts";
 
 const rate = (k: number, n: number, ci: [number, number] = [0, 1]): Rate => ({ k, n, rate: n ? k / n : 0, ci });
 
@@ -69,8 +69,8 @@ describe("the decision card", () => {
     expect(d.text).toBe("Switched a/x → a/y");
     expect(d.role).toBe("Orders & returns");
     expect(d.evidence).toEqual([
-      { model: "x", text: "72% task success (50–80%, test: held out)" },
-      { model: "y", text: "55% task success (50–80%, test: held out)" },
+      { model: "x", text: "72% task success (50–80%, s, test: held out)" },
+      { model: "y", text: "55% task success (50–80%, s, test: held out)" },
     ]);
   });
 });
@@ -105,5 +105,38 @@ describe("against the committed test-1 set: every number is the file's", () => {
     const dev = file("dev-round-2");
     const devFlash = dev.models.find((m) => m.model === flash.model)!.report.taskSuccess;
     expect(devGap(test1, dev)!.text).toContain(`gemini-3.5-flash-lite ${Math.round(devFlash.rate * 100)}% → ${Math.round(flash.taskSuccess.rate * 100)}%`);
+  });
+});
+
+describe("the headline: the latest results (Julian, 2026-10-06)", () => {
+  const file = (id: string) => JSON.parse(readFileSync(new URL(`../../../server/eval-results/comparisons/sets/${id}.json`, import.meta.url), "utf8")) as ComparisonSet;
+  const test2 = file("test-2");
+  const test1 = file("test-1");
+  const h = headlineSet([test2, test1])!;
+
+  it("takes test-2's models, then Qwen from test-1, each tagged with its set; test-2's winner", () => {
+    expect(h.models.map((m) => [m.model, m.from])).toEqual([
+      ["gemini/gemini-3.5-flash-lite", "test-2"],
+      ["groq/gpt-oss-120b", "test-2"],
+      ["groq/qwen3.8-27b", "test-1"],
+    ]);
+    expect(h.id).toBe("test-2");
+    expect(h.winner).toEqual(test2.winner);
+    expect(h.runs).toEqual(["test-2", "test-1"]);
+    expect(h.models[2]!.report).toEqual(test1.models.find((m) => m.model === "groq/qwen3.8-27b")!.report);
+  });
+
+  it("names the models from another run, in the tiles too", () => {
+    expect(otherRunModels(h)).toEqual([{ model: "qwen3.8-27b", run: "test-1" }]);
+    expect(runTag(h, h.models[0]!)).toBe("");
+    expect(runTag(h, h.models[2]!)).toBe(" (test-1)");
+    const tiles = kpiTiles(h, "gemini/gemini-3.5-flash-lite");
+    expect(tiles[0]!.detail).toContain(`${test2.models[0]!.report.taskSuccess.k} of`);
+    expect(tiles[1]!.detail).toMatch(/^gemini-3\.5-flash-lite · gpt-oss-120b · qwen3\.8-27b \(test-1\),/);
+  });
+
+  it("one set is that set; none is null", () => {
+    expect(otherRunModels(headlineSet([test1])!)).toEqual([]);
+    expect(headlineSet([])).toBeNull();
   });
 });

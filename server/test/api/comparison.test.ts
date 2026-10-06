@@ -13,6 +13,7 @@ describe("GET /api/comparison", () => {
     inTx(async (tx) => {
       const { data } = await json(await testApp(tx).app.request("/api/comparison"));
       expect(data.default).toBe("test-1");
+      expect(data.latest).toEqual(["test-2", "test-1"]); // the overview headline and the Agents page (Julian, 2026-10-06)
       expect(data.sets[0]).toEqual({ id: "test-1", label: expect.stringContaining("Test set"), split: "test", runs: ["test-1"], generated: true });
       expect(data.sets[1]).toEqual({ id: "test-2", label: expect.stringContaining("round 3"), split: "test", runs: ["test-2"], generated: true });
       expect(data.sets[2]).toEqual({ id: "dev-round-2", label: expect.stringContaining("round-2"), split: "dev", runs: ["dev-3-r2a", "dev-3-r2b"], generated: true });
@@ -36,7 +37,7 @@ describe("GET /api/comparison", () => {
 });
 
 describe("the Agents page's eval block", () => {
-  it("per model, from the first agentsPage set that has it: test-2, and test-1 for Qwen (Julian, 2026-10-06)", () =>
+  it("per model, from the first latest set that has it: test-2, and test-1 for Qwen (Julian, 2026-10-06)", () =>
     inTx(async (tx) => {
       const app = testApp(tx, { over: { agents: { teamFile: () => FILE } } }).app;
       const { data } = await json(await app.request("/api/agents"));

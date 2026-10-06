@@ -8,7 +8,7 @@ import { TEAM_ROLES, type TeamRole } from "../db/schema.ts";
 import { loadModelConfigs, type ModelConfig } from "../llm/config.ts";
 import { fail, ok } from "../tools/define.ts";
 import type { AppDeps } from "./app.ts";
-import { agentsPageSets, comparisonDeps } from "./comparison.ts";
+import { latestSets, comparisonDeps } from "./comparison.ts";
 
 /**
  * The Agents page: per role, the current model and prompt version, retired
@@ -68,9 +68,9 @@ export function agentRoutes(deps: AppDeps) {
         live: live.filter((l) => l.role === role),
       };
     });
-    // Eval figures per model from the first agentsPage set that has it (Julian, 2026-10-06):
+    // Eval figures per model from the first latest set that has it (Julian, 2026-10-06):
     // test-2 for the models it ran, test-1 for Qwen, which was retired before test-2.
-    const sets = agentsPageSets(comparisonDeps(deps));
+    const sets = latestSets(comparisonDeps(deps));
     const seen = new Set<string>();
     const evalBlock = sets.length
       ? {

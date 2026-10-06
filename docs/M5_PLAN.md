@@ -77,28 +77,8 @@ GitHub Pages is available "in public repositories with GitHub Free … and in pu
 6. Julian enables Pages, and we check the live site at desktop and phone width.
 7. Then the switch/retire decision (Julian, locally), re-export, and push.
 
-## 6. Moved to Milestone 7 (Julian, 2026-10-05): optional live chat on the public site
-
-Not part of M5. Kept here as the starting plan for M7. Julian already uses Render, Cloudflare and Fly.io, so M7 may use one of those instead of, or alongside, a Cloudflare Tunnel. Choose when M7 starts, after checking each one's current free terms.
-
-### Models parked for M7 (Julian, 2026-10-06)
-Kimi and DeepSeek are parked until M7. **No accounts, keys or calls before then.**
-- **Kimi K2.5 via OpenRouter, with a pinned provider** (OpenRouter's provider routing set to one upstream, so latency and behaviour don't change between calls). Not configured yet. Moonshot's own API no longer offers K2.5. Check OpenRouter's current price and the pinned provider's on their own pages when M7 starts.
-- **DeepSeek Flash** on DeepSeek's own API: already in `models.json` as `deepseek/deepseek-flash` (priced at peak, so recorded cost is an upper bound), unused. Details in `docs/FREE_TIERS.md`.
-- **Both are prepaid.** Their spending caps are agreed with Julian when M7 starts, before the first call, and added to CLAUDE.md's non-negotiables next to Groq's and Gemini's.
-
-### The original sketch: live chat through Cloudflare Tunnel
-- **What:** when Julian's machine is on, the static storefront offers **live chat** through a Cloudflare Tunnel to a local server. When the tunnel is unreachable, it falls back to the recordings automatically.
-- **A separate demo server process (`DEMO_MODE=1`):**
-  - it mounts **only the public chat routes**: no `/api/admin/*`, no traces, no approvals
-  - it uses its **own database, `agentdesk_demo`**, never `agentdesk_dev` or the test DB, so visitors can't touch dev or eval data
-  - its team is **Flash-Lite only**: paid models are refused
-  - limits: **40 live chats/day** (counted in `agentdesk_demo`), 3 new chats/hour and 20 messages/chat per visitor, 1,000-character messages
-  - a separate Gemini demo key, so the demo can't use the eval quota
-- **Reset:** an admin-only "Reset demo store" action (from the local dashboard) reseeds `agentdesk_demo`'s store tables and keeps its team history, plus an automatic nightly reset (a local scheduled job).
-- **Fallback:** the static site checks `GET <tunnel>/api/health` with a short timeout before offering live chat. It also switches to recordings when the daily cap is reached.
-- **Open issue to settle then:** a free "quick tunnel" gets a **new random URL each start**, so the static site would need a re-deploy, or a small published pointer file, each time. A fixed URL needs a domain on Cloudflare (~$10/year, spending, so approval first). I'll check Cloudflare's current terms when we get there.
-- The widget tells visitors not to type personal information. Gemini's free tier may use prompts to improve Google's products (`docs/FREE_TIERS.md`).
+## 6. Moved to Milestone 7
+Live chat on the public site moved to Milestone 7 (Julian, 2026-10-05). Its plan is now `docs/M7_PLAN.md` (moved there 2026-10-06).
 
 ## Item: the `/ops` overview page (Julian, 2026-10-02)
 

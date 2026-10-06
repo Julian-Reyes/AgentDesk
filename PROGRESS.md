@@ -13,7 +13,7 @@ _Last updated 2026-10-06._
 | M4 UI | ✅ Closed 2026-10-02 | [M4](docs/history/M4.md) |
 | M5 Deploy | ✅ Closed 2026-10-06 | [M5](docs/history/M5.md) |
 | M6 Story: final comparison runs, README, case study, polish | ✅ Closed 2026-10-06 (four items carried for Julian, below) | [M6](docs/history/M6.md) |
-| M7 Live chat on the public site, and new models (optional) | Not started. Plan: `docs/M5_PLAN.md` §6, including Kimi K2.5 (OpenRouter, pinned provider) and DeepSeek Flash, with prepaid caps agreed first | |
+| M7 Live chat on the public site, new models, Portuguese (optional) | Not started. Plan: `docs/M7_PLAN.md`: live chat; Kimi K2.5 (OpenRouter, pinned provider) and DeepSeek Flash, with prepaid caps agreed first; an EN / PT-BR switch for the site; a round-4 option for the damage cause | |
 | M8 Small open model, the 4th in the comparison (optional) | Not started; deferred from M3. Ollama on the Mac mini for development, vLLM on Modal for official runs (cost estimate and spending limit first). Setup: `docs/OLLAMA_MAC_MINI.md` | |
 
 ## Where things stand
@@ -43,7 +43,7 @@ _Last updated 2026-10-06._
    - record the README GIF
    - check the site on a phone (layout, and that the recordings play)
    - decide whether the Approvals page's model-written notes are admin-only
-3. **M7 (optional), when Julian starts it:** live chat on the public site; Kimi K2.5 and DeepSeek Flash. No accounts or calls before then.
+3. **M7 (optional), when Julian starts it** (`docs/M7_PLAN.md`): live chat on the public site; Kimi K2.5 and DeepSeek Flash (no accounts or calls before then); Portuguese for the site; a round-4 option for the damage cause.
 4. **M8 (optional):** the small open model.
 
 ## Open items

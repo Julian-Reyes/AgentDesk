@@ -229,7 +229,8 @@ export type ComparisonSet = {
   models: { model: string; report: ModelReport; repeats: { run: string; taskSuccess: Rate }[]; repeatGap: number | null }[];
   winner: Winner;
 };
-export type ComparisonList = { sets: { id: string; label: string; split: "dev" | "test"; runs: string[]; generated: boolean }[]; default: string | null };
+/** latest: the sets behind the latest results, in priority order (config/comparison.json `latest`). */
+export type ComparisonList = { sets: { id: string; label: string; split: "dev" | "test"; runs: string[]; generated: boolean }[]; default: string | null; latest: string[] };
 
 export const getComparisonList = () => request<ComparisonList>("/api/comparison");
 export const getComparisonSet = (id: string) => request<ComparisonSet>(`/api/comparison/${encodeURIComponent(id)}`);

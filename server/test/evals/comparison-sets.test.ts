@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 import { promptId } from "../../src/agents/prompts.ts";
 import { JUDGE_RUBRIC } from "../../src/evals/judge/rubric.ts";
 import { wilson } from "../../src/evals/judge/agreement.ts";
-import { buildComparisonSet, loadAgentsPageSetIds, loadComparisonConfig, pickWinner, readComparisonSet } from "../../src/evals/runner/comparison-sets.ts";
+import { buildComparisonSet, loadLatestSetIds, loadComparisonConfig, pickWinner, readComparisonSet } from "../../src/evals/runner/comparison-sets.ts";
 import { writeRunReport, type RunReportJson } from "../../src/evals/runner/finish.ts";
 import { DEFAULT_RESULTS_DIR, RunStore } from "../../src/evals/runner/store.ts";
 import { getJudgeIds } from "../../src/llm/config.ts";
@@ -102,7 +102,7 @@ describe("comparison sets", () => {
   });
 });
 
-describe("agentsPage in config/comparison.json (Julian, 2026-10-06)", () => {
+describe("latest in config/comparison.json (Julian, 2026-10-06)", () => {
   const write = (body: object) => {
     const p = join(mkdtempSync(join(tmpdir(), "cmp-")), "comparison.json");
     writeFileSync(p, JSON.stringify(body));
@@ -113,13 +113,13 @@ describe("agentsPage in config/comparison.json (Julian, 2026-10-06)", () => {
     { id: "b", label: "B", split: "test", runs: ["r2"] },
   ];
   it("lists the sets in priority order; without it, the default set", () => {
-    expect(loadAgentsPageSetIds(write({ sets, agentsPage: ["b", "a"] }))).toEqual(["b", "a"]);
-    expect(loadAgentsPageSetIds(write({ sets }))).toEqual(["a"]);
+    expect(loadLatestSetIds(write({ sets, latest: ["b", "a"] }))).toEqual(["b", "a"]);
+    expect(loadLatestSetIds(write({ sets }))).toEqual(["a"]);
   });
   it("refuses a set that isn't configured", () => {
-    expect(() => loadAgentsPageSetIds(write({ sets, agentsPage: ["c"] }))).toThrow(/unknown set "c"/);
+    expect(() => loadLatestSetIds(write({ sets, latest: ["c"] }))).toThrow(/unknown set "c"/);
   });
   it("the live config: test-2, then test-1", () => {
-    expect(loadAgentsPageSetIds()).toEqual(["test-2", "test-1"]);
+    expect(loadLatestSetIds()).toEqual(["test-2", "test-1"]);
   });
 });

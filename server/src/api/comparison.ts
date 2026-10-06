@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { loadAgentsPageSetIds, loadComparisonConfig, readComparisonSet, SETS_DIR, type ComparisonSet, type ComparisonSetSpec } from "../evals/runner/comparison-sets.ts";
+import { loadLatestSetIds, loadComparisonConfig, readComparisonSet, SETS_DIR, type ComparisonSet, type ComparisonSetSpec } from "../evals/runner/comparison-sets.ts";
 import { fail, ok } from "../tools/define.ts";
 import type { AppDeps } from "./app.ts";
 
@@ -8,13 +8,13 @@ import type { AppDeps } from "./app.ts";
  * never grading anything per request, so the page shows exactly the committed
  * numbers. Public and read-only.
  */
-export type ComparisonDeps = { config: () => ComparisonSetSpec[]; dir: string; agentsPage?: () => string[] };
+export type ComparisonDeps = { config: () => ComparisonSetSpec[]; dir: string; latest?: () => string[] };
 
-export const comparisonDeps = (deps: AppDeps): ComparisonDeps => ({ config: () => loadComparisonConfig(), dir: SETS_DIR, agentsPage: () => loadAgentsPageSetIds(), ...deps.comparison });
+export const comparisonDeps = (deps: AppDeps): ComparisonDeps => ({ config: () => loadComparisonConfig(), dir: SETS_DIR, latest: () => loadLatestSetIds(), ...deps.comparison });
 
-/** The Agents page's sets, in priority order (config agentsPage; else the default set); ones not generated yet are skipped. */
-export function agentsPageSets(c: ComparisonDeps): ComparisonSet[] {
-  const ids = c.agentsPage?.() ?? (c.config()[0] ? [c.config()[0]!.id] : []);
+/** The latest results' sets, in priority order (config `latest`; else the default set); ones not generated yet are skipped. */
+export function latestSets(c: ComparisonDeps): ComparisonSet[] {
+  const ids = c.latest?.() ?? (c.config()[0] ? [c.config()[0]!.id] : []);
   return ids.map((id) => readComparisonSet(id, c.dir)).filter((s): s is ComparisonSet => s !== null);
 }
 
@@ -29,7 +29,9 @@ export function comparisonRoutes(deps: AppDeps) {
   return new Hono()
     .get("/", (ctx) => {
       const sets = c.config().map((s) => ({ id: s.id, label: s.label, split: s.split, runs: s.runs, generated: readComparisonSet(s.id, c.dir) !== null }));
-      return ctx.json(ok({ sets, default: sets[0]?.id ?? null }));
+      // latest: the sets the overview's headline merges (each model from the first that has it).
+      const latest = (c.latest?.() ?? []).filter((id) => sets.some((s) => s.id === id && s.generated));
+      return ctx.json(ok({ sets, default: sets[0]?.id ?? null, latest }));
     })
     .get("/:id", (ctx) => {
       const id = ctx.req.param("id");

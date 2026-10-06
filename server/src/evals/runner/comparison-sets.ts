@@ -29,8 +29,8 @@ const SetSchema = z
 const FileSchema = z
   .object({
     sets: z.array(SetSchema).min(1),
-    /** The Agents page's eval figures: for each model, the first of these sets that has it (Julian, 2026-10-06). Default: the first set. */
-    agentsPage: z.array(z.string()).min(1).optional(),
+    /** The latest results (Agents page and overview): for each model, the first of these sets that has it (Julian, 2026-10-06). Default: the first set. */
+    latest: z.array(z.string()).min(1).optional(),
   })
   .strict();
 export type ComparisonSetSpec = z.infer<typeof SetSchema>;
@@ -47,12 +47,12 @@ export function loadComparisonConfig(path = COMPARISON_CONFIG): ComparisonSetSpe
   return sets;
 }
 
-/** The sets behind the Agents page's eval table, in priority order; each must be a configured set. */
-export function loadAgentsPageSetIds(path = COMPARISON_CONFIG): string[] {
-  const { sets, agentsPage } = FileSchema.parse(JSON.parse(readFileSync(path, "utf8")));
-  const ids = agentsPage ?? [sets[0]!.id];
+/** The sets behind the latest results (Agents page, overview), in priority order; each must be a configured set. */
+export function loadLatestSetIds(path = COMPARISON_CONFIG): string[] {
+  const { sets, latest } = FileSchema.parse(JSON.parse(readFileSync(path, "utf8")));
+  const ids = latest ?? [sets[0]!.id];
   const unknown = ids.find((id) => !sets.some((s) => s.id === id));
-  if (unknown) throw new Error(`config/comparison.json: agentsPage names unknown set "${unknown}"`);
+  if (unknown) throw new Error(`config/comparison.json: latest names unknown set "${unknown}"`);
   return ids;
 }
 

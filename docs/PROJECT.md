@@ -160,7 +160,7 @@ Save each conversation as a **run** containing each **step**: messages, the rout
 4. **UI.** Storefront chat widget + ops dashboard (agents, comparison, runs, approvals).
 5. **Deploy.** The real switch/retire decision (first, right after the test-run results), free hosting, the public demo limits, admin login, and the `/ops` overview page.
 6. **Story.** Final comparison runs, README, case study, and polish.
-7. **Live chat on the public site (optional).** The static site offers live chat when the author's setup is reachable, with per-visitor and daily limits, a separate demo database, a free model, and automatic fallback to the recordings. Starting plan: `docs/M5_PLAN.md`, section 6.
+7. **Live chat on the public site (optional).** The static site offers live chat when the author's setup is reachable, with per-visitor and daily limits, a separate demo database, a free model, and automatic fallback to the recordings. Plan: `docs/M7_PLAN.md`, which also holds the parked models (Kimi K2.5, DeepSeek Flash) and a Portuguese version of the site (Julian, 2026-10-06).
 8. **Small open model (optional).** The fourth model in the comparison: chosen and developed on Ollama on the Mac mini, official runs on vLLM on Modal (cost estimate and spending limit first), then added to the comparison, the dashboard and the write-up. Setup notes: `docs/OLLAMA_MAC_MINI.md`; free-tier terms: `docs/FREE_TIERS.md`.
 
 **If the scope grows too big, cut in this order:** the goodwill coupon tool, then the stock-by-variant check, then the extra models (keep at least two). **Never cut:** the evals, the grounding check, the tracing, or deployment.

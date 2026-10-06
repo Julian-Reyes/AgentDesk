@@ -17,6 +17,35 @@ export const SPLIT_LABEL: Record<ComparisonSet["split"], string> = { test: "test
 const scored = (set: ComparisonSet) => set.models.filter((m) => m.report.taskSuccess.n > 0);
 const percent = (rate: number) => Math.round(rate * 100);
 
+/**
+ * The overview's headline: the latest results (Julian, 2026-10-06). The first
+ * set's models (test-2), then models only in a later set (Qwen, from test-1),
+ * each tagged `from` its set. The winner is the first set's own: models from
+ * different runs aren't compared with each other.
+ */
+export type HeadlineSet = Omit<ComparisonSet, "models"> & { models: (ComparisonSet["models"][number] & { from: string })[] };
+
+export function headlineSet(sets: ComparisonSet[]): HeadlineSet | null {
+  const [primary] = sets;
+  if (!primary) return null;
+  const seen = new Set<string>();
+  const models = sets.flatMap((s) => s.models.filter((m) => !seen.has(m.model) && Boolean(seen.add(m.model))).map((m) => ({ ...m, from: s.id })));
+  const used = sets.filter((s) => models.some((m) => m.from === s.id));
+  return { ...primary, runs: [...new Set(used.flatMap((s) => s.runs))], models };
+}
+
+/** Models in the headline that come from another set than the first, e.g. "qwen3.8-27b (test-1)". */
+export const otherRunModels = (set: ComparisonSet) =>
+  set.models.filter((m) => runOf(m) !== null && runOf(m) !== set.id).map((m) => ({ model: shortModel(m.model), run: runOf(m)! }));
+
+const runOf = (m: ComparisonSet["models"][number]): string | null => ("from" in m && typeof m.from === "string" ? m.from : null);
+
+/** " (test-1)" after a model that comes from another set than the headline's first; "" otherwise. */
+export const runTag = (set: ComparisonSet, m: ComparisonSet["models"][number]) => {
+  const run = runOf(m);
+  return run && run !== set.id ? ` (${run})` : "";
+};
+
 /** "110" when every model had the same number of conversations, else "100–110". */
 function conversationCount(set: ComparisonSet): string {
   const ns = set.models.map((m) => m.report.conversations);
@@ -55,7 +84,7 @@ export function kpiTiles(set: ComparisonSet, team: string | null): Tile[] {
     {
       label: "Policy violations (must be 0)",
       value: violations.join(" · "),
-      detail: `${set.models.map((m) => shortModel(m.model)).join(" · ")}, ${each} conversations each · ${split}`,
+      detail: `${set.models.map((m) => `${shortModel(m.model)}${runTag(set, m)}`).join(" · ")}, ${each} conversations each · ${split}`,
       warn: violations.some((v) => v > 0),
     },
     {
@@ -87,7 +116,7 @@ export function latestDecision(roles: Pick<RoleView, "role" | "history">[], set:
   const involved = [...new Set([change.fromModel, change.model, change.toModel].filter((m): m is string => !!m))];
   const evidence = involved.flatMap((model) => {
     const r = set?.models.find((m) => m.model === model)?.report.taskSuccess;
-    return r && r.n ? [{ model: shortModel(model), text: `${pct(r.rate)} task success (${ciText(r)}, ${SPLIT_LABEL[set!.split]})` }] : [];
+    return r && r.n ? [{ model: shortModel(model), text: `${pct(r.rate)} task success (${ciText(r)}, ${set!.id}, ${SPLIT_LABEL[set!.split]})` }] : [];
   });
   return { change, role: ROLE_LABEL[change.role], text: describeChange(change), evidence };
 }

@@ -2,7 +2,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { getAgents, getComparisonList, getComparisonSet, getOverview, getSnapshotMeta, type AgentsView, type ComparisonSet, type Finding, type SafetyFact } from "../lib/api.ts";
 import { ROLE_LABEL } from "./agents.ts";
 import { ciBar, ciText, winnerText } from "./comparison.ts";
-import { SPLIT_LABEL, devGap, kpiTiles, latestDecision, shortModel, teamModel } from "./overview.ts";
+import { SPLIT_LABEL, devGap, headlineSet, kpiTiles, latestDecision, otherRunModels, runTag, shortModel, teamModel } from "./overview.ts";
 import { IS_STATIC, SITE_ROOT, type SnapshotMeta } from "../lib/static.ts";
 import { href } from "./route.ts";
 
@@ -14,7 +14,11 @@ import { href } from "./route.ts";
  * conversation passed.
  */
 export function OverviewPage() {
+  // The headline: the latest results (test-2, and test-1 for models not in it). The decision
+  // card and the dev finding use the default set (test-1): the data the decision rested on,
+  // and the same prompt round as dev.
   const [set, setSet] = useState<ComparisonSet | null>(null);
+  const [decisionSet, setDecisionSet] = useState<ComparisonSet | null | undefined>(undefined); // undefined = still loading
   const [dev, setDev] = useState<ComparisonSet | null>(null);
   const [agents, setAgents] = useState<AgentsView | null>(null);
   const [curated, setCurated] = useState<{ safety: SafetyFact[]; findings: Finding[] } | null>(null);
@@ -25,7 +29,10 @@ export function OverviewPage() {
   useEffect(() => {
     const fail = (e: Error) => setError(e.message);
     getComparisonList().then((list) => {
-      if (list.default) getComparisonSet(list.default).then(setSet, fail);
+      const latest = list.latest?.length ? list.latest : list.default ? [list.default] : [];
+      Promise.all(latest.map((id) => getComparisonSet(id))).then((sets) => setSet(headlineSet(sets)), fail);
+      if (list.default) getComparisonSet(list.default).then(setDecisionSet, fail);
+      else setDecisionSet(null);
       const devId = list.sets.find((s) => s.split === "dev" && s.generated && s.id !== list.default)?.id;
       if (devId) getComparisonSet(devId).then(setDev, fail);
     }, fail);
@@ -35,12 +42,13 @@ export function OverviewPage() {
   }, []);
 
   if (error) return <p className="rounded-md bg-rust-50 p-3 text-sm text-rust-600">{error}</p>;
-  if (!set || !agents || !curated) return <p className="text-stone-500">Loading…</p>;
+  if (!set || !agents || !curated || decisionSet === undefined) return <p className="text-stone-500">Loading…</p>;
 
   const team = teamModel(agents.roles);
   const tiles = kpiTiles(set, team);
-  const decision = latestDecision(agents.roles, set);
-  const gap = devGap(set, dev);
+  const decision = latestDecision(agents.roles, decisionSet);
+  const gap = devGap(decisionSet, dev);
+  const others = otherRunModels(set);
 
   return (
     <div className="space-y-10">
@@ -58,7 +66,8 @@ export function OverviewPage() {
               </a>
             </span>
           ))}{" "}
-          ({SPLIT_LABEL[set.split]}{set.split === "test" ? ", never tuned on" : ""}). Judge {set.judge}. Intervals are 95%.
+          ({SPLIT_LABEL[set.split]}{set.split === "test" ? ", never tuned on" : ""}).
+          {others.length > 0 && ` ${set.id} for every model it ran; ${others.map((o) => `${o.model} from ${o.run}`).join(", ")} (not in ${set.id}).`} Judge {set.judge}. Intervals are 95%.
         </p>
       </section>
 
@@ -127,8 +136,9 @@ export function OverviewPage() {
             const bar = ciBar(m.report.taskSuccess);
             return (
               <div key={m.model} className="grid grid-cols-[minmax(0,9rem)_1fr_5.5rem] items-center gap-3 sm:grid-cols-[12rem_1fr_7rem]">
-                <p className="truncate text-sm font-semibold" title={m.model}>
+                <p className="truncate text-sm font-semibold" title={`${m.model}${runTag(set, m)}`}>
                   {shortModel(m.model)}
+                  {runTag(set, m) && <span className="font-normal text-stone-500">{runTag(set, m)}</span>}
                 </p>
                 <div className="relative h-5 rounded bg-stone-100" role="img" aria-label={`${shortModel(m.model)}: ${Math.round(m.report.taskSuccess.rate * 100)}%, interval ${ciText(m.report.taskSuccess)}`}>
                   {bar && (
@@ -154,7 +164,11 @@ export function OverviewPage() {
             <span />
           </div>
         </div>
-        <p className={`rounded-lg p-3 text-sm ${set.winner.kind === "none" ? "bg-rust-50 text-stone-800" : "bg-forest-50 text-forest-900"}`}>{winnerText(set.winner)}</p>
+        <p className={`rounded-lg p-3 text-sm ${set.winner.kind === "none" ? "bg-rust-50 text-stone-800" : "bg-forest-50 text-forest-900"}`}>
+          {others.length > 0 && `${set.id}: `}
+          {winnerText(set.winner)}
+          {others.length > 0 && ` ${others.map((o) => o.model).join(", ")} ${others.length === 1 ? "is" : "are"} from another run, so not part of this comparison.`}
+        </p>
       </Card>
 
       {curated.safety.length > 0 && (
