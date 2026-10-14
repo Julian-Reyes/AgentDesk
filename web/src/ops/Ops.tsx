@@ -62,13 +62,20 @@ export function Ops() {
             <p className="text-lg font-semibold text-forest-800">AgentDesk ops</p>
             <p className="text-xs text-stone-500">Larchgrove Supply Co. demo · all customers and orders are fictional</p>
           </div>
-          <nav aria-label="Dashboard" className="flex gap-3 text-sm">
+          <nav aria-label="Dashboard" className="flex flex-wrap gap-x-3 gap-y-1 text-sm">
             {(
               [
                 ["overview", "Overview"],
                 ["approvals", "Approvals"],
                 ["agents", "Agents"],
-                ["comparison", "Model comparison"],
+                // Phones get the short label so the nav fits on one line.
+                [
+                  "comparison",
+                  <>
+                    <span className="md:hidden">Comparison</span>
+                    <span className="hidden md:inline">Model comparison</span>
+                  </>,
+                ],
                 ["runs", "Runs"],
               ] as const
             ).map(([p, label]) => (

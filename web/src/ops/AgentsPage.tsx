@@ -1,6 +1,21 @@
-import { useCallback, useEffect, useState, type FormEvent } from "react";
-import { changeTeam, getAgents, type AgentsView, type RoleView } from "../lib/api.ts";
-import { ROLE_LABEL, costWarning, describeChange, evalCell, evalRows, pct, retireTargets, switchTargets, tokens, usd, type EvalStatus } from "./agents.ts";
+import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from "react";
+import { changeTeam, getAgents, type AgentsView, type RoleView, type TeamRole } from "../lib/api.ts";
+import {
+  ROLE_LABEL,
+  bestInRole,
+  costWarning,
+  describeChange,
+  evalCell,
+  evalRows,
+  pct,
+  retireTargets,
+  splitModelId,
+  switchTargets,
+  tokens,
+  usd,
+  type EvalRow,
+  type EvalStatus,
+} from "./agents.ts";
 import { when } from "./approvals.ts";
 
 /** One card per role: current model, prompt version, live numbers, history, and (with the token) switch / retire / reinstate. */
@@ -57,6 +72,93 @@ const STATUS_TAG: Record<EvalStatus, { text: string; tone: string } | null> = {
   other: null,
 };
 
+/**
+ * The phone layout (mockup approved by Julian, 2026-10-14): models across,
+ * measures down, so three models fit without sideways scrolling. Task success
+ * comes first; the current model's column is shaded; the role's best score is green.
+ */
+function EvalTablePhone({ role, rows, best }: { role: TeamRole; rows: EvalRow[]; best: Set<string> }) {
+  const shade = (status: EvalStatus) => (status === "current" ? "bg-forest-50" : "");
+  const line = (label: string, cell: (row: EvalRow) => ReactNode) => (
+    <tr className="border-t border-stone-100">
+      <th scope="row" className="py-1.5 pr-1 text-left text-xs font-normal text-stone-500">
+        {label}
+      </th>
+      {rows.map((row) => (
+        <td key={row.model} className={`px-1 py-1.5 text-center ${shade(row.status)}`}>
+          {row.figures ? cell(row) : "–"}
+        </td>
+      ))}
+    </tr>
+  );
+  const group = (title: string) => (
+    <tr>
+      <th colSpan={rows.length + 1} scope="colgroup" className="pt-3 pb-1 text-left text-[11px] font-semibold uppercase tracking-wide text-stone-700">
+        {title}
+      </th>
+    </tr>
+  );
+  return (
+    <table className="w-full table-fixed text-sm tabular-nums md:hidden">
+      <colgroup>
+        <col className="w-[30%]" />
+        {rows.map((row) => (
+          <col key={row.model} />
+        ))}
+      </colgroup>
+      <thead>
+        <tr className="border-b border-stone-200 align-bottom">
+          <th className="pb-2 text-left text-xs font-normal text-stone-500">Model</th>
+          {rows.map((row) => {
+            const [provider, name] = splitModelId(row.model);
+            const tag = STATUS_TAG[row.status];
+            return (
+              <th key={row.model} scope="col" className={`px-1 pb-2 text-center font-normal ${shade(row.status)}`}>
+                <span className="block text-[11px] text-stone-500">{provider}</span>
+                <span className="block text-xs font-semibold leading-tight [overflow-wrap:anywhere]">{name}</span>
+                {tag && <span className={`text-[11px] ${tag.tone}`}>{tag.text}</span>}
+              </th>
+            );
+          })}
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row" className="py-2.5 pr-1 text-left text-xs font-semibold">
+            {role === "router" ? "Routing accuracy" : "Task success"}
+          </th>
+          {rows.map((row) => {
+            // evalCell's "80% (33/41)", split so the count sits under the percentage.
+            const [score, count] = (row.success ?? "–").split(" ");
+            return (
+              <td key={row.model} className={`px-1 py-2.5 text-center ${shade(row.status)}`}>
+                <span className={`block text-base font-semibold ${best.has(row.model) ? "text-forest-700" : ""}`}>{score}</span>
+                {count && <span className="block text-[11px] text-stone-500">{count}</span>}
+              </td>
+            );
+          })}
+        </tr>
+        {group("Outcomes")}
+        {line("Chats", (x) => x.figures!.conversations)}
+        {line("Resolved", (x) => x.figures!.outcomes.resolved)}
+        {line("Approval", (x) => x.figures!.outcomes.approval_needed)}
+        {line("Escalated", (x) => x.figures!.outcomes.escalated)}
+        {line("Errored", (x) => (
+          <>
+            {x.figures!.outcomes.failed}
+            <span className="block text-[11px] text-stone-500">{pct(x.figures!.failureRate)}</span>
+          </>
+        ))}
+        {group("Usage")}
+        {line("Tokens in", (x) => tokens(x.figures!.inputTokens))}
+        {line("Tokens out", (x) => tokens(x.figures!.outputTokens))}
+        {line("Cost", (x) => usd(x.figures!.costMicros))}
+        {line("Eval run", (x) => <span className="text-xs text-stone-500">{x.set}</span>)}
+      </tbody>
+    </table>
+  );
+}
+
 function RoleCard({ role: r, data, token, onChanged }: { role: RoleView; data: AgentsView; token: string | null; onChanged: () => Promise<void> }) {
   const rows = evalRows(r, data.eval);
   return (
@@ -79,7 +181,9 @@ function RoleCard({ role: r, data, token, onChanged }: { role: RoleView; data: A
         <p className="text-sm text-stone-500">No comparison data yet (npm run eval:sets).</p>
       ) : (
         <>
-          <div className="-mx-4 overflow-x-auto px-4">
+          <EvalTablePhone role={r.role} rows={rows} best={bestInRole(data.eval, r.role, rows.map((x) => x.model))} />
+          {/* The wide table needs ~40rem; below md it would scroll sideways, so phones get the transposed one above. */}
+          <div className="-mx-4 hidden overflow-x-auto px-4 md:block">
             <table className="w-full min-w-[40rem] whitespace-nowrap text-left text-sm tabular-nums">
               <thead className="text-xs text-stone-500">
                 <tr>

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { ModelOption } from "../lib/api.ts";
-import { costWarning, describeChange, evalCell, evalRows, ms, pct, retireTargets, switchTargets, tokens, usd } from "./agents.ts";
+import { bestInRole, costWarning, describeChange, evalCell, evalRows, splitModelId, ms, pct, retireTargets, switchTargets, tokens, usd } from "./agents.ts";
 
 const model = (id: string, paid = false): ModelOption => ({ id, provider: id.split("/")[0]!, paid, pricing: paid ? { inputPerMTok: 0.15, outputPerMTok: 0.6 } : { inputPerMTok: 0, outputPerMTok: 0 } });
 const MODELS = [model("gemini/lite"), model("groq/oss", true), model("groq/qwen", true)];
@@ -76,5 +76,24 @@ describe("the eval table on the Agents page (Julian, 2026-10-06)", () => {
       { model: "groq/qwen", status: "retired", set: null, figures: null, success: null },
     ]);
     expect(evalCell(ev, "shopping", "groq/unknown")).toBeNull();
+  });
+
+  it("finds the best score per role for the phone layout, not always the current model", () => {
+    const all = ["gemini/lite", "groq/oss", "groq/qwen"];
+    expect([...bestInRole(ev, "shopping", all)]).toEqual(["gemini/lite"]);
+    expect([...bestInRole(ev, "router", all)]).toEqual(["groq/oss"]);
+  });
+
+  it("marks ties as best, and nothing when fewer than two models have a score", () => {
+    const tied = { ...ev, models: ev.models.map((m) => ({ ...m, byRole: { ...m.byRole, router: rate(100, 110) } })) };
+    expect([...bestInRole(tied, "router", ["gemini/lite", "groq/oss"])]).toEqual(["gemini/lite", "groq/oss"]);
+    expect(bestInRole(ev, "router", ["gemini/lite", "groq/unknown"]).size).toBe(0);
+    expect(bestInRole(null, "router", ["gemini/lite", "groq/oss"]).size).toBe(0);
+  });
+
+  it("splits a model id into provider and name", () => {
+    expect(splitModelId("gemini/gemini-3.5-flash-lite")).toEqual(["gemini", "gemini-3.5-flash-lite"]);
+    expect(splitModelId("openrouter/moonshot/kimi-k2.5")).toEqual(["openrouter", "moonshot/kimi-k2.5"]);
+    expect(splitModelId("local")).toEqual(["", "local"]);
   });
 });

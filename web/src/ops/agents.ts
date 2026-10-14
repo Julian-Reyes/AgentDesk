@@ -76,6 +76,27 @@ export function evalRows(role: Pick<RoleView, "role" | "model" | "retired" | "hi
 }
 
 /**
+ * The models with the role's top score (ties all count), for the green
+ * highlight on the phone layout. Empty unless at least two models have a
+ * score: one model alone isn't "best" at anything.
+ */
+export function bestInRole(ev: AgentsEval, role: TeamRole, models: string[]): Set<string> {
+  const scored = models.flatMap((model) => {
+    const r = ev?.models.find((x) => x.model === model)?.byRole[role];
+    return r?.n ? [{ model, rate: r.rate }] : [];
+  });
+  if (scored.length < 2) return new Set();
+  const top = Math.max(...scored.map((s) => s.rate));
+  return new Set(scored.filter((s) => s.rate === top).map((s) => s.model));
+}
+
+/** "gemini/gemini-3.5-flash-lite" → ["gemini", "gemini-3.5-flash-lite"], for the two-line column header. */
+export function splitModelId(id: string): [provider: string, name: string] {
+  const i = id.indexOf("/");
+  return i < 0 ? ["", id] : [id.slice(0, i), id.slice(i + 1)];
+}
+
+/**
  * A table cell: "59% (24/41)", the role's own score; null without results
  * (never invented). Policy violations are counted per model over the whole
  * run, not per role, so they're on the Model comparison page, not here.
