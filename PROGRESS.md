@@ -2,7 +2,7 @@
 
 Read this file at the start of a session. The full history, with every decision and its reasons, is in `docs/history/M1.md` … `M5.md`. Open those only when a task needs the detail. The spec is `docs/PROJECT.md`.
 
-_Last updated 2026-10-06._
+_Last updated 2026-10-14._
 
 ## Milestones
 | | Status | History |
@@ -40,8 +40,7 @@ _Last updated 2026-10-06._
 1. **The public site:** https://julianreyes.dev/AgentDesk/ (dashboard `/AgentDesk/ops/`), a static snapshot on GitHub Pages. To update: commit, `npm run export:static`, commit `site-data/`, push.
 2. **Julian, carried from M6:**
    - edit `CASE_STUDY.md` (drafted; every number has a source note)
-   - record the README GIF
-   - check the site on a phone (layout, and that the recordings play)
+   - check that the storefront's chat recordings play on a phone (the layout was checked on a phone 2026-10-14)
    - decide whether the Approvals page's model-written notes are admin-only
 3. **M7 (optional), when Julian starts it** (`docs/M7_PLAN.md`): live chat on the public site; Kimi K2.5 and DeepSeek Flash (no accounts or calls before then); Portuguese for the site; a round-4 option for the damage cause.
 4. **M8 (optional):** the small open model.

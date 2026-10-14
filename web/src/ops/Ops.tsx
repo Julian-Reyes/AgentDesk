@@ -7,6 +7,7 @@ import { ApprovalsPage } from "./ApprovalsPage.tsx";
 import { ComparisonPage } from "./ComparisonPage.tsx";
 import { OverviewPage } from "./OverviewPage.tsx";
 import { parseRoute } from "./route.ts";
+import { applyTheme, pickTheme, saveTheme, savedTheme, type Theme } from "./theme.ts";
 import { EvalConversationPage, EvalRunPage, EvalRunsPage, LiveRunPage, LiveRunsPage } from "./RunsPages.tsx";
 
 /**
@@ -34,6 +35,50 @@ function useHash() {
   return hash;
 }
 
+/**
+ * Light / dark. Top right: at the end of the nav row on wider screens; pinned
+ * to the header's corner on phones, where the nav sits under the title.
+ */
+function ThemeToggle() {
+  const [theme, setTheme] = useState<Theme>(() => pickTheme(savedTheme(), matchMedia("(prefers-color-scheme: dark)").matches));
+  // Until a choice is saved, follow the device if it changes (e.g. at sunset).
+  useEffect(() => {
+    const mq = matchMedia("(prefers-color-scheme: dark)");
+    const on = () => {
+      if (!savedTheme()) setTheme(mq.matches ? "dark" : "light");
+    };
+    mq.addEventListener("change", on);
+    return () => mq.removeEventListener("change", on);
+  }, []);
+  useEffect(() => applyTheme(theme), [theme]);
+  const next: Theme = theme === "dark" ? "light" : "dark";
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        saveTheme(next);
+        setTheme(next);
+      }}
+      aria-label={`Switch to ${next} mode`}
+      title={`Switch to ${next} mode`}
+      className="absolute top-4 right-4 rounded-md border border-stone-200 p-1.5 text-stone-600 hover:text-forest-700 focus-visible:outline-2 focus-visible:outline-forest-600 sm:static"
+    >
+      {theme === "dark" ? (
+        // Sun: tap for light.
+        <svg viewBox="0 0 20 20" className="size-4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden="true">
+          <circle cx="10" cy="10" r="3.5" />
+          <path d="M10 1.5v2M10 16.5v2M1.5 10h2M16.5 10h2M4 4l1.4 1.4M14.6 14.6 16 16M4 16l1.4-1.4M14.6 5.4 16 4" />
+        </svg>
+      ) : (
+        // Moon: tap for dark.
+        <svg viewBox="0 0 20 20" className="size-4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" aria-hidden="true">
+          <path d="M16.5 12.3A7 7 0 0 1 7.7 3.5a7 7 0 1 0 8.8 8.8Z" />
+        </svg>
+      )}
+    </button>
+  );
+}
+
 export function Ops() {
   const hash = useHash();
   const [token, setToken] = useState<string | null>(storedToken);
@@ -57,36 +102,39 @@ export function Ops() {
   return (
     <div className="min-h-screen">
       <header className="border-b border-stone-200 bg-white">
-        <div className={`mx-auto flex ${width} flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between`}>
-          <div>
+        <div className={`relative mx-auto flex ${width} flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between`}>
+          <div className="pr-10 sm:pr-0">
             <p className="text-lg font-semibold text-forest-800">AgentDesk ops</p>
             <p className="text-xs text-stone-500">Larchgrove Supply Co. demo · all customers and orders are fictional</p>
           </div>
-          <nav aria-label="Dashboard" className="flex flex-wrap gap-x-3 gap-y-1 text-sm">
-            {(
-              [
-                ["overview", "Overview"],
-                ["approvals", "Approvals"],
-                ["agents", "Agents"],
-                // Phones get the short label so the nav fits on one line.
+          <div className="flex items-center gap-4">
+            <nav aria-label="Dashboard" className="flex flex-wrap gap-x-3 gap-y-1 text-sm">
+              {(
                 [
-                  "comparison",
-                  <>
-                    <span className="md:hidden">Comparison</span>
-                    <span className="hidden md:inline">Model comparison</span>
-                  </>,
-                ],
-                ["runs", "Runs"],
-              ] as const
-            ).map(([p, label]) => (
-              <a key={p} href={p === "overview" ? "#/" : `#/${p}`} aria-current={section === p ? "page" : undefined} className={section === p ? "font-semibold text-forest-800" : "text-stone-600 hover:text-forest-700"}>
-                {label}
+                  ["overview", "Overview"],
+                  ["approvals", "Approvals"],
+                  ["agents", "Agents"],
+                  // Phones get the short label so the nav fits on one line.
+                  [
+                    "comparison",
+                    <>
+                      <span className="md:hidden">Comparison</span>
+                      <span className="hidden md:inline">Model comparison</span>
+                    </>,
+                  ],
+                  ["runs", "Runs"],
+                ] as const
+              ).map(([p, label]) => (
+                <a key={p} href={p === "overview" ? "#/" : `#/${p}`} aria-current={section === p ? "page" : undefined} className={section === p ? "font-semibold text-forest-800" : "text-stone-600 hover:text-forest-700"}>
+                  {label}
+                </a>
+              ))}
+              <a href={SITE_ROOT} className="text-stone-600 hover:text-forest-700">
+                Storefront
               </a>
-            ))}
-            <a href={SITE_ROOT} className="text-stone-600 hover:text-forest-700">
-              Storefront
-            </a>
-          </nav>
+            </nav>
+            <ThemeToggle />
+          </div>
         </div>
         {!IS_STATIC && <AdminToken token={token} onChange={saveToken} width={width} />}
       </header>
